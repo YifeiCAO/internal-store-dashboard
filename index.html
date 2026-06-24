@@ -256,7 +256,7 @@
       background: var(--panel);
     }
 
-    #resultTable td::before {
+    .stack-table td::before {
       display: none;
     }
 
@@ -471,23 +471,23 @@
         padding: 8px;
       }
 
-      #resultTable {
+      .stack-table {
         border: 0;
         background: transparent;
       }
 
-      #resultTable thead {
+      .stack-table thead {
         display: none;
       }
 
-      #resultTable tbody,
-      #resultTable tr,
-      #resultTable td {
+      .stack-table tbody,
+      .stack-table tr,
+      .stack-table td {
         display: block;
         width: 100%;
       }
 
-      #resultTable tr {
+      .stack-table tr {
         border: 1px solid var(--line);
         border-radius: 8px;
         background: #fff;
@@ -495,7 +495,7 @@
         overflow: hidden;
       }
 
-      #resultTable td {
+      .stack-table td {
         display: flex;
         justify-content: space-between;
         gap: 12px;
@@ -503,11 +503,11 @@
         white-space: normal;
       }
 
-      #resultTable td:last-child {
+      .stack-table td:last-child {
         border-bottom: 0;
       }
 
-      #resultTable td::before {
+      .stack-table td::before {
         content: attr(data-label);
         display: block;
         color: var(--muted);
@@ -542,7 +542,7 @@
           <div class="badge-row">
             <span class="badge"><span class="dot green"></span>S1/S2 smoke passed</span>
             <span class="badge"><span class="dot blue"></span>Label-free context scaffold</span>
-            <span class="badge"><span class="dot amber"></span>S3 learned PFC ready</span>
+            <span class="badge"><span class="dot amber"></span>S3 PFC controller wired</span>
           </div>
         </article>
         <article class="status-card">
@@ -589,7 +589,7 @@
           </div>
           <div class="panel">
             <h2>Latest Rows</h2>
-            <table id="resultTable">
+            <table id="resultTable" class="stack-table">
               <thead>
                 <tr>
                   <th>model</th>
@@ -602,6 +602,22 @@
               <tbody></tbody>
             </table>
           </div>
+        </div>
+        <div class="panel" style="margin-top: 14px;">
+          <h2>PFC Controller Smoke</h2>
+          <table id="pfcTable" class="stack-table">
+            <thead>
+              <tr>
+                <th>model</th>
+                <th>pfc</th>
+                <th>recall</th>
+                <th>crosstalk</th>
+                <th>ctx entropy</th>
+                <th>L24 / L48 / L96</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
         </div>
       </section>
 
@@ -684,8 +700,8 @@
                 </tr>
                 <tr>
                   <td>S3 Learned PFC</td>
-                  <td><span class="model-pill"><span class="dot amber"></span>entry wired</span></td>
-                  <td>context separation loss + held-out room probe</td>
+                  <td><span class="model-pill"><span class="dot amber"></span>arch wired</span></td>
+                  <td>GRU / window Transformer controllers; probe still next</td>
                 </tr>
                 <tr>
                   <td>S4 Baselines</td>
@@ -928,6 +944,36 @@
       }
     ];
 
+    const pfcRows = [
+      {
+        model: "internal_gru",
+        pfc: "GRU",
+        color: "#6d5bd0",
+        recall: 0.8996763754,
+        crosstalk: 0.1003236246,
+        ctxEntropy: 1.055,
+        lengths: {24: 64.0, 48: 64.0, 96: 64.0}
+      },
+      {
+        model: "internal_window",
+        pfc: "window Transformer",
+        color: "#0f8f9d",
+        recall: 0.854368932,
+        crosstalk: 0.145631068,
+        ctxEntropy: 1.095,
+        lengths: {24: 64.0, 48: 64.0, 96: 64.0}
+      },
+      {
+        model: "bank_window",
+        pfc: "window Transformer",
+        color: "#c47a13",
+        recall: 0.8187702265,
+        crosstalk: 0.1715210356,
+        ctxEntropy: 1.094,
+        lengths: {24: 15.75, 48: 29.875, 96: 53.875}
+      }
+    ];
+
     function fmt(value, digits = 3) {
       return Number(value).toFixed(digits).replace(/\.?0+$/, "");
     }
@@ -942,6 +988,23 @@
           <td data-label="recall" class="num">${fmt(row.recall)}</td>
           <td data-label="crosstalk" class="num">${fmt(row.crosstalk)}</td>
           <td data-label="footprint" class="num">${fmt(row.footprint, 1)}</td>
+          <td data-label="L24/L48/L96" class="num">${fmt(row.lengths[24], 3)} / ${fmt(row.lengths[48], 3)} / ${fmt(row.lengths[96], 3)}</td>
+        `;
+        tbody.appendChild(tr);
+      }
+    }
+
+    function populatePfcTable() {
+      const tbody = document.querySelector("#pfcTable tbody");
+      tbody.innerHTML = "";
+      for (const row of pfcRows) {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td data-label="model"><span class="model-pill"><span class="dot" style="background:${row.color}"></span>${row.model}</span></td>
+          <td data-label="pfc">${row.pfc}</td>
+          <td data-label="recall" class="num">${fmt(row.recall)}</td>
+          <td data-label="crosstalk" class="num">${fmt(row.crosstalk)}</td>
+          <td data-label="ctx entropy" class="num">${fmt(row.ctxEntropy)}</td>
           <td data-label="L24/L48/L96" class="num">${fmt(row.lengths[24], 3)} / ${fmt(row.lengths[48], 3)} / ${fmt(row.lengths[96], 3)}</td>
         `;
         tbody.appendChild(tr);
@@ -1028,6 +1091,7 @@
 
     function render() {
       populateTable();
+      populatePfcTable();
       updateMetrics();
       drawLineChart(document.querySelector("#footprintChart"), latestRows);
     }
