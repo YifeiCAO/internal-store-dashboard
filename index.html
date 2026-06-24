@@ -1,0 +1,1039 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Internal Store Research Dashboard</title>
+  <style>
+    :root {
+      --bg: #f6f7f9;
+      --panel: #ffffff;
+      --ink: #18202a;
+      --muted: #5f6b7a;
+      --line: #d9dee7;
+      --blue: #2563eb;
+      --green: #119c6a;
+      --amber: #c47a13;
+      --red: #c2413a;
+      --violet: #6d5bd0;
+      --teal: #0f8f9d;
+      --shadow: 0 12px 36px rgba(24, 32, 42, 0.08);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font: 14px/1.5 "Inter", "Segoe UI", Arial, sans-serif;
+      letter-spacing: 0;
+    }
+
+    a {
+      color: inherit;
+    }
+
+    .shell {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 12px 0 18px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .brand {
+      min-width: 220px;
+    }
+
+    .brand h1 {
+      margin: 0;
+      font-size: 24px;
+      line-height: 1.15;
+      font-weight: 760;
+    }
+
+    .brand p {
+      margin: 4px 0 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .nav {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .nav a {
+      text-decoration: none;
+      border: 1px solid var(--line);
+      background: var(--panel);
+      padding: 8px 10px;
+      border-radius: 8px;
+      color: #2b3542;
+      font-weight: 650;
+      white-space: nowrap;
+    }
+
+    .status-row {
+      display: grid;
+      grid-template-columns: 1.4fr repeat(4, 1fr);
+      gap: 12px;
+      margin: 18px 0;
+    }
+
+    .status-card,
+    .panel,
+    .metric-card,
+    .stage,
+    .artifact {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+    }
+
+    .status-card {
+      padding: 16px;
+      min-height: 126px;
+    }
+
+    .status-card h2,
+    .metric-card h3,
+    .panel h2,
+    .stage h3,
+    .artifact h3 {
+      margin: 0;
+      font-size: 13px;
+      line-height: 1.25;
+      text-transform: uppercase;
+      color: var(--muted);
+      font-weight: 760;
+    }
+
+    .status-card strong {
+      display: block;
+      margin-top: 10px;
+      font-size: 34px;
+      line-height: 1;
+      font-weight: 800;
+    }
+
+    .status-card p,
+    .metric-card p,
+    .stage p,
+    .artifact p {
+      margin: 9px 0 0;
+      color: var(--muted);
+    }
+
+    .thesis {
+      padding: 16px 18px;
+      min-height: 126px;
+    }
+
+    .thesis h2 {
+      color: var(--green);
+    }
+
+    .thesis p {
+      margin-top: 10px;
+      color: #26313d;
+      font-size: 16px;
+      line-height: 1.45;
+    }
+
+    .badge-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 14px;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 5px 9px;
+      color: #354152;
+      background: #fbfcfe;
+      font-size: 12px;
+      font-weight: 650;
+    }
+
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--blue);
+      flex: 0 0 auto;
+    }
+
+    .dot.green { background: var(--green); }
+    .dot.amber { background: var(--amber); }
+    .dot.red { background: var(--red); }
+    .dot.violet { background: var(--violet); }
+    .dot.teal { background: var(--teal); }
+
+    section {
+      margin-top: 18px;
+      scroll-margin-top: 20px;
+    }
+
+    .section-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: end;
+      gap: 16px;
+      margin: 0 0 10px;
+    }
+
+    .section-head h2 {
+      margin: 0;
+      font-size: 19px;
+      line-height: 1.2;
+    }
+
+    .section-head p {
+      margin: 4px 0 0;
+      color: var(--muted);
+    }
+
+    .source {
+      color: var(--muted);
+      font-size: 12px;
+      text-align: right;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+      gap: 14px;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .panel {
+      padding: 16px;
+      overflow: hidden;
+    }
+
+    .chart-wrap {
+      height: 300px;
+      width: 100%;
+      position: relative;
+    }
+
+    canvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+    }
+
+    #resultTable td::before {
+      display: none;
+    }
+
+    th,
+    td {
+      padding: 9px 10px;
+      border-bottom: 1px solid var(--line);
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      background: #eef1f6;
+      color: #3a4656;
+      font-size: 12px;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    tr:last-child td {
+      border-bottom: 0;
+    }
+
+    td.num {
+      font-variant-numeric: tabular-nums;
+      white-space: nowrap;
+    }
+
+    .model-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      font-weight: 760;
+    }
+
+    .diagram {
+      width: 100%;
+      min-height: 260px;
+      background: #fbfcfe;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    svg {
+      display: block;
+      width: 100%;
+      height: auto;
+    }
+
+    .diagram-title {
+      font-size: 13px;
+      fill: #1e2937;
+      font-weight: 760;
+    }
+
+    .diagram-text {
+      font-size: 12px;
+      fill: #334155;
+    }
+
+    .diagram-muted {
+      font-size: 11px;
+      fill: #64748b;
+    }
+
+    .node {
+      fill: #ffffff;
+      stroke: #cfd6e2;
+      stroke-width: 1.2;
+      rx: 7;
+    }
+
+    .node.blue { stroke: var(--blue); fill: #eff5ff; }
+    .node.green { stroke: var(--green); fill: #eefbf5; }
+    .node.amber { stroke: var(--amber); fill: #fff6e8; }
+    .node.red { stroke: var(--red); fill: #fff1f0; }
+    .node.violet { stroke: var(--violet); fill: #f5f3ff; }
+    .node.teal { stroke: var(--teal); fill: #edfafd; }
+
+    .arrow {
+      stroke: #6b7280;
+      stroke-width: 1.8;
+      fill: none;
+      marker-end: url(#arrow);
+    }
+
+    .stage-grid {
+      display: grid;
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .stage {
+      padding: 13px;
+      min-height: 154px;
+      box-shadow: none;
+    }
+
+    .stage strong {
+      display: block;
+      margin-top: 8px;
+      font-size: 17px;
+      line-height: 1.15;
+    }
+
+    .stage.done {
+      border-color: rgba(17, 156, 106, 0.45);
+    }
+
+    .stage.next {
+      border-color: rgba(37, 99, 235, 0.45);
+    }
+
+    .artifact-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .artifact {
+      padding: 14px;
+      box-shadow: none;
+    }
+
+    .artifact code {
+      display: block;
+      margin-top: 10px;
+      padding: 8px;
+      background: #f1f4f8;
+      border-radius: 6px;
+      color: #26313d;
+      overflow-wrap: anywhere;
+      font-size: 12px;
+    }
+
+    .callout {
+      border-left: 4px solid var(--green);
+      background: #f0fbf5;
+      padding: 12px 14px;
+      border-radius: 8px;
+      color: #1f3d33;
+    }
+
+    .callout p {
+      margin: 0;
+    }
+
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      color: var(--muted);
+      font-size: 12px;
+      margin-top: 8px;
+    }
+
+    @media (max-width: 1040px) {
+      .status-row,
+      .grid-2,
+      .grid-3,
+      .artifact-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .thesis {
+        grid-column: 1 / -1;
+      }
+
+      .stage-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 720px) {
+      .shell {
+        padding: 14px;
+      }
+
+      .topbar {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      .nav {
+        justify-content: flex-start;
+      }
+
+      .status-row,
+      .grid-2,
+      .grid-3,
+      .artifact-grid,
+      .stage-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .section-head {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      .source {
+        text-align: left;
+      }
+
+      .chart-wrap {
+        height: 260px;
+      }
+
+      th,
+      td {
+        padding: 8px;
+      }
+
+      #resultTable {
+        border: 0;
+        background: transparent;
+      }
+
+      #resultTable thead {
+        display: none;
+      }
+
+      #resultTable tbody,
+      #resultTable tr,
+      #resultTable td {
+        display: block;
+        width: 100%;
+      }
+
+      #resultTable tr {
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: #fff;
+        margin-bottom: 10px;
+        overflow: hidden;
+      }
+
+      #resultTable td {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        border-bottom: 1px solid var(--line);
+        white-space: normal;
+      }
+
+      #resultTable td:last-child {
+        border-bottom: 0;
+      }
+
+      #resultTable td::before {
+        content: attr(data-label);
+        display: block;
+        color: var(--muted);
+        font-size: 12px;
+        font-weight: 760;
+        text-transform: uppercase;
+        flex: 0 0 88px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <header class="topbar">
+      <div class="brand">
+        <h1>Internal Store 看板</h1>
+        <p>固定容量 scaffold memory + 在线多房间导航</p>
+      </div>
+      <nav class="nav" aria-label="Dashboard sections">
+        <a href="#results">核心结果</a>
+        <a href="#tasks">任务</a>
+        <a href="#architecture">架构</a>
+        <a href="#roadmap">路线</a>
+      </nav>
+    </header>
+
+    <main>
+      <div class="status-row" aria-label="Latest status">
+        <article class="status-card thesis">
+          <h2>当前主线</h2>
+          <p>固定容量 internal store 已替代 append bank：同样能在线写入和回访读回，但容量不随轨迹长度增长。</p>
+          <div class="badge-row">
+            <span class="badge"><span class="dot green"></span>S1/S2 smoke passed</span>
+            <span class="badge"><span class="dot blue"></span>Label-free context scaffold</span>
+            <span class="badge"><span class="dot amber"></span>S3 learned PFC ready</span>
+          </div>
+        </article>
+        <article class="status-card">
+          <h2>Internal Recall</h2>
+          <strong id="metric-internal-acc">1.000</strong>
+          <p>hidden return query accuracy</p>
+        </article>
+        <article class="status-card">
+          <h2>Internal Footprint</h2>
+          <strong id="metric-footprint">64</strong>
+          <p>flat across 24 / 48 / 96 steps</p>
+        </article>
+        <article class="status-card">
+          <h2>Bank Footprint</h2>
+          <strong id="metric-bank-growth">3.4x</strong>
+          <p>grows from 15.75 to 53.875</p>
+        </article>
+        <article class="status-card">
+          <h2>No-Context Crosstalk</h2>
+          <strong id="metric-crosstalk">0.058</strong>
+          <p>same-position wrong-room retrieval</p>
+        </article>
+      </div>
+
+      <section id="results">
+        <div class="section-head">
+          <div>
+            <h2>核心结果</h2>
+            <p>最新 smoke：internal store 与 bank 都能回读，但只有 internal store 的 footprint 是常数。</p>
+          </div>
+          <div class="source">Updated 2026-06-24 · source: runs/internal_store_nav_smoke.csv</div>
+        </div>
+        <div class="grid-2">
+          <div class="panel">
+            <h2>Memory Footprint vs Trajectory Length</h2>
+            <div class="chart-wrap">
+              <canvas id="footprintChart" aria-label="Memory footprint chart"></canvas>
+            </div>
+            <div class="legend">
+              <span><span class="dot green"></span>internal fixed scaffold</span>
+              <span><span class="dot amber"></span>append bank</span>
+              <span><span class="dot red"></span>no-context ablation</span>
+            </div>
+          </div>
+          <div class="panel">
+            <h2>Latest Rows</h2>
+            <table id="resultTable">
+              <thead>
+                <tr>
+                  <th>model</th>
+                  <th>recall</th>
+                  <th>crosstalk</th>
+                  <th>footprint</th>
+                  <th>L24 / L48 / L96</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <section id="tasks">
+        <div class="section-head">
+          <div>
+            <h2>任务板</h2>
+            <p>现在的 S1/S2 任务已经是在线写入、回访查询、自然 aliasing，不再是手工 candidate bank。</p>
+          </div>
+        </div>
+        <div class="grid-2">
+          <div class="panel">
+            <h2>Online Multi-Room Navigation</h2>
+            <div class="diagram" role="img" aria-label="Online navigation task diagram">
+              <svg viewBox="0 0 760 320" preserveAspectRatio="xMidYMid meet">
+                <defs>
+                  <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+                    <path d="M0,0 L0,6 L9,3 z" fill="#6b7280"></path>
+                  </marker>
+                </defs>
+                <text x="24" y="32" class="diagram-title">same local position, different room observation</text>
+                <g transform="translate(28 58)">
+                  <rect x="0" y="0" width="210" height="210" class="node green"></rect>
+                  <text x="14" y="24" class="diagram-text">Room A</text>
+                  <g stroke="#c8d2df" stroke-width="1">
+                    <path d="M0 42 H210 M0 84 H210 M0 126 H210 M0 168 H210"></path>
+                    <path d="M42 0 V210 M84 0 V210 M126 0 V210 M168 0 V210"></path>
+                  </g>
+                  <rect x="84" y="84" width="42" height="42" fill="#dff8eb" stroke="#119c6a"></rect>
+                  <circle cx="105" cy="105" r="9" fill="#119c6a"></circle>
+                  <text x="77" y="236" class="diagram-muted">obs: 07</text>
+                </g>
+                <g transform="translate(278 58)">
+                  <rect x="0" y="0" width="210" height="210" class="node blue"></rect>
+                  <text x="14" y="24" class="diagram-text">Room B</text>
+                  <g stroke="#c8d2df" stroke-width="1">
+                    <path d="M0 42 H210 M0 84 H210 M0 126 H210 M0 168 H210"></path>
+                    <path d="M42 0 V210 M84 0 V210 M126 0 V210 M168 0 V210"></path>
+                  </g>
+                  <rect x="84" y="84" width="42" height="42" fill="#e9f1ff" stroke="#2563eb"></rect>
+                  <circle cx="105" cy="105" r="9" fill="#2563eb"></circle>
+                  <text x="77" y="236" class="diagram-muted">obs: 38</text>
+                </g>
+                <g transform="translate(548 72)">
+                  <rect x="0" y="0" width="178" height="64" class="node amber"></rect>
+                  <text x="14" y="26" class="diagram-text">visible step</text>
+                  <text x="14" y="46" class="diagram-muted">write current obs online</text>
+                  <rect x="0" y="92" width="178" height="64" class="node red"></rect>
+                  <text x="14" y="118" class="diagram-text">hidden return query</text>
+                  <text x="14" y="138" class="diagram-muted">read memory before reveal</text>
+                  <rect x="0" y="184" width="178" height="48" class="node violet"></rect>
+                  <text x="14" y="213" class="diagram-text">metric: recall + crosstalk</text>
+                </g>
+                <path d="M238 164 C250 120 262 120 278 164" class="arrow"></path>
+                <path d="M488 170 C520 168 526 110 548 104" class="arrow"></path>
+                <path d="M488 176 C520 188 526 224 548 226" class="arrow"></path>
+              </svg>
+            </div>
+          </div>
+          <div class="panel">
+            <h2>Task / Model Matrix</h2>
+            <table>
+              <thead>
+                <tr>
+                  <th>track</th>
+                  <th>status</th>
+                  <th>核心验收</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>S1 Internal Store</td>
+                  <td><span class="model-pill"><span class="dot green"></span>smoke passed</span></td>
+                  <td>write update-at-address; footprint constant</td>
+                </tr>
+                <tr>
+                  <td>S2 Online Nav</td>
+                  <td><span class="model-pill"><span class="dot green"></span>smoke passed</span></td>
+                  <td>hidden return query recall; natural room aliasing</td>
+                </tr>
+                <tr>
+                  <td>S3 Learned PFC</td>
+                  <td><span class="model-pill"><span class="dot amber"></span>entry wired</span></td>
+                  <td>context separation loss + held-out room probe</td>
+                </tr>
+                <tr>
+                  <td>S4 Baselines</td>
+                  <td><span class="model-pill"><span class="dot"></span>next</span></td>
+                  <td>Hippoformer / Titans / Transformer same splits</td>
+                </tr>
+                <tr>
+                  <td>S5 Feedback</td>
+                  <td><span class="model-pill"><span class="dot violet"></span>planned</span></td>
+                  <td>z_t feedback preserves Layer-1 stability</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <section id="architecture">
+        <div class="section-head">
+          <div>
+            <h2>架构示意</h2>
+            <p>核心变化：从 per-step append bank 转到固定 scaffold slots，地址是位置结构 g 与 inferred context e 的 conjunction。</p>
+          </div>
+        </div>
+        <div class="grid-2">
+          <div class="panel">
+            <h2>Internal Scaffold Store</h2>
+            <div class="diagram" role="img" aria-label="Internal scaffold architecture diagram">
+              <svg viewBox="0 0 760 370" preserveAspectRatio="xMidYMid meet">
+                <defs>
+                  <marker id="arrow2" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+                    <path d="M0,0 L0,6 L9,3 z" fill="#6b7280"></path>
+                  </marker>
+                </defs>
+                <text x="24" y="32" class="diagram-title">PFC controls HPC retrieval through conjunctive addressing</text>
+                <rect x="34" y="66" width="170" height="72" class="node blue"></rect>
+                <text x="54" y="94" class="diagram-text">EC tracker</text>
+                <text x="54" y="116" class="diagram-muted">action + egomotion → g_t</text>
+                <rect x="34" y="190" width="170" height="72" class="node violet"></rect>
+                <text x="54" y="218" class="diagram-text">PFC context</text>
+                <text x="54" y="240" class="diagram-muted">sensory history → e_t</text>
+                <rect x="262" y="118" width="180" height="92" class="node green"></rect>
+                <text x="284" y="150" class="diagram-text">key = embed(g_t, e_t)</text>
+                <text x="284" y="174" class="diagram-muted">position × context slot</text>
+                <rect x="500" y="68" width="206" height="184" class="node amber"></rect>
+                <text x="522" y="100" class="diagram-text">fixed scaffold store</text>
+                <text x="522" y="124" class="diagram-muted">S = grid_size² × context_slots</text>
+                <g transform="translate(530 144)" stroke="#c47a13" fill="#fffaf0">
+                  <rect x="0" y="0" width="28" height="28"></rect>
+                  <rect x="32" y="0" width="28" height="28"></rect>
+                  <rect x="64" y="0" width="28" height="28"></rect>
+                  <rect x="96" y="0" width="28" height="28"></rect>
+                  <rect x="0" y="32" width="28" height="28"></rect>
+                  <rect x="32" y="32" width="28" height="28"></rect>
+                  <rect x="64" y="32" width="28" height="28"></rect>
+                  <rect x="96" y="32" width="28" height="28"></rect>
+                  <rect x="0" y="64" width="28" height="28"></rect>
+                  <rect x="32" y="64" width="28" height="28"></rect>
+                  <rect x="64" y="64" width="28" height="28"></rect>
+                  <rect x="96" y="64" width="28" height="28"></rect>
+                </g>
+                <rect x="262" y="260" width="180" height="62" class="node teal"></rect>
+                <text x="284" y="286" class="diagram-text">read z_t</text>
+                <text x="284" y="306" class="diagram-muted">predict hidden observation</text>
+                <path d="M204 102 H262" class="arrow"></path>
+                <path d="M204 226 C230 226 236 184 262 164" class="arrow"></path>
+                <path d="M442 164 H500" class="arrow"></path>
+                <path d="M500 210 C468 236 456 270 442 286" class="arrow"></path>
+                <path d="M352 260 V214" class="arrow"></path>
+                <text x="528" y="282" class="diagram-muted">write = update slot</text>
+                <text x="528" y="302" class="diagram-muted">never append</text>
+              </svg>
+            </div>
+          </div>
+          <div class="panel">
+            <h2>Bank Baseline vs Internal Store</h2>
+            <div class="diagram" role="img" aria-label="Bank versus internal store diagram">
+              <svg viewBox="0 0 760 370" preserveAspectRatio="xMidYMid meet">
+                <text x="24" y="32" class="diagram-title">same recall, different memory law</text>
+                <g transform="translate(38 70)">
+                  <rect x="0" y="0" width="300" height="228" class="node red"></rect>
+                  <text x="20" y="30" class="diagram-text">Append bank</text>
+                  <text x="20" y="52" class="diagram-muted">one new slot per visible write</text>
+                  <g transform="translate(20 78)" fill="#fff1f0" stroke="#c2413a">
+                    <rect x="0" y="0" width="42" height="30"></rect>
+                    <rect x="48" y="0" width="42" height="30"></rect>
+                    <rect x="96" y="0" width="42" height="30"></rect>
+                    <rect x="144" y="0" width="42" height="30"></rect>
+                    <rect x="192" y="0" width="42" height="30"></rect>
+                    <rect x="240" y="0" width="42" height="30"></rect>
+                  </g>
+                  <path d="M28 150 H264" stroke="#c2413a" stroke-width="8" stroke-linecap="round"></path>
+                  <text x="20" y="188" class="diagram-muted">footprint grows with trajectory length</text>
+                </g>
+                <g transform="translate(420 70)">
+                  <rect x="0" y="0" width="300" height="228" class="node green"></rect>
+                  <text x="20" y="30" class="diagram-text">Internal store</text>
+                  <text x="20" y="52" class="diagram-muted">bounded scaffold addressed by g,e</text>
+                  <g transform="translate(24 78)" fill="#eefbf5" stroke="#119c6a">
+                    <rect x="0" y="0" width="32" height="32"></rect>
+                    <rect x="38" y="0" width="32" height="32"></rect>
+                    <rect x="76" y="0" width="32" height="32"></rect>
+                    <rect x="114" y="0" width="32" height="32"></rect>
+                    <rect x="0" y="38" width="32" height="32"></rect>
+                    <rect x="38" y="38" width="32" height="32"></rect>
+                    <rect x="76" y="38" width="32" height="32"></rect>
+                    <rect x="114" y="38" width="32" height="32"></rect>
+                    <rect x="0" y="76" width="32" height="32"></rect>
+                    <rect x="38" y="76" width="32" height="32"></rect>
+                    <rect x="76" y="76" width="32" height="32"></rect>
+                    <rect x="114" y="76" width="32" height="32"></rect>
+                  </g>
+                  <path d="M24 188 H178" stroke="#119c6a" stroke-width="8" stroke-linecap="round"></path>
+                  <text x="20" y="214" class="diagram-muted">footprint stays O(S)</text>
+                </g>
+              </svg>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="roadmap">
+        <div class="section-head">
+          <div>
+            <h2>路线板</h2>
+            <p>S1/S2 已经能支持论文主叙事的第一根柱子；S3 开始把 deterministic scaffold 换成真正 learned PFC inference。</p>
+          </div>
+        </div>
+        <div class="stage-grid">
+          <article class="stage done">
+            <h3>S1</h3>
+            <strong>Internal Store</strong>
+            <p>固定容量 scaffold；write update-at-address；assert footprint flat。</p>
+          </article>
+          <article class="stage done">
+            <h3>S2</h3>
+            <strong>Online Nav</strong>
+            <p>agent trajectory online writes；return query hidden；natural aliasing。</p>
+          </article>
+          <article class="stage next">
+            <h3>S3</h3>
+            <strong>Learned PFC</strong>
+            <p>context-separation loss；held-out linear room probe；crosstalk drop。</p>
+          </article>
+          <article class="stage">
+            <h3>S4</h3>
+            <strong>Baselines</strong>
+            <p>Hippoformer / Titans / Transformer on the exact same task and split。</p>
+          </article>
+          <article class="stage">
+            <h3>S5</h3>
+            <strong>Feedback Loop</strong>
+            <p>z_t → e_t feedback；one step first；stability gate。</p>
+          </article>
+          <article class="stage">
+            <h3>S6</h3>
+            <strong>ρ Curve</strong>
+            <p>separate vs blend under cross-room correlation；feedback ablation。</p>
+          </article>
+        </div>
+      </section>
+
+      <section id="artifacts">
+        <div class="section-head">
+          <div>
+            <h2>Artifacts</h2>
+            <p>当前看板跟踪这些文件；后续新跑结果直接把最新 CSV 摘进页面数据块即可。</p>
+          </div>
+        </div>
+        <div class="artifact-grid">
+          <article class="artifact">
+            <h3>Experiment</h3>
+            <code>exp_internal_store_nav.py</code>
+            <p>S1/S2 task, store, baselines, metrics.</p>
+          </article>
+          <article class="artifact">
+            <h3>Status</h3>
+            <code>INTERNAL_STORE_S1_S2_STATUS.md</code>
+            <p>Acceptance notes and current smoke result.</p>
+          </article>
+          <article class="artifact">
+            <h3>Smoke CSV</h3>
+            <code>runs/internal_store_nav_smoke.csv</code>
+            <p>Internal / bank / no-context latest comparison.</p>
+          </article>
+          <article class="artifact">
+            <h3>Learned Entry</h3>
+            <code>runs/internal_store_nav_learned_smoke.csv</code>
+            <p>Trainable PFC branch smoke.</p>
+          </article>
+        </div>
+      </section>
+
+      <section>
+        <div class="callout">
+          <p><strong>看板结论：</strong>S1/S2 的核心 pivot 已经立住：constant-memory recall 成立，append bank 的线性增长被可视化出来，no-context ablation 给出了同位置跨房间 crosstalk 的压力信号。</p>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    const latestRows = [
+      {
+        model: "internal",
+        color: "#119c6a",
+        recall: 1.0,
+        crosstalk: 0.0,
+        footprint: 64.0,
+        lengths: {24: 64.0, 48: 64.0, 96: 64.0},
+        note: "fixed scaffold"
+      },
+      {
+        model: "bank",
+        color: "#c47a13",
+        recall: 1.0,
+        crosstalk: 0.0,
+        footprint: 28.6875,
+        lengths: {24: 15.75, 48: 29.875, 96: 53.875},
+        note: "append baseline"
+      },
+      {
+        model: "no_context",
+        color: "#c2413a",
+        recall: 0.9417475728,
+        crosstalk: 0.0582524272,
+        footprint: 64.0,
+        lengths: {24: 64.0, 48: 64.0, 96: 64.0},
+        note: "context ablation"
+      }
+    ];
+
+    const learnedRows = [
+      {
+        model: "internal_learned",
+        recall: 0.8834951456,
+        crosstalk: 0.1165048544,
+        footprint: 64.0,
+        lengths: {24: 64.0, 48: 64.0, 96: 64.0}
+      }
+    ];
+
+    function fmt(value, digits = 3) {
+      return Number(value).toFixed(digits).replace(/\.?0+$/, "");
+    }
+
+    function populateTable() {
+      const tbody = document.querySelector("#resultTable tbody");
+      tbody.innerHTML = "";
+      for (const row of latestRows) {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td data-label="model"><span class="model-pill"><span class="dot" style="background:${row.color}"></span>${row.model}</span><br><span class="diagram-muted">${row.note}</span></td>
+          <td data-label="recall" class="num">${fmt(row.recall)}</td>
+          <td data-label="crosstalk" class="num">${fmt(row.crosstalk)}</td>
+          <td data-label="footprint" class="num">${fmt(row.footprint, 1)}</td>
+          <td data-label="L24/L48/L96" class="num">${fmt(row.lengths[24], 3)} / ${fmt(row.lengths[48], 3)} / ${fmt(row.lengths[96], 3)}</td>
+        `;
+        tbody.appendChild(tr);
+      }
+    }
+
+    function drawLineChart(canvas, rows) {
+      const dpr = window.devicePixelRatio || 1;
+      const rect = canvas.getBoundingClientRect();
+      canvas.width = Math.max(1, Math.floor(rect.width * dpr));
+      canvas.height = Math.max(1, Math.floor(rect.height * dpr));
+      const ctx = canvas.getContext("2d");
+      ctx.scale(dpr, dpr);
+      ctx.clearRect(0, 0, rect.width, rect.height);
+
+      const margin = {top: 24, right: 18, bottom: 42, left: 48};
+      const w = rect.width - margin.left - margin.right;
+      const h = rect.height - margin.top - margin.bottom;
+      const lengths = [24, 48, 96];
+      const yMax = 72;
+
+      const x = (len) => margin.left + ((len - 24) / (96 - 24)) * w;
+      const y = (val) => margin.top + h - (val / yMax) * h;
+
+      ctx.strokeStyle = "#d9dee7";
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      for (const tick of [0, 16, 32, 48, 64]) {
+        ctx.moveTo(margin.left, y(tick));
+        ctx.lineTo(margin.left + w, y(tick));
+      }
+      ctx.stroke();
+
+      ctx.fillStyle = "#5f6b7a";
+      ctx.font = "12px Segoe UI, Arial, sans-serif";
+      ctx.textAlign = "right";
+      ctx.textBaseline = "middle";
+      for (const tick of [0, 16, 32, 48, 64]) {
+        ctx.fillText(String(tick), margin.left - 8, y(tick));
+      }
+      ctx.textAlign = "center";
+      ctx.textBaseline = "top";
+      for (const len of lengths) {
+        ctx.fillText(String(len), x(len), margin.top + h + 12);
+      }
+      ctx.textAlign = "left";
+      ctx.fillText("trajectory length", margin.left, rect.height - 16);
+
+      const drawOrder = [...rows].sort((a, b) => {
+        const rank = {bank: 0, no_context: 1, internal: 2};
+        return (rank[a.model] ?? 0) - (rank[b.model] ?? 0);
+      });
+      for (const row of drawOrder) {
+        ctx.strokeStyle = row.color;
+        ctx.lineWidth = 3;
+        ctx.setLineDash(row.model === "no_context" ? [7, 5] : []);
+        ctx.beginPath();
+        lengths.forEach((len, i) => {
+          const px = x(len);
+          const py = y(row.lengths[len]);
+          if (i === 0) ctx.moveTo(px, py);
+          else ctx.lineTo(px, py);
+        });
+        ctx.stroke();
+        ctx.setLineDash([]);
+        ctx.fillStyle = row.color;
+        for (const len of lengths) {
+          ctx.beginPath();
+          ctx.arc(x(len), y(row.lengths[len]), 4, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      }
+    }
+
+    function updateMetrics() {
+      const internal = latestRows.find((r) => r.model === "internal");
+      const bank = latestRows.find((r) => r.model === "bank");
+      const noContext = latestRows.find((r) => r.model === "no_context");
+      document.querySelector("#metric-internal-acc").textContent = fmt(internal.recall);
+      document.querySelector("#metric-footprint").textContent = fmt(internal.footprint, 0);
+      document.querySelector("#metric-bank-growth").textContent = fmt(bank.lengths[96] / bank.lengths[24], 1) + "x";
+      document.querySelector("#metric-crosstalk").textContent = fmt(noContext.crosstalk);
+    }
+
+    function render() {
+      populateTable();
+      updateMetrics();
+      drawLineChart(document.querySelector("#footprintChart"), latestRows);
+    }
+
+    window.addEventListener("resize", () => drawLineChart(document.querySelector("#footprintChart"), latestRows));
+    render();
+  </script>
+</body>
+</html>
