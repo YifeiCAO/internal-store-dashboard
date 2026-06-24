@@ -525,7 +525,7 @@
     <header class="topbar">
       <div class="brand">
         <h1>固定容量记忆看板</h1>
-        <p>Transformer 主干 + 外挂固定容量记忆 + 无位置 Grid-EC</p>
+        <p>Transformer=PFC 主干 + 神经式 EC/HPC 外挂记忆</p>
       </div>
       <nav class="nav" aria-label="看板分区">
         <a href="#results">核心结果</a>
@@ -539,17 +539,18 @@
       <div class="status-row" aria-label="最新状态">
         <article class="status-card thesis">
           <h2>当前主线</h2>
-          <p>重要修正：位置编号不能进模型。当前有效主线用动作/自运动积分出 Grid-EC 结构码，再由 Transformer-PFC 控制外挂固定记忆。</p>
+          <p>重要修正：位置编号不能进模型。当前有效主线把 Transformer 当 PFC 主干；EC 从动作/自运动积分出结构码；HPC 用连续 key/value 软寻址。</p>
           <div class="badge-row">
             <span class="badge"><span class="dot green"></span>无位置输入已跑通</span>
             <span class="badge"><span class="dot blue"></span>Grid-EC path integration</span>
+            <span class="badge"><span class="dot violet"></span>Neural HPC</span>
             <span class="badge"><span class="dot amber"></span>固定容量 64</span>
           </div>
         </article>
         <article class="status-card">
           <h2>主线回忆率</h2>
-          <strong id="metric-internal-acc">0.880</strong>
-          <p>无位置 Grid-EC + Transformer-PFC carry</p>
+          <strong id="metric-internal-acc">0.866</strong>
+          <p>Transformer=PFC + 神经式 HPC</p>
         </article>
         <article class="status-card">
           <h2>外挂记忆容量</h2>
@@ -558,12 +559,12 @@
         </article>
         <article class="status-card">
           <h2>长序列回忆率</h2>
-          <strong id="metric-bank-growth">0.788</strong>
-          <p>128 步评估仍接近满分</p>
+          <strong id="metric-bank-growth">0.745</strong>
+          <p>128 步评估，不输入位置编号</p>
         </article>
         <article class="status-card">
           <h2>跨房间串扰</h2>
-          <strong id="metric-crosstalk">0.071</strong>
+          <strong id="metric-crosstalk">0.065</strong>
           <p>同一位置读到错误房间内容的比例</p>
         </article>
       </div>
@@ -572,9 +573,9 @@
         <div class="section-head">
           <div>
             <h2>核心结果</h2>
-            <p>最新主线：不再输入格子编号；Transformer 主干接外挂固定记忆，Grid-EC 从动作/自运动生成结构码，Transformer-PFC 控制情境地址。</p>
+            <p>最新主线：Transformer 自己就是 PFC；它接一个外挂的神经式 EC/HPC。EC 只吃动作/自运动，HPC 用连续 key/value 记忆读写。</p>
           </div>
-          <div class="source">更新：2026-06-24 · 来源：runs/internal_store_nav_transformer_carry_grid_ec_pilot.csv</div>
+          <div class="source">更新：2026-06-24 · 来源：runs/internal_store_nav_neural_hpc_pilot300.csv</div>
         </div>
         <div class="grid-2">
           <div class="panel">
@@ -704,7 +705,7 @@
                 <tr>
                   <td>S3 学到的 PFC</td>
                   <td><span class="model-pill"><span class="dot green"></span>主线通过</span></td>
-                  <td>无位置 Grid-EC 版本回忆率 0.880；串扰 0.071</td>
+                  <td>神经式 HPC 版本回忆率 0.866；串扰 0.065；格子路由强对照 0.880</td>
                 </tr>
                 <tr>
                   <td>S4 基线模型</td>
@@ -726,7 +727,7 @@
         <div class="section-head">
           <div>
             <h2>架构示意</h2>
-            <p>当前主架构：Transformer 主干外接固定容量记忆；地址由动作积分得到的 Grid-EC 结构码 g 和 Transformer-PFC 情境状态 e 共同决定。</p>
+            <p>当前主架构：Transformer 自己就是 PFC；外挂 EC/HPC 负责结构码和快速记忆。地址由 Grid-EC 的 g_t 和 Transformer hidden 产生的 e_t 共同决定。</p>
           </div>
         </div>
         <div class="grid-2">
@@ -739,19 +740,19 @@
                     <path d="M0,0 L0,6 L9,3 z" fill="#6b7280"></path>
                   </marker>
                 </defs>
-                <text x="24" y="32" class="diagram-title">Transformer 主干 + Transformer-PFC 控制外挂记忆</text>
+                <text x="24" y="32" class="diagram-title">Transformer=PFC 主干 + 神经式 EC/HPC 外挂记忆</text>
                 <rect x="34" y="66" width="170" height="72" class="node blue"></rect>
                 <text x="54" y="94" class="diagram-text">Grid-EC 路径积分器</text>
                 <text x="54" y="116" class="diagram-muted">只吃动作/自运动 → g_t</text>
                 <rect x="34" y="190" width="170" height="72" class="node violet"></rect>
-                <text x="54" y="218" class="diagram-text">Transformer-PFC 状态</text>
-                <text x="54" y="240" class="diagram-muted">可见更新，查询继承</text>
+                <text x="54" y="218" class="diagram-text">Transformer=PFC 状态</text>
+                <text x="54" y="240" class="diagram-muted">主干 hidden → e_t</text>
                 <rect x="262" y="118" width="180" height="92" class="node green"></rect>
-                <text x="284" y="150" class="diagram-text">地址 = embed(g_t, e_t)</text>
-                <text x="284" y="174" class="diagram-muted">位置 × 情境槽位</text>
+                <text x="284" y="150" class="diagram-text">q_t = f(g_t, e_t)</text>
+                <text x="284" y="174" class="diagram-muted">连续软寻址，不输入位置编号</text>
                 <rect x="500" y="68" width="206" height="184" class="node amber"></rect>
-                <text x="522" y="100" class="diagram-text">固定容量记忆</text>
-                <text x="522" y="124" class="diagram-muted">S = 网格大小² × 情境槽数</text>
+                <text x="522" y="100" class="diagram-text">神经式 HPC</text>
+                <text x="522" y="124" class="diagram-muted">64 个连续 key/value 槽</text>
                 <g transform="translate(530 144)" stroke="#c47a13" fill="#fffaf0">
                   <rect x="0" y="0" width="28" height="28"></rect>
                   <rect x="32" y="0" width="28" height="28"></rect>
@@ -774,7 +775,7 @@
                 <path d="M442 164 H500" class="arrow"></path>
                 <path d="M500 210 C468 236 456 270 442 286" class="arrow"></path>
                 <path d="M352 260 V214" class="arrow"></path>
-                <text x="528" y="282" class="diagram-muted">写入 = 更新槽位</text>
+                <text x="528" y="282" class="diagram-muted">写入 = 软更新 value</text>
                 <text x="528" y="302" class="diagram-muted">绝不追加新槽</text>
               </svg>
             </div>
@@ -830,7 +831,7 @@
         <div class="section-head">
           <div>
             <h2>路线板</h2>
-            <p>当前主线已经从直接位置上界切到无位置版本：Grid-EC 路径积分 + 单独 Transformer-PFC + 查询时情境继承。</p>
+            <p>当前主线已经从直接位置上界切到神经式版本：Transformer=PFC，外挂 Grid-EC 和 Neural-HPC。</p>
           </div>
         </div>
         <div class="stage-grid">
@@ -846,23 +847,23 @@
           </article>
           <article class="stage done">
             <h3>S3</h3>
-            <strong>Transformer-PFC</strong>
-            <p>无位置 Grid-EC 版回忆率 0.880；串扰 0.071；容量仍 64。</p>
+            <strong>无位置 Grid-EC</strong>
+            <p>动作积分版本回忆率 0.880；串扰 0.071；容量仍 64。</p>
+          </article>
+          <article class="stage done">
+            <h3>S4</h3>
+            <strong>神经式 HPC</strong>
+            <p>Transformer=PFC + 连续 key/value HPC，回忆率 0.866；L128 回忆率 0.745。</p>
           </article>
           <article class="stage next">
-            <h3>S4</h3>
-            <strong>强基线和多 seed</strong>
-            <p>加 mm-TEM 式结构辅助损失；补 gridness/位置解码 probe；再跑多 seed。</p>
-          </article>
-          <article class="stage">
             <h3>S5</h3>
-            <strong>反馈环</strong>
-            <p>z_t 反馈到 e_t；先只做一步；稳定性优先。</p>
+            <strong>强基线和多 seed</strong>
+            <p>补 gridness/位置解码 probe；多 seed；再加 mm-TEM 式结构辅助损失。</p>
           </article>
           <article class="stage">
             <h3>S6</h3>
-            <strong>ρ 曲线</strong>
-            <p>跨房间相关性下的分离/混合；反馈消融。</p>
+            <strong>反馈环和 ρ 曲线</strong>
+            <p>z_t 反馈到 e_t；跨房间相关性下的分离/混合；反馈消融。</p>
           </article>
         </div>
       </section>
@@ -887,20 +888,20 @@
           </article>
           <article class="artifact">
             <h3>小跑结果 CSV</h3>
-            <code>runs/internal_store_nav_transformer_carry_grid_ec_pilot.csv</code>
-            <p>无位置 Grid-EC 主线结果。</p>
+            <code>runs/internal_store_nav_neural_hpc_pilot300.csv</code>
+            <p>神经式 HPC 主线结果。</p>
           </article>
           <article class="artifact">
             <h3>PFC 入口</h3>
-            <code>transformer_pfc_memory_carry</code>
-            <p>可见步骤更新情境；隐藏查询沿用情境。</p>
+            <code>pfc_transformer_neural_hpc_carry</code>
+            <p>Transformer 主干就是 PFC；外挂 EC/HPC 负责记忆。</p>
           </article>
         </div>
       </section>
 
       <section>
         <div class="callout">
-          <p><strong>看板结论：</strong>主线已修正为无位置输入：Grid-EC 从动作/自运动积分出结构码，外挂固定容量记忆保持 64 槽不增长；当前回忆率 0.880，串扰 0.071。之前 1.000 是位置上界，不再当主结果。</p>
+          <p><strong>看板结论：</strong>主线已修正为无位置输入，并进一步换成神经式 EC/HPC：Grid-EC 从动作/自运动积分出结构码，HPC 用连续 key/value 软寻址，固定容量保持 64；当前回忆率 0.866，串扰 0.065。之前 1.000 是位置上界，不再当主结果。</p>
         </div>
       </section>
     </main>
@@ -972,8 +973,19 @@
         lengths: {32: 64.0, 64: 64.0, 128: 64.0}
       },
       {
+        model: "pfc_transformer_neural_hpc_carry",
+        pfc: "Transformer=PFC + 神经式 HPC",
+        color: "#b45309",
+        recall: 0.866,
+        crosstalk: 0.065,
+        probe: 0.812,
+        ctxEntropy: 0.024,
+        longRecall: 0.745,
+        lengths: {32: 64.0, 64: 64.0, 128: 64.0}
+      },
+      {
         model: "transformer_pfc_memory_carry_grid_ec",
-        pfc: "Grid-EC 无位置 + 查询继承",
+        pfc: "格子路由强对照",
         color: "#119c6a",
         recall: 0.880,
         crosstalk: 0.071,
@@ -1103,7 +1115,7 @@
     }
 
     function updateMetrics() {
-      const carry = pfcRows.find((r) => r.model === "transformer_pfc_memory_carry_grid_ec");
+      const carry = pfcRows.find((r) => r.model === "pfc_transformer_neural_hpc_carry");
       document.querySelector("#metric-internal-acc").textContent = fmt(carry.recall);
       document.querySelector("#metric-footprint").textContent = fmt(carry.lengths[64], 0);
       document.querySelector("#metric-bank-growth").textContent = fmt(carry.longRecall);
