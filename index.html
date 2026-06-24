@@ -524,7 +524,7 @@
     <header class="topbar">
       <div class="brand">
         <h1>固定容量记忆看板</h1>
-        <p>固定容量结构脚手架记忆 + 在线多房间导航</p>
+        <p>Transformer 主干 + 外挂固定容量记忆 + PFC 状态继承</p>
       </div>
       <nav class="nav" aria-label="看板分区">
         <a href="#results">核心结果</a>
@@ -538,32 +538,32 @@
       <div class="status-row" aria-label="最新状态">
         <article class="status-card thesis">
           <h2>当前主线</h2>
-          <p>固定容量记忆已经替代“每一步追加一条”的记忆库：同样能在线写入和回访读回，但容量不随轨迹长度增长。</p>
+          <p>我们的模块现在作为外挂记忆接到 Transformer 上：主干负责序列建模，单独的 Transformer-PFC 控制情境地址；隐藏查询时沿用上一次可见情境。</p>
           <div class="badge-row">
-            <span class="badge"><span class="dot green"></span>S1/S2 小跑通过</span>
-            <span class="badge"><span class="dot blue"></span>不用标签的情境脚手架</span>
-            <span class="badge"><span class="dot amber"></span>PFC 控制器已接入</span>
+            <span class="badge"><span class="dot green"></span>Transformer 外挂记忆跑通</span>
+            <span class="badge"><span class="dot blue"></span>查询时情境继承</span>
+            <span class="badge"><span class="dot amber"></span>固定容量 64</span>
           </div>
         </article>
         <article class="status-card">
-          <h2>固定记忆回忆率</h2>
+          <h2>主线回忆率</h2>
           <strong id="metric-internal-acc">1.000</strong>
-          <p>回访时隐藏观察，模型预测正确率</p>
+          <p>Transformer-PFC carry，隐藏回访查询</p>
         </article>
         <article class="status-card">
-          <h2>固定记忆容量</h2>
+          <h2>外挂记忆容量</h2>
           <strong id="metric-footprint">64</strong>
-          <p>24 / 48 / 96 步都不增长</p>
+          <p>32 / 64 / 128 步都不增长</p>
         </article>
         <article class="status-card">
-          <h2>追加记忆库增长</h2>
-          <strong id="metric-bank-growth">3.4x</strong>
-          <p>从 15.75 增长到 53.875</p>
+          <h2>长序列回忆率</h2>
+          <strong id="metric-bank-growth">0.978</strong>
+          <p>128 步评估仍接近满分</p>
         </article>
         <article class="status-card">
-          <h2>无情境串扰</h2>
-          <strong id="metric-crosstalk">0.058</strong>
-          <p>同一位置但读到错误房间的内容</p>
+          <h2>跨房间串扰</h2>
+          <strong id="metric-crosstalk">0.000</strong>
+          <p>同一位置读到错误房间内容的比例</p>
         </article>
       </div>
 
@@ -571,9 +571,9 @@
         <div class="section-head">
           <div>
             <h2>核心结果</h2>
-            <p>最新小跑：固定记忆和追加记忆库都能回读，但只有固定记忆的容量是常数。</p>
+            <p>最新主线：Transformer 主干接外挂固定记忆；单独 Transformer-PFC 加“查询继承”后，回忆率到 1.000，串扰降到 0。</p>
           </div>
-          <div class="source">更新：2026-06-24 · 来源：runs/internal_store_nav_smoke.csv</div>
+          <div class="source">更新：2026-06-24 · 来源：runs/internal_store_nav_transformer_carry_pilot.csv</div>
         </div>
         <div class="grid-2">
           <div class="panel">
@@ -588,7 +588,7 @@
             </div>
           </div>
           <div class="panel">
-            <h2>最新结果表</h2>
+            <h2>S1/S2 容量基线</h2>
             <table id="resultTable" class="stack-table">
               <thead>
                 <tr>
@@ -604,16 +604,17 @@
           </div>
         </div>
         <div class="panel" style="margin-top: 14px;">
-          <h2>PFC 情境推断 pilot</h2>
+          <h2>Transformer 外挂记忆主线</h2>
           <table id="pfcTable" class="stack-table">
             <thead>
               <tr>
                 <th>模型</th>
-                <th>PFC 架构</th>
+                <th>PFC / 情境策略</th>
                 <th>回忆率</th>
                 <th>串扰</th>
                 <th>房间探针</th>
                 <th>情境熵</th>
+                <th>128 步回忆率</th>
                 <th>32/64/128 步容量</th>
               </tr>
             </thead>
@@ -701,13 +702,13 @@
                 </tr>
                 <tr>
                   <td>S3 学到的 PFC</td>
-                  <td><span class="model-pill"><span class="dot amber"></span>pilot 通过</span></td>
-                  <td>GRU-PFC 探针 0.976；串扰降到 0.035</td>
+                  <td><span class="model-pill"><span class="dot green"></span>主线通过</span></td>
+                  <td>Transformer-PFC carry 回忆率 1.000；串扰 0.000</td>
                 </tr>
                 <tr>
                   <td>S4 基线模型</td>
                   <td><span class="model-pill"><span class="dot"></span>下一步</span></td>
-                  <td>Hippoformer / Titans / Transformer 使用同一任务切分</td>
+                  <td>多 seed、强基线、困难版任务使用同一切分</td>
                 </tr>
                 <tr>
                   <td>S5 反馈环</td>
@@ -724,7 +725,7 @@
         <div class="section-head">
           <div>
             <h2>架构示意</h2>
-            <p>核心变化：从“每一步追加一条记忆”转到固定脚手架槽位；地址由位置结构 g 和情境 e 共同决定。</p>
+            <p>当前主架构：Transformer 主干外接固定容量记忆；地址由位置结构 g 和 Transformer-PFC 情境状态 e 共同决定。</p>
           </div>
         </div>
         <div class="grid-2">
@@ -737,13 +738,13 @@
                     <path d="M0,0 L0,6 L9,3 z" fill="#6b7280"></path>
                   </marker>
                 </defs>
-                <text x="24" y="32" class="diagram-title">PFC 用情境信念控制记忆读取</text>
+                <text x="24" y="32" class="diagram-title">Transformer 主干 + Transformer-PFC 控制外挂记忆</text>
                 <rect x="34" y="66" width="170" height="72" class="node blue"></rect>
                 <text x="54" y="94" class="diagram-text">EC 位置追踪器</text>
                 <text x="54" y="116" class="diagram-muted">动作 + 自运动 → g_t</text>
                 <rect x="34" y="190" width="170" height="72" class="node violet"></rect>
-                <text x="54" y="218" class="diagram-text">PFC 情境</text>
-                <text x="54" y="240" class="diagram-muted">感知历史 → e_t</text>
+                <text x="54" y="218" class="diagram-text">Transformer-PFC 状态</text>
+                <text x="54" y="240" class="diagram-muted">可见更新，查询继承</text>
                 <rect x="262" y="118" width="180" height="92" class="node green"></rect>
                 <text x="284" y="150" class="diagram-text">地址 = embed(g_t, e_t)</text>
                 <text x="284" y="174" class="diagram-muted">位置 × 情境槽位</text>
@@ -765,8 +766,8 @@
                   <rect x="96" y="64" width="28" height="28"></rect>
                 </g>
                 <rect x="262" y="260" width="180" height="62" class="node teal"></rect>
-                <text x="284" y="286" class="diagram-text">读出 z_t</text>
-                <text x="284" y="306" class="diagram-muted">预测隐藏观察</text>
+                <text x="284" y="286" class="diagram-text">Transformer 融合读出</text>
+                <text x="284" y="306" class="diagram-muted">主干 logits + 记忆 z_t</text>
                 <path d="M204 102 H262" class="arrow"></path>
                 <path d="M204 226 C230 226 236 184 262 164" class="arrow"></path>
                 <path d="M442 164 H500" class="arrow"></path>
@@ -828,7 +829,7 @@
         <div class="section-head">
           <div>
             <h2>路线板</h2>
-            <p>S1/S2 已经能支持论文主叙事的第一根柱子；S3 pilot 显示 GRU-PFC 已经能学出房间情境并降低串扰。</p>
+            <p>当前主线已经从 GRU 诊断基线切到 Transformer：外挂记忆 + 单独 Transformer-PFC + 查询时情境继承。</p>
           </div>
         </div>
         <div class="stage-grid">
@@ -842,15 +843,15 @@
             <strong>在线导航</strong>
             <p>智能体边走边写；回访时隐藏观察；自然位置混淆。</p>
           </article>
-          <article class="stage next">
+          <article class="stage done">
             <h3>S3</h3>
-            <strong>学到的 PFC</strong>
-            <p>GRU-PFC 探针 0.976；串扰从 0.085 降到 0.035。</p>
+            <strong>Transformer-PFC</strong>
+            <p>carry 版回忆率 1.000；串扰从 0.081 降到 0.000。</p>
           </article>
-          <article class="stage">
+          <article class="stage next">
             <h3>S4</h3>
-            <strong>基线模型</strong>
-            <p>Hippoformer / Titans / Transformer 跑同一任务和切分。</p>
+            <strong>强基线和多 seed</strong>
+            <p>重复随机种子；加大房间切换和延迟；补 Hippoformer / Titans。</p>
           </article>
           <article class="stage">
             <h3>S5</h3>
@@ -885,20 +886,20 @@
           </article>
           <article class="artifact">
             <h3>小跑结果 CSV</h3>
-            <code>runs/internal_store_nav_smoke.csv</code>
-            <p>固定记忆 / 追加记忆库 / 无情境对照。</p>
+            <code>runs/internal_store_nav_transformer_carry_pilot.csv</code>
+            <p>Transformer 主线、carry 消融、oracle 上界。</p>
           </article>
           <article class="artifact">
             <h3>PFC 入口</h3>
-            <code>runs/internal_store_nav_learned_smoke.csv</code>
-            <p>可训练 PFC 分支的小跑结果。</p>
+            <code>transformer_pfc_memory_carry</code>
+            <p>可见步骤更新情境；隐藏查询沿用情境。</p>
           </article>
         </div>
       </section>
 
       <section>
         <div class="callout">
-          <p><strong>看板结论：</strong>S1/S2 的核心转向已经立住：固定容量回忆成立，追加记忆库的线性增长被可视化出来，无情境对照给出了同位置跨房间串扰的压力信号。</p>
+          <p><strong>看板结论：</strong>主线已切到 Transformer：外挂固定容量记忆保持 64 槽不增长；单独 Transformer-PFC 加查询继承后，隐藏回访回忆率 1.000，跨房间串扰 0.000。</p>
         </div>
       </section>
     </main>
@@ -935,55 +936,60 @@
       }
     ];
 
-    const learnedRows = [
-      {
-        model: "internal_learned",
-        recall: 0.8834951456,
-        crosstalk: 0.1165048544,
-        footprint: 64.0,
-        lengths: {24: 64.0, 48: 64.0, 96: 64.0}
-      }
-    ];
-
     const pfcRows = [
       {
-        model: "no_context",
+        model: "transformer_memory_no_context",
         pfc: "无",
         color: "#c2413a",
-        recall: 0.915,
-        crosstalk: 0.085,
-        probe: 0.527,
+        recall: 0.919,
+        crosstalk: 0.081,
+        probe: 0.507,
         ctxEntropy: 0.0,
+        longRecall: 0.846,
         lengths: {32: 64.0, 64: 64.0, 128: 64.0}
       },
       {
-        model: "internal_gru",
-        pfc: "GRU",
+        model: "transformer_memory",
+        pfc: "主干 hidden 直接当情境",
         color: "#6d5bd0",
-        recall: 0.965,
-        crosstalk: 0.035,
-        probe: 0.976,
-        ctxEntropy: 0.503,
+        recall: 0.913,
+        crosstalk: 0.087,
+        probe: 0.707,
+        ctxEntropy: 0.785,
+        longRecall: 0.842,
         lengths: {32: 64.0, 64: 64.0, 128: 64.0}
       },
       {
-        model: "internal_window",
-        pfc: "窗口 Transformer",
+        model: "transformer_pfc_memory",
+        pfc: "单独 Transformer-PFC",
         color: "#0f8f9d",
-        recall: 0.906,
-        crosstalk: 0.094,
-        probe: 0.717,
-        ctxEntropy: 0.792,
+        recall: 0.900,
+        crosstalk: 0.100,
+        probe: 0.776,
+        ctxEntropy: 0.688,
+        longRecall: 0.819,
         lengths: {32: 64.0, 64: 64.0, 128: 64.0}
       },
       {
-        model: "oracle_context",
-        pfc: "真实房间上限",
+        model: "transformer_pfc_memory_carry",
+        pfc: "单独 Transformer-PFC + 查询继承",
         color: "#119c6a",
+        recall: 1.0,
+        crosstalk: 0.0,
+        probe: 0.825,
+        ctxEntropy: 0.091,
+        longRecall: 0.978,
+        lengths: {32: 64.0, 64: 64.0, 128: 64.0}
+      },
+      {
+        model: "transformer_pfc_memory_oracle",
+        pfc: "真实房间上限",
+        color: "#2563eb",
         recall: 1.0,
         crosstalk: 0.0,
         probe: 1.0,
         ctxEntropy: 0.0,
+        longRecall: 1.0,
         lengths: {32: 64.0, 64: 64.0, 128: 64.0}
       }
     ];
@@ -1020,6 +1026,7 @@
           <td data-label="串扰" class="num">${fmt(row.crosstalk)}</td>
           <td data-label="房间探针" class="num">${fmt(row.probe)}</td>
           <td data-label="情境熵" class="num">${fmt(row.ctxEntropy)}</td>
+          <td data-label="128 步回忆率" class="num">${fmt(row.longRecall)}</td>
           <td data-label="32/64/128 步容量" class="num">${fmt(row.lengths[32], 3)} / ${fmt(row.lengths[64], 3)} / ${fmt(row.lengths[128], 3)}</td>
         `;
         tbody.appendChild(tr);
@@ -1095,13 +1102,11 @@
     }
 
     function updateMetrics() {
-      const internal = latestRows.find((r) => r.model === "internal");
-      const bank = latestRows.find((r) => r.model === "bank");
-      const noContext = latestRows.find((r) => r.model === "no_context");
-      document.querySelector("#metric-internal-acc").textContent = fmt(internal.recall);
-      document.querySelector("#metric-footprint").textContent = fmt(internal.footprint, 0);
-      document.querySelector("#metric-bank-growth").textContent = fmt(bank.lengths[96] / bank.lengths[24], 1) + "x";
-      document.querySelector("#metric-crosstalk").textContent = fmt(noContext.crosstalk);
+      const carry = pfcRows.find((r) => r.model === "transformer_pfc_memory_carry");
+      document.querySelector("#metric-internal-acc").textContent = fmt(carry.recall);
+      document.querySelector("#metric-footprint").textContent = fmt(carry.lengths[64], 0);
+      document.querySelector("#metric-bank-growth").textContent = "0.978";
+      document.querySelector("#metric-crosstalk").textContent = fmt(carry.crosstalk);
     }
 
     function render() {
