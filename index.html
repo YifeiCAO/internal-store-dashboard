@@ -525,7 +525,7 @@
     <header class="topbar">
       <div class="brand">
         <h1>固定容量记忆看板</h1>
-        <p>Transformer 主干 + 外挂固定容量记忆 + PFC 状态继承</p>
+        <p>Transformer 主干 + 外挂固定容量记忆 + 无位置 Grid-EC</p>
       </div>
       <nav class="nav" aria-label="看板分区">
         <a href="#results">核心结果</a>
@@ -539,17 +539,17 @@
       <div class="status-row" aria-label="最新状态">
         <article class="status-card thesis">
           <h2>当前主线</h2>
-          <p>我们的模块现在作为外挂记忆接到 Transformer 上：主干负责序列建模，单独的 Transformer-PFC 控制情境地址；隐藏查询时沿用上一次可见情境。</p>
+          <p>重要修正：位置编号不能进模型。当前有效主线用动作/自运动积分出 Grid-EC 结构码，再由 Transformer-PFC 控制外挂固定记忆。</p>
           <div class="badge-row">
-            <span class="badge"><span class="dot green"></span>Transformer 外挂记忆跑通</span>
-            <span class="badge"><span class="dot blue"></span>查询时情境继承</span>
+            <span class="badge"><span class="dot green"></span>无位置输入已跑通</span>
+            <span class="badge"><span class="dot blue"></span>Grid-EC path integration</span>
             <span class="badge"><span class="dot amber"></span>固定容量 64</span>
           </div>
         </article>
         <article class="status-card">
           <h2>主线回忆率</h2>
-          <strong id="metric-internal-acc">1.000</strong>
-          <p>Transformer-PFC carry，隐藏回访查询</p>
+          <strong id="metric-internal-acc">0.880</strong>
+          <p>无位置 Grid-EC + Transformer-PFC carry</p>
         </article>
         <article class="status-card">
           <h2>外挂记忆容量</h2>
@@ -558,12 +558,12 @@
         </article>
         <article class="status-card">
           <h2>长序列回忆率</h2>
-          <strong id="metric-bank-growth">0.978</strong>
+          <strong id="metric-bank-growth">0.788</strong>
           <p>128 步评估仍接近满分</p>
         </article>
         <article class="status-card">
           <h2>跨房间串扰</h2>
-          <strong id="metric-crosstalk">0.000</strong>
+          <strong id="metric-crosstalk">0.071</strong>
           <p>同一位置读到错误房间内容的比例</p>
         </article>
       </div>
@@ -572,9 +572,9 @@
         <div class="section-head">
           <div>
             <h2>核心结果</h2>
-            <p>最新主线：Transformer 主干接外挂固定记忆；单独 Transformer-PFC 加“查询继承”后，回忆率到 1.000，串扰降到 0。</p>
+            <p>最新主线：不再输入格子编号；Transformer 主干接外挂固定记忆，Grid-EC 从动作/自运动生成结构码，Transformer-PFC 控制情境地址。</p>
           </div>
-          <div class="source">更新：2026-06-24 · 来源：runs/internal_store_nav_transformer_carry_pilot.csv</div>
+          <div class="source">更新：2026-06-24 · 来源：runs/internal_store_nav_transformer_carry_grid_ec_pilot.csv</div>
         </div>
         <div class="grid-2">
           <div class="panel">
@@ -704,7 +704,7 @@
                 <tr>
                   <td>S3 学到的 PFC</td>
                   <td><span class="model-pill"><span class="dot green"></span>主线通过</span></td>
-                  <td>Transformer-PFC carry 回忆率 1.000；串扰 0.000</td>
+                  <td>无位置 Grid-EC 版本回忆率 0.880；串扰 0.071</td>
                 </tr>
                 <tr>
                   <td>S4 基线模型</td>
@@ -726,7 +726,7 @@
         <div class="section-head">
           <div>
             <h2>架构示意</h2>
-            <p>当前主架构：Transformer 主干外接固定容量记忆；地址由位置结构 g 和 Transformer-PFC 情境状态 e 共同决定。</p>
+            <p>当前主架构：Transformer 主干外接固定容量记忆；地址由动作积分得到的 Grid-EC 结构码 g 和 Transformer-PFC 情境状态 e 共同决定。</p>
           </div>
         </div>
         <div class="grid-2">
@@ -741,8 +741,8 @@
                 </defs>
                 <text x="24" y="32" class="diagram-title">Transformer 主干 + Transformer-PFC 控制外挂记忆</text>
                 <rect x="34" y="66" width="170" height="72" class="node blue"></rect>
-                <text x="54" y="94" class="diagram-text">EC 位置追踪器</text>
-                <text x="54" y="116" class="diagram-muted">动作 + 自运动 → g_t</text>
+                <text x="54" y="94" class="diagram-text">Grid-EC 路径积分器</text>
+                <text x="54" y="116" class="diagram-muted">只吃动作/自运动 → g_t</text>
                 <rect x="34" y="190" width="170" height="72" class="node violet"></rect>
                 <text x="54" y="218" class="diagram-text">Transformer-PFC 状态</text>
                 <text x="54" y="240" class="diagram-muted">可见更新，查询继承</text>
@@ -830,7 +830,7 @@
         <div class="section-head">
           <div>
             <h2>路线板</h2>
-            <p>当前主线已经从 GRU 诊断基线切到 Transformer：外挂记忆 + 单独 Transformer-PFC + 查询时情境继承。</p>
+            <p>当前主线已经从直接位置上界切到无位置版本：Grid-EC 路径积分 + 单独 Transformer-PFC + 查询时情境继承。</p>
           </div>
         </div>
         <div class="stage-grid">
@@ -847,12 +847,12 @@
           <article class="stage done">
             <h3>S3</h3>
             <strong>Transformer-PFC</strong>
-            <p>carry 版回忆率 1.000；串扰从 0.081 降到 0.000。</p>
+            <p>无位置 Grid-EC 版回忆率 0.880；串扰 0.071；容量仍 64。</p>
           </article>
           <article class="stage next">
             <h3>S4</h3>
             <strong>强基线和多 seed</strong>
-            <p>重复随机种子；加大房间切换和延迟；补 Hippoformer / Titans。</p>
+            <p>加 mm-TEM 式结构辅助损失；补 gridness/位置解码 probe；再跑多 seed。</p>
           </article>
           <article class="stage">
             <h3>S5</h3>
@@ -887,8 +887,8 @@
           </article>
           <article class="artifact">
             <h3>小跑结果 CSV</h3>
-            <code>runs/internal_store_nav_transformer_carry_pilot.csv</code>
-            <p>Transformer 主线、carry 消融、oracle 上界。</p>
+            <code>runs/internal_store_nav_transformer_carry_grid_ec_pilot.csv</code>
+            <p>无位置 Grid-EC 主线结果。</p>
           </article>
           <article class="artifact">
             <h3>PFC 入口</h3>
@@ -900,7 +900,7 @@
 
       <section>
         <div class="callout">
-          <p><strong>看板结论：</strong>主线已切到 Transformer：外挂固定容量记忆保持 64 槽不增长；单独 Transformer-PFC 加查询继承后，隐藏回访回忆率 1.000，跨房间串扰 0.000。</p>
+          <p><strong>看板结论：</strong>主线已修正为无位置输入：Grid-EC 从动作/自运动积分出结构码，外挂固定容量记忆保持 64 槽不增长；当前回忆率 0.880，串扰 0.071。之前 1.000 是位置上界，不再当主结果。</p>
         </div>
       </section>
     </main>
@@ -972,25 +972,25 @@
         lengths: {32: 64.0, 64: 64.0, 128: 64.0}
       },
       {
-        model: "transformer_pfc_memory_carry",
-        pfc: "单独 Transformer-PFC + 查询继承",
+        model: "transformer_pfc_memory_carry_grid_ec",
+        pfc: "Grid-EC 无位置 + 查询继承",
         color: "#119c6a",
+        recall: 0.880,
+        crosstalk: 0.071,
+        probe: 0.728,
+        ctxEntropy: 0.270,
+        longRecall: 0.788,
+        lengths: {32: 64.0, 64: 64.0, 128: 64.0}
+      },
+      {
+        model: "transformer_pfc_memory_carry_oracle_pos",
+        pfc: "直接位置上界，不做主结果",
+        color: "#2563eb",
         recall: 1.0,
         crosstalk: 0.0,
         probe: 0.825,
         ctxEntropy: 0.091,
         longRecall: 0.978,
-        lengths: {32: 64.0, 64: 64.0, 128: 64.0}
-      },
-      {
-        model: "transformer_pfc_memory_oracle",
-        pfc: "真实房间上限",
-        color: "#2563eb",
-        recall: 1.0,
-        crosstalk: 0.0,
-        probe: 1.0,
-        ctxEntropy: 0.0,
-        longRecall: 1.0,
         lengths: {32: 64.0, 64: 64.0, 128: 64.0}
       }
     ];
@@ -1103,10 +1103,10 @@
     }
 
     function updateMetrics() {
-      const carry = pfcRows.find((r) => r.model === "transformer_pfc_memory_carry");
+      const carry = pfcRows.find((r) => r.model === "transformer_pfc_memory_carry_grid_ec");
       document.querySelector("#metric-internal-acc").textContent = fmt(carry.recall);
       document.querySelector("#metric-footprint").textContent = fmt(carry.lengths[64], 0);
-      document.querySelector("#metric-bank-growth").textContent = "0.978";
+      document.querySelector("#metric-bank-growth").textContent = fmt(carry.longRecall);
       document.querySelector("#metric-crosstalk").textContent = fmt(carry.crosstalk);
     }
 
