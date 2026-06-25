@@ -571,7 +571,7 @@
 
       <section>
         <div class="callout">
-          <p><strong>今晚 S1/S2/S3 新地基：</strong>serious 测试床已接入：8 房间、7x7、392 个唯一观察、长度扫到 256。grid-place scaffold 已跑通：256 个 place cells、k=8、one-step attractor，60 步回忆率 0.027；flat-KV 同设置 0.004。关键诊断正常：alias_verified=1.0，grid_pos_probe=1.000，place_pair_overlap=0.032，容量固定 256。</p>
+          <p><strong>今晚 S1/S2/S3/S4 新地基：</strong>serious 测试床已接入：8 房间、7x7、392 个唯一观察、长度扫到 256。grid-place + phase remapping 已跑通：256 个 place cells、k=8、one-step attractor，60 步回忆率 0.037；无 remap 是 0.027，flat-KV 是 0.004。关键诊断正常：alias_verified=1.0，remapped_grid_probe=1.000，remap_delta_norm=0.064，容量固定 256。</p>
         </div>
       </section>
 
@@ -837,7 +837,7 @@
         <div class="section-head">
           <div>
             <h2>路线板</h2>
-            <p>当前主线已经从直接位置上界切到神经式版本；今晚新增 serious testbed、多模块 Grid-EC、place scaffold 和 one-step attractor，下一步进入 context remapping。</p>
+            <p>当前主线已经从直接位置上界切到神经式版本；今晚新增 serious testbed、多模块 Grid-EC、place scaffold、one-step attractor 和 context phase remapping。</p>
           </div>
         </div>
         <div class="stage-grid">
@@ -866,10 +866,10 @@
             <strong>Place scaffold</strong>
             <p>W_gp、kWTA place code、W_pg 和 one-step attractor 已接入；60 步早期信号强于 flat-KV。</p>
           </article>
-          <article class="stage next">
+          <article class="stage done">
             <h3>S6</h3>
             <strong>Context remapping</strong>
-            <p>e_t 驱动每个 grid module 的相位偏移；再做多 seed、强基线和反馈环消融。</p>
+            <p>e_t 驱动每个 grid module 的相位偏移；60 步早期信号强于 no-remap。</p>
           </article>
         </div>
       </section>
@@ -890,12 +890,12 @@
           <article class="artifact">
             <h3>状态记录</h3>
             <code>GRID_PLACE_ATTRACTOR_S1S2_STATUS_CN.md</code>
-            <p>serious 测试床、多模块 Grid-EC、place scaffold 记录。</p>
+            <p>serious 测试床、Grid-EC、place scaffold、phase remap 记录。</p>
           </article>
           <article class="artifact">
             <h3>serious CSV</h3>
-            <code>runs/internal_store_serious_grid_place_pilot60.csv</code>
-            <p>8 房间大测试床 grid-place scaffold 短跑。</p>
+            <code>runs/internal_store_serious_grid_place_remap_pilot60.csv</code>
+            <p>8 房间大测试床 grid-place + phase remap 短跑。</p>
           </article>
           <article class="artifact">
             <h3>PFC 入口</h3>
@@ -907,7 +907,7 @@
 
       <section>
         <div class="callout">
-          <p><strong>看板结论：</strong>小任务上 neural-HPC 主线回忆率 0.866；新 serious 测试床已经把难度拉上来，flat-KV 60 步只有 0.004，而 grid-place + one-step attractor 到 0.027，容量固定 256。下一步不是继续堆分数，而是按设计接 context phase remapping。</p>
+          <p><strong>看板结论：</strong>小任务上 neural-HPC 主线回忆率 0.866；新 serious 测试床已经把难度拉上来，flat-KV 60 步只有 0.004，grid-place 到 0.027，grid-place + phase remapping 到 0.037，容量固定 256。下一步做 remap/none 的 2/4/8 房间消融和多 seed。</p>
         </div>
       </section>
     </main>
