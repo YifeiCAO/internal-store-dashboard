@@ -571,7 +571,7 @@
 
       <section>
         <div class="callout">
-          <p><strong>今晚主结果：</strong>serious 测试床已接入：8 房间、7x7、392 个唯一观察、长度扫到 256。正式 5-seed 后，flat-KV 回忆率 0.015±0.007；grid-place 无 remap 到 0.928±0.007；grid-place + phase remapping 到 0.933±0.015，L256 回忆率 0.888±0.015，容量固定 256。60 步 2/4/8 房间消融显示：remap 不是低房间数免费收益，但强 alias + 长训时有小增益。</p>
+          <p><strong>今晚主结果：</strong>serious 测试床已接入：8 房间、7x7、392 个唯一观察、长度扫到 256。正式 5-seed 后，flat-KV 回忆率 0.015±0.007；grid-place 无 remap 到 0.928±0.007；grid-place + phase remapping 到 0.933±0.015，L256 回忆率 0.888±0.015，容量固定 256。最新 attractor 消融显示：去掉 one-step attractor 后，phase 版本从 0.933 掉到 0.412。</p>
         </div>
       </section>
 
@@ -579,7 +579,7 @@
         <div class="section-head">
           <div>
             <h2>核心结果</h2>
-            <p>最新主线：Transformer 自己就是 PFC；它接一个外挂的神经式 EC/HPC。EC 只吃动作/自运动，HPC 用连续 key/value 记忆读写。</p>
+            <p>最新主线：Transformer 自己就是 PFC；它接一个外挂的神经式 EC/HPC。EC 只吃动作/自运动，HPC 用 place/content 记忆读写。</p>
           </div>
           <div class="source">更新：2026-06-25 · 来源：runs/internal_store_serious_s8_s300_multiseed_summary.csv</div>
         </div>
@@ -681,6 +681,46 @@
               </tr>
             </tbody>
           </table>
+        </div>
+        <div class="panel" style="margin-top: 14px;">
+          <h2>Attractor 消融</h2>
+          <table class="stack-table">
+            <thead>
+              <tr>
+                <th>变体</th>
+                <th>attractor</th>
+                <th>回忆率</th>
+                <th>L256</th>
+                <th>place 熵</th>
+                <th>最大 place 概率</th>
+                <th>活跃槽</th>
+                <th>容量</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td data-label="变体"><span class="model-pill"><span class="dot violet"></span>phase remap</span></td>
+                <td data-label="attractor" class="num">1</td>
+                <td data-label="回忆率" class="num">0.933±0.015</td>
+                <td data-label="L256" class="num">0.888±0.015</td>
+                <td data-label="place 熵" class="num">0.006</td>
+                <td data-label="最大 place 概率" class="num">0.999</td>
+                <td data-label="活跃槽" class="num">95.8</td>
+                <td data-label="容量" class="num">256</td>
+              </tr>
+              <tr>
+                <td data-label="变体"><span class="model-pill"><span class="dot amber"></span>phase remap</span></td>
+                <td data-label="attractor" class="num">0</td>
+                <td data-label="回忆率" class="num">0.412±0.087</td>
+                <td data-label="L256" class="num">0.372±0.086</td>
+                <td data-label="place 熵" class="num">1.278</td>
+                <td data-label="最大 place 概率" class="num">0.590</td>
+                <td data-label="活跃槽" class="num">195.7</td>
+                <td data-label="容量" class="num">256</td>
+              </tr>
+            </tbody>
+          </table>
+          <p style="margin: 10px 0 0; color: var(--muted);">配对差异：回忆率 +0.521，paired t p≈0.00035；n=5 的 exact sign-flip p 最小只能到 0.0625。</p>
         </div>
       </section>
 
@@ -917,7 +957,7 @@
           <article class="stage done">
             <h3>S5</h3>
             <strong>Place scaffold</strong>
-            <p>W_gp、kWTA place code、W_pg 和 one-step attractor 已接入；8-room serious 5-seed 回忆率 0.928±0.007。</p>
+            <p>W_gp、kWTA place code、W_pg 和 one-step attractor 已接入；去掉 attractor 后 phase 版本从 0.933 掉到 0.412。</p>
           </article>
           <article class="stage done">
             <h3>S6</h3>
@@ -947,8 +987,8 @@
           </article>
           <article class="artifact">
             <h3>serious CSV</h3>
-            <code>runs/internal_store_serious_s8_s300_multiseed_summary.csv</code>
-            <p>8 房间 serious 300 步 5-seed：flat-KV、grid-place none、grid-place phase 汇总。</p>
+            <code>runs/internal_store_serious_s8_s300_ablation_summary.csv</code>
+            <p>8 房间 serious 300 步 5-seed：主结果 + attractor 消融汇总。</p>
           </article>
           <article class="artifact">
             <h3>PFC 入口</h3>
@@ -960,7 +1000,7 @@
 
       <section>
         <div class="callout">
-          <p><strong>看板结论：</strong>小任务上 neural-HPC 主线回忆率 0.866；serious 8-room 300-step 5-seed 上，flat-KV 只有 0.015±0.007，grid-place none 到 0.928±0.007，grid-place + phase remapping 到 0.933±0.015，容量固定 256。下一步是显著性检验、消融扩展和更强基线。</p>
+          <p><strong>看板结论：</strong>小任务上 neural-HPC 主线回忆率 0.866；serious 8-room 300-step 5-seed 上，flat-KV 只有 0.015±0.007，grid-place none 到 0.928±0.007，grid-place + phase remapping 到 0.933±0.015，容量固定 256。one-step attractor 是关键部件：去掉后只有 0.412±0.087。下一步是容量 sweep、remap 正则 sweep 和更强基线。</p>
         </div>
       </section>
     </main>
