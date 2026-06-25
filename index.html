@@ -815,7 +815,7 @@
                 <tr>
                   <td>S5 统计加固</td>
                   <td><span class="model-pill"><span class="dot"></span>下一步</span></td>
-                  <td>多 seed、均值方差、显著性和更强外部记忆基线</td>
+                  <td>remap stress：分开统计 conflict / clean query，确认 remap 是否真能解决同位覆盖</td>
                 </tr>
               </tbody>
             </table>
@@ -1001,7 +1001,7 @@
 
       <section>
         <div class="callout">
-          <p><strong>看板结论：</strong>小任务上 neural-HPC 主线回忆率 0.866；serious 8-room 300-step 5-seed 上，flat-KV 只有 0.015±0.007，grid-place none 到 0.928±0.007，grid-place + phase remapping 到 0.933±0.015，容量固定 256。none 和 remap 总体很接近；one-step attractor 才是关键部件，去掉后只有 0.412±0.087。下一步是容量 sweep、remap 正则 sweep 和更强基线。</p>
+          <p><strong>看板结论：</strong>小任务上 neural-HPC 主线回忆率 0.866；serious 8-room 300-step 5-seed 上，flat-KV 只有 0.015±0.007，grid-place none 到 0.928±0.007，grid-place + phase remapping 到 0.933±0.015，容量固定 256。none 和 remap 总体很接近；one-step attractor 才是关键部件，去掉后只有 0.412±0.087。下一步已经转向 remap stress：专门测试跨房间同位置覆盖，并分开报告 conflict / clean query。</p>
         </div>
       </section>
     </main>
