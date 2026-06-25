@@ -549,8 +549,8 @@
         </article>
         <article class="status-card">
           <h2>serious 主线回忆率</h2>
-          <strong id="metric-internal-acc">0.924</strong>
-          <p>8 房间 300 步，grid-place + phase remap</p>
+          <strong id="metric-internal-acc">0.933</strong>
+          <p>8 房间 300 步，5-seed mean，phase remap</p>
         </article>
         <article class="status-card">
           <h2>外挂记忆容量</h2>
@@ -559,19 +559,19 @@
         </article>
         <article class="status-card">
           <h2>256 步回忆率</h2>
-          <strong id="metric-bank-growth">0.872</strong>
+          <strong id="metric-bank-growth">0.888</strong>
           <p>长度扫到 256，仍不输入位置编号</p>
         </article>
         <article class="status-card">
           <h2>跨房间串扰</h2>
-          <strong id="metric-crosstalk">0.040</strong>
+          <strong id="metric-crosstalk">0.037</strong>
           <p>同一局部位置读到错误房间内容的比例</p>
         </article>
       </div>
 
       <section>
         <div class="callout">
-          <p><strong>今晚主结果：</strong>serious 测试床已接入：8 房间、7x7、392 个唯一观察、长度扫到 256。300 步训练后，flat-KV 回忆率 0.017；grid-place 无 remap 到 0.912；grid-place + phase remapping 到 0.924，L256 回忆率 0.872，容量固定 256。60 步 2/4/8 房间消融显示：remap 不是低房间数免费收益，但强 alias + 长训时有小增益。</p>
+          <p><strong>今晚主结果：</strong>serious 测试床已接入：8 房间、7x7、392 个唯一观察、长度扫到 256。正式 5-seed 后，flat-KV 回忆率 0.015±0.007；grid-place 无 remap 到 0.928±0.007；grid-place + phase remapping 到 0.933±0.015，L256 回忆率 0.888±0.015，容量固定 256。60 步 2/4/8 房间消融显示：remap 不是低房间数免费收益，但强 alias + 长训时有小增益。</p>
         </div>
       </section>
 
@@ -581,7 +581,7 @@
             <h2>核心结果</h2>
             <p>最新主线：Transformer 自己就是 PFC；它接一个外挂的神经式 EC/HPC。EC 只吃动作/自运动，HPC 用连续 key/value 记忆读写。</p>
           </div>
-          <div class="source">更新：2026-06-25 · 来源：runs/internal_store_serious_s8_pilot300_summary.csv</div>
+          <div class="source">更新：2026-06-25 · 来源：runs/internal_store_serious_s8_s300_multiseed_summary.csv</div>
         </div>
         <div class="grid-2">
           <div class="panel">
@@ -630,12 +630,13 @@
           </table>
         </div>
         <div class="panel" style="margin-top: 14px;">
-          <h2>8-room serious 300-step 主结果</h2>
+          <h2>8-room serious 300-step 5-seed 主结果</h2>
           <table class="stack-table">
             <thead>
               <tr>
                 <th>模型</th>
                 <th>remap</th>
+                <th>n</th>
                 <th>回忆率</th>
                 <th>串扰</th>
                 <th>L64</th>
@@ -648,32 +649,35 @@
               <tr>
                 <td data-label="模型"><span class="model-pill"><span class="dot red"></span>flat-KV</span></td>
                 <td data-label="remap">n/a</td>
-                <td data-label="回忆率" class="num">0.017</td>
-                <td data-label="串扰" class="num">0.050</td>
-                <td data-label="L64" class="num">0.022</td>
-                <td data-label="L128" class="num">0.018</td>
-                <td data-label="L256" class="num">0.006</td>
-                <td data-label="容量" class="num">392</td>
+                <td data-label="n" class="num">5</td>
+                <td data-label="回忆率" class="num">0.015±0.007</td>
+                <td data-label="串扰" class="num">0.046±0.008</td>
+                <td data-label="L64" class="num">0.020±0.007</td>
+                <td data-label="L128" class="num">0.011±0.004</td>
+                <td data-label="L256" class="num">0.010±0.002</td>
+                <td data-label="容量" class="num">392±0</td>
               </tr>
               <tr>
                 <td data-label="模型"><span class="model-pill"><span class="dot green"></span>grid-place</span></td>
                 <td data-label="remap">none</td>
-                <td data-label="回忆率" class="num">0.912</td>
-                <td data-label="串扰" class="num">0.038</td>
-                <td data-label="L64" class="num">0.939</td>
-                <td data-label="L128" class="num">0.927</td>
-                <td data-label="L256" class="num">0.864</td>
-                <td data-label="容量" class="num">256</td>
+                <td data-label="n" class="num">5</td>
+                <td data-label="回忆率" class="num">0.928±0.007</td>
+                <td data-label="串扰" class="num">0.034±0.007</td>
+                <td data-label="L64" class="num">0.944±0.022</td>
+                <td data-label="L128" class="num">0.915±0.017</td>
+                <td data-label="L256" class="num">0.867±0.013</td>
+                <td data-label="容量" class="num">256±0</td>
               </tr>
               <tr>
                 <td data-label="模型"><span class="model-pill"><span class="dot violet"></span>grid-place</span></td>
                 <td data-label="remap">phase shift</td>
-                <td data-label="回忆率" class="num">0.924</td>
-                <td data-label="串扰" class="num">0.040</td>
-                <td data-label="L64" class="num">0.944</td>
-                <td data-label="L128" class="num">0.959</td>
-                <td data-label="L256" class="num">0.872</td>
-                <td data-label="容量" class="num">256</td>
+                <td data-label="n" class="num">5</td>
+                <td data-label="回忆率" class="num">0.933±0.015</td>
+                <td data-label="串扰" class="num">0.037±0.008</td>
+                <td data-label="L64" class="num">0.946±0.024</td>
+                <td data-label="L128" class="num">0.923±0.023</td>
+                <td data-label="L256" class="num">0.888±0.015</td>
+                <td data-label="容量" class="num">256±0</td>
               </tr>
             </tbody>
           </table>
@@ -765,7 +769,7 @@
                 <tr>
                   <td>S4 Neural EC/HPC</td>
                   <td><span class="model-pill"><span class="dot green"></span>主结果通过</span></td>
-                  <td>8 房间 serious：grid-place 0.912，phase remap 0.924，flat-KV 0.017</td>
+                  <td>8 房间 serious 5-seed：phase 0.933±0.015，none 0.928±0.007，flat-KV 0.015±0.007</td>
                 </tr>
                 <tr>
                   <td>S5 统计加固</td>
@@ -913,12 +917,12 @@
           <article class="stage done">
             <h3>S5</h3>
             <strong>Place scaffold</strong>
-            <p>W_gp、kWTA place code、W_pg 和 one-step attractor 已接入；8-room serious 300 步回忆率 0.912。</p>
+            <p>W_gp、kWTA place code、W_pg 和 one-step attractor 已接入；8-room serious 5-seed 回忆率 0.928±0.007。</p>
           </article>
           <article class="stage done">
             <h3>S6</h3>
             <strong>Context remapping</strong>
-            <p>e_t 驱动每个 grid module 的相位偏移；8-room serious 300 步回忆率 0.924，L256 为 0.872。</p>
+            <p>e_t 驱动每个 grid module 的相位偏移；8-room serious 5-seed 回忆率 0.933±0.015，L256 为 0.888±0.015。</p>
           </article>
         </div>
       </section>
@@ -943,8 +947,8 @@
           </article>
           <article class="artifact">
             <h3>serious CSV</h3>
-            <code>runs/internal_store_serious_s8_pilot300_summary.csv</code>
-            <p>8 房间 serious 300 步：flat-KV、grid-place none、grid-place phase 汇总。</p>
+            <code>runs/internal_store_serious_s8_s300_multiseed_summary.csv</code>
+            <p>8 房间 serious 300 步 5-seed：flat-KV、grid-place none、grid-place phase 汇总。</p>
           </article>
           <article class="artifact">
             <h3>PFC 入口</h3>
@@ -956,7 +960,7 @@
 
       <section>
         <div class="callout">
-          <p><strong>看板结论：</strong>小任务上 neural-HPC 主线回忆率 0.866；serious 8-room 300-step 上，flat-KV 只有 0.017，grid-place none 到 0.912，grid-place + phase remapping 到 0.924，容量固定 256。下一步是多 seed 均值方差、显著性检验和更强基线。</p>
+          <p><strong>看板结论：</strong>小任务上 neural-HPC 主线回忆率 0.866；serious 8-room 300-step 5-seed 上，flat-KV 只有 0.015±0.007，grid-place none 到 0.928±0.007，grid-place + phase remapping 到 0.933±0.015，容量固定 256。下一步是显著性检验、消融扩展和更强基线。</p>
         </div>
       </section>
     </main>
