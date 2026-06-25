@@ -571,7 +571,7 @@
 
       <section>
         <div class="callout">
-          <p><strong>今晚主结果：</strong>serious 测试床已接入：8 房间、7x7、392 个唯一观察、长度扫到 256。正式 5-seed 后，flat-KV 回忆率 0.015±0.007；grid-place 无 remap 到 0.928±0.007；grid-place + phase remapping 到 0.933±0.015，容量固定 256。直接比较 none vs remap：总准确率基本打平，phase 只在 L256 上有小优势。最新 attractor 消融显示：去掉 one-step attractor 后，phase 版本从 0.933 掉到 0.412。</p>
+          <p><strong>今晚主结果：</strong>serious 测试床已接入：8 房间、7x7、392 个唯一观察、长度扫到 256。正式 5-seed 后，flat-KV 回忆率 0.015±0.007；grid-place 无 remap 到 0.928±0.007；grid-place + phase remapping 到 0.933±0.015，容量固定 256。最新进展：remap stress 已改成 factored observation，clean structured recall 现在过门槛；下一步是 none vs phase 的冲突 ATTR 正式对照。</p>
         </div>
       </section>
 
@@ -723,6 +723,52 @@
           </table>
           <p style="margin: 10px 0 0; color: var(--muted);">配对差异：回忆率 +0.521，paired t p≈0.00035；n=5 的 exact sign-flip p 最小只能到 0.0625。</p>
         </div>
+        <div class="panel" style="margin-top: 14px;">
+          <h2>Factored stress 当前门槛</h2>
+          <table class="stack-table">
+            <thead>
+              <tr>
+                <th>实验</th>
+                <th>设置</th>
+                <th>sem clean</th>
+                <th>attr clean</th>
+                <th>attr conflict</th>
+                <th>conflict 串扰</th>
+                <th>chance</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td data-label="实验"><span class="model-pill"><span class="dot red"></span>backbone gate</span></td>
+                <td data-label="设置">transformer-only, blank 68</td>
+                <td data-label="sem clean" class="num">0.026</td>
+                <td data-label="attr clean" class="num">0.053</td>
+                <td data-label="attr conflict" class="num">0.100</td>
+                <td data-label="conflict 串扰" class="num">0.089</td>
+                <td data-label="chance" class="num">sem 0.020 / attr 0.125</td>
+              </tr>
+              <tr>
+                <td data-label="实验"><span class="model-pill"><span class="dot green"></span>clean gate</span></td>
+                <td data-label="设置">grid-place phase, clean-only</td>
+                <td data-label="sem clean" class="num">0.266</td>
+                <td data-label="attr clean" class="num">0.938</td>
+                <td data-label="attr conflict" class="num">n/a</td>
+                <td data-label="conflict 串扰" class="num">n/a</td>
+                <td data-label="chance" class="num">sem 0.020 / attr 0.125</td>
+              </tr>
+              <tr>
+                <td data-label="实验"><span class="model-pill"><span class="dot violet"></span>phase pilot</span></td>
+                <td data-label="设置">grid-place phase, mixed</td>
+                <td data-label="sem clean" class="num">0.071</td>
+                <td data-label="attr clean" class="num">0.548</td>
+                <td data-label="attr conflict" class="num">0.233</td>
+                <td data-label="conflict 串扰" class="num">0.244</td>
+                <td data-label="chance" class="num">sem 0.020 / attr 0.125</td>
+              </tr>
+            </tbody>
+          </table>
+          <p style="margin: 10px 0 0; color: var(--muted);">factored obs = SEM(local position) + ATTR(room/context)。同位置跨房间冲突只改变 ATTR；两个硬门已过，正式 5-seed 对照现在可以跑。</p>
+        </div>
       </section>
 
       <section id="tasks">
@@ -814,8 +860,8 @@
                 </tr>
                 <tr>
                   <td>S5 统计加固</td>
-                  <td><span class="model-pill"><span class="dot"></span>下一步</span></td>
-                  <td>global-random stress：backbone gate 已过；base clean recall 仍未过，先修基础记忆学习</td>
+                  <td><span class="model-pill"><span class="dot amber"></span>进入对照</span></td>
+                  <td>factored stress：backbone gate 已过；clean gate 已过；下一步跑 none vs phase 的 ATTR conflict 5 seeds</td>
                 </tr>
               </tbody>
             </table>
@@ -1001,7 +1047,7 @@
 
       <section>
         <div class="callout">
-          <p><strong>看板结论：</strong>小任务上 neural-HPC 主线回忆率 0.866；serious 8-room 300-step 5-seed 上，flat-KV 只有 0.015±0.007，grid-place none 到 0.928±0.007，grid-place + phase remapping 到 0.933±0.015，容量固定 256。none 和 remap 总体很接近；one-step attractor 才是关键部件。remap stress 已改成 global_random lookup，并用 blank delay 切掉 query-time 路线线索：transformer-only conflict acc=0。当前卡点是 base clean recall：phase 300 步 clean 仍约 0，暂不跑 none-vs-phase 5-seed。</p>
+          <p><strong>看板结论：</strong>小任务上 neural-HPC 主线回忆率 0.866；serious 8-room 300-step 5-seed 上，flat-KV 只有 0.015±0.007，grid-place none 到 0.928±0.007，grid-place + phase remapping 到 0.933±0.015，容量固定 256。one-step attractor 是关键部件。最新 remap stress 不再让模型背随机 token 表，改成 factored observation：SEM 负责位置语义，ATTR 负责房间/情境属性。transformer-only 在冲突 ATTR 上接近 chance；grid-place phase 在 clean-only 下 sem clean=0.266、attr clean=0.938，两个硬门已过。现在该跑 none vs phase 的 ATTR conflict 正式对照。</p>
         </div>
       </section>
     </main>
