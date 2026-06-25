@@ -815,7 +815,7 @@
                 <tr>
                   <td>S5 统计加固</td>
                   <td><span class="model-pill"><span class="dot"></span>下一步</span></td>
-                  <td>random obs-map stress：泄漏已修，backbone gate 通过；先让基础记忆学会随机 token recall</td>
+                  <td>global-random stress：backbone gate 已过；base clean recall 仍未过，先修基础记忆学习</td>
                 </tr>
               </tbody>
             </table>
@@ -1001,7 +1001,7 @@
 
       <section>
         <div class="callout">
-          <p><strong>看板结论：</strong>小任务上 neural-HPC 主线回忆率 0.866；serious 8-room 300-step 5-seed 上，flat-KV 只有 0.015±0.007，grid-place none 到 0.928±0.007，grid-place + phase remapping 到 0.933±0.015，容量固定 256。none 和 remap 总体很接近；one-step attractor 才是关键部件。remap stress 的 obs-label 泄漏已修，transformer-only conflict acc 已降到 0；但 random-label stress 下 grid-place 300 步仍未学会，下一步先补 stress replay/read 辅助，再做 none-vs-phase 5-seed。</p>
+          <p><strong>看板结论：</strong>小任务上 neural-HPC 主线回忆率 0.866；serious 8-room 300-step 5-seed 上，flat-KV 只有 0.015±0.007，grid-place none 到 0.928±0.007，grid-place + phase remapping 到 0.933±0.015，容量固定 256。none 和 remap 总体很接近；one-step attractor 才是关键部件。remap stress 已改成 global_random lookup，并用 blank delay 切掉 query-time 路线线索：transformer-only conflict acc=0。当前卡点是 base clean recall：phase 300 步 clean 仍约 0，暂不跑 none-vs-phase 5-seed。</p>
         </div>
       </section>
     </main>
