@@ -571,7 +571,7 @@
 
       <section>
         <div class="callout">
-          <p><strong>今晚 S1/S2 新地基：</strong>serious 测试床已接入：8 房间、7x7、392 个唯一观察、长度扫到 256；flat-KV baseline 能跑但 60 步仍接近随机，回忆率 0.004。关键诊断正常：alias_verified=1.0，grid_pos_probe=1.000，PI cycle drift=0.021，容量固定 392。</p>
+          <p><strong>今晚 S1/S2/S3 新地基：</strong>serious 测试床已接入：8 房间、7x7、392 个唯一观察、长度扫到 256。grid-place scaffold 已跑通：256 个 place cells、k=8、one-step attractor，60 步回忆率 0.027；flat-KV 同设置 0.004。关键诊断正常：alias_verified=1.0，grid_pos_probe=1.000，place_pair_overlap=0.032，容量固定 256。</p>
         </div>
       </section>
 
@@ -837,7 +837,7 @@
         <div class="section-head">
           <div>
             <h2>路线板</h2>
-            <p>当前主线已经从直接位置上界切到神经式版本；今晚新增 serious testbed 和多模块 Grid-EC，下一步进入 place scaffold + attractor。</p>
+            <p>当前主线已经从直接位置上界切到神经式版本；今晚新增 serious testbed、多模块 Grid-EC、place scaffold 和 one-step attractor，下一步进入 context remapping。</p>
           </div>
         </div>
         <div class="stage-grid">
@@ -861,12 +861,12 @@
             <strong>神经式 HPC</strong>
             <p>Transformer=PFC + 连续 key/value HPC，回忆率 0.866；L128 回忆率 0.745。</p>
           </article>
-          <article class="stage next">
+          <article class="stage done">
             <h3>S5</h3>
             <strong>Place scaffold</strong>
-            <p>接 W_gp、kWTA place code、W_pg 和 one-step attractor；用 8 房间测试床验收。</p>
+            <p>W_gp、kWTA place code、W_pg 和 one-step attractor 已接入；60 步早期信号强于 flat-KV。</p>
           </article>
-          <article class="stage">
+          <article class="stage next">
             <h3>S6</h3>
             <strong>Context remapping</strong>
             <p>e_t 驱动每个 grid module 的相位偏移；再做多 seed、强基线和反馈环消融。</p>
@@ -890,24 +890,24 @@
           <article class="artifact">
             <h3>状态记录</h3>
             <code>GRID_PLACE_ATTRACTOR_S1S2_STATUS_CN.md</code>
-            <p>今晚 serious 测试床和多模块 Grid-EC 记录。</p>
+            <p>serious 测试床、多模块 Grid-EC、place scaffold 记录。</p>
           </article>
           <article class="artifact">
             <h3>serious CSV</h3>
-            <code>runs/internal_store_serious_flatkv_pilot60.csv</code>
-            <p>8 房间大测试床 flat-KV 基线短跑。</p>
+            <code>runs/internal_store_serious_grid_place_pilot60.csv</code>
+            <p>8 房间大测试床 grid-place scaffold 短跑。</p>
           </article>
           <article class="artifact">
             <h3>PFC 入口</h3>
-            <code>pfc_transformer_neural_hpc_carry</code>
-            <p>Transformer 主干就是 PFC；外挂 EC/HPC 负责记忆。</p>
+            <code>pfc_transformer_grid_place_carry</code>
+            <p>Transformer 主干就是 PFC；外挂 Grid-EC/place scaffold 负责记忆地址。</p>
           </article>
         </div>
       </section>
 
       <section>
         <div class="callout">
-          <p><strong>看板结论：</strong>主线已修正为无位置输入，并进一步换成神经式 EC/HPC：Grid-EC 从动作/自运动积分出结构码，HPC 用连续 key/value 软寻址，固定容量保持 64；当前回忆率 0.866，串扰 0.065。之前 1.000 是位置上界，不再当主结果。</p>
+          <p><strong>看板结论：</strong>小任务上 neural-HPC 主线回忆率 0.866；新 serious 测试床已经把难度拉上来，flat-KV 60 步只有 0.004，而 grid-place + one-step attractor 到 0.027，容量固定 256。下一步不是继续堆分数，而是按设计接 context phase remapping。</p>
         </div>
       </section>
     </main>
