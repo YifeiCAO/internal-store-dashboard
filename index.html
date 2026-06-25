@@ -571,7 +571,7 @@
 
       <section>
         <div class="callout">
-          <p><strong>今晚主结果：</strong>serious 测试床已接入：8 房间、7x7、392 个唯一观察、长度扫到 256。正式 5-seed 后，flat-KV 回忆率 0.015±0.007；grid-place 无 remap 到 0.928±0.007；grid-place + phase remapping 到 0.933±0.015，L256 回忆率 0.888±0.015，容量固定 256。最新 attractor 消融显示：去掉 one-step attractor 后，phase 版本从 0.933 掉到 0.412。</p>
+          <p><strong>今晚主结果：</strong>serious 测试床已接入：8 房间、7x7、392 个唯一观察、长度扫到 256。正式 5-seed 后，flat-KV 回忆率 0.015±0.007；grid-place 无 remap 到 0.928±0.007；grid-place + phase remapping 到 0.933±0.015，容量固定 256。直接比较 none vs remap：总准确率基本打平，phase 只在 L256 上有小优势。最新 attractor 消融显示：去掉 one-step attractor 后，phase 版本从 0.933 掉到 0.412。</p>
         </div>
       </section>
 
@@ -681,6 +681,7 @@
               </tr>
             </tbody>
           </table>
+          <p style="margin: 10px 0 0; color: var(--muted);">none vs phase：总回忆率差值 +0.005，paired t p≈0.636；L256 差值 +0.021，paired t p≈0.043，但 n=5 exact sign-flip p=0.125。结论：核心胜负手是 grid-place/attractor，不是 remap。</p>
         </div>
         <div class="panel" style="margin-top: 14px;">
           <h2>Attractor 消融</h2>
@@ -1000,7 +1001,7 @@
 
       <section>
         <div class="callout">
-          <p><strong>看板结论：</strong>小任务上 neural-HPC 主线回忆率 0.866；serious 8-room 300-step 5-seed 上，flat-KV 只有 0.015±0.007，grid-place none 到 0.928±0.007，grid-place + phase remapping 到 0.933±0.015，容量固定 256。one-step attractor 是关键部件：去掉后只有 0.412±0.087。下一步是容量 sweep、remap 正则 sweep 和更强基线。</p>
+          <p><strong>看板结论：</strong>小任务上 neural-HPC 主线回忆率 0.866；serious 8-room 300-step 5-seed 上，flat-KV 只有 0.015±0.007，grid-place none 到 0.928±0.007，grid-place + phase remapping 到 0.933±0.015，容量固定 256。none 和 remap 总体很接近；one-step attractor 才是关键部件，去掉后只有 0.412±0.087。下一步是容量 sweep、remap 正则 sweep 和更强基线。</p>
         </div>
       </section>
     </main>
