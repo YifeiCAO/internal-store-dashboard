@@ -569,6 +569,12 @@
         </article>
       </div>
 
+      <section>
+        <div class="callout">
+          <p><strong>今晚 S1/S2 新地基：</strong>serious 测试床已接入：8 房间、7x7、392 个唯一观察、长度扫到 256；flat-KV baseline 能跑但 60 步仍接近随机，回忆率 0.004。关键诊断正常：alias_verified=1.0，grid_pos_probe=1.000，PI cycle drift=0.021，容量固定 392。</p>
+        </div>
+      </section>
+
       <section id="results">
         <div class="section-head">
           <div>
@@ -831,7 +837,7 @@
         <div class="section-head">
           <div>
             <h2>路线板</h2>
-            <p>当前主线已经从直接位置上界切到神经式版本：Transformer=PFC，外挂 Grid-EC 和 Neural-HPC。</p>
+            <p>当前主线已经从直接位置上界切到神经式版本；今晚新增 serious testbed 和多模块 Grid-EC，下一步进入 place scaffold + attractor。</p>
           </div>
         </div>
         <div class="stage-grid">
@@ -857,13 +863,13 @@
           </article>
           <article class="stage next">
             <h3>S5</h3>
-            <strong>强基线和多 seed</strong>
-            <p>补 gridness/位置解码 probe；多 seed；再加 mm-TEM 式结构辅助损失。</p>
+            <strong>Place scaffold</strong>
+            <p>接 W_gp、kWTA place code、W_pg 和 one-step attractor；用 8 房间测试床验收。</p>
           </article>
           <article class="stage">
             <h3>S6</h3>
-            <strong>反馈环和 ρ 曲线</strong>
-            <p>z_t 反馈到 e_t；跨房间相关性下的分离/混合；反馈消融。</p>
+            <strong>Context remapping</strong>
+            <p>e_t 驱动每个 grid module 的相位偏移；再做多 seed、强基线和反馈环消融。</p>
           </article>
         </div>
       </section>
@@ -883,13 +889,13 @@
           </article>
           <article class="artifact">
             <h3>状态记录</h3>
-            <code>INTERNAL_STORE_S1_S2_STATUS.md</code>
-            <p>验收说明和当前小跑结果。</p>
+            <code>GRID_PLACE_ATTRACTOR_S1S2_STATUS_CN.md</code>
+            <p>今晚 serious 测试床和多模块 Grid-EC 记录。</p>
           </article>
           <article class="artifact">
-            <h3>小跑结果 CSV</h3>
-            <code>runs/internal_store_nav_neural_hpc_pilot300.csv</code>
-            <p>神经式 HPC 主线结果。</p>
+            <h3>serious CSV</h3>
+            <code>runs/internal_store_serious_flatkv_pilot60.csv</code>
+            <p>8 房间大测试床 flat-KV 基线短跑。</p>
           </article>
           <article class="artifact">
             <h3>PFC 入口</h3>
