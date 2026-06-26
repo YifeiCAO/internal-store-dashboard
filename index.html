@@ -571,7 +571,7 @@
 
       <section>
         <div class="callout">
-          <p><strong>今晚主结果：</strong>serious 测试床已接入：8 房间、7x7、392 个唯一观察、长度扫到 256。正式 5-seed 后，flat-KV 回忆率 0.015±0.007；grid-place 无 remap 到 0.928±0.007；grid-place + phase remapping 到 0.933±0.015，容量固定 256。最新进展：remap stress 已改成 factored observation，clean structured recall 现在过门槛；下一步是 none vs phase 的冲突 ATTR 正式对照。</p>
+          <p><strong>今晚主结果：</strong>serious 测试床已接入：8 房间、7x7、392 个唯一观察、长度扫到 256。正式 5-seed 后，flat-KV 回忆率 0.015±0.007；grid-place 无 remap 到 0.928±0.007；grid-place + phase remapping 到 0.933±0.015，容量固定 256。最新进展：factored stress 的 clean-under-conflict 已基本恢复；但冲突串扰仍高，下一步先跑 context-basin，不急着 5 seeds。</p>
         </div>
       </section>
 
@@ -757,17 +757,26 @@
                 <td data-label="chance" class="num">sem 0.020 / attr 0.125</td>
               </tr>
               <tr>
-                <td data-label="实验"><span class="model-pill"><span class="dot violet"></span>phase pilot</span></td>
-                <td data-label="设置">grid-place phase, mixed</td>
+                <td data-label="实验"><span class="model-pill"><span class="dot violet"></span>mixed baseline</span></td>
+                <td data-label="设置">phase, no curriculum, 300</td>
                 <td data-label="sem clean" class="num">0.071</td>
                 <td data-label="attr clean" class="num">0.548</td>
                 <td data-label="attr conflict" class="num">0.233</td>
                 <td data-label="conflict 串扰" class="num">0.244</td>
                 <td data-label="chance" class="num">sem 0.020 / attr 0.125</td>
               </tr>
+              <tr>
+                <td data-label="实验"><span class="model-pill"><span class="dot teal"></span>Gate B'</span></td>
+                <td data-label="设置">phase, curriculum 300, train 600</td>
+                <td data-label="sem clean" class="num">0.483</td>
+                <td data-label="attr clean" class="num">0.862</td>
+                <td data-label="attr conflict" class="num">0.414</td>
+                <td data-label="conflict 串扰" class="num">0.485</td>
+                <td data-label="chance" class="num">sem 0.020 / attr 0.125</td>
+              </tr>
             </tbody>
           </table>
-          <p style="margin: 10px 0 0; color: var(--muted);">factored obs = SEM(local position) + ATTR(room/context)。同位置跨房间冲突只改变 ATTR；两个硬门已过，正式 5-seed 对照现在可以跑。</p>
+          <p style="margin: 10px 0 0; color: var(--muted);">factored obs = SEM(local position) + ATTR(room/context)。Gate B' clean 已基本恢复，但 conflict 串扰仍高；分支判断是先加 context-basin objective，再做正式 none-vs-phase。</p>
         </div>
       </section>
 
@@ -861,7 +870,7 @@
                 <tr>
                   <td>S5 统计加固</td>
                   <td><span class="model-pill"><span class="dot amber"></span>进入对照</span></td>
-                  <td>factored stress：backbone gate 已过；clean gate 已过；下一步跑 none vs phase 的 ATTR conflict 5 seeds</td>
+                  <td>Gate B' clean-under-conflict 已基本恢复；冲突串扰仍高，先跑 context-basin，再决定 5 seeds</td>
                 </tr>
               </tbody>
             </table>
@@ -1047,7 +1056,7 @@
 
       <section>
         <div class="callout">
-          <p><strong>看板结论：</strong>小任务上 neural-HPC 主线回忆率 0.866；serious 8-room 300-step 5-seed 上，flat-KV 只有 0.015±0.007，grid-place none 到 0.928±0.007，grid-place + phase remapping 到 0.933±0.015，容量固定 256。one-step attractor 是关键部件。最新 remap stress 不再让模型背随机 token 表，改成 factored observation：SEM 负责位置语义，ATTR 负责房间/情境属性。transformer-only 在冲突 ATTR 上接近 chance；grid-place phase 在 clean-only 下 sem clean=0.266、attr clean=0.938，两个硬门已过。现在该跑 none vs phase 的 ATTR conflict 正式对照。</p>
+          <p><strong>看板结论：</strong>小任务上 neural-HPC 主线回忆率 0.866；serious 8-room 300-step 5-seed 上，flat-KV 只有 0.015±0.007，grid-place none 到 0.928±0.007，grid-place + phase remapping 到 0.933±0.015，容量固定 256。one-step attractor 是关键部件。最新 remap stress 不再让模型背随机 token 表，改成 factored observation：SEM 负责位置语义，ATTR 负责房间/情境属性。Gate B' 加 curriculum 后，mixed conflict 下 clean 从 sem/attr 0.071/0.548 提升到 0.483/0.862；但 crosstalk_conflict 仍有 0.485，所以当前分支是先加 context-basin objective，再做正式对照。</p>
         </div>
       </section>
     </main>
