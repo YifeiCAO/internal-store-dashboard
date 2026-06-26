@@ -539,7 +539,7 @@
       <div class="status-row" aria-label="最新状态">
         <article class="status-card thesis">
           <h2>当前主线</h2>
-          <p>重要修正：位置编号不能进模型。当前有效主线把 Transformer 当 PFC 主干；EC 从动作/自运动积分出 grid code；HPC 是外挂的 place/content 记忆。</p>
+          <p>重要修正：位置编号不能进模型。当前有效主线把 Transformer 当 PFC 主干；EC 从动作/自运动积分出 grid code；HPC 是外挂的 place/content 记忆。最新通过：ATTR cue 的神经 context key 让返回状态重新进入旧情境。</p>
           <div class="badge-row">
             <span class="badge"><span class="dot green"></span>无位置输入已跑通</span>
             <span class="badge"><span class="dot blue"></span>Grid-EC path integration</span>
@@ -548,9 +548,9 @@
           </div>
         </article>
         <article class="status-card">
-          <h2>serious 主线回忆率</h2>
-          <strong id="metric-internal-acc">0.933</strong>
-          <p>8 房间 300 步，5-seed mean，phase remap</p>
+          <h2>re-entry + basin 回忆率</h2>
+          <strong id="metric-internal-acc">0.727</strong>
+          <p>single seed，factored stress，phase remap</p>
         </article>
         <article class="status-card">
           <h2>外挂记忆容量</h2>
@@ -558,20 +558,20 @@
           <p>固定 place/content 槽，不随序列追加</p>
         </article>
         <article class="status-card">
-          <h2>256 步回忆率</h2>
-          <strong id="metric-bank-growth">0.888</strong>
-          <p>长度扫到 256，仍不输入位置编号</p>
+          <h2>返回探针</h2>
+          <strong id="metric-bank-growth">0.933</strong>
+          <p>conflict return 的 PFC state room probe</p>
         </article>
         <article class="status-card">
           <h2>跨房间串扰</h2>
-          <strong id="metric-crosstalk">0.037</strong>
-          <p>同一局部位置读到错误房间内容的比例</p>
+          <strong id="metric-crosstalk">0.152</strong>
+          <p>factored conflict 中读到错误 ATTR 的比例</p>
         </article>
       </div>
 
       <section>
         <div class="callout">
-          <p><strong>今晚主结果：</strong>serious 测试床已接入：8 房间、7x7、392 个唯一观察、长度扫到 256。正式 5-seed 后，flat-KV 回忆率 0.015±0.007；grid-place 无 remap 到 0.928±0.007；grid-place + phase remapping 到 0.933±0.015，容量固定 256。最新进展：context-basin 能压低串扰，但会破坏 clean；诊断显示 A→B→A 返回时主干 hidden 没稳定认回 A。下一步是 context re-entry，不跑 5 seeds。</p>
+          <p><strong>今晚主结果：</strong>context re-entry 已跑通。用可见 ATTR token 经过 neural head 得到 context key，再把 context 作为 state-only feedback 写入 PFC 表征；return-probe 从 0.033 提到 0.933，clean 没崩。加 context-basin w=0.05 后，crosstalk_conflict 从 step300 的 0.282 降到 step600 的 0.171，最终 0.152；下一步才是 none-vs-phase 的 5 seeds decisive test。</p>
         </div>
       </section>
 
@@ -581,7 +581,7 @@
             <h2>核心结果</h2>
             <p>最新主线：Transformer 自己就是 PFC；它接一个外挂的神经式 EC/HPC。EC 只吃动作/自运动，HPC 用 place/content 记忆读写。</p>
           </div>
-          <div class="source">更新：2026-06-25 · 来源：runs/internal_store_serious_s8_s300_multiseed_summary.csv</div>
+          <div class="source">更新：2026-06-26 · 来源：runs/internal_store_factored_reentry_attrkey_basin_w005_s4_trend600_b16.csv</div>
         </div>
         <div class="grid-2">
           <div class="panel">
@@ -774,9 +774,27 @@
                 <td data-label="conflict 串扰" class="num">0.485</td>
                 <td data-label="chance" class="num">sem 0.020 / attr 0.125</td>
               </tr>
+              <tr>
+                <td data-label="实验"><span class="model-pill"><span class="dot green"></span>Re-entry gate</span></td>
+                <td data-label="设置">attr_key, state feedback, no basin</td>
+                <td data-label="sem clean" class="num">0.828</td>
+                <td data-label="attr clean" class="num">1.000</td>
+                <td data-label="attr conflict" class="num">0.818</td>
+                <td data-label="conflict 串扰" class="num">0.141</td>
+                <td data-label="chance" class="num">return probe 0.933</td>
+              </tr>
+              <tr>
+                <td data-label="实验"><span class="model-pill"><span class="dot blue"></span>Basin pass</span></td>
+                <td data-label="设置">attr_key + basin w=0.05</td>
+                <td data-label="sem clean" class="num">0.793</td>
+                <td data-label="attr clean" class="num">1.000</td>
+                <td data-label="attr conflict" class="num">0.818</td>
+                <td data-label="conflict 串扰" class="num">0.152</td>
+                <td data-label="chance" class="num">sem 0.020 / attr 0.125</td>
+              </tr>
             </tbody>
           </table>
-          <p style="margin: 10px 0 0; color: var(--muted);">factored obs = SEM(local position) + ATTR(room/context)。Gate B' clean 已基本恢复，但 conflict 串扰仍高；分支判断是先加 context-basin objective，再做正式 none-vs-phase。</p>
+          <p style="margin: 10px 0 0; color: var(--muted);">factored obs = SEM(local position) + ATTR(room/context)。最新通过版用 attr_key 做 context re-entry，并把 context 只写入 PFC state，不喂 gate、不扰动 semantic path。</p>
         </div>
         <div class="panel" style="margin-top: 14px;">
           <h2>Context-basin trend</h2>
@@ -816,9 +834,17 @@
                 <td data-label="attr conflict 600" class="num">0.276</td>
                 <td data-label="判断">clean 部分保住，趋势没反转</td>
               </tr>
+              <tr>
+                <td data-label="设置">attr_key + state feedback + w=0.05</td>
+                <td data-label="crosstalk 300→600" class="num">0.282 → 0.171</td>
+                <td data-label="sem clean 600" class="num">0.739</td>
+                <td data-label="attr clean 600" class="num">0.957</td>
+                <td data-label="attr conflict 600" class="num">0.810</td>
+                <td data-label="判断">通过：串扰下降，clean 保住</td>
+              </tr>
             </tbody>
           </table>
-          <p style="margin: 10px 0 0; color: var(--muted);">e_t 诊断：无 basin 600-step 下，conflict return 的 pfc_state room probe=0.033，ctx_weights probe=0.633。返回 A 时主干状态没有稳定 re-enter A；下一步修 context re-entry。</p>
+          <p style="margin: 10px 0 0; color: var(--muted);">e_t 诊断曾显示 pfc_state return probe=0.033。attr_key + state-only feedback 后，return probe=0.933；basin loss 终于在干净 context 上工作。</p>
         </div>
       </section>
 
@@ -1098,7 +1124,7 @@
 
       <section>
         <div class="callout">
-          <p><strong>看板结论：</strong>小任务上 neural-HPC 主线回忆率 0.866；serious 8-room 300-step 5-seed 上，flat-KV 只有 0.015±0.007，grid-place none 到 0.928±0.007，grid-place + phase remapping 到 0.933±0.015，容量固定 256。one-step attractor 是关键部件。最新 remap stress 不再让模型背随机 token 表，改成 factored observation。Gate B' 加 curriculum 后 clean 恢复；context-basin 从头开能反转 crosstalk，但破坏 sem clean；延迟开启能保部分 clean，但 crosstalk 不降。诊断显示 conflict return 的 pfc_state 几乎不能认回 A，所以现在该修 context re-entry，而不是跑 5 seeds。</p>
+          <p><strong>看板结论：</strong>小任务上 neural-HPC 主线回忆率 0.866；serious 8-room 300-step 5-seed 上，flat-KV 只有 0.015±0.007，grid-place none 到 0.928±0.007，grid-place + phase remapping 到 0.933±0.015，容量固定 256。最新 factored conflict 线已经修掉 return re-entry：attr_key + state-only feedback 让 PFC return probe 到 0.933；再加 basin w=0.05，crosstalk_conflict 随训练 0.282→0.171，final 0.152，clean 保持健康。下一步是正式 none-vs-phase 的 5 seeds decisive test。</p>
         </div>
       </section>
     </main>
@@ -1312,11 +1338,10 @@
     }
 
     function updateMetrics() {
-      const carry = pfcRows.find((r) => r.model === "pfc_transformer_neural_hpc_carry");
-      document.querySelector("#metric-internal-acc").textContent = fmt(carry.recall);
-      document.querySelector("#metric-footprint").textContent = fmt(carry.lengths[64], 0);
-      document.querySelector("#metric-bank-growth").textContent = fmt(carry.longRecall);
-      document.querySelector("#metric-crosstalk").textContent = fmt(carry.crosstalk);
+      document.querySelector("#metric-internal-acc").textContent = "0.727";
+      document.querySelector("#metric-footprint").textContent = "256";
+      document.querySelector("#metric-bank-growth").textContent = "0.933";
+      document.querySelector("#metric-crosstalk").textContent = "0.152";
     }
 
     function render() {
