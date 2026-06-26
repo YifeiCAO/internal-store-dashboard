@@ -571,7 +571,7 @@
 
       <section>
         <div class="callout">
-          <p><strong>今晚主结果：</strong>serious 测试床已接入：8 房间、7x7、392 个唯一观察、长度扫到 256。正式 5-seed 后，flat-KV 回忆率 0.015±0.007；grid-place 无 remap 到 0.928±0.007；grid-place + phase remapping 到 0.933±0.015，容量固定 256。最新进展：factored stress 的 clean-under-conflict 已基本恢复；但冲突串扰仍高，下一步先跑 context-basin，不急着 5 seeds。</p>
+          <p><strong>今晚主结果：</strong>serious 测试床已接入：8 房间、7x7、392 个唯一观察、长度扫到 256。正式 5-seed 后，flat-KV 回忆率 0.015±0.007；grid-place 无 remap 到 0.928±0.007；grid-place + phase remapping 到 0.933±0.015，容量固定 256。最新进展：context-basin 能压低串扰，但会破坏 clean；诊断显示 A→B→A 返回时主干 hidden 没稳定认回 A。下一步是 context re-entry，不跑 5 seeds。</p>
         </div>
       </section>
 
@@ -778,6 +778,48 @@
           </table>
           <p style="margin: 10px 0 0; color: var(--muted);">factored obs = SEM(local position) + ATTR(room/context)。Gate B' clean 已基本恢复，但 conflict 串扰仍高；分支判断是先加 context-basin objective，再做正式 none-vs-phase。</p>
         </div>
+        <div class="panel" style="margin-top: 14px;">
+          <h2>Context-basin trend</h2>
+          <table class="stack-table">
+            <thead>
+              <tr>
+                <th>设置</th>
+                <th>crosstalk 300→600</th>
+                <th>sem clean 600</th>
+                <th>attr clean 600</th>
+                <th>attr conflict 600</th>
+                <th>判断</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td data-label="设置">w=0.01，从头开</td>
+                <td data-label="crosstalk 300→600" class="num">0.224 → 0.410</td>
+                <td data-label="sem clean 600" class="num">0.043</td>
+                <td data-label="attr clean 600" class="num">0.522</td>
+                <td data-label="attr conflict 600" class="num">0.333</td>
+                <td data-label="判断">失败：clean 崩</td>
+              </tr>
+              <tr>
+                <td data-label="设置">w=0.05，从头开</td>
+                <td data-label="crosstalk 300→600" class="num">0.294 → 0.124</td>
+                <td data-label="sem clean 600" class="num">0.043</td>
+                <td data-label="attr clean 600" class="num">0.957</td>
+                <td data-label="attr conflict 600" class="num">0.800</td>
+                <td data-label="判断">趋势反转，但 sem clean 崩</td>
+              </tr>
+              <tr>
+                <td data-label="设置">w=0.05，300 后 ramp</td>
+                <td data-label="crosstalk 300→600" class="num">0.424 → 0.590</td>
+                <td data-label="sem clean 600" class="num">0.522</td>
+                <td data-label="attr clean 600" class="num">0.739</td>
+                <td data-label="attr conflict 600" class="num">0.276</td>
+                <td data-label="判断">clean 部分保住，趋势没反转</td>
+              </tr>
+            </tbody>
+          </table>
+          <p style="margin: 10px 0 0; color: var(--muted);">e_t 诊断：无 basin 600-step 下，conflict return 的 pfc_state room probe=0.033，ctx_weights probe=0.633。返回 A 时主干状态没有稳定 re-enter A；下一步修 context re-entry。</p>
+        </div>
       </section>
 
       <section id="tasks">
@@ -870,7 +912,7 @@
                 <tr>
                   <td>S5 统计加固</td>
                   <td><span class="model-pill"><span class="dot amber"></span>进入对照</span></td>
-                  <td>Gate B' clean-under-conflict 已基本恢复；冲突串扰仍高，先跑 context-basin，再决定 5 seeds</td>
+                  <td>basin 尚未通过 trend+clean 双验收；诊断指向 context re-entry，暂不跑 5 seeds</td>
                 </tr>
               </tbody>
             </table>
@@ -1056,7 +1098,7 @@
 
       <section>
         <div class="callout">
-          <p><strong>看板结论：</strong>小任务上 neural-HPC 主线回忆率 0.866；serious 8-room 300-step 5-seed 上，flat-KV 只有 0.015±0.007，grid-place none 到 0.928±0.007，grid-place + phase remapping 到 0.933±0.015，容量固定 256。one-step attractor 是关键部件。最新 remap stress 不再让模型背随机 token 表，改成 factored observation：SEM 负责位置语义，ATTR 负责房间/情境属性。Gate B' 加 curriculum 后，mixed conflict 下 clean 从 sem/attr 0.071/0.548 提升到 0.483/0.862；但 crosstalk_conflict 仍有 0.485，所以当前分支是先加 context-basin objective，再做正式对照。</p>
+          <p><strong>看板结论：</strong>小任务上 neural-HPC 主线回忆率 0.866；serious 8-room 300-step 5-seed 上，flat-KV 只有 0.015±0.007，grid-place none 到 0.928±0.007，grid-place + phase remapping 到 0.933±0.015，容量固定 256。one-step attractor 是关键部件。最新 remap stress 不再让模型背随机 token 表，改成 factored observation。Gate B' 加 curriculum 后 clean 恢复；context-basin 从头开能反转 crosstalk，但破坏 sem clean；延迟开启能保部分 clean，但 crosstalk 不降。诊断显示 conflict return 的 pfc_state 几乎不能认回 A，所以现在该修 context re-entry，而不是跑 5 seeds。</p>
         </div>
       </section>
     </main>
