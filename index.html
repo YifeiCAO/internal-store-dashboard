@@ -3,520 +3,453 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>固定容量记忆看板</title>
-  <link rel="icon" href="data:," />
+  <title>ReMAP-Former 实验看板</title>
   <style>
     :root {
-      --bg: #f6f7f9;
+      --bg: #f4f6f8;
       --panel: #ffffff;
-      --ink: #18202a;
-      --muted: #5f6b7a;
-      --line: #d9dee7;
-      --blue: #2563eb;
-      --green: #119c6a;
-      --amber: #c47a13;
-      --red: #c2413a;
-      --violet: #6d5bd0;
-      --teal: #0f8f9d;
-      --shadow: 0 12px 36px rgba(24, 32, 42, 0.08);
+      --ink: #17202b;
+      --muted: #637083;
+      --line: #d9dee6;
+      --blue: #2762c7;
+      --blue-soft: #eef4ff;
+      --green: #16845b;
+      --green-soft: #eaf8f1;
+      --amber: #ad6b10;
+      --amber-soft: #fff6e7;
+      --red: #b9433d;
+      --red-soft: #fff0ef;
+      --teal: #147b86;
+      --violet: #6756a8;
     }
 
-    * {
-      box-sizing: border-box;
-    }
+    * { box-sizing: border-box; }
+
+    html { scroll-behavior: smooth; }
 
     body {
       margin: 0;
       background: var(--bg);
       color: var(--ink);
-      font: 14px/1.5 "Inter", "Segoe UI", Arial, sans-serif;
+      font: 14px/1.55 "Segoe UI", "Microsoft YaHei", Arial, sans-serif;
       letter-spacing: 0;
     }
 
-    a {
-      color: inherit;
-    }
+    a { color: inherit; }
 
     .shell {
-      max-width: 1280px;
+      width: min(1280px, calc(100% - 32px));
       margin: 0 auto;
-      padding: 20px;
+      padding: 18px 0 48px;
     }
 
     .topbar {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 16px;
-      padding: 12px 0 18px;
+      gap: 20px;
+      padding: 4px 0 16px;
       border-bottom: 1px solid var(--line);
-    }
-
-    .brand {
-      min-width: 220px;
     }
 
     .brand h1 {
       margin: 0;
-      font-size: 24px;
-      line-height: 1.15;
-      font-weight: 760;
+      font-size: 25px;
+      line-height: 1.2;
     }
 
     .brand p {
       margin: 4px 0 0;
       color: var(--muted);
-      font-size: 13px;
     }
 
-    .nav {
+    nav {
       display: flex;
-      gap: 8px;
       flex-wrap: wrap;
       justify-content: flex-end;
-    }
-
-    .nav a {
-      text-decoration: none;
-      border: 1px solid var(--line);
-      background: var(--panel);
-      padding: 8px 10px;
-      border-radius: 8px;
-      color: #2b3542;
-      font-weight: 650;
-      white-space: nowrap;
-    }
-
-    .status-row {
-      display: grid;
-      grid-template-columns: 1.4fr repeat(4, 1fr);
-      gap: 12px;
-      margin: 18px 0;
-    }
-
-    .status-card,
-    .panel,
-    .metric-card,
-    .stage,
-    .artifact {
-      background: var(--panel);
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      box-shadow: var(--shadow);
-    }
-
-    .status-card {
-      padding: 16px;
-      min-height: 126px;
-    }
-
-    .status-card h2,
-    .metric-card h3,
-    .panel h2,
-    .stage h3,
-    .artifact h3 {
-      margin: 0;
-      font-size: 13px;
-      line-height: 1.25;
-      text-transform: uppercase;
-      color: var(--muted);
-      font-weight: 760;
-    }
-
-    .status-card strong {
-      display: block;
-      margin-top: 10px;
-      font-size: 34px;
-      line-height: 1;
-      font-weight: 800;
-    }
-
-    .status-card p,
-    .metric-card p,
-    .stage p,
-    .artifact p {
-      margin: 9px 0 0;
-      color: var(--muted);
-    }
-
-    .thesis {
-      padding: 16px 18px;
-      min-height: 126px;
-    }
-
-    .thesis h2 {
-      color: var(--green);
-    }
-
-    .thesis p {
-      margin-top: 10px;
-      color: #26313d;
-      font-size: 16px;
-      line-height: 1.45;
-    }
-
-    .badge-row {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      margin-top: 14px;
-    }
-
-    .badge {
-      display: inline-flex;
-      align-items: center;
       gap: 6px;
+    }
+
+    nav a {
+      padding: 6px 9px;
       border: 1px solid var(--line);
-      border-radius: 999px;
-      padding: 5px 9px;
-      color: #354152;
-      background: #fbfcfe;
-      font-size: 12px;
-      font-weight: 650;
+      border-radius: 5px;
+      background: var(--panel);
+      text-decoration: none;
+      font-size: 13px;
     }
 
-    .dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background: var(--blue);
-      flex: 0 0 auto;
-    }
-
-    .dot.green { background: var(--green); }
-    .dot.amber { background: var(--amber); }
-    .dot.red { background: var(--red); }
-    .dot.violet { background: var(--violet); }
-    .dot.teal { background: var(--teal); }
-
-    section {
-      margin-top: 18px;
-      scroll-margin-top: 20px;
-    }
+    section { margin-top: 22px; }
 
     .section-head {
       display: flex;
-      justify-content: space-between;
       align-items: end;
-      gap: 16px;
-      margin: 0 0 10px;
+      justify-content: space-between;
+      gap: 18px;
+      margin-bottom: 10px;
     }
 
     .section-head h2 {
       margin: 0;
       font-size: 19px;
-      line-height: 1.2;
     }
 
     .section-head p {
-      margin: 4px 0 0;
+      margin: 3px 0 0;
       color: var(--muted);
     }
 
     .source {
       color: var(--muted);
       font-size: 12px;
-      text-align: right;
+      white-space: nowrap;
     }
+
+    .status-grid {
+      display: grid;
+      grid-template-columns: 1.55fr repeat(3, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    .status-card,
+    .panel {
+      border: 1px solid var(--line);
+      border-radius: 7px;
+      background: var(--panel);
+    }
+
+    .status-card { padding: 14px; }
+
+    .status-card h2,
+    .panel h3 {
+      margin: 0;
+      font-size: 13px;
+      color: var(--muted);
+      font-weight: 650;
+    }
+
+    .status-card strong {
+      display: block;
+      margin-top: 5px;
+      font-size: 26px;
+      line-height: 1.15;
+    }
+
+    .status-card p {
+      margin: 7px 0 0;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .status-card.primary {
+      border-top: 4px solid var(--blue);
+      background: var(--blue-soft);
+    }
+
+    .status-card.pass { border-top: 4px solid var(--green); }
+    .status-card.hold { border-top: 4px solid var(--amber); }
+
+    .badge-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 10px;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 3px 7px;
+      border: 1px solid rgba(39, 98, 199, 0.2);
+      border-radius: 999px;
+      background: #fff;
+      font-size: 11px;
+    }
+
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: currentColor;
+    }
+
+    .green { color: var(--green); }
+    .amber { color: var(--amber); }
+    .red { color: var(--red); }
+    .blue { color: var(--blue); }
+    .teal { color: var(--teal); }
+    .violet { color: var(--violet); }
+
+    .decision {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 12px;
+      align-items: center;
+      padding: 13px 15px;
+      border: 1px solid #e8c88f;
+      border-left: 5px solid var(--amber);
+      border-radius: 6px;
+      background: var(--amber-soft);
+    }
+
+    .decision strong { color: #744300; }
+    .decision p { margin: 0; }
 
     .grid-2 {
       display: grid;
-      grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
-      gap: 14px;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
     }
 
-    .grid-3 {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 14px;
-    }
+    .panel { padding: 15px; }
 
-    .panel {
-      padding: 16px;
-      overflow: hidden;
-    }
-
-    .chart-wrap {
-      height: 300px;
-      width: 100%;
-      position: relative;
-    }
-
-    canvas {
-      width: 100%;
-      height: 100%;
-      display: block;
+    .panel > h3 {
+      margin-bottom: 11px;
+      color: var(--ink);
+      font-size: 15px;
     }
 
     table {
       width: 100%;
       border-collapse: collapse;
-      overflow: hidden;
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      background: var(--panel);
     }
 
-    .stack-table td::before {
-      display: none;
-    }
-
-    th,
-    td {
-      padding: 9px 10px;
+    th, td {
+      padding: 9px 8px;
       border-bottom: 1px solid var(--line);
       text-align: left;
-      vertical-align: top;
+      vertical-align: middle;
     }
 
     th {
-      background: #eef1f6;
-      color: #3a4656;
-      font-size: 12px;
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 700;
       text-transform: uppercase;
-      white-space: nowrap;
-    }
-
-    tr:last-child td {
-      border-bottom: 0;
     }
 
     td.num {
       font-variant-numeric: tabular-nums;
-      white-space: nowrap;
+      font-family: Consolas, "SFMono-Regular", monospace;
     }
 
-    .model-pill {
+    tbody tr:last-child td { border-bottom: 0; }
+
+    .tag {
       display: inline-flex;
       align-items: center;
-      gap: 7px;
-      font-weight: 760;
+      gap: 5px;
+      font-weight: 700;
     }
 
-    .diagram {
-      width: 100%;
-      min-height: 260px;
-      background: #fbfcfe;
+    .bars { display: grid; gap: 15px; }
+
+    .bar-row {
+      display: grid;
+      grid-template-columns: 58px 1fr 66px;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .bar-track {
+      height: 18px;
       border: 1px solid var(--line);
-      border-radius: 8px;
+      background: #eef1f4;
+      position: relative;
       overflow: hidden;
     }
 
-    svg {
-      display: block;
-      width: 100%;
-      height: auto;
+    .bar-fill {
+      height: 100%;
+      background: var(--green);
     }
 
-    .diagram-title {
-      font-size: 13px;
-      fill: #1e2937;
-      font-weight: 760;
+    .bar-fill.fail { background: var(--amber); }
+
+    .threshold {
+      position: absolute;
+      left: 90%;
+      top: -2px;
+      bottom: -2px;
+      width: 2px;
+      background: var(--red);
     }
 
-    .diagram-text {
-      font-size: 12px;
-      fill: #334155;
+    .bar-value {
+      font: 12px Consolas, monospace;
+      text-align: right;
     }
 
-    .diagram-muted {
-      font-size: 11px;
-      fill: #64748b;
-    }
-
-    .node {
-      fill: #ffffff;
-      stroke: #cfd6e2;
-      stroke-width: 1.2;
-      rx: 7;
-    }
-
-    .node.blue { stroke: var(--blue); fill: #eff5ff; }
-    .node.green { stroke: var(--green); fill: #eefbf5; }
-    .node.amber { stroke: var(--amber); fill: #fff6e8; }
-    .node.red { stroke: var(--red); fill: #fff1f0; }
-    .node.violet { stroke: var(--violet); fill: #f5f3ff; }
-    .node.teal { stroke: var(--teal); fill: #edfafd; }
-
-    .arrow {
-      stroke: #6b7280;
-      stroke-width: 1.8;
-      fill: none;
-      marker-end: url(#arrow);
-    }
-
-    .stage-grid {
+    .task-flow,
+    .arch-flow {
       display: grid;
-      grid-template-columns: repeat(6, minmax(0, 1fr));
-      gap: 10px;
+      align-items: stretch;
+      gap: 8px;
+    }
+
+    .task-flow { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+
+    .flow-node {
+      min-height: 82px;
+      padding: 11px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: #fafbfc;
+      position: relative;
+    }
+
+    .flow-node:not(:last-child)::after {
+      content: "";
+      position: absolute;
+      right: -9px;
+      top: 50%;
+      width: 9px;
+      border-top: 2px solid #8c97a6;
+    }
+
+    .flow-node strong { display: block; margin-bottom: 4px; }
+    .flow-node span { color: var(--muted); font-size: 12px; }
+
+    .flow-node.ref0 { border-top: 4px solid var(--blue); }
+    .flow-node.ref1 { border-top: 4px solid var(--violet); }
+    .flow-node.distractor { border-top: 4px solid var(--teal); }
+    .flow-node.return { border-top: 4px solid var(--amber); }
+
+    .arch-flow {
+      grid-template-columns: 1fr 1fr 1.15fr 1.2fr 1fr;
+    }
+
+    .arch-node {
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: #fff;
+      position: relative;
+      min-height: 150px;
+    }
+
+    .arch-node:not(:last-child)::after {
+      content: "";
+      position: absolute;
+      right: -9px;
+      top: 45px;
+      width: 9px;
+      border-top: 2px solid #8c97a6;
+    }
+
+    .arch-node h3 {
+      margin: 0 0 8px;
+      font-size: 14px;
+    }
+
+    .arch-node p,
+    .arch-node ul {
+      margin: 0;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .arch-node ul { padding-left: 17px; }
+
+    .arch-node.input { border-top: 4px solid var(--blue); }
+    .arch-node.pfc { border-top: 4px solid var(--violet); }
+    .arch-node.ec { border-top: 4px solid var(--teal); }
+    .arch-node.hpc { border-top: 4px solid var(--amber); }
+    .arch-node.output { border-top: 4px solid var(--green); }
+
+    .matrix {
+      display: grid;
+      grid-template-columns: repeat(8, 1fr);
+      gap: 2px;
+      margin: 10px 0 8px;
+    }
+
+    .matrix i {
+      display: block;
+      aspect-ratio: 1;
+      background: #f2d29e;
+      border: 1px solid #ddb873;
+    }
+
+    .no-slot {
+      margin-top: 12px;
+      padding: 9px 11px;
+      border: 1px solid #e7a8a4;
+      border-radius: 5px;
+      background: var(--red-soft);
+      color: #7d2925;
+      font-weight: 700;
+    }
+
+    .roadmap {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 8px;
     }
 
     .stage {
-      padding: 13px;
-      min-height: 154px;
-      box-shadow: none;
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: var(--panel);
     }
 
-    .stage strong {
-      display: block;
-      margin-top: 8px;
-      font-size: 17px;
-      line-height: 1.15;
-    }
+    .stage b { display: block; margin-bottom: 4px; }
+    .stage p { margin: 0; color: var(--muted); font-size: 12px; }
+    .stage.done { border-top: 4px solid var(--green); }
+    .stage.active { border-top: 4px solid var(--amber); }
+    .stage.blocked { border-top: 4px solid var(--red); }
 
-    .stage.done {
-      border-color: rgba(17, 156, 106, 0.45);
-    }
-
-    .stage.next {
-      border-color: rgba(37, 99, 235, 0.45);
-    }
-
-    .artifact-grid {
+    .artifact-list {
       display: grid;
-      grid-template-columns: repeat(4, minmax(0, 1fr));
-      gap: 12px;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
     }
 
     .artifact {
-      padding: 14px;
-      box-shadow: none;
-    }
-
-    .artifact code {
       display: block;
-      margin-top: 10px;
-      padding: 8px;
-      background: #f1f4f8;
+      padding: 11px;
+      border: 1px solid var(--line);
       border-radius: 6px;
-      color: #26313d;
-      overflow-wrap: anywhere;
-      font-size: 12px;
+      background: var(--panel);
+      text-decoration: none;
     }
 
-    .callout {
-      border-left: 4px solid var(--green);
-      background: #f0fbf5;
-      padding: 12px 14px;
-      border-radius: 8px;
-      color: #1f3d33;
-    }
+    .artifact strong { display: block; }
+    .artifact span { color: var(--muted); font-size: 12px; }
 
-    .callout p {
-      margin: 0;
-    }
-
-    .legend {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
+    footer {
+      margin-top: 24px;
+      padding-top: 14px;
+      border-top: 1px solid var(--line);
       color: var(--muted);
       font-size: 12px;
-      margin-top: 8px;
     }
 
-    @media (max-width: 1040px) {
-      .status-row,
-      .grid-2,
-      .grid-3,
-      .artifact-grid {
-        grid-template-columns: 1fr 1fr;
-      }
-
-      .thesis {
-        grid-column: 1 / -1;
-      }
-
-      .stage-grid {
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-      }
+    @media (max-width: 980px) {
+      .status-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .status-card.primary { grid-column: 1 / -1; }
+      .arch-flow { grid-template-columns: 1fr 1fr; }
+      .arch-node::after { display: none; }
+      .roadmap { grid-template-columns: repeat(3, minmax(0, 1fr)); }
     }
 
-    @media (max-width: 720px) {
-      .shell {
-        padding: 14px;
-      }
-
-      .topbar {
-        align-items: flex-start;
-        flex-direction: column;
-      }
-
-      .nav {
-        justify-content: flex-start;
-      }
-
-      .status-row,
-      .grid-2,
-      .grid-3,
-      .artifact-grid,
-      .stage-grid {
-        grid-template-columns: 1fr;
-      }
-
-      .section-head {
-        align-items: flex-start;
-        flex-direction: column;
-      }
-
-      .source {
-        text-align: left;
-      }
-
-      .chart-wrap {
-        height: 260px;
-      }
-
-      th,
-      td {
-        padding: 8px;
-      }
-
-      .stack-table {
-        border: 0;
-        background: transparent;
-      }
-
-      .stack-table thead {
-        display: none;
-      }
-
-      .stack-table tbody,
-      .stack-table tr,
-      .stack-table td {
-        display: block;
-        width: 100%;
-      }
-
-      .stack-table tr {
-        border: 1px solid var(--line);
-        border-radius: 8px;
-        background: #fff;
-        margin-bottom: 10px;
-        overflow: hidden;
-      }
-
-      .stack-table td {
-        display: flex;
-        justify-content: space-between;
-        gap: 12px;
-        border-bottom: 1px solid var(--line);
-        white-space: normal;
-      }
-
-      .stack-table td:last-child {
-        border-bottom: 0;
-      }
-
-      .stack-table td::before {
-        content: attr(data-label);
-        display: block;
-        color: var(--muted);
-        font-size: 12px;
-        font-weight: 760;
-        text-transform: uppercase;
-        flex: 0 0 88px;
-      }
+    @media (max-width: 680px) {
+      .shell { width: min(100% - 20px, 1280px); }
+      .topbar, .section-head { align-items: flex-start; flex-direction: column; }
+      nav { justify-content: flex-start; }
+      .status-grid, .grid-2, .artifact-list, .roadmap, .arch-flow { grid-template-columns: 1fr; }
+      .task-flow { grid-template-columns: 1fr; }
+      .flow-node::after { display: none; }
+      .source { white-space: normal; }
+      .decision { grid-template-columns: 1fr; }
+      table, thead, tbody, th, td, tr { display: block; }
+      thead { position: absolute; left: -9999px; }
+      tr { padding: 7px 0; border-bottom: 1px solid var(--line); }
+      td { display: grid; grid-template-columns: 46% 54%; border: 0; padding: 4px 0; }
+      td::before { content: attr(data-label); color: var(--muted); font-size: 11px; }
     }
   </style>
 </head>
@@ -524,54 +457,52 @@
   <div class="shell">
     <header class="topbar">
       <div class="brand">
-        <h1>固定容量记忆看板</h1>
-        <p>Transformer=PFC 主干 + 神经式 EC/HPC 外挂记忆</p>
+        <h1>ReMAP-Former 实验看板</h1>
+        <p>Transformer=PFC 主干，EC 供结构，episode-local DeltaHPC 供外挂记忆</p>
       </div>
-      <nav class="nav" aria-label="看板分区">
-        <a href="#results">核心结果</a>
-        <a href="#tasks">任务</a>
+      <nav aria-label="看板分区">
+        <a href="#results">结果</a>
+        <a href="#task">任务</a>
         <a href="#architecture">架构</a>
         <a href="#roadmap">路线</a>
+        <a href="#artifacts">文件</a>
       </nav>
     </header>
 
     <main>
-      <div class="status-row" aria-label="最新状态">
-        <article class="status-card thesis">
+      <div class="status-grid" aria-label="最新状态">
+        <article class="status-card primary">
           <h2>当前主线</h2>
-          <p>重要修正：位置编号不能进模型。当前有效主线把 Transformer 当 PFC 主干；EC 从动作/自运动积分出 grid code；HPC 是外挂的 place/content 记忆。最新状态：ATTR cue re-entry 稳，但 5-seed stability 在 seed 3 的串扰趋势上停下。</p>
+          <strong>先推断，再寻址</strong>
+          <p>v5 从动作历史形成 cyclic path signature，用 retention state 控制 place×context 地址；HPC 先读后写，内容不进入 PFC state。</p>
           <div class="badge-row">
-            <span class="badge"><span class="dot green"></span>无位置输入已跑通</span>
-            <span class="badge"><span class="dot blue"></span>Grid-EC path integration</span>
-            <span class="badge"><span class="dot violet"></span>Place-HPC</span>
-            <span class="badge"><span class="dot amber"></span>固定容量 256</span>
+            <span class="badge"><span class="dot blue"></span>无 room / 位置输入</span>
+            <span class="badge"><span class="dot teal"></span>Neural EC</span>
+            <span class="badge"><span class="dot amber"></span>DeltaHPC</span>
+            <span class="badge"><span class="dot green"></span>单一 sensory CE</span>
           </div>
         </article>
-        <article class="status-card">
-          <h2>5-seed gate</h2>
-          <strong id="metric-internal-acc">STOP</strong>
-          <p>seed 3 串扰趋势反向，暂不跑 phase-vs-none</p>
+        <article class="status-card pass">
+          <h2>生成器 Gates</h2>
+          <strong>9 / 9</strong>
+          <p>path 1.000，cue/time 均 0.500，固定时钟已切断</p>
         </article>
-        <article class="status-card">
-          <h2>外挂记忆容量</h2>
-          <strong id="metric-footprint">256</strong>
-          <p>固定 place/content 槽，不随序列追加</p>
+        <article class="status-card pass">
+          <h2>M-delta</h2>
+          <strong>PASS</strong>
+          <p>单房间非劣效与 context-64 true free rollout 通过</p>
         </article>
-        <article class="status-card">
-          <h2>返回探针</h2>
-          <strong id="metric-bank-growth">0.942</strong>
-          <p>完成 seed 0-3 的 room probe mean</p>
-        </article>
-        <article class="status-card">
-          <h2>seed 3 串扰</h2>
-          <strong id="metric-crosstalk">+0.115</strong>
-          <p>crosstalk 300→600：0.151→0.265</p>
+        <article class="status-card hold">
+          <h2>M1 三 Seed</h2>
+          <strong>2 / 3</strong>
+          <p>均值 0.906；seed 713 为 0.895，严格未过 0.900</p>
         </article>
       </div>
 
       <section>
-        <div class="callout">
-          <p><strong>最新关键结果：</strong>context re-entry 本身是稳的：完成的 seed 0-3 上 conflict return room probe 均值 0.942，单 seed 都高。但 basin/crosstalk 还没过 hard gate：seed 3 的 crosstalk_conflict 从 step300 的 0.151 升到 step600 的 0.265。按规则停止，不跑 phase-vs-none。</p>
+        <div class="decision">
+          <strong>当前决策：HOLD M2</strong>
+          <p>先修 M1 稳定性，不改阈值，不加 context loss，不进入 uncertainty write protection。下一轮只测试 retention/context 参数 EMA。</p>
         </div>
       </section>
 
@@ -579,807 +510,155 @@
         <div class="section-head">
           <div>
             <h2>核心结果</h2>
-            <p>最新主线：Transformer 自己就是 PFC；它接一个外挂的神经式 EC/HPC。EC 只吃动作/自运动，HPC 用 place/content 记忆读写。</p>
+            <p>所有 checkpoint 只按 validation sensory CE 选择；终审固定 128 episodes。</p>
           </div>
-          <div class="source">更新：2026-06-26 · 来源：DECISIVE_5SEED_STABILITY_STOP_CN.md</div>
+          <div class="source">更新：2026-07-11</div>
         </div>
+
         <div class="grid-2">
-          <div class="panel">
-            <h2>记忆容量 vs 轨迹长度</h2>
-            <div class="chart-wrap">
-              <canvas id="footprintChart" aria-label="记忆容量曲线"></canvas>
-            </div>
-            <div class="legend">
-              <span><span class="dot green"></span>固定容量记忆</span>
-              <span><span class="dot amber"></span>追加记忆库</span>
-              <span><span class="dot red"></span>无情境对照</span>
-            </div>
-          </div>
-          <div class="panel">
-            <h2>S1/S2 容量基线</h2>
-            <table id="resultTable" class="stack-table">
+          <article class="panel">
+            <h3>M1 v5 三 seed</h3>
+            <table>
               <thead>
-                <tr>
-                  <th>模型</th>
-                  <th>回忆率</th>
-                  <th>串扰</th>
-                  <th>容量</th>
-                  <th>24/48/96 步容量</th>
-                </tr>
+                <tr><th>Seed</th><th>Context</th><th>Re-entry</th><th>HPC-zero drop</th><th>Content probe</th><th>Gate</th></tr>
               </thead>
-              <tbody></tbody>
+              <tbody>
+                <tr><td data-label="Seed" class="num">712</td><td data-label="Context" class="num">0.9063</td><td data-label="Re-entry" class="num">0.3984</td><td data-label="HPC-zero drop" class="num">0.3828</td><td data-label="Content probe" class="num">0.0000</td><td data-label="Gate"><span class="tag green"><span class="dot"></span>PASS</span></td></tr>
+                <tr><td data-label="Seed" class="num">713</td><td data-label="Context" class="num">0.8945</td><td data-label="Re-entry" class="num">0.3359</td><td data-label="HPC-zero drop" class="num">0.3203</td><td data-label="Content probe" class="num">0.0125</td><td data-label="Gate"><span class="tag amber"><span class="dot"></span>FAIL</span></td></tr>
+                <tr><td data-label="Seed" class="num">714</td><td data-label="Context" class="num">0.9180</td><td data-label="Re-entry" class="num">0.4063</td><td data-label="HPC-zero drop" class="num">0.3906</td><td data-label="Content probe" class="num">0.0125</td><td data-label="Gate"><span class="tag green"><span class="dot"></span>PASS</span></td></tr>
+                <tr><td data-label="Seed"><strong>Mean</strong></td><td data-label="Context" class="num"><strong>0.9063</strong></td><td data-label="Re-entry" class="num"><strong>0.3802</strong></td><td data-label="HPC-zero drop" class="num"><strong>0.3646</strong></td><td data-label="Content probe" class="num"><strong>0.0083</strong></td><td data-label="Gate"><strong>2/3</strong></td></tr>
+              </tbody>
             </table>
-          </div>
+          </article>
+
+          <article class="panel">
+            <h3>Context gate 距离</h3>
+            <div class="bars" aria-label="三 seed context matching 柱状图">
+              <div class="bar-row"><strong>712</strong><div class="bar-track"><div class="bar-fill" style="width:90.625%"></div><span class="threshold" title="门槛 0.900"></span></div><span class="bar-value">0.9063</span></div>
+              <div class="bar-row"><strong>713</strong><div class="bar-track"><div class="bar-fill fail" style="width:89.453%"></div><span class="threshold" title="门槛 0.900"></span></div><span class="bar-value">0.8945</span></div>
+              <div class="bar-row"><strong>714</strong><div class="bar-track"><div class="bar-fill" style="width:91.797%"></div><span class="threshold" title="门槛 0.900"></span></div><span class="bar-value">0.9180</span></div>
+            </div>
+            <p style="margin:14px 0 0;color:var(--muted);font-size:12px;">红线为预注册 raw matching 0.900。seed 713 少约 3/512 个正确比较，仍按 FAIL 处理。</p>
+          </article>
         </div>
-        <div class="panel" style="margin-top: 14px;">
-          <h2>Transformer 外挂记忆主线</h2>
-          <table id="pfcTable" class="stack-table">
-            <thead>
-              <tr>
-                <th>模型</th>
-                <th>PFC / 情境策略</th>
-                <th>回忆率</th>
-                <th>串扰</th>
-                <th>房间探针</th>
-                <th>情境熵</th>
-                <th>128 步回忆率</th>
-                <th>32/64/128 步容量</th>
-              </tr>
-            </thead>
-            <tbody></tbody>
-          </table>
-        </div>
-        <div class="panel" style="margin-top: 14px;">
-          <h2>8-room serious 300-step 5-seed 主结果</h2>
-          <table class="stack-table">
-            <thead>
-              <tr>
-                <th>模型</th>
-                <th>remap</th>
-                <th>n</th>
-                <th>回忆率</th>
-                <th>串扰</th>
-                <th>L64</th>
-                <th>L128</th>
-                <th>L256</th>
-                <th>容量</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td data-label="模型"><span class="model-pill"><span class="dot red"></span>flat-KV</span></td>
-                <td data-label="remap">n/a</td>
-                <td data-label="n" class="num">5</td>
-                <td data-label="回忆率" class="num">0.015±0.007</td>
-                <td data-label="串扰" class="num">0.046±0.008</td>
-                <td data-label="L64" class="num">0.020±0.007</td>
-                <td data-label="L128" class="num">0.011±0.004</td>
-                <td data-label="L256" class="num">0.010±0.002</td>
-                <td data-label="容量" class="num">392±0</td>
-              </tr>
-              <tr>
-                <td data-label="模型"><span class="model-pill"><span class="dot green"></span>grid-place</span></td>
-                <td data-label="remap">none</td>
-                <td data-label="n" class="num">5</td>
-                <td data-label="回忆率" class="num">0.928±0.007</td>
-                <td data-label="串扰" class="num">0.034±0.007</td>
-                <td data-label="L64" class="num">0.944±0.022</td>
-                <td data-label="L128" class="num">0.915±0.017</td>
-                <td data-label="L256" class="num">0.867±0.013</td>
-                <td data-label="容量" class="num">256±0</td>
-              </tr>
-              <tr>
-                <td data-label="模型"><span class="model-pill"><span class="dot violet"></span>grid-place</span></td>
-                <td data-label="remap">phase shift</td>
-                <td data-label="n" class="num">5</td>
-                <td data-label="回忆率" class="num">0.933±0.015</td>
-                <td data-label="串扰" class="num">0.037±0.008</td>
-                <td data-label="L64" class="num">0.946±0.024</td>
-                <td data-label="L128" class="num">0.923±0.023</td>
-                <td data-label="L256" class="num">0.888±0.015</td>
-                <td data-label="容量" class="num">256±0</td>
-              </tr>
-            </tbody>
-          </table>
-          <p style="margin: 10px 0 0; color: var(--muted);">none vs phase：总回忆率差值 +0.005，paired t p≈0.636；L256 差值 +0.021，paired t p≈0.043，但 n=5 exact sign-flip p=0.125。结论：核心胜负手是 grid-place/attractor，不是 remap。</p>
-        </div>
-        <div class="panel" style="margin-top: 14px;">
-          <h2>Attractor 消融</h2>
-          <table class="stack-table">
-            <thead>
-              <tr>
-                <th>变体</th>
-                <th>attractor</th>
-                <th>回忆率</th>
-                <th>L256</th>
-                <th>place 熵</th>
-                <th>最大 place 概率</th>
-                <th>活跃槽</th>
-                <th>容量</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td data-label="变体"><span class="model-pill"><span class="dot violet"></span>phase remap</span></td>
-                <td data-label="attractor" class="num">1</td>
-                <td data-label="回忆率" class="num">0.933±0.015</td>
-                <td data-label="L256" class="num">0.888±0.015</td>
-                <td data-label="place 熵" class="num">0.006</td>
-                <td data-label="最大 place 概率" class="num">0.999</td>
-                <td data-label="活跃槽" class="num">95.8</td>
-                <td data-label="容量" class="num">256</td>
-              </tr>
-              <tr>
-                <td data-label="变体"><span class="model-pill"><span class="dot amber"></span>phase remap</span></td>
-                <td data-label="attractor" class="num">0</td>
-                <td data-label="回忆率" class="num">0.412±0.087</td>
-                <td data-label="L256" class="num">0.372±0.086</td>
-                <td data-label="place 熵" class="num">1.278</td>
-                <td data-label="最大 place 概率" class="num">0.590</td>
-                <td data-label="活跃槽" class="num">195.7</td>
-                <td data-label="容量" class="num">256</td>
-              </tr>
-            </tbody>
-          </table>
-          <p style="margin: 10px 0 0; color: var(--muted);">配对差异：回忆率 +0.521，paired t p≈0.00035；n=5 的 exact sign-flip p 最小只能到 0.0625。</p>
-        </div>
-        <div class="panel" style="margin-top: 14px;">
-          <h2>Factored stress 当前门槛</h2>
-          <table class="stack-table">
-            <thead>
-              <tr>
-                <th>实验</th>
-                <th>设置</th>
-                <th>sem clean</th>
-                <th>attr clean</th>
-                <th>attr conflict</th>
-                <th>conflict 串扰</th>
-                <th>chance</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td data-label="实验"><span class="model-pill"><span class="dot red"></span>backbone gate</span></td>
-                <td data-label="设置">transformer-only, blank 68</td>
-                <td data-label="sem clean" class="num">0.026</td>
-                <td data-label="attr clean" class="num">0.053</td>
-                <td data-label="attr conflict" class="num">0.100</td>
-                <td data-label="conflict 串扰" class="num">0.089</td>
-                <td data-label="chance" class="num">sem 0.020 / attr 0.125</td>
-              </tr>
-              <tr>
-                <td data-label="实验"><span class="model-pill"><span class="dot green"></span>clean gate</span></td>
-                <td data-label="设置">grid-place phase, clean-only</td>
-                <td data-label="sem clean" class="num">0.266</td>
-                <td data-label="attr clean" class="num">0.938</td>
-                <td data-label="attr conflict" class="num">n/a</td>
-                <td data-label="conflict 串扰" class="num">n/a</td>
-                <td data-label="chance" class="num">sem 0.020 / attr 0.125</td>
-              </tr>
-              <tr>
-                <td data-label="实验"><span class="model-pill"><span class="dot violet"></span>mixed baseline</span></td>
-                <td data-label="设置">phase, no curriculum, 300</td>
-                <td data-label="sem clean" class="num">0.071</td>
-                <td data-label="attr clean" class="num">0.548</td>
-                <td data-label="attr conflict" class="num">0.233</td>
-                <td data-label="conflict 串扰" class="num">0.244</td>
-                <td data-label="chance" class="num">sem 0.020 / attr 0.125</td>
-              </tr>
-              <tr>
-                <td data-label="实验"><span class="model-pill"><span class="dot teal"></span>Gate B'</span></td>
-                <td data-label="设置">phase, curriculum 300, train 600</td>
-                <td data-label="sem clean" class="num">0.483</td>
-                <td data-label="attr clean" class="num">0.862</td>
-                <td data-label="attr conflict" class="num">0.414</td>
-                <td data-label="conflict 串扰" class="num">0.485</td>
-                <td data-label="chance" class="num">sem 0.020 / attr 0.125</td>
-              </tr>
-              <tr>
-                <td data-label="实验"><span class="model-pill"><span class="dot green"></span>Re-entry gate</span></td>
-                <td data-label="设置">attr_key, state feedback, no basin</td>
-                <td data-label="sem clean" class="num">0.828</td>
-                <td data-label="attr clean" class="num">1.000</td>
-                <td data-label="attr conflict" class="num">0.818</td>
-                <td data-label="conflict 串扰" class="num">0.141</td>
-                <td data-label="chance" class="num">return probe 0.933</td>
-              </tr>
-              <tr>
-                <td data-label="实验"><span class="model-pill"><span class="dot blue"></span>Basin single seed</span></td>
-                <td data-label="设置">attr_key + basin w=0.05, seed 0</td>
-                <td data-label="sem clean" class="num">0.793</td>
-                <td data-label="attr clean" class="num">1.000</td>
-                <td data-label="attr conflict" class="num">0.818</td>
-                <td data-label="conflict 串扰" class="num">0.152</td>
-                <td data-label="chance" class="num">sem 0.020 / attr 0.125</td>
-              </tr>
-              <tr>
-                <td data-label="实验"><span class="model-pill"><span class="dot red"></span>5-seed gate</span></td>
-                <td data-label="设置">phase, seeds 0-3 completed, stopped</td>
-                <td data-label="sem clean" class="num">0.733±0.097</td>
-                <td data-label="attr clean" class="num">0.949±0.053</td>
-                <td data-label="attr conflict" class="num">0.761±0.052</td>
-                <td data-label="conflict 串扰" class="num">0.194±0.040</td>
-                <td data-label="chance" class="num">FAIL: seed 3 trend up</td>
-              </tr>
-            </tbody>
-          </table>
-          <p style="margin: 10px 0 0; color: var(--muted);">factored obs = SEM(local position) + ATTR(room/context)。attr_key re-entry 已经稳住 return-probe；现在的问题是 basin/crosstalk suppression 还不是 every-seed stable。</p>
-        </div>
-        <div class="panel" style="margin-top: 14px;">
-          <h2>Context-basin trend</h2>
-          <table class="stack-table">
-            <thead>
-              <tr>
-                <th>设置</th>
-                <th>crosstalk 300→600</th>
-                <th>sem clean 600</th>
-                <th>attr clean 600</th>
-                <th>attr conflict 600</th>
-                <th>判断</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td data-label="设置">w=0.01，从头开</td>
-                <td data-label="crosstalk 300→600" class="num">0.224 → 0.410</td>
-                <td data-label="sem clean 600" class="num">0.043</td>
-                <td data-label="attr clean 600" class="num">0.522</td>
-                <td data-label="attr conflict 600" class="num">0.333</td>
-                <td data-label="判断">失败：clean 崩</td>
-              </tr>
-              <tr>
-                <td data-label="设置">w=0.05，从头开</td>
-                <td data-label="crosstalk 300→600" class="num">0.294 → 0.124</td>
-                <td data-label="sem clean 600" class="num">0.043</td>
-                <td data-label="attr clean 600" class="num">0.957</td>
-                <td data-label="attr conflict 600" class="num">0.800</td>
-                <td data-label="判断">趋势反转，但 sem clean 崩</td>
-              </tr>
-              <tr>
-                <td data-label="设置">w=0.05，300 后 ramp</td>
-                <td data-label="crosstalk 300→600" class="num">0.424 → 0.590</td>
-                <td data-label="sem clean 600" class="num">0.522</td>
-                <td data-label="attr clean 600" class="num">0.739</td>
-                <td data-label="attr conflict 600" class="num">0.276</td>
-                <td data-label="判断">clean 部分保住，趋势没反转</td>
-              </tr>
-              <tr>
-                <td data-label="设置">attr_key + state feedback + w=0.05, seed 0</td>
-                <td data-label="crosstalk 300→600" class="num">0.282 → 0.171</td>
-                <td data-label="sem clean 600" class="num">0.739</td>
-                <td data-label="attr clean 600" class="num">0.957</td>
-                <td data-label="attr conflict 600" class="num">0.810</td>
-                <td data-label="判断">single-seed 通过</td>
-              </tr>
-              <tr>
-                <td data-label="设置">5-seed gate, seed 3</td>
-                <td data-label="crosstalk 300→600" class="num">0.151 → 0.265</td>
-                <td data-label="sem clean 600" class="num">0.567</td>
-                <td data-label="attr clean 600" class="num">0.833</td>
-                <td data-label="attr conflict 600" class="num">0.663</td>
-                <td data-label="判断">失败：串扰趋势反向</td>
-              </tr>
-            </tbody>
-          </table>
-          <p style="margin: 10px 0 0; color: var(--muted);">e_t 诊断曾显示 pfc_state return probe=0.033。attr_key + state-only feedback 后，完成 seed 的 return room probe 都高；但 seed 3 说明 basin 趋势还没有过稳定性硬门槛。</p>
+
+        <div class="grid-2" style="margin-top:12px;">
+          <article class="panel">
+            <h3>Random-return 任务 Gates</h3>
+            <table>
+              <tbody>
+                <tr><td data-label="指标">Path-family matching</td><td data-label="结果" class="num">1.000</td><td data-label="判断" class="green">可解</td></tr>
+                <tr><td data-label="指标">Cue-only matching</td><td data-label="结果" class="num">0.500</td><td data-label="判断" class="green">无 cue oracle</td></tr>
+                <tr><td data-label="指标">Time-only matching</td><td data-label="结果" class="num">0.500</td><td data-label="判断" class="green">无时钟 oracle</td></tr>
+                <tr><td data-label="指标">Return reference=1</td><td data-label="结果" class="num">0.500</td><td data-label="判断" class="green">精确平衡</td></tr>
+                <tr><td data-label="指标">SEM clean</td><td data-label="结果" class="num">1.000</td><td data-label="判断" class="green">健康</td></tr>
+              </tbody>
+            </table>
+          </article>
+
+          <article class="panel">
+            <h3>地址容量门</h3>
+            <table>
+              <thead><tr><th>地址</th><th>Fixed clean</th><th>Oracle re-entry</th><th>决策</th></tr></thead>
+              <tbody>
+                <tr><td data-label="地址">Dense 16×16</td><td data-label="Fixed clean" class="num">0.925</td><td data-label="Oracle re-entry" class="num">0.891</td><td data-label="决策" class="red">淘汰</td></tr>
+                <tr><td data-label="地址">Sparse place 256×16</td><td data-label="Fixed clean" class="num">1.000</td><td data-label="Oracle re-entry" class="num">1.000</td><td data-label="决策" class="green">采用</td></tr>
+              </tbody>
+            </table>
+            <p style="margin:10px 0 0;color:var(--muted);font-size:12px;">Sparsemax place population 平均约 6.55 个活跃单元；它是地址，不是 content table。</p>
+          </article>
         </div>
       </section>
 
-      <section id="tasks">
+      <section id="task">
         <div class="section-head">
           <div>
-            <h2>任务板</h2>
-            <p>现在的 S1/S2 任务已经是在线写入、回访查询、自然位置混淆，不再是手工构造候选记忆库。</p>
+            <h2>Random-return 任务</h2>
+            <p>正确末段 context 在每个 gauge pair 内随机匹配 reference 0 或 1。</p>
           </div>
         </div>
-        <div class="grid-2">
-          <div class="panel">
-            <h2>在线多房间导航</h2>
-            <div class="diagram" role="img" aria-label="在线导航任务示意图">
-              <svg viewBox="0 0 760 320" preserveAspectRatio="xMidYMid meet">
-                <defs>
-                  <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
-                    <path d="M0,0 L0,6 L9,3 z" fill="#6b7280"></path>
-                  </marker>
-                </defs>
-                <text x="24" y="32" class="diagram-title">同一个局部位置，在不同房间里对应不同观察</text>
-                <g transform="translate(28 58)">
-                  <rect x="0" y="0" width="210" height="210" class="node green"></rect>
-                  <text x="14" y="24" class="diagram-text">房间 A</text>
-                  <g stroke="#c8d2df" stroke-width="1">
-                    <path d="M0 42 H210 M0 84 H210 M0 126 H210 M0 168 H210"></path>
-                    <path d="M42 0 V210 M84 0 V210 M126 0 V210 M168 0 V210"></path>
-                  </g>
-                  <rect x="84" y="84" width="42" height="42" fill="#dff8eb" stroke="#119c6a"></rect>
-                  <circle cx="105" cy="105" r="9" fill="#119c6a"></circle>
-                  <text x="77" y="236" class="diagram-muted">观察: 07</text>
-                </g>
-                <g transform="translate(278 58)">
-                  <rect x="0" y="0" width="210" height="210" class="node blue"></rect>
-                  <text x="14" y="24" class="diagram-text">房间 B</text>
-                  <g stroke="#c8d2df" stroke-width="1">
-                    <path d="M0 42 H210 M0 84 H210 M0 126 H210 M0 168 H210"></path>
-                    <path d="M42 0 V210 M84 0 V210 M126 0 V210 M168 0 V210"></path>
-                  </g>
-                  <rect x="84" y="84" width="42" height="42" fill="#e9f1ff" stroke="#2563eb"></rect>
-                  <circle cx="105" cy="105" r="9" fill="#2563eb"></circle>
-                  <text x="77" y="236" class="diagram-muted">观察: 38</text>
-                </g>
-                <g transform="translate(548 72)">
-                  <rect x="0" y="0" width="178" height="64" class="node amber"></rect>
-                  <text x="14" y="26" class="diagram-text">可见步骤</text>
-                  <text x="14" y="46" class="diagram-muted">看到观察并在线写入</text>
-                  <rect x="0" y="92" width="178" height="64" class="node red"></rect>
-                  <text x="14" y="118" class="diagram-text">隐藏回访查询</text>
-                  <text x="14" y="138" class="diagram-muted">揭晓前先读记忆</text>
-                  <rect x="0" y="184" width="178" height="48" class="node violet"></rect>
-                  <text x="14" y="213" class="diagram-text">指标：回忆率 + 串扰</text>
-                </g>
-                <path d="M238 164 C250 120 262 120 278 164" class="arrow"></path>
-                <path d="M488 170 C520 168 526 110 548 104" class="arrow"></path>
-                <path d="M488 176 C520 188 526 224 548 226" class="arrow"></path>
-              </svg>
-            </div>
-          </div>
-          <div class="panel">
-            <h2>任务 / 模型矩阵</h2>
-            <table>
-              <thead>
-                <tr>
-                  <th>阶段</th>
-                  <th>状态</th>
-                  <th>核心验收</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>S1 固定记忆</td>
-                  <td><span class="model-pill"><span class="dot green"></span>小跑通过</span></td>
-                  <td>按地址更新写入；容量保持常数</td>
-                </tr>
-                <tr>
-                  <td>S2 在线导航</td>
-                  <td><span class="model-pill"><span class="dot green"></span>小跑通过</span></td>
-                  <td>回访时隐藏观察；自然房间混淆</td>
-                </tr>
-                <tr>
-                  <td>S3 Transformer=PFC</td>
-                  <td><span class="model-pill"><span class="dot green"></span>主线通过</span></td>
-                  <td>Transformer 是主干控制器；不再单独造一个玩具 PFC</td>
-                </tr>
-                <tr>
-                  <td>S4 Neural EC/HPC</td>
-                  <td><span class="model-pill"><span class="dot green"></span>主结果通过</span></td>
-                  <td>8 房间 serious 5-seed：phase 0.933±0.015，none 0.928±0.007，flat-KV 0.015±0.007</td>
-                </tr>
-                <tr>
-                  <td>S5 统计加固</td>
-                  <td><span class="model-pill"><span class="dot red"></span>停止修稳</span></td>
-                  <td>5-seed gate 在 seed 3 停止；return 高，但 crosstalk 300→600 反向</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
+        <div class="task-flow">
+          <div class="flow-node ref0"><strong>Segment 0</strong><span>建立 reference 0<br />一条 held-out cyclic path family</span></div>
+          <div class="flow-node ref1"><strong>Segment 1</strong><span>建立 reference 1<br />同 cue、不同 object map</span></div>
+          <div class="flow-node distractor"><strong>Segment 2</strong><span>使用最终 return 的另一个 context<br />确保末段发生切换</span></div>
+          <div class="flow-node return"><strong>Segment 3</strong><span>平衡随机返回 ref 0 或 ref 1<br />必须靠 path relation 判断</span></div>
         </div>
       </section>
 
       <section id="architecture">
         <div class="section-head">
           <div>
-            <h2>架构示意</h2>
-            <p>当前主架构：Transformer 自己就是 PFC；外挂 EC/HPC 负责结构码和快速记忆。地址由 Grid-EC 的 g_t 和 Transformer hidden 产生的 e_t 共同决定。</p>
+            <h2>当前模型架构</h2>
+            <p>Transformer 是 PFC；EC/HPC 是外挂。context 只改地址，不直接给 decoder 答案。</p>
           </div>
         </div>
-        <div class="grid-2">
-          <div class="panel">
-            <h2>固定脚手架记忆</h2>
-            <div class="diagram" role="img" aria-label="固定脚手架记忆架构图">
-              <svg viewBox="0 0 760 370" preserveAspectRatio="xMidYMid meet">
-                <defs>
-                  <marker id="arrow2" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
-                    <path d="M0,0 L0,6 L9,3 z" fill="#6b7280"></path>
-                  </marker>
-                </defs>
-                <text x="24" y="32" class="diagram-title">Transformer=PFC 主干 + Grid-EC / Place-HPC 外挂记忆</text>
-                <rect x="34" y="66" width="170" height="72" class="node blue"></rect>
-                <text x="54" y="94" class="diagram-text">Grid-EC 路径积分器</text>
-                <text x="54" y="116" class="diagram-muted">只吃动作 → g_t</text>
-                <rect x="34" y="190" width="170" height="72" class="node violet"></rect>
-                <text x="54" y="218" class="diagram-text">Transformer=PFC 状态</text>
-                <text x="54" y="240" class="diagram-muted">主干 hidden → e_t</text>
-                <rect x="262" y="118" width="180" height="92" class="node green"></rect>
-                <text x="284" y="150" class="diagram-text">p_t = kWTA(W_gp g'_t)</text>
-                <text x="284" y="174" class="diagram-muted">place 地址，不输入位置编号</text>
-                <rect x="500" y="68" width="206" height="184" class="node amber"></rect>
-                <text x="522" y="100" class="diagram-text">Place-HPC</text>
-                <text x="522" y="124" class="diagram-muted">256 个 place/content 槽</text>
-                <g transform="translate(530 144)" stroke="#c47a13" fill="#fffaf0">
-                  <rect x="0" y="0" width="28" height="28"></rect>
-                  <rect x="32" y="0" width="28" height="28"></rect>
-                  <rect x="64" y="0" width="28" height="28"></rect>
-                  <rect x="96" y="0" width="28" height="28"></rect>
-                  <rect x="0" y="32" width="28" height="28"></rect>
-                  <rect x="32" y="32" width="28" height="28"></rect>
-                  <rect x="64" y="32" width="28" height="28"></rect>
-                  <rect x="96" y="32" width="28" height="28"></rect>
-                  <rect x="0" y="64" width="28" height="28"></rect>
-                  <rect x="32" y="64" width="28" height="28"></rect>
-                  <rect x="64" y="64" width="28" height="28"></rect>
-                  <rect x="96" y="64" width="28" height="28"></rect>
-                </g>
-                <rect x="262" y="260" width="180" height="62" class="node teal"></rect>
-                <text x="284" y="286" class="diagram-text">Transformer 融合读出</text>
-                <text x="284" y="306" class="diagram-muted">主干 logits + 记忆 z_t</text>
-                <path d="M204 102 H262" class="arrow"></path>
-                <path d="M204 226 C230 226 236 184 262 164" class="arrow"></path>
-                <path d="M442 164 H500" class="arrow"></path>
-                <path d="M500 210 C468 236 456 270 442 286" class="arrow"></path>
-                <path d="M352 260 V214" class="arrow"></path>
-                <text x="528" y="282" class="diagram-muted">写入 = 更新 content 槽</text>
-                <text x="528" y="302" class="diagram-muted">绝不追加新槽</text>
-              </svg>
-            </div>
+        <div class="arch-flow">
+          <div class="arch-node input">
+            <h3>外部输入</h3>
+            <ul><li>当前动作 a_t</li><li>上一步感觉 x_(t-1)</li></ul>
+            <p style="margin-top:9px;">无 room、switch、position、place ID、当前 x_t。</p>
           </div>
-          <div class="panel">
-            <h2>追加记忆库 vs 固定记忆</h2>
-            <div class="diagram" role="img" aria-label="追加记忆库和固定记忆对比图">
-              <svg viewBox="0 0 760 370" preserveAspectRatio="xMidYMid meet">
-                <text x="24" y="32" class="diagram-title">回忆率都能高，但记忆增长规律完全不同</text>
-                <g transform="translate(38 70)">
-                  <rect x="0" y="0" width="300" height="228" class="node red"></rect>
-                  <text x="20" y="30" class="diagram-text">追加记忆库</text>
-                  <text x="20" y="52" class="diagram-muted">每次可见写入都新增一槽</text>
-                  <g transform="translate(20 78)" fill="#fff1f0" stroke="#c2413a">
-                    <rect x="0" y="0" width="42" height="30"></rect>
-                    <rect x="48" y="0" width="42" height="30"></rect>
-                    <rect x="96" y="0" width="42" height="30"></rect>
-                    <rect x="144" y="0" width="42" height="30"></rect>
-                    <rect x="192" y="0" width="42" height="30"></rect>
-                    <rect x="240" y="0" width="42" height="30"></rect>
-                  </g>
-                  <path d="M28 150 H264" stroke="#c2413a" stroke-width="8" stroke-linecap="round"></path>
-                  <text x="20" y="188" class="diagram-muted">容量随轨迹长度增长</text>
-                </g>
-                <g transform="translate(420 70)">
-                  <rect x="0" y="0" width="300" height="228" class="node green"></rect>
-                  <text x="20" y="30" class="diagram-text">固定记忆</text>
-                  <text x="20" y="52" class="diagram-muted">由 g,e 寻址的有界脚手架</text>
-                  <g transform="translate(24 78)" fill="#eefbf5" stroke="#119c6a">
-                    <rect x="0" y="0" width="32" height="32"></rect>
-                    <rect x="38" y="0" width="32" height="32"></rect>
-                    <rect x="76" y="0" width="32" height="32"></rect>
-                    <rect x="114" y="0" width="32" height="32"></rect>
-                    <rect x="0" y="38" width="32" height="32"></rect>
-                    <rect x="38" y="38" width="32" height="32"></rect>
-                    <rect x="76" y="38" width="32" height="32"></rect>
-                    <rect x="114" y="38" width="32" height="32"></rect>
-                    <rect x="0" y="76" width="32" height="32"></rect>
-                    <rect x="38" y="76" width="32" height="32"></rect>
-                    <rect x="76" y="76" width="32" height="32"></rect>
-                    <rect x="114" y="76" width="32" height="32"></rect>
-                  </g>
-                  <path d="M24 188 H178" stroke="#119c6a" stroke-width="8" stroke-linecap="round"></path>
-                  <text x="20" y="214" class="diagram-muted">容量保持 O(S)</text>
-                </g>
-              </svg>
+          <div class="arch-node pfc">
+            <h3>Transformer=PFC</h3>
+            <ul><li>32-step window</li><li>12-step cyclic signature</li><li>16-d retention state</li></ul>
+            <p style="margin-top:9px;">state 只输出 context key。</p>
+          </div>
+          <div class="arch-node ec">
+            <h3>Neural EC + Place</h3>
+            <ul><li>动作驱动 rotation-grid</li><li>256-d sparsemax place</li><li>约 6.55 active units</li></ul>
+            <p style="margin-top:9px;">地址 = place × context，共 4096 维。</p>
+          </div>
+          <div class="arch-node hpc">
+            <h3>Episode-local DeltaHPC</h3>
+            <div class="matrix" aria-hidden="true">
+              <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+              <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+              <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+              <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
             </div>
+            <p>突触矩阵 [B, 64, 4096]<br />每个 episode 清零<br />read-before-write delta update</p>
+          </div>
+          <div class="arch-node output">
+            <h3>调用与输出</h3>
+            <ul><li>retrieval 投影回 PFC hidden</li><li>同一个 sensory decoder</li><li>all-step CE</li></ul>
+            <p style="margin-top:9px;">HPC-zero 干预验证调用是否真实。</p>
           </div>
         </div>
+        <div class="no-slot">不存在 memory slot、content store、按 place index 查表或跨 episode 累积的内容矩阵。</div>
       </section>
 
       <section id="roadmap">
         <div class="section-head">
           <div>
-            <h2>路线板</h2>
-            <p>当前主线已经从直接位置上界切到神经式版本；serious testbed、多模块 Grid-EC、place scaffold、one-step attractor 和 context phase remapping 都已接入并完成 headline 跑分。</p>
+            <h2>阶段路线</h2>
+            <p>每一阶段只增加一个机制；当前停在 M1 稳定性。</p>
           </div>
         </div>
-        <div class="stage-grid">
-          <article class="stage done">
-            <h3>S1</h3>
-            <strong>固定记忆</strong>
-            <p>固定容量脚手架；按地址更新写入；断言容量不增长。</p>
-          </article>
-          <article class="stage done">
-            <h3>S2</h3>
-            <strong>在线导航</strong>
-            <p>智能体边走边写；回访时隐藏观察；自然位置混淆。</p>
-          </article>
-          <article class="stage done">
-            <h3>S3</h3>
-            <strong>无位置 Grid-EC</strong>
-            <p>动作积分版本回忆率 0.880；串扰 0.071；容量仍 64。</p>
-          </article>
-          <article class="stage done">
-            <h3>S4</h3>
-            <strong>神经式 HPC</strong>
-            <p>Transformer=PFC + 连续 key/value HPC，回忆率 0.866；L128 回忆率 0.745。</p>
-          </article>
-          <article class="stage done">
-            <h3>S5</h3>
-            <strong>Place scaffold</strong>
-            <p>W_gp、kWTA place code、W_pg 和 one-step attractor 已接入；去掉 attractor 后 phase 版本从 0.933 掉到 0.412。</p>
-          </article>
-          <article class="stage done">
-            <h3>S6</h3>
-            <strong>Context remapping</strong>
-            <p>e_t 驱动每个 grid module 的相位偏移；8-room serious 5-seed 回忆率 0.933±0.015，L256 为 0.888±0.015。</p>
-          </article>
-          <article class="stage next">
-            <h3>S7</h3>
-            <strong>Stability hardening</strong>
-            <p>factored re-entry 的 return probe 稳；下一步修 basin schedule 和 scale 鲁棒性。</p>
-          </article>
+        <div class="roadmap">
+          <article class="stage done"><b>M0 基线</b><p>健康 Hippoformer / Transformer substrate。</p></article>
+          <article class="stage done"><b>M-delta</b><p>Constant context + serial DeltaHPC，非劣效通过。</p></article>
+          <article class="stage active"><b>M1 Context</b><p>v5 机制可行，三 seed 2/3；先修稳定性。</p></article>
+          <article class="stage blocked"><b>M2 写保护</b><p>未启动。M1 3/3 前禁止加入 uncertainty gate。</p></article>
+          <article class="stage blocked"><b>M3 闭环修正</b><p>未启动。只在 M2 稳定提升后研究 retrieval refinement。</p></article>
         </div>
       </section>
 
       <section id="artifacts">
         <div class="section-head">
           <div>
-            <h2>文件入口</h2>
-            <p>当前看板跟踪这些文件；后续新跑结果直接把最新 CSV 摘进页面数据块即可。</p>
+            <h2>当前文件</h2>
+            <p>设计、结果和机器可读汇总保持同一版本。</p>
           </div>
         </div>
-        <div class="artifact-grid">
-          <article class="artifact">
-            <h3>实验脚本</h3>
-            <code>exp_internal_store_nav.py</code>
-            <p>S1/S2 任务、记忆模块、基线模型、指标。</p>
-          </article>
-          <article class="artifact">
-            <h3>状态记录</h3>
-            <code>GRID_PLACE_ATTRACTOR_S1S2_STATUS_CN.md</code>
-            <p>serious 测试床、Grid-EC、place scaffold、phase remap 记录。</p>
-          </article>
-          <article class="artifact">
-            <h3>serious CSV</h3>
-            <code>runs/internal_store_serious_s8_s300_ablation_summary.csv</code>
-            <p>8 房间 serious 300 步 5-seed：主结果 + attractor 消融汇总。</p>
-          </article>
-          <article class="artifact">
-            <h3>PFC 入口</h3>
-            <code>pfc_transformer_grid_place_carry</code>
-            <p>Transformer 主干就是 PFC；外挂 Grid-EC/place scaffold 负责记忆地址。</p>
-          </article>
-          <article class="artifact">
-            <h3>停止报告</h3>
-            <code>DECISIVE_5SEED_STABILITY_STOP_CN.md</code>
-            <p>seed 3 触发 hard gate 失败；phase-vs-none 暂停。</p>
-          </article>
-        </div>
-      </section>
-
-      <section>
-        <div class="callout">
-          <p><strong>看板结论：</strong>小任务上 neural-HPC 主线回忆率 0.866；serious 8-room 300-step 5-seed 上，flat-KV 只有 0.015±0.007，grid-place none 到 0.928±0.007，grid-place + phase remapping 到 0.933±0.015，容量固定 256。最新 factored conflict 线已经修掉 return re-entry：完成 seed 的 room return-probe 都高。但 basin/crosstalk 还没过 5-seed stability：seed 3 的 crosstalk_conflict 0.151→0.265 反向上升，所以停止 phase-vs-none，先修稳定性。</p>
+        <div class="artifact-list">
+          <a class="artifact" href="../REMAP_FORMER_ICLR_DESIGN_CN.md"><strong>ICLR 实验设计</strong><span>冻结接口、任务 gates、模型阶段和停机规则</span></a>
+          <a class="artifact" href="../REMAP_FORMER_M1_RANDOM_RETURN_RESULT_CN.md"><strong>M1 结果报告</strong><span>shortcut 审计、v5 架构和三 seed 结果</span></a>
+          <a class="artifact" href="../output/pdf/remap_former_iclr_design_iclr2025.pdf"><strong>ICLR PDF</strong><span>9 页中文 ICLR 模板版本</span></a>
         </div>
       </section>
     </main>
+
+    <footer>ReMAP-Former internal dashboard · 2026-07-11 · 当前决策：HOLD M2</footer>
   </div>
-
-  <script>
-    const latestRows = [
-      {
-        model: "internal",
-        color: "#119c6a",
-        recall: 1.0,
-        crosstalk: 0.0,
-        footprint: 64.0,
-        lengths: {24: 64.0, 48: 64.0, 96: 64.0},
-        note: "固定脚手架"
-      },
-      {
-        model: "bank",
-        color: "#c47a13",
-        recall: 1.0,
-        crosstalk: 0.0,
-        footprint: 28.6875,
-        lengths: {24: 15.75, 48: 29.875, 96: 53.875},
-        note: "追加式基线"
-      },
-      {
-        model: "no_context",
-        color: "#c2413a",
-        recall: 0.9417475728,
-        crosstalk: 0.0582524272,
-        footprint: 64.0,
-        lengths: {24: 64.0, 48: 64.0, 96: 64.0},
-        note: "无情境消融"
-      }
-    ];
-
-    const pfcRows = [
-      {
-        model: "transformer_memory_no_context",
-        pfc: "无",
-        color: "#c2413a",
-        recall: 0.919,
-        crosstalk: 0.081,
-        probe: 0.507,
-        ctxEntropy: 0.0,
-        longRecall: 0.846,
-        lengths: {32: 64.0, 64: 64.0, 128: 64.0}
-      },
-      {
-        model: "transformer_memory",
-        pfc: "主干 hidden 直接当情境",
-        color: "#6d5bd0",
-        recall: 0.913,
-        crosstalk: 0.087,
-        probe: 0.707,
-        ctxEntropy: 0.785,
-        longRecall: 0.842,
-        lengths: {32: 64.0, 64: 64.0, 128: 64.0}
-      },
-      {
-        model: "transformer_pfc_memory",
-        pfc: "单独 Transformer-PFC",
-        color: "#0f8f9d",
-        recall: 0.900,
-        crosstalk: 0.100,
-        probe: 0.776,
-        ctxEntropy: 0.688,
-        longRecall: 0.819,
-        lengths: {32: 64.0, 64: 64.0, 128: 64.0}
-      },
-      {
-        model: "pfc_transformer_neural_hpc_carry",
-        pfc: "Transformer=PFC + 神经式 HPC",
-        color: "#b45309",
-        recall: 0.866,
-        crosstalk: 0.065,
-        probe: 0.812,
-        ctxEntropy: 0.024,
-        longRecall: 0.745,
-        lengths: {32: 64.0, 64: 64.0, 128: 64.0}
-      },
-      {
-        model: "transformer_pfc_memory_carry_grid_ec",
-        pfc: "格子路由强对照",
-        color: "#119c6a",
-        recall: 0.880,
-        crosstalk: 0.071,
-        probe: 0.728,
-        ctxEntropy: 0.270,
-        longRecall: 0.788,
-        lengths: {32: 64.0, 64: 64.0, 128: 64.0}
-      },
-      {
-        model: "transformer_pfc_memory_carry_oracle_pos",
-        pfc: "直接位置上界，不做主结果",
-        color: "#2563eb",
-        recall: 1.0,
-        crosstalk: 0.0,
-        probe: 0.825,
-        ctxEntropy: 0.091,
-        longRecall: 0.978,
-        lengths: {32: 64.0, 64: 64.0, 128: 64.0}
-      }
-    ];
-
-    function fmt(value, digits = 3) {
-      return Number(value).toFixed(digits).replace(/\.?0+$/, "");
-    }
-
-    function populateTable() {
-      const tbody = document.querySelector("#resultTable tbody");
-      tbody.innerHTML = "";
-      for (const row of latestRows) {
-        const tr = document.createElement("tr");
-        tr.innerHTML = `
-          <td data-label="模型"><span class="model-pill"><span class="dot" style="background:${row.color}"></span>${row.model}</span><br><span class="diagram-muted">${row.note}</span></td>
-          <td data-label="回忆率" class="num">${fmt(row.recall)}</td>
-          <td data-label="串扰" class="num">${fmt(row.crosstalk)}</td>
-          <td data-label="容量" class="num">${fmt(row.footprint, 1)}</td>
-          <td data-label="24/48/96 步容量" class="num">${fmt(row.lengths[24], 3)} / ${fmt(row.lengths[48], 3)} / ${fmt(row.lengths[96], 3)}</td>
-        `;
-        tbody.appendChild(tr);
-      }
-    }
-
-    function populatePfcTable() {
-      const tbody = document.querySelector("#pfcTable tbody");
-      tbody.innerHTML = "";
-      for (const row of pfcRows) {
-        const tr = document.createElement("tr");
-        tr.innerHTML = `
-          <td data-label="模型"><span class="model-pill"><span class="dot" style="background:${row.color}"></span>${row.model}</span></td>
-          <td data-label="PFC">${row.pfc}</td>
-          <td data-label="回忆率" class="num">${fmt(row.recall)}</td>
-          <td data-label="串扰" class="num">${fmt(row.crosstalk)}</td>
-          <td data-label="房间探针" class="num">${fmt(row.probe)}</td>
-          <td data-label="情境熵" class="num">${fmt(row.ctxEntropy)}</td>
-          <td data-label="128 步回忆率" class="num">${fmt(row.longRecall)}</td>
-          <td data-label="32/64/128 步容量" class="num">${fmt(row.lengths[32], 3)} / ${fmt(row.lengths[64], 3)} / ${fmt(row.lengths[128], 3)}</td>
-        `;
-        tbody.appendChild(tr);
-      }
-    }
-
-    function drawLineChart(canvas, rows) {
-      const dpr = window.devicePixelRatio || 1;
-      const rect = canvas.getBoundingClientRect();
-      canvas.width = Math.max(1, Math.floor(rect.width * dpr));
-      canvas.height = Math.max(1, Math.floor(rect.height * dpr));
-      const ctx = canvas.getContext("2d");
-      ctx.scale(dpr, dpr);
-      ctx.clearRect(0, 0, rect.width, rect.height);
-
-      const margin = {top: 24, right: 18, bottom: 42, left: 48};
-      const w = rect.width - margin.left - margin.right;
-      const h = rect.height - margin.top - margin.bottom;
-      const lengths = [24, 48, 96];
-      const yMax = 72;
-
-      const x = (len) => margin.left + ((len - 24) / (96 - 24)) * w;
-      const y = (val) => margin.top + h - (val / yMax) * h;
-
-      ctx.strokeStyle = "#d9dee7";
-      ctx.lineWidth = 1;
-      ctx.beginPath();
-      for (const tick of [0, 16, 32, 48, 64]) {
-        ctx.moveTo(margin.left, y(tick));
-        ctx.lineTo(margin.left + w, y(tick));
-      }
-      ctx.stroke();
-
-      ctx.fillStyle = "#5f6b7a";
-      ctx.font = "12px Segoe UI, Arial, sans-serif";
-      ctx.textAlign = "right";
-      ctx.textBaseline = "middle";
-      for (const tick of [0, 16, 32, 48, 64]) {
-        ctx.fillText(String(tick), margin.left - 8, y(tick));
-      }
-      ctx.textAlign = "center";
-      ctx.textBaseline = "top";
-      for (const len of lengths) {
-        ctx.fillText(String(len), x(len), margin.top + h + 12);
-      }
-      ctx.textAlign = "left";
-      ctx.fillText("轨迹长度", margin.left, rect.height - 16);
-
-      const drawOrder = [...rows].sort((a, b) => {
-        const rank = {bank: 0, no_context: 1, internal: 2};
-        return (rank[a.model] ?? 0) - (rank[b.model] ?? 0);
-      });
-      for (const row of drawOrder) {
-        ctx.strokeStyle = row.color;
-        ctx.lineWidth = 3;
-        ctx.setLineDash(row.model === "no_context" ? [7, 5] : []);
-        ctx.beginPath();
-        lengths.forEach((len, i) => {
-          const px = x(len);
-          const py = y(row.lengths[len]);
-          if (i === 0) ctx.moveTo(px, py);
-          else ctx.lineTo(px, py);
-        });
-        ctx.stroke();
-        ctx.setLineDash([]);
-        ctx.fillStyle = row.color;
-        for (const len of lengths) {
-          ctx.beginPath();
-          ctx.arc(x(len), y(row.lengths[len]), 4, 0, Math.PI * 2);
-          ctx.fill();
-        }
-      }
-    }
-
-    function updateMetrics() {
-      document.querySelector("#metric-internal-acc").textContent = "STOP";
-      document.querySelector("#metric-footprint").textContent = "256";
-      document.querySelector("#metric-bank-growth").textContent = "0.942";
-      document.querySelector("#metric-crosstalk").textContent = "+0.115";
-    }
-
-    function render() {
-      populateTable();
-      populatePfcTable();
-      updateMetrics();
-      drawLineChart(document.querySelector("#footprintChart"), latestRows);
-    }
-
-    window.addEventListener("resize", () => drawLineChart(document.querySelector("#footprintChart"), latestRows));
-    render();
-  </script>
 </body>
 </html>
