@@ -149,6 +149,7 @@
 
     .status-card.pass { border-top: 4px solid var(--green); }
     .status-card.hold { border-top: 4px solid var(--amber); }
+    .status-card.fail { border-top: 4px solid var(--red); }
 
     .badge-row {
       display: flex;
@@ -248,7 +249,7 @@
 
     .bar-row {
       display: grid;
-      grid-template-columns: 58px 1fr 66px;
+      grid-template-columns: 100px 1fr 66px;
       align-items: center;
       gap: 10px;
     }
@@ -420,6 +421,16 @@
     .artifact strong { display: block; }
     .artifact span { color: var(--muted); font-size: 12px; }
 
+    .result-figure {
+      display: block;
+      width: 100%;
+      height: auto;
+      margin-top: 12px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: #fff;
+    }
+
     footer {
       margin-top: 24px;
       padding-top: 14px;
@@ -461,6 +472,7 @@
         <p>Transformer=PFC 主干，EC 供结构，covariance-corrected HPC 供外挂记忆</p>
       </div>
       <nav aria-label="看板分区">
+        <a href="#capacity">新容量</a>
         <a href="#results">结果</a>
         <a href="#stress">长延迟</a>
         <a href="#task">任务</a>
@@ -474,8 +486,8 @@
       <div class="status-grid" aria-label="最新状态">
         <article class="status-card primary">
           <h2>当前主线</h2>
-          <strong>当前最优：Frozen M1b</strong>
-          <p>动作历史形成 latent context，控制 place×context 地址；HPC 用 16×16 context covariance 校正写入方向，内容仍只在 episode fast weights 中。</p>
+          <strong>M1b 保留，容量升级待解</strong>
+          <p>旧 random-return 正式结果仍成立；新奇干扰容量中 K=1 为 0.75，K>=2 掉到 0。诊断已把瓶颈定位到 context re-entry，而不是 PFC 泄漏或任务损坏。</p>
           <div class="badge-row">
             <span class="badge"><span class="dot blue"></span>无 room / 位置输入</span>
             <span class="badge"><span class="dot teal"></span>Neural EC</span>
@@ -483,28 +495,75 @@
             <span class="badge"><span class="dot green"></span>单一 sensory CE</span>
           </div>
         </article>
-        <article class="status-card pass">
-          <h2>长延迟 OOD</h2>
-          <strong>4356 步 PASS</strong>
-          <p>M1b 0.7500；Hippo/M-delta 0；no-cov 0.2708；clean 1.000</p>
+        <article class="status-card hold">
+          <h2>新奇干扰容量</h2>
+          <strong>K>=2 未过</strong>
+          <p>真正新路径 + 新 object map；任务审计全绿，formal validation/test 未访问</p>
         </article>
-        <article class="status-card pass">
-          <h2>一次性 Test</h2>
-          <strong>8 / 8 PASS</strong>
-          <p>预注册 seed 1892；同 600×batch4；六个 headline gates 全绿</p>
+        <article class="status-card hold">
+          <h2>新增外部基线</h2>
+          <strong>Transformer + Titans</strong>
+          <p>同 600×batch4 单 seed；均稳定降 loss，但 return-conflict 都为 0</p>
         </article>
-        <article class="status-card pass">
-          <h2>M1b 八 Seed</h2>
-          <strong>0.8201</strong>
-          <p>±0.0200；范围 0.7852–0.8457；8192 个 paired return probes</p>
+        <article class="status-card fail">
+          <h2>候选压力测试</h2>
+          <strong>M1c / Gate 拒绝</strong>
+          <p>M1c 反转顺序后全档 0.50；动作神经门 precision 0.597、误触发 5.35/episode</p>
         </article>
       </div>
 
       <section>
         <div class="decision">
-          <strong>当前决策：Headline + 组件因果性 + 4356 步稳定性均确认</strong>
-          <p>一次性固定 test 上 M1b 为 0.8201 ± 0.0200；validation 组件消融确认 covariance、推断 context 与 HPC read 都必要；重复闭合 distractor 的长延迟 OOD 到 4356 步仍为 0.7500。长延迟实验不是 free rollout，也不是不断加入新奇 distractor 的容量测试。</p>
+          <strong>当前决策：保留 M1b，停止 M1c，先修 context re-entry</strong>
+          <p>旧任务的一次性 test `0.8201 ± 0.0200` 和 4356 步重复干扰结果仍有效，但不能外推到不断加入新奇 context。ridge `0.001` 在精确地址下 K=1..12 全为 1.0，所以下一步只训练多信号 recurrent context boundary；通过原顺序和反转顺序 dev gate 后，才铺外部基线多 seed 和正式容量 validation。</p>
         </div>
+      </section>
+
+      <section id="capacity">
+        <div class="section-head">
+          <div>
+            <h2>最新：新奇干扰容量</h2>
+            <p>A-B-D1...DK-A；每个 D 都是新路径族和新 object map。以下仅为 seed712 dev pilot，每个 K 有 8 个关键 probes。</p>
+          </div>
+          <div class="source">更新：2026-07-13 · formal 未访问</div>
+        </div>
+
+        <div class="grid-2">
+          <article class="panel">
+            <h3>Return-Conflict 容量曲线</h3>
+            <table>
+              <thead><tr><th>K</th><th>Transformer</th><th>Titans</th><th>Hippo</th><th>M-delta</th><th>M1b</th></tr></thead>
+              <tbody>
+                <tr><td data-label="K" class="num">1</td><td data-label="Transformer" class="num">0.00</td><td data-label="Titans" class="num">0.00</td><td data-label="Hippo" class="num">0.00</td><td data-label="M-delta" class="num">0.00</td><td data-label="M1b" class="num"><strong>0.75</strong></td></tr>
+                <tr><td data-label="K" class="num">2</td><td data-label="Transformer" class="num">0.00</td><td data-label="Titans" class="num">0.00</td><td data-label="Hippo" class="num">0.00</td><td data-label="M-delta" class="num">0.00</td><td data-label="M1b" class="num">0.00</td></tr>
+                <tr><td data-label="K" class="num">4</td><td data-label="Transformer" class="num">0.00</td><td data-label="Titans" class="num">0.00</td><td data-label="Hippo" class="num">0.00</td><td data-label="M-delta" class="num">0.00</td><td data-label="M1b" class="num">0.00</td></tr>
+                <tr><td data-label="K" class="num">8</td><td data-label="Transformer" class="num">0.00</td><td data-label="Titans" class="num">0.25</td><td data-label="Hippo" class="num">0.00</td><td data-label="M-delta" class="num">0.00</td><td data-label="M1b" class="num">0.00</td></tr>
+                <tr><td data-label="K" class="num">12</td><td data-label="Transformer" class="num">0.00</td><td data-label="Titans" class="num">0.00</td><td data-label="Hippo" class="num">0.00</td><td data-label="M-delta" class="num">0.00</td><td data-label="M1b" class="num">0.00</td></tr>
+              </tbody>
+            </table>
+            <p style="margin:10px 0 0;color:var(--muted);font-size:12px;">Titans K=8 的 0.25 只是 2/8 probes，且相邻 K 为 0，不视为容量证据。Titans 是论文机制对齐的导航适配版，不是官方 checkpoint。</p>
+          </article>
+
+          <article class="panel">
+            <h3>失败归因与候选 Gate</h3>
+            <table>
+              <tbody>
+                <tr><td data-label="检查">ridge 0.001 + 精确地址</td><td data-label="结果" class="num">K1..12 = 1.00</td><td data-label="判断" class="green">内容容量可用</td></tr>
+                <tr><td data-label="检查">正常地址 margin</td><td data-label="结果" class="num">约 0.07–0.08</td><td data-label="判断" class="red">重入不精确</td></tr>
+                <tr><td data-label="检查">M1c 原顺序</td><td data-label="结果" class="num">一度全 1.00</td><td data-label="判断" class="amber">需压力测试</td></tr>
+                <tr><td data-label="检查">M1c 反转 target order</td><td data-label="结果" class="num">全 0.50</td><td data-label="判断" class="red">拒绝</td></tr>
+                <tr><td data-label="检查">动作神经门 precision</td><td data-label="结果" class="num">0.5974</td><td data-label="判断" class="red">拒绝</td></tr>
+                <tr><td data-label="检查">误触发 / episode</td><td data-label="结果" class="num">5.35</td><td data-label="判断" class="red">拒绝</td></tr>
+              </tbody>
+            </table>
+            <p style="margin:10px 0 0;color:var(--muted);font-size:12px;">任务 gates 全绿；M1c 和动作-only gate 都未进入主模型。下一候选必须联合动作、PFC hidden、预测误差与 HPC surprise。</p>
+          </article>
+        </div>
+
+        <article class="panel" style="margin-top:12px;">
+          <h3>冻结模型对比图</h3>
+          <img class="result-figure" src="remap_novel_capacity_pilot_dev.png" alt="ReMAP-Former 新奇干扰容量 dev pilot 曲线" />
+        </article>
       </section>
 
       <section id="results">
@@ -686,6 +745,9 @@
           <article class="stage done"><b>8-seed Headline</b><p>单次 test 完成：M1b 0.8201；六个 gates 全绿。</p></article>
           <article class="stage done"><b>组件必要性</b><p>Covariance、context 与 HPC read 因果干预全部通过。</p></article>
           <article class="stage done"><b>长延迟 OOD</b><p>8-seed 到 836；预选 3-seed 到 4356，全部 gates 通过。</p></article>
+          <article class="stage done"><b>新容量 + 基线</b><p>新路径/新内容 generator 全绿；Transformer 与 Titans 已接入。</p></article>
+          <article class="stage blocked"><b>M1c / 动作 Gate</b><p>顺序压力测试与 held-out detector gate 均失败，已停止。</p></article>
+          <article class="stage active"><b>下一版 Context</b><p>多信号 recurrent re-entry inference；先过双顺序 dev gate。</p></article>
         </div>
       </section>
 
@@ -697,6 +759,7 @@
           </div>
         </div>
         <div class="artifact-list">
+          <a class="artifact" href="REMAP_FORMER_NOVEL_CAPACITY_BASELINES_20260713_CN.md"><strong>新容量 + 外部基线报告</strong><span>Transformer、Titans、容量曲线、失败归因与下一决策</span></a>
           <a class="artifact" href="REMAP_FORMER_ICLR_DESIGN_CN.md"><strong>ICLR 实验设计</strong><span>冻结接口、任务 gates、模型阶段和停机规则</span></a>
           <a class="artifact" href="REMAP_FORMER_M1B_COVARIANCE_RESULT_CN.md"><strong>M1b 结果报告</strong><span>诊断、ridge sweep、配对 validation 与微调审计</span></a>
           <a class="artifact" href="REMAP_FORMER_MATCHED_HIPPOFORMER_M1B_CN.md"><strong>预算匹配终审</strong><span>Hippoformer / M-delta / M1b 三 seed 同批 validation</span></a>
@@ -713,7 +776,7 @@
       </section>
     </main>
 
-    <footer>ReMAP-Former internal dashboard · 2026-07-13 · 当前决策：Headline、组件必要性与 4356 步长延迟稳定性均确认</footer>
+    <footer>ReMAP-Former internal dashboard · 2026-07-13 · 当前决策：旧 headline 保留；新奇容量瓶颈定位到 context re-entry</footer>
   </div>
 </body>
 </html>
