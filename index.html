@@ -385,7 +385,7 @@
 
     .roadmap {
       display: grid;
-      grid-template-columns: repeat(5, minmax(0, 1fr));
+      grid-template-columns: repeat(4, minmax(0, 1fr));
       gap: 8px;
     }
 
@@ -462,6 +462,7 @@
       </div>
       <nav aria-label="看板分区">
         <a href="#results">结果</a>
+        <a href="#stress">长延迟</a>
         <a href="#task">任务</a>
         <a href="#architecture">架构</a>
         <a href="#roadmap">路线</a>
@@ -483,9 +484,9 @@
           </div>
         </article>
         <article class="status-card pass">
-          <h2>生成器 Gates</h2>
-          <strong>9 / 9</strong>
-          <p>path 1.000，cue/time 均 0.500，固定时钟已切断</p>
+          <h2>长延迟 OOD</h2>
+          <strong>4356 步 PASS</strong>
+          <p>M1b 0.7500；Hippo/M-delta 0；no-cov 0.2708；clean 1.000</p>
         </article>
         <article class="status-card pass">
           <h2>一次性 Test</h2>
@@ -501,8 +502,8 @@
 
       <section>
         <div class="decision">
-          <strong>当前决策：8-seed Headline 优势确认</strong>
-          <p>固定 test 上，Hippoformer 与 M-delta 的 return-conflict 8/8 均为 0；M1b 为 0.8201 ± 0.0200，8/8 逐 seed 胜出，clean 均值 0.9949。结论限定于冻结的 random-return T2 任务。</p>
+          <strong>当前决策：Headline + 组件因果性 + 4356 步稳定性均确认</strong>
+          <p>一次性固定 test 上 M1b 为 0.8201 ± 0.0200；validation 组件消融确认 covariance、推断 context 与 HPC read 都必要；重复闭合 distractor 的长延迟 OOD 到 4356 步仍为 0.7500。长延迟实验不是 free rollout，也不是不断加入新奇 distractor 的容量测试。</p>
         </div>
       </section>
 
@@ -510,12 +511,49 @@
         <div class="section-head">
           <div>
             <h2>核心结果</h2>
-            <p>一次性 test：generator seed 1892；每颗 512 episodes；三模型同训练预算并逐 batch 读取完全相同输入。</p>
+            <p>先给最新 validation 压力测试，再保留一次性 test headline；所有正式协议均在看结果前冻结。</p>
           </div>
           <div class="source">更新：2026-07-13</div>
         </div>
 
-        <div class="grid-2">
+        <div id="stress" class="grid-2">
+          <article class="panel">
+            <h3>长延迟 / 重复干扰 OOD</h3>
+            <table>
+              <thead><tr><th>Stage</th><th>长度</th><th>Hippo</th><th>M-delta</th><th>M1b</th><th>No-cov</th><th>Clean</th></tr></thead>
+              <tbody>
+                <tr><td data-label="Stage">A · 8 seed</td><td data-label="长度" class="num">176</td><td data-label="Hippo" class="num">0.0000</td><td data-label="M-delta" class="num">0.0000</td><td data-label="M1b" class="num"><strong>0.8301</strong></td><td data-label="No-cov" class="num">0.2793</td><td data-label="Clean" class="num">0.9918</td></tr>
+                <tr><td data-label="Stage">A · 8 seed</td><td data-label="长度" class="num">220</td><td data-label="Hippo" class="num">0.0000</td><td data-label="M-delta" class="num">0.0000</td><td data-label="M1b" class="num"><strong>0.8516</strong></td><td data-label="No-cov" class="num">0.3047</td><td data-label="Clean" class="num">0.9935</td></tr>
+                <tr><td data-label="Stage">A · 8 seed</td><td data-label="长度" class="num">308</td><td data-label="Hippo" class="num">0.0000</td><td data-label="M-delta" class="num">0.0000</td><td data-label="M1b" class="num"><strong>0.7871</strong></td><td data-label="No-cov" class="num">0.2285</td><td data-label="Clean" class="num">0.9941</td></tr>
+                <tr><td data-label="Stage">A · 8 seed</td><td data-label="长度" class="num">484</td><td data-label="Hippo" class="num">0.0039</td><td data-label="M-delta" class="num">0.0000</td><td data-label="M1b" class="num"><strong>0.8496</strong></td><td data-label="No-cov" class="num">0.2813</td><td data-label="Clean" class="num">0.9979</td></tr>
+                <tr><td data-label="Stage">A · 8 seed</td><td data-label="长度" class="num">836</td><td data-label="Hippo" class="num">0.0039</td><td data-label="M-delta" class="num">0.0000</td><td data-label="M1b" class="num"><strong>0.8496</strong></td><td data-label="No-cov" class="num">0.2773</td><td data-label="Clean" class="num">0.9987</td></tr>
+                <tr><td data-label="Stage">B · 3 seed</td><td data-label="长度" class="num">1540</td><td data-label="Hippo" class="num">0.0000</td><td data-label="M-delta" class="num">0.0000</td><td data-label="M1b" class="num"><strong>0.7500</strong></td><td data-label="No-cov" class="num">0.2708</td><td data-label="Clean" class="num">1.0000</td></tr>
+                <tr><td data-label="Stage">B · 3 seed</td><td data-label="长度" class="num">2948</td><td data-label="Hippo" class="num">0.0000</td><td data-label="M-delta" class="num">0.0000</td><td data-label="M1b" class="num"><strong>0.7500</strong></td><td data-label="No-cov" class="num">0.2708</td><td data-label="Clean" class="num">1.0000</td></tr>
+                <tr><td data-label="Stage">B · 3 seed</td><td data-label="长度" class="num">4356</td><td data-label="Hippo" class="num">0.0000</td><td data-label="M-delta" class="num">0.0000</td><td data-label="M1b" class="num"><strong>0.7500</strong></td><td data-label="No-cov" class="num">0.2708</td><td data-label="Clean" class="num">1.0000</td></tr>
+              </tbody>
+            </table>
+            <p style="margin:10px 0 0;color:var(--muted);font-size:12px;">Stage A：64 episodes/horizon/seed；Stage B：16 episodes/horizon/seed。重复的是同一闭合 distractor；验证延迟与重复写入稳定性，不代表新奇内容容量，也不是 free rollout。</p>
+          </article>
+
+          <article class="panel">
+            <h3>M1b 组件必要性（8 seed validation）</h3>
+            <table>
+              <thead><tr><th>条件</th><th>Return-conflict</th><th>相对 Full</th><th>解释</th></tr></thead>
+              <tbody>
+                <tr><td data-label="条件"><strong>完整 M1b</strong></td><td data-label="Return-conflict" class="num"><strong>0.7944</strong></td><td data-label="相对 Full" class="num">基准</td><td data-label="解释" class="green">完整机制</td></tr>
+                <tr><td data-label="条件">No covariance</td><td data-label="Return-conflict" class="num">0.2676</td><td data-label="相对 Full" class="num">−0.5269</td><td data-label="解释">写入去串扰必要</td></tr>
+                <tr><td data-label="条件">Fixed context</td><td data-label="Return-conflict" class="num">0.0000</td><td data-label="相对 Full" class="num">−0.7944</td><td data-label="解释">动态地址必要</td></tr>
+                <tr><td data-label="条件">Shuffled context</td><td data-label="Return-conflict" class="num">0.4355</td><td data-label="相对 Full" class="num">−0.3589</td><td data-label="解释">episode 匹配必要</td></tr>
+                <tr><td data-label="条件">HPC read = 0</td><td data-label="Return-conflict" class="num">0.0234</td><td data-label="相对 Full" class="num">−0.7710</td><td data-label="解释">真实调用记忆</td></tr>
+                <tr><td data-label="条件">Wrong return context</td><td data-label="Return-conflict" class="num">0.0010</td><td data-label="相对 Full" class="num">−0.7935</td><td data-label="解释">地址因果方向</td></tr>
+                <tr><td data-label="条件">Correct context 上界</td><td data-label="Return-conflict" class="num">0.9424</td><td data-label="相对 Full" class="num">+0.1479</td><td data-label="解释">剩余 context headroom</td></tr>
+              </tbody>
+            </table>
+            <p style="margin:10px 0 0;color:var(--muted);font-size:12px;">所有条件复用同一次 full forward 的 PFC/place；no-cov 还复用同一 inferred context/address 与慢权重。全部预注册 gates 通过。</p>
+          </article>
+        </div>
+
+        <div class="grid-2" style="margin-top:12px;">
           <article class="panel">
             <h3>8-seed 单次 Test Headline</h3>
             <table>
@@ -646,6 +684,8 @@
           <article class="stage done"><b>M1b Covariance</b><p>8 seed slow weights 审计通过；正式版本冻结。</p></article>
           <article class="stage done"><b>预算匹配</b><p>三模型同 600×batch4，shared-input paired evaluation。</p></article>
           <article class="stage done"><b>8-seed Headline</b><p>单次 test 完成：M1b 0.8201；六个 gates 全绿。</p></article>
+          <article class="stage done"><b>组件必要性</b><p>Covariance、context 与 HPC read 因果干预全部通过。</p></article>
+          <article class="stage done"><b>长延迟 OOD</b><p>8-seed 到 836；预选 3-seed 到 4356，全部 gates 通过。</p></article>
         </div>
       </section>
 
@@ -662,13 +702,18 @@
           <a class="artifact" href="REMAP_FORMER_MATCHED_HIPPOFORMER_M1B_CN.md"><strong>预算匹配终审</strong><span>Hippoformer / M-delta / M1b 三 seed 同批 validation</span></a>
           <a class="artifact" href="REMAP_FORMER_8SEED_HEADLINE_TEST_CN.md"><strong>8-seed Test Headline</strong><span>预注册单次 test、逐 seed 指标、paired probes 与结论边界</span></a>
           <a class="artifact" href="REMAP_FORMER_8SEED_HEADLINE_PROTOCOL_CN.md"><strong>8-seed 冻结协议</strong><span>训练预算、单次 test 参数、成功门槛和禁止项</span></a>
+          <a class="artifact" href="REMAP_FORMER_M1B_COMPONENT_ABLATION_8SEED_CN.md"><strong>组件必要性报告</strong><span>8-seed validation、因果干预、逐 seed 与预注册 gates</span></a>
+          <a class="artifact" href="REMAP_FORMER_M1B_COMPONENT_ABLATION_PROTOCOL_CN.md"><strong>组件消融协议</strong><span>看结果前冻结的条件、样本、阈值与禁止项</span></a>
+          <a class="artifact" href="REMAP_FORMER_LONG_DELAY_STAGE_A_8SEED_CN.md"><strong>长延迟 Stage A</strong><span>8-seed、176–836 步、四模型共享输入曲线</span></a>
+          <a class="artifact" href="REMAP_FORMER_LONG_DELAY_STAGE_B_4356_CN.md"><strong>长延迟 Stage B</strong><span>预选 3-seed、836–4356 步与解释边界</span></a>
+          <a class="artifact" href="REMAP_FORMER_LONG_DELAY_OOD_PROTOCOL_CN.md"><strong>长延迟冻结协议</strong><span>两阶段门控、窗口等价验证与 run-once 规则</span></a>
           <a class="artifact" href="REMAP_FORMER_HIPPOFORMER_LR_GATE_CN.md"><strong>Hippoformer LR Gate</strong><span>独立 seed711、固定 dev CE 与可恢复训练协议</span></a>
           <a class="artifact" href="remap_former_iclr_design_iclr2025.pdf"><strong>ICLR PDF</strong><span>9 页中文 ICLR 模板版本</span></a>
         </div>
       </section>
     </main>
 
-    <footer>ReMAP-Former internal dashboard · 2026-07-13 · 当前决策：8-seed 单次 test 优势确认</footer>
+    <footer>ReMAP-Former internal dashboard · 2026-07-13 · 当前决策：Headline、组件必要性与 4356 步长延迟稳定性均确认</footer>
   </div>
 </body>
 </html>
