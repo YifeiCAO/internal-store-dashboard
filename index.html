@@ -270,7 +270,7 @@
 
     .threshold {
       position: absolute;
-      left: 90%;
+      left: 70%;
       top: -2px;
       bottom: -2px;
       width: 2px;
@@ -458,7 +458,7 @@
     <header class="topbar">
       <div class="brand">
         <h1>ReMAP-Former 实验看板</h1>
-        <p>Transformer=PFC 主干，EC 供结构，episode-local DeltaHPC 供外挂记忆</p>
+        <p>Transformer=PFC 主干，EC 供结构，covariance-corrected HPC 供外挂记忆</p>
       </div>
       <nav aria-label="看板分区">
         <a href="#results">结果</a>
@@ -473,12 +473,12 @@
       <div class="status-grid" aria-label="最新状态">
         <article class="status-card primary">
           <h2>当前主线</h2>
-          <strong>先推断，再寻址</strong>
-          <p>v5 从动作历史形成 cyclic path signature，用 retention state 控制 place×context 地址；HPC 先读后写，内容不进入 PFC state。</p>
+          <strong>当前最优：Frozen M1b</strong>
+          <p>动作历史形成 latent context，控制 place×context 地址；HPC 用 16×16 context covariance 校正写入方向，内容仍只在 episode fast weights 中。</p>
           <div class="badge-row">
             <span class="badge"><span class="dot blue"></span>无 room / 位置输入</span>
             <span class="badge"><span class="dot teal"></span>Neural EC</span>
-            <span class="badge"><span class="dot amber"></span>DeltaHPC</span>
+            <span class="badge"><span class="dot amber"></span>Covariance HPC</span>
             <span class="badge"><span class="dot green"></span>单一 sensory CE</span>
           </div>
         </article>
@@ -488,21 +488,21 @@
           <p>path 1.000，cue/time 均 0.500，固定时钟已切断</p>
         </article>
         <article class="status-card pass">
-          <h2>M-delta</h2>
-          <strong>PASS</strong>
-          <p>单房间非劣效与 context-64 true free rollout 通过</p>
+          <h2>一次性 Test</h2>
+          <strong>8 / 8 PASS</strong>
+          <p>预注册 seed 1892；同 600×batch4；六个 headline gates 全绿</p>
         </article>
-        <article class="status-card hold">
-          <h2>M1 三 Seed</h2>
-          <strong>2 / 3</strong>
-          <p>均值 0.906；seed 713 为 0.895，严格未过 0.900</p>
+        <article class="status-card pass">
+          <h2>M1b 八 Seed</h2>
+          <strong>0.8201</strong>
+          <p>±0.0200；范围 0.7852–0.8457；8192 个 paired return probes</p>
         </article>
       </div>
 
       <section>
         <div class="decision">
-          <strong>当前决策：HOLD M2</strong>
-          <p>先修 M1 稳定性，不改阈值，不加 context loss，不进入 uncertainty write protection。下一轮只测试 retention/context 参数 EMA。</p>
+          <strong>当前决策：8-seed Headline 优势确认</strong>
+          <p>固定 test 上，Hippoformer 与 M-delta 的 return-conflict 8/8 均为 0；M1b 为 0.8201 ± 0.0200，8/8 逐 seed 胜出，clean 均值 0.9949。结论限定于冻结的 random-return T2 任务。</p>
         </div>
       </section>
 
@@ -510,35 +510,40 @@
         <div class="section-head">
           <div>
             <h2>核心结果</h2>
-            <p>所有 checkpoint 只按 validation sensory CE 选择；终审固定 128 episodes。</p>
+            <p>一次性 test：generator seed 1892；每颗 512 episodes；三模型同训练预算并逐 batch 读取完全相同输入。</p>
           </div>
-          <div class="source">更新：2026-07-11</div>
+          <div class="source">更新：2026-07-13</div>
         </div>
 
         <div class="grid-2">
           <article class="panel">
-            <h3>M1 v5 三 seed</h3>
+            <h3>8-seed 单次 Test Headline</h3>
             <table>
               <thead>
-                <tr><th>Seed</th><th>Context</th><th>Re-entry</th><th>HPC-zero drop</th><th>Content probe</th><th>Gate</th></tr>
+                <tr><th>Seed</th><th>Hippo</th><th>M-delta</th><th>M1b</th><th>配对增益</th><th>M1b clean</th></tr>
               </thead>
               <tbody>
-                <tr><td data-label="Seed" class="num">712</td><td data-label="Context" class="num">0.9063</td><td data-label="Re-entry" class="num">0.3984</td><td data-label="HPC-zero drop" class="num">0.3828</td><td data-label="Content probe" class="num">0.0000</td><td data-label="Gate"><span class="tag green"><span class="dot"></span>PASS</span></td></tr>
-                <tr><td data-label="Seed" class="num">713</td><td data-label="Context" class="num">0.8945</td><td data-label="Re-entry" class="num">0.3359</td><td data-label="HPC-zero drop" class="num">0.3203</td><td data-label="Content probe" class="num">0.0125</td><td data-label="Gate"><span class="tag amber"><span class="dot"></span>FAIL</span></td></tr>
-                <tr><td data-label="Seed" class="num">714</td><td data-label="Context" class="num">0.9180</td><td data-label="Re-entry" class="num">0.4063</td><td data-label="HPC-zero drop" class="num">0.3906</td><td data-label="Content probe" class="num">0.0125</td><td data-label="Gate"><span class="tag green"><span class="dot"></span>PASS</span></td></tr>
-                <tr><td data-label="Seed"><strong>Mean</strong></td><td data-label="Context" class="num"><strong>0.9063</strong></td><td data-label="Re-entry" class="num"><strong>0.3802</strong></td><td data-label="HPC-zero drop" class="num"><strong>0.3646</strong></td><td data-label="Content probe" class="num"><strong>0.0083</strong></td><td data-label="Gate"><strong>2/3</strong></td></tr>
+                <tr><td data-label="Seed" class="num">712</td><td data-label="Hippo" class="num">0.0000</td><td data-label="M-delta" class="num">0.0000</td><td data-label="M1b" class="num">0.8281</td><td data-label="配对增益" class="num">+0.8281</td><td data-label="M1b clean" class="num">0.9922</td></tr>
+                <tr><td data-label="Seed" class="num">713</td><td data-label="Hippo" class="num">0.0000</td><td data-label="M-delta" class="num">0.0000</td><td data-label="M1b" class="num">0.7852</td><td data-label="配对增益" class="num">+0.7852</td><td data-label="M1b clean" class="num">0.9953</td></tr>
+                <tr><td data-label="Seed" class="num">714</td><td data-label="Hippo" class="num">0.0000</td><td data-label="M-delta" class="num">0.0000</td><td data-label="M1b" class="num">0.8457</td><td data-label="配对增益" class="num">+0.8457</td><td data-label="M1b clean" class="num">0.9922</td></tr>
+                <tr><td data-label="Seed" class="num">715</td><td data-label="Hippo" class="num">0.0000</td><td data-label="M-delta" class="num">0.0000</td><td data-label="M1b" class="num">0.8281</td><td data-label="配对增益" class="num">+0.8281</td><td data-label="M1b clean" class="num">0.9949</td></tr>
+                <tr><td data-label="Seed" class="num">716</td><td data-label="Hippo" class="num">0.0000</td><td data-label="M-delta" class="num">0.0000</td><td data-label="M1b" class="num">0.8125</td><td data-label="配对增益" class="num">+0.8125</td><td data-label="M1b clean" class="num">0.9941</td></tr>
+                <tr><td data-label="Seed" class="num">717</td><td data-label="Hippo" class="num">0.0000</td><td data-label="M-delta" class="num">0.0000</td><td data-label="M1b" class="num">0.8164</td><td data-label="配对增益" class="num">+0.8164</td><td data-label="M1b clean" class="num">0.9969</td></tr>
+                <tr><td data-label="Seed" class="num">718</td><td data-label="Hippo" class="num">0.0000</td><td data-label="M-delta" class="num">0.0000</td><td data-label="M1b" class="num">0.8457</td><td data-label="配对增益" class="num">+0.8457</td><td data-label="M1b clean" class="num">0.9977</td></tr>
+                <tr><td data-label="Seed" class="num">719</td><td data-label="Hippo" class="num">0.0000</td><td data-label="M-delta" class="num">0.0000</td><td data-label="M1b" class="num">0.7988</td><td data-label="配对增益" class="num">+0.7988</td><td data-label="M1b clean" class="num">0.9957</td></tr>
+                <tr><td data-label="Seed"><strong>Mean</strong></td><td data-label="Hippo" class="num"><strong>0.0000</strong></td><td data-label="M-delta" class="num"><strong>0.0000</strong></td><td data-label="M1b" class="num"><strong>0.8201</strong></td><td data-label="配对增益" class="num"><strong>+0.8201</strong></td><td data-label="M1b clean" class="num"><strong>0.9949</strong></td></tr>
               </tbody>
             </table>
           </article>
 
           <article class="panel">
-            <h3>Context gate 距离</h3>
-            <div class="bars" aria-label="三 seed context matching 柱状图">
-              <div class="bar-row"><strong>712</strong><div class="bar-track"><div class="bar-fill" style="width:90.625%"></div><span class="threshold" title="门槛 0.900"></span></div><span class="bar-value">0.9063</span></div>
-              <div class="bar-row"><strong>713</strong><div class="bar-track"><div class="bar-fill fail" style="width:89.453%"></div><span class="threshold" title="门槛 0.900"></span></div><span class="bar-value">0.8945</span></div>
-              <div class="bar-row"><strong>714</strong><div class="bar-track"><div class="bar-fill" style="width:91.797%"></div><span class="threshold" title="门槛 0.900"></span></div><span class="bar-value">0.9180</span></div>
+            <h3>同预算 Return-Conflict</h3>
+            <div class="bars" aria-label="预算匹配结果柱状图">
+              <div class="bar-row"><strong>Hippoformer</strong><div class="bar-track"><div class="bar-fill fail" style="width:0%"></div><span class="threshold" title="预注册门槛 0.700"></span></div><span class="bar-value">0.0000</span></div>
+              <div class="bar-row"><strong>M-delta</strong><div class="bar-track"><div class="bar-fill fail" style="width:0%"></div><span class="threshold" title="预注册门槛 0.700"></span></div><span class="bar-value">0.0000</span></div>
+              <div class="bar-row"><strong>M1b</strong><div class="bar-track"><div class="bar-fill" style="width:82.007%"></div><span class="threshold" title="预注册门槛 0.700"></span></div><span class="bar-value">0.8201</span></div>
             </div>
-            <p style="margin:14px 0 0;color:var(--muted);font-size:12px;">红线为预注册 raw matching 0.900。seed 713 少约 3/512 个正确比较，仍按 FAIL 处理。</p>
+            <p style="margin:14px 0 0;color:var(--muted);font-size:12px;">红线为预注册 M1b 均值门槛 0.700。三者使用相同 600×batch4 预算；M1b 参数量还少约 6.4%。</p>
           </article>
         </div>
 
@@ -609,14 +614,14 @@
             <p style="margin-top:9px;">地址 = place × context，共 4096 维。</p>
           </div>
           <div class="arch-node hpc">
-            <h3>Episode-local DeltaHPC</h3>
+            <h3>Covariance-corrected HPC</h3>
             <div class="matrix" aria-hidden="true">
               <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
               <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
               <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
               <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
             </div>
-            <p>突触矩阵 [B, 64, 4096]<br />每个 episode 清零<br />read-before-write delta update</p>
+            <p>内容矩阵 [B, 64, 4096]<br />context covariance [B, 16, 16]<br />每个 episode 清零，dual-key 写入</p>
           </div>
           <div class="arch-node output">
             <h3>调用与输出</h3>
@@ -624,22 +629,23 @@
             <p style="margin-top:9px;">HPC-zero 干预验证调用是否真实。</p>
           </div>
         </div>
-        <div class="no-slot">不存在 memory slot、content store、按 place index 查表或跨 episode 累积的内容矩阵。</div>
+        <div class="no-slot">存在 episode-local fast-weight content matrix；不存在固定离散 memory slots、按 place index 查表或跨 episode 持久化的内容表。</div>
       </section>
 
       <section id="roadmap">
         <div class="section-head">
           <div>
             <h2>阶段路线</h2>
-            <p>每一阶段只增加一个机制；当前停在 M1 稳定性。</p>
+            <p>每一阶段只增加一个机制；当前模型结构已经冻结。</p>
           </div>
         </div>
         <div class="roadmap">
           <article class="stage done"><b>M0 基线</b><p>健康 Hippoformer / Transformer substrate。</p></article>
           <article class="stage done"><b>M-delta</b><p>Constant context + serial DeltaHPC，非劣效通过。</p></article>
-          <article class="stage active"><b>M1 Context</b><p>v5 机制可行，三 seed 2/3；先修稳定性。</p></article>
-          <article class="stage blocked"><b>M2 写保护</b><p>未启动。M1 3/3 前禁止加入 uncertainty gate。</p></article>
-          <article class="stage blocked"><b>M3 闭环修正</b><p>未启动。只在 M2 稳定提升后研究 retrieval refinement。</p></article>
+          <article class="stage done"><b>M1 Context</b><p>因果地址有效；定位出 Delta 内容串扰。</p></article>
+          <article class="stage done"><b>M1b Covariance</b><p>8 seed slow weights 审计通过；正式版本冻结。</p></article>
+          <article class="stage done"><b>预算匹配</b><p>三模型同 600×batch4，shared-input paired evaluation。</p></article>
+          <article class="stage done"><b>8-seed Headline</b><p>单次 test 完成：M1b 0.8201；六个 gates 全绿。</p></article>
         </div>
       </section>
 
@@ -651,14 +657,18 @@
           </div>
         </div>
         <div class="artifact-list">
-          <a class="artifact" href="../REMAP_FORMER_ICLR_DESIGN_CN.md"><strong>ICLR 实验设计</strong><span>冻结接口、任务 gates、模型阶段和停机规则</span></a>
-          <a class="artifact" href="../REMAP_FORMER_M1_RANDOM_RETURN_RESULT_CN.md"><strong>M1 结果报告</strong><span>shortcut 审计、v5 架构和三 seed 结果</span></a>
-          <a class="artifact" href="../output/pdf/remap_former_iclr_design_iclr2025.pdf"><strong>ICLR PDF</strong><span>9 页中文 ICLR 模板版本</span></a>
+          <a class="artifact" href="REMAP_FORMER_ICLR_DESIGN_CN.md"><strong>ICLR 实验设计</strong><span>冻结接口、任务 gates、模型阶段和停机规则</span></a>
+          <a class="artifact" href="REMAP_FORMER_M1B_COVARIANCE_RESULT_CN.md"><strong>M1b 结果报告</strong><span>诊断、ridge sweep、配对 validation 与微调审计</span></a>
+          <a class="artifact" href="REMAP_FORMER_MATCHED_HIPPOFORMER_M1B_CN.md"><strong>预算匹配终审</strong><span>Hippoformer / M-delta / M1b 三 seed 同批 validation</span></a>
+          <a class="artifact" href="REMAP_FORMER_8SEED_HEADLINE_TEST_CN.md"><strong>8-seed Test Headline</strong><span>预注册单次 test、逐 seed 指标、paired probes 与结论边界</span></a>
+          <a class="artifact" href="REMAP_FORMER_8SEED_HEADLINE_PROTOCOL_CN.md"><strong>8-seed 冻结协议</strong><span>训练预算、单次 test 参数、成功门槛和禁止项</span></a>
+          <a class="artifact" href="REMAP_FORMER_HIPPOFORMER_LR_GATE_CN.md"><strong>Hippoformer LR Gate</strong><span>独立 seed711、固定 dev CE 与可恢复训练协议</span></a>
+          <a class="artifact" href="remap_former_iclr_design_iclr2025.pdf"><strong>ICLR PDF</strong><span>9 页中文 ICLR 模板版本</span></a>
         </div>
       </section>
     </main>
 
-    <footer>ReMAP-Former internal dashboard · 2026-07-11 · 当前决策：HOLD M2</footer>
+    <footer>ReMAP-Former internal dashboard · 2026-07-13 · 当前决策：8-seed 单次 test 优势确认</footer>
   </div>
 </body>
 </html>
