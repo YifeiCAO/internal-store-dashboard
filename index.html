@@ -488,8 +488,8 @@
       <div class="status-grid" aria-label="最新状态">
         <article class="status-card primary">
           <h2>当前主线</h2>
-          <strong>M1b 仍是正式模型；M1f 通过三 seed dev</strong>
-          <p>零新增参数的 M1f 将 return-conflict 从 M1b 聚合 0.4125 提到 0.6083，三颗增益均为正、五个冻结 gates 全过；当前只晋级到 formal protocol design。</p>
+          <strong>M1b 仍是正式模型；M1f Dev 证据完成</strong>
+          <p>M1f 三 seed 总体提升 +19.58 pp；独立扩大样本 K=8 又提升 +8.33 pp、3/3 seeds 正向。当前只晋级到 formal protocol design，正式数据仍封存。</p>
           <div class="badge-row">
             <span class="badge"><span class="dot blue"></span>无 room / 位置输入</span>
             <span class="badge"><span class="dot teal"></span>Neural EC</span>
@@ -507,17 +507,17 @@
           <strong>0.6083 vs 0.0167</strong>
           <p>关闭 refresh 后 re-entry 几乎消失；M1f 没有 hard gate、第二套 memory 或新增参数</p>
         </article>
-        <article class="status-card hold">
-          <h2>明确风险</h2>
-          <strong>K=8：-4.17 pp</strong>
-          <p>K1/K2/K4/K12 均提升，但 K8 两颗下降；正式协议必须逐 K 报告</p>
+        <article class="status-card pass">
+          <h2>K=8 独立确认</h2>
+          <strong>+8.33 pp，3/3 正向</strong>
+          <p>384 个全新 probes 上旧下降未复现；M1b 0.3177，M1f 0.4010</p>
         </article>
       </div>
 
       <section>
         <div class="decision">
           <strong>当前决策：M1f 晋级到 formal protocol design；formal split 继续封存</strong>
-          <p>M1f 只增加确定性的 balanced-window context hold/refresh，参数量与 M1b 完全相同。三 seed dev 的五个预注册 gates 全过，但 K=8 存在非单调下降。下一步只允许冻结正式协议或增加独立 dev 样本确认 K=8，不允许根据结果改 detector、初始化或 ridge。</p>
+          <p>M1f 只增加确定性的 balanced-window context hold/refresh，参数量与 M1b 完全相同。K=8 独立确认已完成，不再修改 detector、初始化或 ridge。Balanced 比等次数随机高 12.24 pp，但只比 delay+6 高 3.13 pp，因此 claim 冻结为“结构约束、时间容忍较宽的 hold/refresh”，不声称精确边界检测。</p>
         </div>
       </section>
 
@@ -586,6 +586,21 @@
             <p style="margin:10px 0 0;color:var(--muted);font-size:12px;">新增参数 0；proposal 不是 neural EC 输出，也不稀疏：触发率 10.76%，平均 47.34 次/episode。无 room、位置或当前 target 输入。</p>
           </article>
         </div>
+
+        <article class="panel" style="margin-top:12px;">
+          <h3>K=8 独立扩大样本与时机对照</h3>
+          <table>
+            <thead><tr><th>条件</th><th>Return-conflict</th><th>Clean</th><th>相对 Balanced</th><th>判断</th></tr></thead>
+            <tbody>
+              <tr><td data-label="条件">M1b</td><td data-label="Return-conflict" class="num">0.3177</td><td data-label="Clean" class="num">0.8422</td><td data-label="相对 Balanced" class="num">-0.0833</td><td data-label="判断">冻结基线</td></tr>
+              <tr><td data-label="条件"><strong>M1f balanced</strong></td><td data-label="Return-conflict" class="num"><strong>0.4010</strong></td><td data-label="Clean" class="num"><strong>0.9464</strong></td><td data-label="相对 Balanced" class="num">0.0000</td><td data-label="判断" class="green">3/3 seeds 正向</td></tr>
+              <tr><td data-label="条件">No refresh</td><td data-label="Return-conflict" class="num">0.0156</td><td data-label="Clean" class="num">0.9500</td><td data-label="相对 Balanced" class="num">-0.3854</td><td data-label="判断" class="red">刷新必要</td></tr>
+              <tr><td data-label="条件">Delay +6</td><td data-label="Return-conflict" class="num">0.3698</td><td data-label="Clean" class="num">0.8794</td><td data-label="相对 Balanced" class="num">-0.0313</td><td data-label="判断" class="amber">未过精确时机门</td></tr>
+              <tr><td data-label="条件">等次数随机</td><td data-label="Return-conflict" class="num">0.2786</td><td data-label="Clean" class="num">0.6828</td><td data-label="相对 Balanced" class="num">-0.1224</td><td data-label="判断" class="green">结构选择有效</td></tr>
+            </tbody>
+          </table>
+          <p style="margin:10px 0 0;color:var(--muted);font-size:12px;">全新 384 probes。Balanced、delay+6、random 都严格为 62 次 refresh/episode。结论：旧 K=8 下降未复现；不是任意平滑，但至少容忍约 6 步时间偏移。</p>
+        </article>
       </section>
 
       <section id="closure">
@@ -683,7 +698,7 @@
                 <tr><td data-label="检查">M1d force-proposal 功能</td><td data-label="结果" class="num">0.6625</td><td data-label="判断" class="green">功能候选保留</td></tr>
               </tbody>
             </table>
-            <p style="margin:10px 0 0;color:var(--muted);font-size:12px;">旧 precision/recall 只衡量是否复刻人工边界，不等于未来记忆功能。85 项回归全绿；当前结论是 hard acceptance 失败，但 balanced-window 时刻刷新 context 的功能成立。</p>
+            <p style="margin:10px 0 0;color:var(--muted);font-size:12px;">旧 precision/recall 只衡量是否复刻人工边界，不等于未来记忆功能。90 项回归全绿；当前结论是 hard acceptance 失败，但 balanced-window 时刻刷新 context 的功能成立。</p>
           </article>
         </div>
 
@@ -877,7 +892,8 @@
           <article class="stage done"><b>M1d 因果重审</b><p>Soft 0.6125、force 0.6625；确认此前低值只来自 hard gate。</p></article>
           <article class="stage blocked"><b>M1e Context Fast Weight</b><p>Delta / covariance recall 净贡献 0 / -3.75 pp，停止于 dev。</p></article>
           <article class="stage done"><b>M1f 三 Seed Dev</b><p>聚合 +19.58 pp；3/3 正向；五个冻结 gates 全过。</p></article>
-          <article class="stage active"><b>Formal Protocol Design</b><p>正式数据仍封存；逐 K 报告并预声明 K=8 风险。</p></article>
+          <article class="stage done"><b>K=8 独立确认</b><p>+8.33 pp、3/3 正向；旧小样本下降未复现。</p></article>
+          <article class="stage active"><b>Formal Protocol Design</b><p>正式数据仍封存；claim 限定为结构约束、宽时机容忍。</p></article>
         </div>
       </section>
 
@@ -889,6 +905,9 @@
           </div>
         </div>
         <div class="artifact-list">
+          <a class="artifact" href="REMAP_FORMER_M1F_K8_TIMING_CONFIRMATION_CN.md"><strong>最新：M1f K=8 独立确认</strong><span>384-probe 复查、等次数 random、delay+6、同 probe 方向性与冻结机制判读</span></a>
+          <a class="artifact" href="REMAP_FORMER_M1F_K8_TIMING_SUMMARY.json"><strong>最新：K=8 机器可读结果</strong><span>逐 seed 五条件指标、schedule 数量、paired counts 与 specificity gates</span></a>
+          <a class="artifact" href="REMAP_FORMER_M1F_K8_TIMING_PROTOCOL.json"><strong>K=8 看结果前冻结协议</strong><span>全新 seeds、4 倍样本、random/delay controls 和三分支分类规则</span></a>
           <a class="artifact" href="REMAP_FORMER_M1F_3SEED_DEV_RESULT_CN.md"><strong>最新：M1f 三 Seed Dev 结果</strong><span>零参数架构、480-probe 配对结果、五个 gates、K=8 风险与结论边界</span></a>
           <a class="artifact" href="REMAP_FORMER_M1F_3SEED_DEV_SUMMARY.json"><strong>最新：M1f 机器可读结果</strong><span>逐 seed、逐容量、同 probe 胜负、proposal 密度与冻结决定</span></a>
           <a class="artifact" href="REMAP_FORMER_M1F_3SEED_DEV_PROTOCOL.json"><strong>M1f 看结果前冻结协议</strong><span>seeds、样本量、五个晋级门、禁止输入与 post-result rule</span></a>
@@ -912,7 +931,7 @@
       </section>
     </main>
 
-    <footer>ReMAP-Former internal dashboard · 2026-07-13 · M1b 仍是正式模型；M1f 三 seed dev 全门通过，晋级 formal protocol design；K=8 风险保留</footer>
+    <footer>ReMAP-Former internal dashboard · 2026-07-13 · M1b 仍是正式模型；M1f Dev 证据完成并晋级 formal protocol design；K=8 +8.33 pp，精确 token 时机不特异</footer>
   </div>
 </body>
 </html>

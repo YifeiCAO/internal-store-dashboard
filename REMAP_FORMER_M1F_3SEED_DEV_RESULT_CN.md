@@ -184,4 +184,8 @@ K=8 是明确的非单调异常：seed712 为 `+0.0625`，seed713/714 为 `-0.06
 - 运行器：`evaluate_remap_m1f_three_seed_dev.py`
 - 结果：`runs/remap_former/m1f_three_seed_dev/summary.json`
 - 精简报告：`runs/remap_former/m1f_three_seed_dev/report.md`
-- 完整相关回归：`85 passed`。
+- 完整相关回归：`90 passed`。
+
+## 11. 后续独立 K=8 确认
+
+按本报告预先允许的唯一 K=8 confirmation，使用全新 dev seeds 和 384 个 probes 复查。M1b/M1f 为 `0.3177/0.4010`，增益 `+8.33 pp`，三颗 model seeds 全部正向；旧 `-4.17 pp` 未复现。Balanced schedule 比等次数随机高 `12.24 pp`，但只比 delay+6 高 `3.13 pp`，因此结构约束有效、精确 token 时机不特异。完整结果见 `reports/REMAP_FORMER_M1F_K8_TIMING_CONFIRMATION_CN.md`；formal split 仍未访问。相关回归现为 `90 passed`。
