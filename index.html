@@ -533,8 +533,8 @@
       <section id="m1i">
         <div class="section-head">
           <div>
-            <h2>最新：M1i 可靠 PFC 历史调用</h2>
-            <p>固定 structural key、不可变 base-context value、连续 learned null；冻结原有 PFC/EC/place/content-HPC/fusion，只训练 2,479 个 caller 参数。</p>
+            <h2>最新：M1i 可靠辅助历史调用</h2>
+            <p>固定 structural key、不可变 base-context value、连续 learned null；主 Transformer/PFC 与 EC/place/content-HPC/fusion 全冻结，只训练 2,479 个 caller 参数。</p>
           </div>
           <div class="source">更新：2026-07-14 · 126 tests passed · formal 未访问</div>
         </div>
@@ -570,14 +570,14 @@
         </div>
 
         <article class="panel" style="margin-top:12px;">
-          <h3>模型调用链：仍然只有一个内容 HPC</h3>
+          <h3>真实张量路径：仍然只有一个内容 HPC</h3>
           <div class="task-flow">
-            <div class="flow-node ref0"><strong>Transformer / PFC</strong><span>动作历史 → state<br />base context</span></div>
-            <div class="flow-node ref1"><strong>锚定历史 Attention</strong><span>固定 signature key<br />archival base-context value</span></div>
+            <div class="flow-node ref0"><strong>Transformer / PFC</strong><span>主 sensory hidden<br />当前 caller 不读 pfc_hidden</span></div>
+            <div class="flow-node ref1"><strong>Action-only State Token</strong><span>固定 signature key<br />archival base-context value</span></div>
             <div class="flow-node distractor"><strong>Soft Null 控制</strong><span>hold / refresh / call<br />不确定时可拒答</span></div>
             <div class="flow-node return"><strong>原有外挂 HPC</strong><span>place × context 地址<br />唯一 covariance content store</span></div>
           </div>
-          <div class="no-slot">训练仍只有全 token sensory CE。没有 room/context/位置输入，没有显式 memory slot，没有第二套 fast-weight matrix；PFC 只因果读取此前 proposal token 的 key/value。</div>
+          <div class="no-slot">训练仍只有全 token sensory CE。没有 room/context/位置输入，没有显式 memory slot，没有第二套 fast-weight matrix。需要特别诚实：caller 读取的是 auxiliary action-only state/signature/base-context history，不是 Transformer 原生 hidden/KV；主 Transformer hidden 只在最后接收 HPC retrieval 并解码。</div>
         </article>
 
         <div class="grid-2" style="margin-top:12px;">
@@ -598,7 +598,7 @@
             <ol style="margin:0;padding-left:20px;color:var(--muted);">
               <li>正常调用比 M1f 高 25 pp，方向已经成立。</li>
               <li>Force-call 的 context pair 更高，但 return 与 clean 都差，证明“多调”不是答案。</li>
-              <li>先在新 seed 分解正确 key、正确 call、后续覆盖和 recall，才能知道下一机制该做 retention 还是更纯的 transport。</li>
+              <li>先在新 seed 分解正确 key、正确 call、后续覆盖和 recall，再决定做 retention、纯化 transport，还是让 caller 真正读取严格因果的 pfc_hidden。</li>
             </ol>
           </article>
         </div>
@@ -641,14 +641,14 @@
         </div>
 
         <article class="panel" style="margin-top:12px;">
-          <h3>实际调用链：PFC 历史，不是第二个海马</h3>
+          <h3>实际调用链：辅助结构历史，不是第二个海马</h3>
           <div class="task-flow">
-            <div class="flow-node ref0"><strong>Transformer / PFC</strong><span>action-only state<br />cyclic relation signature</span></div>
-            <div class="flow-node ref1"><strong>严格因果 Attention</strong><span>Q/K 只看 proposal j&lt;t<br />V 是历史 context token</span></div>
+            <div class="flow-node ref0"><strong>Action-only State Token</strong><span>独立于 pfc_hidden<br />cyclic relation signature</span></div>
+            <div class="flow-node ref1"><strong>严格因果 Attention</strong><span>Q/K 只看 state+signature<br />V 是历史 context token</span></div>
             <div class="flow-node distractor"><strong>三路控制</strong><span>hold current<br />refresh base / call history</span></div>
             <div class="flow-node return"><strong>原有外挂 HPC</strong><span>place × context 地址<br />单一 covariance content store</span></div>
           </div>
-          <div class="no-slot">没有 room/context/位置输入；没有离散 memory slots；没有第二套 context fast weights。History 是 Transformer/PFC 已有的因果 event-token KV，object/value 仍只写入原来的 episode-local content HPC。</div>
+          <div class="no-slot">没有 room/context/位置输入；没有离散 memory slots；没有第二套 context fast weights。History 来自 auxiliary action-only state/signature/context token，不是 Transformer 原生 KV；object/value 仍只写入原来的 episode-local content HPC。</div>
         </article>
 
         <div class="grid-2" style="margin-top:12px;">
