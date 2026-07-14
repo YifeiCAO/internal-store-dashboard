@@ -1,0 +1,48 @@
+{
+  "format": "remap_former.m1g_least_squares_g0b_protocol.v1",
+  "frozen_date": "2026-07-14",
+  "scope": "single-seed K=8 dev-only frozen follow-up after transpose G0 rejection; new episodes; no training, checkpoint selection, stress, formal validation, or test",
+  "model_seed": 712,
+  "generator_seed": 5925,
+  "capacity_level": 8,
+  "grid_size": 11,
+  "max_jitter_cycles": 4,
+  "batch_size": 4,
+  "batches": 16,
+  "episodes": 64,
+  "return_conflict_probes": 128,
+  "content_hpc_covariance_ridge": 0.001,
+  "inference_window": 12,
+  "least_squares_relative_ridge": 0.001,
+  "shuffled_value_seed_offset": 800000,
+  "conditions": [
+    "normal_m1f_context",
+    "least_squares_causal",
+    "least_squares_same_step_leaky",
+    "least_squares_shuffled_value"
+  ],
+  "causal_contract": "least_squares prior_context_t solves only equations from observations x_<t; x_t enters posterior_context_t and may first affect prediction at t+1",
+  "solver": "for each pre-write content memory and neural place, construct R_t such that value_hat=R_t context; over the most recent 12 revealed observations solve (sum R_t^T R_t + relative ridge) context = sum R_t^T value_t and normalize",
+  "ridge_scaling": "relative ridge times mean diagonal of the rolling Gram matrix plus the frozen HPC numerical epsilon",
+  "diagnostic_return_override": "replace normal M1f context only at audit return probes with the causal least-squares context to test address precision; metadata chooses probe positions only and this arm is not deployable",
+  "memory_state": "existing M1b content fast weights and covariance only; no context slots, candidate bank, second memory, cache, or learned parameters",
+  "frozen_thresholds": {
+    "causal_pair_accuracy_at_least": 0.8,
+    "causal_correct_cosine_at_least": 0.95,
+    "causal_correct_cosine_gain_vs_normal_at_least": 0.05,
+    "causal_cosine_margin_at_least": 0.15,
+    "causal_gain_vs_shuffled_pair_accuracy_at_least": 0.2,
+    "leaky_minus_causal_pair_accuracy_at_most": 0.1,
+    "diagnostic_return_fused_acc_at_least": 0.8,
+    "retrieval_replay_max_abs_error_at_most": 0.00001
+  },
+  "classification_rule": {
+    "LEAST_SQUARES_CONTEXT_SIGNAL_CONFIRMED": "all eight frozen gates pass",
+    "IDENTITY_BUT_NOT_ADDRESS_PRECISION": "causal pair identity passes but correct cosine, margin, or diagnostic fused accuracy fails",
+    "SIGNAL_TOO_LATE": "same-step leaky identity passes but causal identity fails",
+    "LEAST_SQUARES_CONTEXT_SIGNAL_INSUFFICIENT": "causal pair identity fails without a leaky-only recovery"
+  },
+  "training": "none",
+  "model_change": "none; diagnostic replay and return-probe intervention only",
+  "post_result_rule": "only LEAST_SQUARES_CONTEXT_SIGNAL_CONFIRMED may unlock a deployable zero-parameter M1g pilot on another new dev seed"
+}

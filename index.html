@@ -472,6 +472,7 @@
         <p>Transformer=PFC 主干，EC 供结构，covariance-corrected HPC 供外挂记忆</p>
       </div>
       <nav aria-label="看板分区">
+        <a href="#m1g">M1g 反解</a>
         <a href="#m1f">M1f 归因</a>
         <a href="#closure">机制诊断</a>
         <a href="#capacity">新容量</a>
@@ -488,8 +489,8 @@
       <div class="status-grid" aria-label="最新状态">
         <article class="status-card primary">
           <h2>当前主线</h2>
-          <strong>M1b 仍是正式模型；M1f 已锁定唯一主瓶颈</strong>
-          <p>M1f 在 K=8 的正常准确率只有 0.4010，暂不进入 formal。冻结 oracle 将正确历史 context 送回同一 HPC 后恢复到 0.9844，说明下一版只需解决返回时的历史 context 身份检索。</p>
+          <strong>M1b 仍是正式模型；M1g 反向 HPC 路线已停止</strong>
+          <p>M1f 在 K=8 为 0.4010，正确历史 context 可恢复到 0.9844；但 transpose 与 least-squares 都不能从现有 content HPC 因果反推出可辨识 context。下一版只改 Transformer/PFC 的历史调用。</p>
           <div class="badge-row">
             <span class="badge"><span class="dot blue"></span>无 room / 位置输入</span>
             <span class="badge"><span class="dot teal"></span>Neural EC</span>
@@ -502,10 +503,10 @@
           <strong>0.9844</strong>
           <p>相对 normal 净增益 +58.33 pp；三颗 seed 均至少 0.9688</p>
         </article>
-        <article class="status-card pass">
-          <h2>精确地址 HPC 上限</h2>
-          <strong>Raw 0.9896</strong>
-          <p>完整融合仍为 0.9844；内容存储和 PFC-HPC 融合都健康</p>
+        <article class="status-card hold">
+          <h2>M1g LS Context</h2>
+          <strong>0.4844</strong>
+          <p>低于 shuffled 0.5625；八个冻结 gate 仅 exact replay 通过</p>
         </article>
         <article class="status-card hold">
           <h2>Formal 绝对门</h2>
@@ -516,9 +517,62 @@
 
       <section>
         <div class="decision">
-          <strong>当前决策：暂停 formal；下一版只攻历史 context 身份检索</strong>
-          <p>Balanced hold/refresh 的因果收益已确认，但它只能把 K=8 拉到 0.4010。正确历史 context 与精确历史地址都达到 0.9844，而错误历史 context 为 0；因此不重做 covariance HPC、不增加内容槽、不改 EC/place 或 decoder。下一机制必须从可观察历史中调用正确的 episode-relative context。</p>
+          <strong>当前决策：停止 content-HPC 反解；下一版做 PFC 历史 attention 调用</strong>
+          <p>Transpose causal pair accuracy 只有 0.6094，rolling LS 为 0.4844，且 LS 比 shuffled 低 7.81 pp。两条回放误差都是 0，说明不是实现问题。Covariance HPC、EC/place 与融合继续冻结；不加 context slot、room signal 或第二套记忆。</p>
         </div>
+      </section>
+
+      <section id="m1g">
+        <div class="section-head">
+          <div>
+            <h2>最新：M1g 双向 HPC Context 审计</h2>
+            <p>冻结 M1f 和同一 content fast-weight HPC；两组互不重叠的新 K=8 dev episodes；零训练、零新增参数、formal 未访问。</p>
+          </div>
+          <div class="source">更新：2026-07-14 · 98 tests passed</div>
+        </div>
+
+        <div class="grid-2">
+          <article class="panel">
+            <h3>G0：转置相关回投</h3>
+            <table>
+              <thead><tr><th>条件</th><th>Pair acc</th><th>Correct cos</th><th>Wrong cos</th><th>Margin</th></tr></thead>
+              <tbody>
+                <tr><td data-label="条件">正常 M1f</td><td data-label="Pair acc" class="num">0.9375</td><td data-label="Correct cos" class="num">0.8568</td><td data-label="Wrong cos" class="num">0.6480</td><td data-label="Margin" class="num green">0.2087</td></tr>
+                <tr><td data-label="条件">Covariance causal</td><td data-label="Pair acc" class="num">0.6094</td><td data-label="Correct cos" class="num">0.8835</td><td data-label="Wrong cos" class="num">0.8513</td><td data-label="Margin" class="num red">0.0322</td></tr>
+                <tr><td data-label="条件">Raw causal</td><td data-label="Pair acc" class="num">0.5469</td><td data-label="Correct cos" class="num">0.1761</td><td data-label="Wrong cos" class="num">0.1382</td><td data-label="Margin" class="num red">0.0379</td></tr>
+                <tr><td data-label="条件">Same-step 泄漏上界</td><td data-label="Pair acc" class="num">0.6250</td><td data-label="Correct cos" class="num">0.8878</td><td data-label="Wrong cos" class="num">0.8458</td><td data-label="Margin" class="num red">0.0421</td></tr>
+                <tr><td data-label="条件">Shuffled-value</td><td data-label="Pair acc" class="num">0.5781</td><td data-label="Correct cos" class="num">0.4388</td><td data-label="Wrong cos" class="num">0.4213</td><td data-label="Margin" class="num red">0.0175</td></tr>
+              </tbody>
+            </table>
+            <p style="margin:10px 0 0;color:var(--muted);font-size:12px;">Causal 只比 shuffled 高 3.12 pp；正确与错误历史方向几乎一起被激活。冻结分类：REVERSE_CONTEXT_SIGNAL_INSUFFICIENT。</p>
+          </article>
+
+          <article class="panel">
+            <h3>G0b：滚动最小二乘</h3>
+            <table>
+              <thead><tr><th>条件</th><th>Pair acc</th><th>Correct cos</th><th>Wrong cos</th><th>Margin</th></tr></thead>
+              <tbody>
+                <tr><td data-label="条件">正常 M1f</td><td data-label="Pair acc" class="num">0.9063</td><td data-label="Correct cos" class="num">0.8672</td><td data-label="Wrong cos" class="num">0.6612</td><td data-label="Margin" class="num green">0.2061</td></tr>
+                <tr><td data-label="条件"><strong>LS causal</strong></td><td data-label="Pair acc" class="num red"><strong>0.4844</strong></td><td data-label="Correct cos" class="num">0.8723</td><td data-label="Wrong cos" class="num">0.8376</td><td data-label="Margin" class="num red">0.0347</td></tr>
+                <tr><td data-label="条件">LS same-step 泄漏</td><td data-label="Pair acc" class="num">0.6406</td><td data-label="Correct cos" class="num">0.9085</td><td data-label="Wrong cos" class="num">0.8074</td><td data-label="Margin" class="num red">0.1011</td></tr>
+                <tr><td data-label="条件">LS shuffled-value</td><td data-label="Pair acc" class="num">0.5625</td><td data-label="Correct cos" class="num">0.4890</td><td data-label="Wrong cos" class="num">0.4346</td><td data-label="Margin" class="num red">0.0544</td></tr>
+              </tbody>
+            </table>
+            <p style="margin:10px 0 0;color:var(--muted);font-size:12px;">Causal 比 shuffled 低 7.81 pp；换入 causal LS context 后 return-conflict 为 0.5469，低于 0.80 门。冻结分类：LEAST_SQUARES_CONTEXT_SIGNAL_INSUFFICIENT。</p>
+          </article>
+        </div>
+
+        <article class="panel" style="margin-top:12px;">
+          <h3>归因与下一步</h3>
+          <div class="task-flow">
+            <div class="flow-node ref0"><strong>正常正向写读</strong><span>place × context 地址<br />covariance dual write</span></div>
+            <div class="flow-node ref1"><strong>反向审计</strong><span>M^T value 或 R(c)=value<br />仅用同一 content HPC</span></div>
+            <div class="flow-node distractor"><strong>结果</strong><span>恢复共同方向<br />不能分开历史身份</span></div>
+            <div class="flow-node return"><strong>唯一下一候选</strong><span>Transformer/PFC 历史 attention<br />调用过去 context token</span></div>
+          </div>
+          <p style="margin:10px 0 0;color:var(--muted);font-size:12px;">严格因果 arm 在时刻 t 只用 x&lt;t；same-step 仅作泄漏上限。两种方法的正常 HPC retrieval replay 最大误差均为 0，因此负结果来自信号不可辨识，不是代码偏差。</p>
+          <div class="no-slot">M1g 没有成为模型：不加固定 context slots、候选 bank、第二套 fast weights 或 room embedding。正式模型仍是 frozen M1b；M1f 与两种 M1g arm 都只保留为候选/诊断证据。</div>
+        </article>
       </section>
 
       <section id="m1f">
@@ -910,7 +964,8 @@
           <article class="stage done"><b>M1f 三 Seed Dev</b><p>聚合 +19.58 pp；3/3 正向；五个冻结 gates 全过。</p></article>
           <article class="stage done"><b>K=8 独立确认</b><p>+8.33 pp、3/3 正向；旧小样本下降未复现。</p></article>
           <article class="stage done"><b>K=8 Oracle 归因</b><p>正确历史 0.9844、错误历史 0、Raw HPC 0.9896；身份检索主瓶颈。</p></article>
-          <article class="stage active"><b>历史 Context 身份检索</b><p>下一版只解决 episode-relative context 调用；HPC、EC/place 与融合保持冻结。</p></article>
+          <article class="stage blocked"><b>M1g HPC 反向恢复</b><p>Transpose 0.6094；LS 0.4844 且低于 shuffled。两条零参数路线停止。</p></article>
+          <article class="stage active"><b>PFC 历史 Attention 调用</b><p>下一版只让 Transformer 调用过去 context token；HPC、EC/place 与融合保持冻结。</p></article>
           <article class="stage blocked"><b>Formal Protocol</b><p>normal K=8 仅 0.4010；达到 0.80 绝对门前不解锁。</p></article>
         </div>
       </section>
@@ -923,6 +978,11 @@
           </div>
         </div>
         <div class="artifact-list">
+          <a class="artifact" href="REMAP_FORMER_M1G_BIDIRECTIONAL_CONTEXT_RESULT_CN.md"><strong>最新：M1g 双向 HPC 冻结结论</strong><span>Transpose 与 rolling LS 两个新 seed gate、因果/泄漏/shuffled 对照和下一决策</span></a>
+          <a class="artifact" href="REMAP_FORMER_M1G_LEAST_SQUARES_G0B_SUMMARY.json"><strong>最新：LS G0b 机器可读结果</strong><span>四条件 context geometry、下游 return 干预、八个 gates 与 exact replay</span></a>
+          <a class="artifact" href="m1g_least_squares_g0b_protocol.json"><strong>LS G0b 冻结协议</strong><span>全新 episodes、12 步 causal solver、relative ridge、阈值和 post-result rule</span></a>
+          <a class="artifact" href="REMAP_FORMER_M1G_REVERSE_G0_SUMMARY.json"><strong>Transpose G0 机器可读结果</strong><span>Covariance/raw/leaky/shuffled 五条件与冻结 signal gate</span></a>
+          <a class="artifact" href="m1g_reverse_context_g0_protocol.json"><strong>Transpose G0 冻结协议</strong><span>新 seed K=8、禁止项、因果时序和晋级门</span></a>
           <a class="artifact" href="REMAP_FORMER_M1F_K8_ORACLE_DECOMPOSITION_CN.md"><strong>最新：M1f K=8 Oracle 归因</strong><span>384-probe 正确/错误历史 context、精确地址、Raw HPC 与冻结瓶颈分类</span></a>
           <a class="artifact" href="REMAP_FORMER_M1F_K8_ORACLE_SUMMARY.json"><strong>最新：Oracle 机器可读结果</strong><span>逐 seed 六条件指标、paired counts、context/address geometry 与五个 gates</span></a>
           <a class="artifact" href="REMAP_FORMER_M1F_K8_ORACLE_PROTOCOL.json"><strong>Oracle 看结果前冻结协议</strong><span>同 K=8 episodes、诊断条件、绝对阈值、互斥归因规则与禁止项</span></a>
@@ -952,7 +1012,7 @@
       </section>
     </main>
 
-    <footer>ReMAP-Former internal dashboard · 2026-07-14 · M1b 仍是正式模型；M1f K=8 normal 0.4010，正确历史 context 0.9844；下一步只攻 context 身份检索，formal 未解锁</footer>
+    <footer>ReMAP-Former internal dashboard · 2026-07-14 · M1b 仍是正式模型；M1g transpose / LS 反解均被拒绝；下一步只做 PFC 历史 attention 调用，formal 未解锁</footer>
   </div>
 </body>
 </html>

@@ -1,0 +1,124 @@
+{
+  "format": "remap_former.m1g_reverse_context_g0_result.v1",
+  "protocol": {
+    "format": "remap_former.m1g_reverse_context_g0_protocol.v1",
+    "frozen_date": "2026-07-14",
+    "scope": "single-seed K=8 dev-only frozen information gate for causal reverse-HPC context evidence; no training, checkpoint selection, stress, formal validation, or test",
+    "model_seed": 712,
+    "generator_seed": 4924,
+    "capacity_level": 8,
+    "grid_size": 11,
+    "max_jitter_cycles": 4,
+    "batch_size": 4,
+    "batches": 16,
+    "episodes": 64,
+    "return_conflict_probes": 128,
+    "content_hpc_covariance_ridge": 0.001,
+    "reverse_evidence_window": 12,
+    "shuffled_value_seed_offset": 700000,
+    "conditions": [
+      "normal_m1f_context",
+      "reverse_preconditioned_causal",
+      "reverse_raw_causal",
+      "reverse_preconditioned_same_step_leaky",
+      "reverse_preconditioned_shuffled_value"
+    ],
+    "causal_contract": "context evidence queried with sensory x_t is available only in posterior_context_t and may first affect prediction at t+1; primary prior_context_t contains x_<t only",
+    "reverse_read": "reshape(M_prewrite^T value) into place-by-context, contract with neural place, then multiply by the current regularized context covariance to map the dual write direction back toward a primal context",
+    "memory_state": "the existing M1b covariance-corrected content fast-weight matrix and covariance only; no second context memory, slots, cache, or persistent content table",
+    "shuffled_control": "use a fixed per-batch random permutation of query sensory across time while keeping normal content writes and addresses unchanged",
+    "frozen_thresholds": {
+      "causal_pair_accuracy_at_least": 0.8,
+      "causal_gain_vs_normal_at_least": 0.05,
+      "causal_cosine_margin_at_least": 0.1,
+      "causal_gain_vs_shuffled_at_least": 0.2,
+      "leaky_minus_causal_at_most": 0.1,
+      "retrieval_replay_max_abs_error_at_most": 1e-05
+    },
+    "classification_rule": {
+      "REVERSE_CONTEXT_SIGNAL_CONFIRMED": "all six frozen gates pass",
+      "SIGNAL_PRESENT_NOT_GROUNDED": "causal absolute and margin gates pass but shuffled-value grounding fails",
+      "SIGNAL_TOO_LATE": "same-step leaky probe passes the absolute gate but causal prior does not",
+      "REVERSE_CONTEXT_SIGNAL_INSUFFICIENT": "causal absolute or margin gate fails without a leaky-only recovery"
+    },
+    "training": "none",
+    "model_change": "none; diagnostic replay only",
+    "post_result_rule": "only REVERSE_CONTEXT_SIGNAL_CONFIRMED may unlock a zero-parameter M1g pilot on new dev episodes"
+  },
+  "device": "cuda",
+  "checkpoint_step": 600,
+  "metrics": {
+    "normal_m1f_context": {
+      "pair_accuracy_tie_adjusted": 0.9375,
+      "correct_preference_rate": 0.9375,
+      "wrong_preference_rate": 0.0625,
+      "tie_rate": 0.0,
+      "correct_reference_cosine": 0.8567563816905022,
+      "wrong_reference_cosine": 0.648028064519167,
+      "correct_minus_wrong_cosine": 0.20872831717133522,
+      "mean_evidence_strength": 1.0,
+      "return_conflict_queries": 128.0
+    },
+    "reverse_preconditioned_causal": {
+      "pair_accuracy_tie_adjusted": 0.609375,
+      "correct_preference_rate": 0.609375,
+      "wrong_preference_rate": 0.390625,
+      "tie_rate": 0.0,
+      "correct_reference_cosine": 0.883479367941618,
+      "wrong_reference_cosine": 0.8512790836393833,
+      "correct_minus_wrong_cosine": 0.03220028430223465,
+      "mean_evidence_strength": 2.7663651779294014,
+      "return_conflict_queries": 128.0
+    },
+    "reverse_raw_causal": {
+      "pair_accuracy_tie_adjusted": 0.546875,
+      "correct_preference_rate": 0.546875,
+      "wrong_preference_rate": 0.453125,
+      "tie_rate": 0.0,
+      "correct_reference_cosine": 0.17607443733140826,
+      "wrong_reference_cosine": 0.13815978961065412,
+      "correct_minus_wrong_cosine": 0.03791464772075415,
+      "mean_evidence_strength": 51.40243864059448,
+      "return_conflict_queries": 128.0
+    },
+    "reverse_preconditioned_same_step_leaky": {
+      "pair_accuracy_tie_adjusted": 0.625,
+      "correct_preference_rate": 0.625,
+      "wrong_preference_rate": 0.375,
+      "tie_rate": 0.0,
+      "correct_reference_cosine": 0.8878398090600967,
+      "wrong_reference_cosine": 0.8457780219614506,
+      "correct_minus_wrong_cosine": 0.042061787098646164,
+      "mean_evidence_strength": 2.6546541824936867,
+      "return_conflict_queries": 128.0
+    },
+    "reverse_preconditioned_shuffled_value": {
+      "pair_accuracy_tie_adjusted": 0.578125,
+      "correct_preference_rate": 0.578125,
+      "wrong_preference_rate": 0.421875,
+      "tie_rate": 0.0,
+      "correct_reference_cosine": 0.4387999549508095,
+      "wrong_reference_cosine": 0.42130019050091505,
+      "correct_minus_wrong_cosine": 0.017499764449894428,
+      "mean_evidence_strength": 0.2481151008978486,
+      "return_conflict_queries": 128.0
+    }
+  },
+  "decision": {
+    "status": "REVERSE_CONTEXT_SIGNAL_INSUFFICIENT",
+    "gates": {
+      "causal_pair_accuracy": false,
+      "causal_gain_vs_normal": false,
+      "causal_cosine_margin": false,
+      "causal_gain_vs_shuffled": false,
+      "evidence_available_before_query": true,
+      "retrieval_replay_exact": true
+    },
+    "differences": {
+      "causal_vs_normal_pair_accuracy": -0.328125,
+      "causal_vs_shuffled_pair_accuracy": 0.03125,
+      "leaky_vs_causal_pair_accuracy": 0.015625
+    },
+    "retrieval_replay_max_abs_error": 0.0
+  }
+}

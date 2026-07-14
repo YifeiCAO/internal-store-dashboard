@@ -1,0 +1,45 @@
+{
+  "format": "remap_former.m1g_reverse_context_g0_protocol.v1",
+  "frozen_date": "2026-07-14",
+  "scope": "single-seed K=8 dev-only frozen information gate for causal reverse-HPC context evidence; no training, checkpoint selection, stress, formal validation, or test",
+  "model_seed": 712,
+  "generator_seed": 4924,
+  "capacity_level": 8,
+  "grid_size": 11,
+  "max_jitter_cycles": 4,
+  "batch_size": 4,
+  "batches": 16,
+  "episodes": 64,
+  "return_conflict_probes": 128,
+  "content_hpc_covariance_ridge": 0.001,
+  "reverse_evidence_window": 12,
+  "shuffled_value_seed_offset": 700000,
+  "conditions": [
+    "normal_m1f_context",
+    "reverse_preconditioned_causal",
+    "reverse_raw_causal",
+    "reverse_preconditioned_same_step_leaky",
+    "reverse_preconditioned_shuffled_value"
+  ],
+  "causal_contract": "context evidence queried with sensory x_t is available only in posterior_context_t and may first affect prediction at t+1; primary prior_context_t contains x_<t only",
+  "reverse_read": "reshape(M_prewrite^T value) into place-by-context, contract with neural place, then multiply by the current regularized context covariance to map the dual write direction back toward a primal context",
+  "memory_state": "the existing M1b covariance-corrected content fast-weight matrix and covariance only; no second context memory, slots, cache, or persistent content table",
+  "shuffled_control": "use a fixed per-batch random permutation of query sensory across time while keeping normal content writes and addresses unchanged",
+  "frozen_thresholds": {
+    "causal_pair_accuracy_at_least": 0.8,
+    "causal_gain_vs_normal_at_least": 0.05,
+    "causal_cosine_margin_at_least": 0.1,
+    "causal_gain_vs_shuffled_at_least": 0.2,
+    "leaky_minus_causal_at_most": 0.1,
+    "retrieval_replay_max_abs_error_at_most": 0.00001
+  },
+  "classification_rule": {
+    "REVERSE_CONTEXT_SIGNAL_CONFIRMED": "all six frozen gates pass",
+    "SIGNAL_PRESENT_NOT_GROUNDED": "causal absolute and margin gates pass but shuffled-value grounding fails",
+    "SIGNAL_TOO_LATE": "same-step leaky probe passes the absolute gate but causal prior does not",
+    "REVERSE_CONTEXT_SIGNAL_INSUFFICIENT": "causal absolute or margin gate fails without a leaky-only recovery"
+  },
+  "training": "none",
+  "model_change": "none; diagnostic replay only",
+  "post_result_rule": "only REVERSE_CONTEXT_SIGNAL_CONFIRMED may unlock a zero-parameter M1g pilot on new dev episodes"
+}
