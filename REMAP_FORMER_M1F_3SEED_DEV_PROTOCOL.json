@@ -1,0 +1,55 @@
+{
+  "format": "remap_former.m1f_three_seed_dev_protocol.v1",
+  "frozen_date": "2026-07-13",
+  "scope": "fixed dev-only paired stability gate; no stress, formal validation, or test",
+  "model": "M1f parameter-free balanced-window PFC-context refresh",
+  "source_model": "frozen converted M1b",
+  "content_hpc_covariance_ridge": 0.001,
+  "new_parameter_count": 0,
+  "model_seeds": [712, 713, 714],
+  "generator_seeds": [2918, 2919, 2920],
+  "seed_pairing": [
+    {"model_seed": 712, "generator_seed": 2918},
+    {"model_seed": 713, "generator_seed": 2919},
+    {"model_seed": 714, "generator_seed": 2920}
+  ],
+  "levels": [1, 2, 4, 8, 12],
+  "grid_size": 11,
+  "max_jitter_cycles": 4,
+  "batch_size": 4,
+  "batches_per_level": 4,
+  "episodes_per_level_per_seed": 16,
+  "return_conflict_probes_per_level_per_seed": 32,
+  "return_conflict_probes_per_seed": 160,
+  "return_conflict_probes_total": 480,
+  "conditions": [
+    "m1b_ridge0p001",
+    "m1f_proposal_refresh",
+    "m1f_no_refresh"
+  ],
+  "primary_endpoint": "return_conflict_acc",
+  "gates": {
+    "mean_paired_gain_at_least": 0.10,
+    "positive_model_seed_count_at_least": 3,
+    "minimum_model_seed_gain_at_least": 0.05,
+    "maximum_clean_drop_at_most": 0.02,
+    "mean_refresh_causal_gain_at_least": 0.10
+  },
+  "proposal_definition": "causal sliding window whose action histogram contains exactly window/action_dim occurrences of every action",
+  "proposal_semantics": "deterministic balanced-window structural refresh; not a neural EC output and not guaranteed sparse",
+  "context_update": "at an active proposal, adopt current causal PFC base_context; otherwise retain previous context",
+  "initial_context": "causal PFC base_context at t=0",
+  "training": "none",
+  "checkpoint_selection": "none",
+  "forbidden_inputs": [
+    "room id",
+    "context id",
+    "position",
+    "place id",
+    "segment id",
+    "path family id",
+    "return reference id",
+    "current sensory target before prediction"
+  ],
+  "post_result_rule": "do not change architecture, seeds, sample count, or gates after reading results"
+}

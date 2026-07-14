@@ -472,7 +472,8 @@
         <p>Transformer=PFC 主干，EC 供结构，covariance-corrected HPC 供外挂记忆</p>
       </div>
       <nav aria-label="看板分区">
-        <a href="#closure">最新诊断</a>
+        <a href="#m1f">M1f 最新</a>
+        <a href="#closure">机制诊断</a>
         <a href="#capacity">新容量</a>
         <a href="#results">结果</a>
         <a href="#stress">长延迟</a>
@@ -487,8 +488,8 @@
       <div class="status-grid" aria-label="最新状态">
         <article class="status-card primary">
           <h2>当前主线</h2>
-          <strong>M1b 正式冻结；M1d 功能被重新澄清</strong>
-          <p>旧 random-return 正式结果仍成立。160-probe 同 episode 诊断显示：M1d soft / force-proposal 为 0.6125 / 0.6625；此前 0.3000 只属于 hard threshold，不代表整套模型。</p>
+          <strong>M1b 仍是正式模型；M1f 通过三 seed dev</strong>
+          <p>零新增参数的 M1f 将 return-conflict 从 M1b 聚合 0.4125 提到 0.6083，三颗增益均为正、五个冻结 gates 全过；当前只晋级到 formal protocol design。</p>
           <div class="badge-row">
             <span class="badge"><span class="dot blue"></span>无 room / 位置输入</span>
             <span class="badge"><span class="dot teal"></span>Neural EC</span>
@@ -497,26 +498,93 @@
           </div>
         </article>
         <article class="status-card pass">
-          <h2>时机 + 身份上界</h2>
-          <strong>1.0000 / 160 probes</strong>
-          <p>oracle timing + 正确历史 context 全对，证明冻结 PFC、EC/place 与 content-HPC 联合 substrate 足够</p>
+          <h2>M1f 三 Seed</h2>
+          <strong>+26.25 / +20.00 / +12.50 pp</strong>
+          <p>平均 paired gain +19.58 pp；最差 seed 仍超过预注册 +5 pp 门槛</p>
+        </article>
+        <article class="status-card pass">
+          <h2>Refresh 因果性</h2>
+          <strong>0.6083 vs 0.0167</strong>
+          <p>关闭 refresh 后 re-entry 几乎消失；M1f 没有 hard gate、第二套 memory 或新增参数</p>
         </article>
         <article class="status-card hold">
-          <h2>最简功能候选</h2>
-          <strong>EC proposal refresh：0.6625</strong>
-          <p>相对 M1b 0.4750 提高 18.75 pp；下一步只验证这个无额外 context memory 的简单机制</p>
-        </article>
-        <article class="status-card fail">
-          <h2>M1e 关联 Context Memory</h2>
-          <strong>不晋级</strong>
-          <p>Delta recall 净增益 0；covariance recall 净增益 -3.75 pp。新增 fast weight 没有贡献</p>
+          <h2>明确风险</h2>
+          <strong>K=8：-4.17 pp</strong>
+          <p>K1/K2/K4/K12 均提升，但 K8 两颗下降；正式协议必须逐 K 报告</p>
         </article>
       </div>
 
       <section>
         <div class="decision">
-          <strong>当前决策：保留正式 M1b；拒绝 hard event gate 与 M1e 关联记忆；提炼最简 proposal-refresh 候选</strong>
-          <p>旧任务的一次性 test 0.8201 ± 0.0200 和 4356 步重复干扰结果仍有效。新容量上，严格边界分类不是正确主指标：force all EC proposals 虽有许多形式 false events，功能准确率仍达 0.6625。M1e 的额外 context fast weight 没有正向因果贡献，formal split 继续封存。</p>
+          <strong>当前决策：M1f 晋级到 formal protocol design；formal split 继续封存</strong>
+          <p>M1f 只增加确定性的 balanced-window context hold/refresh，参数量与 M1b 完全相同。三 seed dev 的五个预注册 gates 全过，但 K=8 存在非单调下降。下一步只允许冻结正式协议或增加独立 dev 样本确认 K=8，不允许根据结果改 detector、初始化或 ridge。</p>
+        </div>
+      </section>
+
+      <section id="m1f">
+        <div class="section-head">
+          <div>
+            <h2>最新：M1f 零参数 Context Refresh</h2>
+            <p>三个独立 M1b slow-weight seeds × 三个独立 dev episode seeds；总计 480 个相同输入的 paired return-conflict probes。</p>
+          </div>
+          <div class="source">更新：2026-07-13 · formal 未访问</div>
+        </div>
+
+        <div class="grid-2">
+          <article class="panel">
+            <h3>逐 Seed 稳定性</h3>
+            <table>
+              <thead><tr><th>Model / Episode seed</th><th>M1b</th><th>M1f</th><th>No refresh</th><th>增益</th></tr></thead>
+              <tbody>
+                <tr><td data-label="Seed">712 / 2918</td><td data-label="M1b" class="num">0.4750</td><td data-label="M1f" class="num"><strong>0.7375</strong></td><td data-label="No refresh" class="num">0.0250</td><td data-label="增益" class="num green">+0.2625</td></tr>
+                <tr><td data-label="Seed">713 / 2919</td><td data-label="M1b" class="num">0.3375</td><td data-label="M1f" class="num"><strong>0.5375</strong></td><td data-label="No refresh" class="num">0.0250</td><td data-label="增益" class="num green">+0.2000</td></tr>
+                <tr><td data-label="Seed">714 / 2920</td><td data-label="M1b" class="num">0.4250</td><td data-label="M1f" class="num"><strong>0.5500</strong></td><td data-label="No refresh" class="num">0.0000</td><td data-label="增益" class="num green">+0.1250</td></tr>
+                <tr><td data-label="Seed"><strong>聚合</strong></td><td data-label="M1b" class="num"><strong>0.4125</strong></td><td data-label="M1f" class="num"><strong>0.6083</strong></td><td data-label="No refresh" class="num"><strong>0.0167</strong></td><td data-label="增益" class="num green"><strong>+0.1958</strong></td></tr>
+              </tbody>
+            </table>
+          </article>
+
+          <article class="panel">
+            <h3>预注册 Gates</h3>
+            <table>
+              <thead><tr><th>Gate</th><th>阈值</th><th>结果</th><th>判断</th></tr></thead>
+              <tbody>
+                <tr><td data-label="Gate">Mean paired gain</td><td data-label="阈值" class="num">≥ +0.1000</td><td data-label="结果" class="num">+0.1958</td><td data-label="判断" class="green">通过</td></tr>
+                <tr><td data-label="Gate">Positive seeds</td><td data-label="阈值" class="num">3/3</td><td data-label="结果" class="num">3/3</td><td data-label="判断" class="green">通过</td></tr>
+                <tr><td data-label="Gate">Minimum seed gain</td><td data-label="阈值" class="num">≥ +0.0500</td><td data-label="结果" class="num">+0.1250</td><td data-label="判断" class="green">通过</td></tr>
+                <tr><td data-label="Gate">Maximum clean drop</td><td data-label="阈值" class="num">≤ +0.0200</td><td data-label="结果" class="num">-0.0625</td><td data-label="判断" class="green">通过</td></tr>
+                <tr><td data-label="Gate">Refresh causal gain</td><td data-label="阈值" class="num">≥ +0.1000</td><td data-label="结果" class="num">+0.5917</td><td data-label="判断" class="green">通过</td></tr>
+              </tbody>
+            </table>
+          </article>
+        </div>
+
+        <div class="grid-2" style="margin-top:12px;">
+          <article class="panel">
+            <h3>逐容量结果</h3>
+            <table>
+              <thead><tr><th>K</th><th>M1b</th><th>M1f</th><th>No refresh</th><th>增益</th></tr></thead>
+              <tbody>
+                <tr><td data-label="K" class="num">1</td><td data-label="M1b" class="num">0.4792</td><td data-label="M1f" class="num">0.8125</td><td data-label="No refresh" class="num">0.0000</td><td data-label="增益" class="num green">+0.3333</td></tr>
+                <tr><td data-label="K" class="num">2</td><td data-label="M1b" class="num">0.5208</td><td data-label="M1f" class="num">0.8333</td><td data-label="No refresh" class="num">0.0000</td><td data-label="增益" class="num green">+0.3125</td></tr>
+                <tr><td data-label="K" class="num">4</td><td data-label="M1b" class="num">0.5625</td><td data-label="M1f" class="num">0.7083</td><td data-label="No refresh" class="num">0.0000</td><td data-label="增益" class="num green">+0.1458</td></tr>
+                <tr><td data-label="K" class="num">8</td><td data-label="M1b" class="num">0.3333</td><td data-label="M1f" class="num">0.2917</td><td data-label="No refresh" class="num">0.0417</td><td data-label="增益" class="num red">-0.0417</td></tr>
+                <tr><td data-label="K" class="num">12</td><td data-label="M1b" class="num">0.1667</td><td data-label="M1f" class="num">0.3958</td><td data-label="No refresh" class="num">0.0417</td><td data-label="增益" class="num green">+0.2292</td></tr>
+              </tbody>
+            </table>
+            <p style="margin:10px 0 0;color:var(--muted);font-size:12px;">K=8 是预声明前观察到的 secondary risk；formal 协议必须保留逐 K 报告，不能只给总体均值。</p>
+          </article>
+
+          <article class="panel">
+            <h3>真实计算路径</h3>
+            <div class="task-flow">
+              <div class="flow-node ref0"><strong>Transformer=PFC</strong><span>动作 + 因果历史<br />形成 base context</span></div>
+              <div class="flow-node ref1"><strong>Balanced window</strong><span>12 步动作直方图<br />确定性检测</span></div>
+              <div class="flow-node distractor"><strong>Refresh / Hold</strong><span>触发时采用 PFC context<br />否则保持上一 context</span></div>
+              <div class="flow-node return"><strong>EC/place + HPC</strong><span>place × context 地址<br />covariance 内容写读</span></div>
+            </div>
+            <p style="margin:10px 0 0;color:var(--muted);font-size:12px;">新增参数 0；proposal 不是 neural EC 输出，也不稀疏：触发率 10.76%，平均 47.34 次/episode。无 room、位置或当前 target 输入。</p>
+          </article>
         </div>
       </section>
 
@@ -539,7 +607,7 @@
                 <tr><td data-label="条件">M1d soft</td><td data-label="Return-conflict" class="num"><strong>0.6125</strong></td><td data-label="结论" class="green">功能有效</td></tr>
                 <tr><td data-label="条件">M1d hard=0.43</td><td data-label="Return-conflict" class="num">0.3000</td><td data-label="结论" class="red">硬阈值伤害</td></tr>
                 <tr><td data-label="条件">No update</td><td data-label="Return-conflict" class="num">0.0250</td><td data-label="结论" class="red">刷新必要</td></tr>
-                <tr><td data-label="条件">Force EC proposals</td><td data-label="Return-conflict" class="num"><strong>0.6625</strong></td><td data-label="结论" class="green">当前最简候选</td></tr>
+                <tr><td data-label="条件">Force balanced-window refresh</td><td data-label="Return-conflict" class="num"><strong>0.6625</strong></td><td data-label="结论" class="green">最简候选来源</td></tr>
                 <tr><td data-label="条件">Hard + 正确历史 context</td><td data-label="Return-conflict" class="num">0.7750</td><td data-label="结论">身份仍有空间</td></tr>
                 <tr><td data-label="条件">Oracle timing + 正确 context</td><td data-label="Return-conflict" class="num"><strong>1.0000</strong></td><td data-label="结论" class="green">substrate 上界全对</td></tr>
               </tbody>
@@ -562,14 +630,14 @@
         </div>
 
         <article class="panel" style="margin-top:12px;">
-          <h3>下一版只保留的计算路径</h3>
+          <h3>M1f 提炼前的冻结决定</h3>
           <div class="task-flow">
             <div class="flow-node ref0"><strong>Transformer=PFC</strong><span>动作 + 因果历史<br />形成 base context</span></div>
-            <div class="flow-node ref1"><strong>Neural EC</strong><span>只提出少量<br />结构候选时刻</span></div>
+            <div class="flow-node ref1"><strong>Balanced window</strong><span>动作历史检测<br />不保证稀疏</span></div>
             <div class="flow-node distractor"><strong>Context refresh</strong><span>候选时刻采用<br />当前 PFC context</span></div>
             <div class="flow-node return"><strong>Content HPC</strong><span>place × context 寻址<br />covariance dual-key 写读</span></div>
           </div>
-          <div class="no-slot">删除的分支：第二套 associative context fast-weight memory。它没有通过 no-recall 因果消融；下一候选不增加 slot、room signal 或额外 context table。</div>
+          <div class="no-slot">删除的分支：第二套 associative context fast-weight memory。它没有通过 no-recall 因果消融；M1f 已确认不增加 slot、room signal、额外 context table 或任何新参数。</div>
         </article>
       </section>
 
@@ -615,7 +683,7 @@
                 <tr><td data-label="检查">M1d force-proposal 功能</td><td data-label="结果" class="num">0.6625</td><td data-label="判断" class="green">功能候选保留</td></tr>
               </tbody>
             </table>
-            <p style="margin:10px 0 0;color:var(--muted);font-size:12px;">旧 precision/recall 只衡量是否复刻人工边界，不等于未来记忆功能。78 项回归全绿；当前结论是 hard acceptance 失败，但 EC proposal 时刻刷新 context 的功能仍成立。</p>
+            <p style="margin:10px 0 0;color:var(--muted);font-size:12px;">旧 precision/recall 只衡量是否复刻人工边界，不等于未来记忆功能。85 项回归全绿；当前结论是 hard acceptance 失败，但 balanced-window 时刻刷新 context 的功能成立。</p>
           </article>
         </div>
 
@@ -808,7 +876,8 @@
           <article class="stage blocked"><b>M1c / 动作 Gate</b><p>顺序压力测试与 held-out detector gate 均失败，已停止。</p></article>
           <article class="stage done"><b>M1d 因果重审</b><p>Soft 0.6125、force 0.6625；确认此前低值只来自 hard gate。</p></article>
           <article class="stage blocked"><b>M1e Context Fast Weight</b><p>Delta / covariance recall 净贡献 0 / -3.75 pp，停止于 dev。</p></article>
-          <article class="stage active"><b>下一候选：Proposal Refresh</b><p>删除 hard acceptance 与第二套 context memory；先做 3-seed dev 稳定性。</p></article>
+          <article class="stage done"><b>M1f 三 Seed Dev</b><p>聚合 +19.58 pp；3/3 正向；五个冻结 gates 全过。</p></article>
+          <article class="stage active"><b>Formal Protocol Design</b><p>正式数据仍封存；逐 K 报告并预声明 K=8 风险。</p></article>
         </div>
       </section>
 
@@ -820,6 +889,9 @@
           </div>
         </div>
         <div class="artifact-list">
+          <a class="artifact" href="REMAP_FORMER_M1F_3SEED_DEV_RESULT_CN.md"><strong>最新：M1f 三 Seed Dev 结果</strong><span>零参数架构、480-probe 配对结果、五个 gates、K=8 风险与结论边界</span></a>
+          <a class="artifact" href="REMAP_FORMER_M1F_3SEED_DEV_SUMMARY.json"><strong>最新：M1f 机器可读结果</strong><span>逐 seed、逐容量、同 probe 胜负、proposal 密度与冻结决定</span></a>
+          <a class="artifact" href="REMAP_FORMER_M1F_3SEED_DEV_PROTOCOL.json"><strong>M1f 看结果前冻结协议</strong><span>seeds、样本量、五个晋级门、禁止输入与 post-result rule</span></a>
           <a class="artifact" href="REMAP_FORMER_M1D_M1E_TIMING_IDENTITY_RESULT_CN.md"><strong>最新：M1d/M1e 收口报告</strong><span>160-probe timing/identity 因果分解、M1e 两种写入、no-recall 消融与下一决策</span></a>
           <a class="artifact" href="REMAP_FORMER_M1E_PAIRED_DEV2918_SUMMARY.json"><strong>最新：机器可读成对结果</strong><span>逐容量、总体指标、同 probe 胜负计数与冻结晋级决定</span></a>
           <a class="artifact" href="REMAP_FORMER_M1D_RECURRENT_CONTEXT_RESULT_CN.md"><strong>M1d 早期递归调用结果</strong><span>五个 train/dev 分支与旧边界分类 gate；请结合最新收口报告阅读</span></a>
@@ -840,7 +912,7 @@
       </section>
     </main>
 
-    <footer>ReMAP-Former internal dashboard · 2026-07-13 · M1b 正式结果保留；M1d hard gate 与 M1e context memory 拒绝；下一候选为最简 proposal refresh</footer>
+    <footer>ReMAP-Former internal dashboard · 2026-07-13 · M1b 仍是正式模型；M1f 三 seed dev 全门通过，晋级 formal protocol design；K=8 风险保留</footer>
   </div>
 </body>
 </html>
