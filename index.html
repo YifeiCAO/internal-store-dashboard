@@ -472,6 +472,7 @@
         <p>Transformer=PFC 主干，EC 供结构，covariance-corrected HPC 供外挂记忆</p>
       </div>
       <nav aria-label="看板分区">
+        <a href="#closure">最新诊断</a>
         <a href="#capacity">新容量</a>
         <a href="#results">结果</a>
         <a href="#stress">长延迟</a>
@@ -486,8 +487,8 @@
       <div class="status-grid" aria-label="最新状态">
         <article class="status-card primary">
           <h2>当前主线</h2>
-          <strong>M1b 冻结；M1d 未晋级</strong>
-          <p>旧 random-return 正式结果仍成立。M1d 已把 context re-entry 做成因果多信号递归调用，但 PFC acceptance 未通过 dev gate；formal split 继续封存。</p>
+          <strong>M1b 正式冻结；M1d 功能被重新澄清</strong>
+          <p>旧 random-return 正式结果仍成立。160-probe 同 episode 诊断显示：M1d soft / force-proposal 为 0.6125 / 0.6625；此前 0.3000 只属于 hard threshold，不代表整套模型。</p>
           <div class="badge-row">
             <span class="badge"><span class="dot blue"></span>无 room / 位置输入</span>
             <span class="badge"><span class="dot teal"></span>Neural EC</span>
@@ -495,35 +496,88 @@
             <span class="badge"><span class="dot green"></span>正式 M1b：单一 sensory CE</span>
           </div>
         </article>
-        <article class="status-card hold">
-          <h2>新奇干扰容量</h2>
-          <strong>K>=2 未过</strong>
-          <p>真正新路径 + 新 object map；任务审计全绿，formal validation/test 未访问</p>
+        <article class="status-card pass">
+          <h2>时机 + 身份上界</h2>
+          <strong>1.0000 / 160 probes</strong>
+          <p>oracle timing + 正确历史 context 全对，证明冻结 PFC、EC/place 与 content-HPC 联合 substrate 足够</p>
         </article>
         <article class="status-card hold">
-          <h2>新增外部基线</h2>
-          <strong>Transformer + Titans</strong>
-          <p>同 600×batch4 单 seed；均稳定降 loss，但 return-conflict 都为 0</p>
+          <h2>最简功能候选</h2>
+          <strong>EC proposal refresh：0.6625</strong>
+          <p>相对 M1b 0.4750 提高 18.75 pp；下一步只验证这个无额外 context memory 的简单机制</p>
         </article>
         <article class="status-card fail">
-          <h2>M1d 递归调用</h2>
-          <strong>Proposal 成功，Acceptance 失败</strong>
-          <p>真边界覆盖 1.00；PFC 接受门 precision 0.347、recall 0.786、误调用 12.4/episode</p>
+          <h2>M1e 关联 Context Memory</h2>
+          <strong>不晋级</strong>
+          <p>Delta recall 净增益 0；covariance recall 净增益 -3.75 pp。新增 fast weight 没有贡献</p>
         </article>
       </div>
 
       <section>
         <div class="decision">
-          <strong>当前决策：保留 M1b，停止 M1c/M1d，不用 formal 数据救候选</strong>
-          <p>旧任务的一次性 test `0.8201 ± 0.0200` 和 4356 步重复干扰结果仍有效，但不能外推到不断加入新奇 context。M1d 只读取动作、因果 PFC hidden、上一时刻 prediction error 与 HPC surprise；候选 proposal 覆盖全部真边界，但 acceptance 仍有大量周期相似误触发。该分支停在单种子 dev，不访问 stress seed，不铺多 seed。</p>
+          <strong>当前决策：保留正式 M1b；拒绝 hard event gate 与 M1e 关联记忆；提炼最简 proposal-refresh 候选</strong>
+          <p>旧任务的一次性 test 0.8201 ± 0.0200 和 4356 步重复干扰结果仍有效。新容量上，严格边界分类不是正确主指标：force all EC proposals 虽有许多形式 false events，功能准确率仍达 0.6625。M1e 的额外 context fast weight 没有正向因果贡献，formal split 继续封存。</p>
         </div>
+      </section>
+
+      <section id="closure">
+        <div class="section-head">
+          <div>
+            <h2>最新：时机、身份与关联记忆收口</h2>
+            <p>固定 seed2918 dev；80 episodes、160 个 return-conflict probes；所有条件逐 token 使用相同数据与相同冻结 M1b slow weights。</p>
+          </div>
+          <div class="source">更新：2026-07-13 · formal 未访问</div>
+        </div>
+
+        <div class="grid-2">
+          <article class="panel">
+            <h3>M1d 因果分解</h3>
+            <table>
+              <thead><tr><th>条件</th><th>Return-conflict</th><th>结论</th></tr></thead>
+              <tbody>
+                <tr><td data-label="条件">M1b ridge=0.001</td><td data-label="Return-conflict" class="num">0.4750</td><td data-label="结论">冻结基线</td></tr>
+                <tr><td data-label="条件">M1d soft</td><td data-label="Return-conflict" class="num"><strong>0.6125</strong></td><td data-label="结论" class="green">功能有效</td></tr>
+                <tr><td data-label="条件">M1d hard=0.43</td><td data-label="Return-conflict" class="num">0.3000</td><td data-label="结论" class="red">硬阈值伤害</td></tr>
+                <tr><td data-label="条件">No update</td><td data-label="Return-conflict" class="num">0.0250</td><td data-label="结论" class="red">刷新必要</td></tr>
+                <tr><td data-label="条件">Force EC proposals</td><td data-label="Return-conflict" class="num"><strong>0.6625</strong></td><td data-label="结论" class="green">当前最简候选</td></tr>
+                <tr><td data-label="条件">Hard + 正确历史 context</td><td data-label="Return-conflict" class="num">0.7750</td><td data-label="结论">身份仍有空间</td></tr>
+                <tr><td data-label="条件">Oracle timing + 正确 context</td><td data-label="Return-conflict" class="num"><strong>1.0000</strong></td><td data-label="结论" class="green">substrate 上界全对</td></tr>
+              </tbody>
+            </table>
+          </article>
+
+          <article class="panel">
+            <h3>M1e 关联 Context Memory 因果消融</h3>
+            <table>
+              <thead><tr><th>条件</th><th>Return-conflict</th><th>Recall 净贡献</th></tr></thead>
+              <tbody>
+                <tr><td data-label="条件">M1e delta</td><td data-label="Return-conflict" class="num">0.6625</td><td data-label="Recall 净贡献" class="num">0.0000</td></tr>
+                <tr><td data-label="条件">Delta no-recall</td><td data-label="Return-conflict" class="num">0.6625</td><td data-label="Recall 净贡献" class="red">无贡献</td></tr>
+                <tr><td data-label="条件">M1e covariance</td><td data-label="Return-conflict" class="num">0.6250</td><td data-label="Recall 净贡献" class="num">-0.0375</td></tr>
+                <tr><td data-label="条件">Covariance no-recall</td><td data-label="Return-conflict" class="num">0.6625</td><td data-label="Recall 净贡献" class="red">正常版更差</td></tr>
+              </tbody>
+            </table>
+            <p style="margin:10px 0 0;color:var(--muted);font-size:12px;">PFC base-context 的 A/B reference-pair 命中率为 0.925；信息主要在新增 fast-weight 写读中丢失。Covariance 将 recalled-context top-1 从 0.100 提到 0.225，但仍远低于输入表示的 0.575。</p>
+          </article>
+        </div>
+
+        <article class="panel" style="margin-top:12px;">
+          <h3>下一版只保留的计算路径</h3>
+          <div class="task-flow">
+            <div class="flow-node ref0"><strong>Transformer=PFC</strong><span>动作 + 因果历史<br />形成 base context</span></div>
+            <div class="flow-node ref1"><strong>Neural EC</strong><span>只提出少量<br />结构候选时刻</span></div>
+            <div class="flow-node distractor"><strong>Context refresh</strong><span>候选时刻采用<br />当前 PFC context</span></div>
+            <div class="flow-node return"><strong>Content HPC</strong><span>place × context 寻址<br />covariance dual-key 写读</span></div>
+          </div>
+          <div class="no-slot">删除的分支：第二套 associative context fast-weight memory。它没有通过 no-recall 因果消融；下一候选不增加 slot、room signal 或额外 context table。</div>
+        </article>
       </section>
 
       <section id="capacity">
         <div class="section-head">
           <div>
-            <h2>最新：新奇干扰容量</h2>
-            <p>A-B-D1...DK-A；每个 D 都是新路径族和新 object map。以下仅为 seed712 dev pilot，每个 K 有 8 个关键 probes。</p>
+            <h2>早期小样本：新奇干扰容量</h2>
+            <p>A-B-D1...DK-A；每个 D 都是新路径族和新 object map。以下是早期 seed712 dev pilot，每个 K 仅 8 个关键 probes；主判断请以上方 160-probe 收口为准。</p>
           </div>
           <div class="source">更新：2026-07-13 · formal 未访问</div>
         </div>
@@ -555,11 +609,13 @@
                 <tr><td data-label="检查">动作神经门 precision</td><td data-label="结果" class="num">0.5974</td><td data-label="判断" class="red">拒绝</td></tr>
                 <tr><td data-label="检查">误触发 / episode</td><td data-label="结果" class="num">5.35</td><td data-label="判断" class="red">拒绝</td></tr>
                 <tr><td data-label="检查">M1d proposal recall</td><td data-label="结果" class="num">1.000</td><td data-label="判断" class="green">提议机制通过</td></tr>
-                <tr><td data-label="检查">M1d acceptance P / R</td><td data-label="结果" class="num">0.347 / 0.786</td><td data-label="判断" class="red">拒绝</td></tr>
-                <tr><td data-label="检查">M1d 误调用 / episode</td><td data-label="结果" class="num">12.4</td><td data-label="判断" class="red">拒绝</td></tr>
+                <tr><td data-label="检查">M1d acceptance P / R</td><td data-label="结果" class="num">0.347 / 0.786</td><td data-label="判断" class="red">边界分类失败</td></tr>
+                <tr><td data-label="检查">M1d 误调用 / episode</td><td data-label="结果" class="num">12.4</td><td data-label="判断" class="red">边界分类失败</td></tr>
+                <tr><td data-label="检查">M1d hard 功能</td><td data-label="结果" class="num">0.3000</td><td data-label="判断" class="red">硬阈值拒绝</td></tr>
+                <tr><td data-label="检查">M1d force-proposal 功能</td><td data-label="结果" class="num">0.6625</td><td data-label="判断" class="green">功能候选保留</td></tr>
               </tbody>
             </table>
-            <p style="margin:10px 0 0;color:var(--muted);font-size:12px;">M1d 已联合动作、PFC hidden、上一时刻预测误差与 HPC surprise，仍未把真正重入和周期相似负例分开。69 项回归全绿；失败点是调用判别，不是代码回归或 HPC 容量。</p>
+            <p style="margin:10px 0 0;color:var(--muted);font-size:12px;">旧 precision/recall 只衡量是否复刻人工边界，不等于未来记忆功能。78 项回归全绿；当前结论是 hard acceptance 失败，但 EC proposal 时刻刷新 context 的功能仍成立。</p>
           </article>
         </div>
 
@@ -729,7 +785,7 @@
             <p style="margin-top:9px;">HPC-zero 干预验证调用是否真实。</p>
           </div>
         </div>
-        <div class="no-slot">存在 episode-local fast-weight content matrix；不存在固定离散 memory slots、按 place index 查表或跨 episode 持久化的内容表。</div>
+        <div class="no-slot">正式 M1b 只有 episode-local content fast-weight matrix；不存在固定离散 memory slots、按 place index 查表或跨 episode 持久化的内容表。实验性 M1e 曾增加第二套 context fast weight，但因 no-recall 消融无损而被拒绝。</div>
       </section>
 
       <section id="roadmap">
@@ -750,7 +806,9 @@
           <article class="stage done"><b>长延迟 OOD</b><p>8-seed 到 836；预选 3-seed 到 4356，全部 gates 通过。</p></article>
           <article class="stage done"><b>新容量 + 基线</b><p>新路径/新内容 generator 全绿；Transformer 与 Titans 已接入。</p></article>
           <article class="stage blocked"><b>M1c / 动作 Gate</b><p>顺序压力测试与 held-out detector gate 均失败，已停止。</p></article>
-          <article class="stage blocked"><b>M1d Recurrent Context</b><p>Proposal recall 1.00；PFC acceptance gate 失败，停在 dev。</p></article>
+          <article class="stage done"><b>M1d 因果重审</b><p>Soft 0.6125、force 0.6625；确认此前低值只来自 hard gate。</p></article>
+          <article class="stage blocked"><b>M1e Context Fast Weight</b><p>Delta / covariance recall 净贡献 0 / -3.75 pp，停止于 dev。</p></article>
+          <article class="stage active"><b>下一候选：Proposal Refresh</b><p>删除 hard acceptance 与第二套 context memory；先做 3-seed dev 稳定性。</p></article>
         </div>
       </section>
 
@@ -762,7 +820,9 @@
           </div>
         </div>
         <div class="artifact-list">
-          <a class="artifact" href="REMAP_FORMER_M1D_RECURRENT_CONTEXT_RESULT_CN.md"><strong>M1d 递归调用结果</strong><span>因果架构、五个 train/dev 分支、门槛结果与停止决策</span></a>
+          <a class="artifact" href="REMAP_FORMER_M1D_M1E_TIMING_IDENTITY_RESULT_CN.md"><strong>最新：M1d/M1e 收口报告</strong><span>160-probe timing/identity 因果分解、M1e 两种写入、no-recall 消融与下一决策</span></a>
+          <a class="artifact" href="REMAP_FORMER_M1E_PAIRED_DEV2918_SUMMARY.json"><strong>最新：机器可读成对结果</strong><span>逐容量、总体指标、同 probe 胜负计数与冻结晋级决定</span></a>
+          <a class="artifact" href="REMAP_FORMER_M1D_RECURRENT_CONTEXT_RESULT_CN.md"><strong>M1d 早期递归调用结果</strong><span>五个 train/dev 分支与旧边界分类 gate；请结合最新收口报告阅读</span></a>
           <a class="artifact" href="REMAP_FORMER_NOVEL_CAPACITY_BASELINES_20260713_CN.md"><strong>新容量 + 外部基线报告</strong><span>Transformer、Titans、容量曲线、失败归因与下一决策</span></a>
           <a class="artifact" href="REMAP_FORMER_ICLR_DESIGN_CN.md"><strong>ICLR 实验设计</strong><span>冻结接口、任务 gates、模型阶段和停机规则</span></a>
           <a class="artifact" href="REMAP_FORMER_M1B_COVARIANCE_RESULT_CN.md"><strong>M1b 结果报告</strong><span>诊断、ridge sweep、配对 validation 与微调审计</span></a>
@@ -780,7 +840,7 @@
       </section>
     </main>
 
-    <footer>ReMAP-Former internal dashboard · 2026-07-13 · 当前决策：M1b 正式结果保留；M1d acceptance 未过 dev gate</footer>
+    <footer>ReMAP-Former internal dashboard · 2026-07-13 · M1b 正式结果保留；M1d hard gate 与 M1e context memory 拒绝；下一候选为最简 proposal refresh</footer>
   </div>
 </body>
 </html>
