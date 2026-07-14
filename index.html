@@ -62,7 +62,10 @@
     .brand p {
       margin: 4px 0 0;
       color: var(--muted);
+      white-space: nowrap;
     }
+
+    .brand { flex: 0 0 auto; }
 
     nav {
       display: flex;
@@ -451,6 +454,7 @@
     @media (max-width: 680px) {
       .shell { width: min(100% - 20px, 1280px); }
       .topbar, .section-head { align-items: flex-start; flex-direction: column; }
+      .brand p { white-space: normal; }
       nav { justify-content: flex-start; }
       .status-grid, .grid-2, .artifact-list, .roadmap, .arch-flow { grid-template-columns: 1fr; }
       .task-flow { grid-template-columns: 1fr; }
@@ -473,6 +477,7 @@
         <p>Transformer=PFC 主干，EC 供结构，covariance-corrected HPC 供外挂记忆</p>
       </div>
       <nav aria-label="看板分区">
+        <a href="#m1i">M1i 可靠调用</a>
         <a href="#m1h">M1h 历史调用</a>
         <a href="#m1g">M1g 反解</a>
         <a href="#m1f">M1f 归因</a>
@@ -491,37 +496,111 @@
       <div class="status-grid" aria-label="最新状态">
         <article class="status-card primary">
           <h2>当前主线</h2>
-          <strong>M1b 仍是正式模型；M1h 神经历史调用未通过盲测</strong>
-          <p>普通 PFC 历史确有足够信息：hard persistence 上界达到 0.8438。但只用 sensory CE 训练的神经 Q/K caller 在全新 K=8 上从 M1f 0.4062 降到 0.1719，封死 call 反而为 0.3906。</p>
+          <strong>M1b 仍是正式模型；M1i 可靠历史调用通过 4/5 盲测门</strong>
+          <p>固定 key、不可变 archival value 和 learned null 把全新 K=8 从 M1f 0.3906 提到 0.6406；no-call 只有 0.2812，说明历史调用产生了真实收益。但绝对门槛是 0.75，M1i 仍未晋级。</p>
           <div class="badge-row">
             <span class="badge"><span class="dot blue"></span>无 room / 位置输入</span>
             <span class="badge"><span class="dot teal"></span>Neural EC</span>
             <span class="badge"><span class="dot amber"></span>Covariance HPC</span>
             <span class="badge"><span class="dot green"></span>正式 M1b 不变</span>
-            <span class="badge"><span class="dot red"></span>M1h 不铺三 seed</span>
+            <span class="badge"><span class="dot red"></span>M1i 不铺三 seed</span>
           </div>
         </article>
-        <article class="status-card pass">
-          <h2>Hard 历史调用上界</h2>
-          <strong>0.8438</strong>
-          <p>相对同批 M1f +37.50 pp；相对 shuffled +74.22 pp</p>
-        </article>
-        <article class="status-card fail">
-          <h2>M1h Neural 盲测</h2>
-          <strong>0.1719</strong>
-          <p>M1f 0.4062；no-call 0.3906；五门只过 clean</p>
-        </article>
         <article class="status-card hold">
-          <h2>失败定位</h2>
-          <strong>100% 低置信调用</strong>
-          <p>attention max&lt;0.5 时仍全部选择 call；Q/K key 漂移并污染 history value</p>
+          <h2>M1i K=8 盲测</h2>
+          <strong>0.6406</strong>
+          <p>绝对门需 0.75；还差 14 / 128 个 return-conflict probes</p>
+        </article>
+        <article class="status-card pass">
+          <h2>相对 M1f 增益</h2>
+          <strong>+25.00 pp</strong>
+          <p>冻结门要求 +20 pp；clean 反而提高 1.56 pp</p>
+        </article>
+        <article class="status-card pass">
+          <h2>调用必要性</h2>
+          <strong>+35.94 pp</strong>
+          <p>M1i 0.6406 对 no-call 0.2812；context pair 0.8750</p>
         </article>
       </div>
 
       <section>
         <div class="decision">
-          <strong>当前决策：M1h 停在单 seed；正式 M1b 与 formal 封存状态不变</strong>
-          <p>下一协议只能修 PFC 调用可靠性：锚定已验证的 structural key、加入可微 null/abstain、隔离不可递归污染的 archival token value。Covariance HPC、EC/place 与融合继续冻结；不加 context slot、room signal 或第二套记忆。</p>
+          <strong>当前决策：M1i 停在单 seed；正式 M1b 与 formal 封存状态不变</strong>
+          <p>五门过四门，说明 neural PFC history call 方向有效，但还不够可靠。下一步只在全新 dev seed 做只读错误分解，区分 key 命中、call、后续覆盖与下游 recall；不在盲测 seed 9931 调参，不加 context slot、room signal 或第二套 fast weights。</p>
+        </div>
+      </section>
+
+      <section id="m1i">
+        <div class="section-head">
+          <div>
+            <h2>最新：M1i 可靠 PFC 历史调用</h2>
+            <p>固定 structural key、不可变 base-context value、连续 learned null；冻结原有 PFC/EC/place/content-HPC/fusion，只训练 2,479 个 caller 参数。</p>
+          </div>
+          <div class="source">更新：2026-07-14 · 126 tests passed · formal 未访问</div>
+        </div>
+
+        <div class="grid-2">
+          <article class="panel">
+            <h3>一次性 K=8 盲测</h3>
+            <table>
+              <thead><tr><th>条件</th><th>Return-conflict</th><th>Clean</th><th>Context pair</th></tr></thead>
+              <tbody>
+                <tr><td data-label="条件">冻结 M1f</td><td data-label="Return" class="num">0.3906</td><td data-label="Clean" class="num">0.9594</td><td data-label="Pair" class="num">0.9062</td></tr>
+                <tr><td data-label="条件"><strong>M1i 可靠调用</strong></td><td data-label="Return" class="num green"><strong>0.6406</strong></td><td data-label="Clean" class="num green">0.9750</td><td data-label="Pair" class="num green">0.8750</td></tr>
+                <tr><td data-label="条件">M1i no-call</td><td data-label="Return" class="num">0.2812</td><td data-label="Clean" class="num">0.9688</td><td data-label="Pair" class="num">0.7812</td></tr>
+                <tr><td data-label="条件">M1i force-call</td><td data-label="Return" class="num red">0.3125</td><td data-label="Clean" class="num red">0.8914</td><td data-label="Pair" class="num">0.9531</td></tr>
+              </tbody>
+            </table>
+            <p style="margin:10px 0 0;color:var(--muted);font-size:12px;">seed 9931；64 episodes；128 个 return-conflict probes。Force-call 只作诊断，不参与晋级门。</p>
+          </article>
+
+          <article class="panel">
+            <h3>冻结五门：4 PASS / 1 FAIL</h3>
+            <table>
+              <thead><tr><th>Gate</th><th>观测</th><th>门槛</th><th>结果</th></tr></thead>
+              <tbody>
+                <tr><td data-label="Gate">绝对 return</td><td data-label="观测" class="num">0.6406</td><td data-label="门槛" class="num">≥0.75</td><td data-label="结果" class="red">FAIL</td></tr>
+                <tr><td data-label="Gate">对 M1f 增益</td><td data-label="观测" class="num">+0.2500</td><td data-label="门槛" class="num">≥+0.20</td><td data-label="结果" class="green">PASS</td></tr>
+                <tr><td data-label="Gate">对 no-call 增益</td><td data-label="观测" class="num">+0.3594</td><td data-label="门槛" class="num">≥+0.15</td><td data-label="结果" class="green">PASS</td></tr>
+                <tr><td data-label="Gate">Clean drop</td><td data-label="观测" class="num">0.0000</td><td data-label="门槛" class="num">≤0.02</td><td data-label="结果" class="green">PASS</td></tr>
+                <tr><td data-label="Gate">Context pair</td><td data-label="观测" class="num">0.8750</td><td data-label="门槛" class="num">≥0.80</td><td data-label="结果" class="green">PASS</td></tr>
+              </tbody>
+            </table>
+          </article>
+        </div>
+
+        <article class="panel" style="margin-top:12px;">
+          <h3>模型调用链：仍然只有一个内容 HPC</h3>
+          <div class="task-flow">
+            <div class="flow-node ref0"><strong>Transformer / PFC</strong><span>动作历史 → state<br />base context</span></div>
+            <div class="flow-node ref1"><strong>锚定历史 Attention</strong><span>固定 signature key<br />archival base-context value</span></div>
+            <div class="flow-node distractor"><strong>Soft Null 控制</strong><span>hold / refresh / call<br />不确定时可拒答</span></div>
+            <div class="flow-node return"><strong>原有外挂 HPC</strong><span>place × context 地址<br />唯一 covariance content store</span></div>
+          </div>
+          <div class="no-slot">训练仍只有全 token sensory CE。没有 room/context/位置输入，没有显式 memory slot，没有第二套 fast-weight matrix；PFC 只因果读取此前 proposal token 的 key/value。</div>
+        </article>
+
+        <div class="grid-2" style="margin-top:12px;">
+          <article class="panel">
+            <h3>学到的调用动态</h3>
+            <table>
+              <thead><tr><th>指标</th><th>数值</th><th>解释</th></tr></thead>
+              <tbody>
+                <tr><td data-label="指标">Hold / refresh / call</td><td data-label="数值" class="num">0.420 / 0.157 / 0.423</td><td data-label="解释">不是全 call</td></tr>
+                <tr><td data-label="指标">Call argmax</td><td data-label="数值" class="num">0.552</td><td data-label="解释">约半数 proposal 调历史</td></tr>
+                <tr><td data-label="指标">Attention max / entropy</td><td data-label="数值" class="num">0.406 / 0.501</td><td data-label="解释">K=8 仍有混合</td></tr>
+                <tr><td data-label="指标">Evidence / null</td><td data-label="数值" class="num">0.884 / 0.927</td><td data-label="解释">null 在主动筛选</td></tr>
+              </tbody>
+            </table>
+          </article>
+          <article class="panel">
+            <h3>为什么没有直接继续加模型</h3>
+            <ol style="margin:0;padding-left:20px;color:var(--muted);">
+              <li>正常调用比 M1f 高 25 pp，方向已经成立。</li>
+              <li>Force-call 的 context pair 更高，但 return 与 clean 都差，证明“多调”不是答案。</li>
+              <li>先在新 seed 分解正确 key、正确 call、后续覆盖和 recall，才能知道下一机制该做 retention 还是更纯的 transport。</li>
+            </ol>
+          </article>
         </div>
       </section>
 
@@ -531,7 +610,7 @@
             <h2>最新：M1h Transformer/PFC 因果历史调用</h2>
             <p>先证明 ordinary token history 可调用，再训练 3,467 参数的 soft Q/K caller；固定 step 600 后只做一次全新 K=8 seed 盲测。</p>
           </div>
-          <div class="source">更新：2026-07-14 · 113 tests passed · formal 未访问</div>
+          <div class="source">历史结果 · 已纳入 126-test 回归 · formal 未访问</div>
         </div>
 
         <div class="grid-2">
@@ -604,7 +683,7 @@
             <h2>最新：M1g 双向 HPC Context 审计</h2>
             <p>冻结 M1f 和同一 content fast-weight HPC；两组互不重叠的新 K=8 dev episodes；零训练、零新增参数、formal 未访问。</p>
           </div>
-          <div class="source">历史结论 · 已纳入 113-test 回归</div>
+          <div class="source">历史结论 · 已纳入 126-test 回归</div>
         </div>
 
         <div class="grid-2">
@@ -1043,7 +1122,8 @@
           <article class="stage blocked"><b>M1g HPC 反向恢复</b><p>Transpose 0.6094；LS 0.4844 且低于 shuffled。两条零参数路线停止。</p></article>
           <article class="stage done"><b>M1h Hard 上界</b><p>32-step persistence 达 0.8438；确认普通 PFC 历史包含足够 context 信号。</p></article>
           <article class="stage blocked"><b>M1h Neural Pilot</b><p>新 K=8 为 0.1719，no-call 0.3906；五门只过 clean，停止于单 seed。</p></article>
-          <article class="stage active"><b>可靠历史调用协议</b><p>只设计 key anchor、null/abstain 与 archival value；新 seed 前不运行。</p></article>
+          <article class="stage blocked"><b>M1i 可靠调用</b><p>0.6406；相对 M1f +25 pp，五门过四门；绝对 0.75 门失败。</p></article>
+          <article class="stage active"><b>新 Seed 只读分解</b><p>定位 key、call、后续覆盖与 recall；不得使用 seed9931 调参。</p></article>
           <article class="stage blocked"><b>Formal Protocol</b><p>normal K=8 仅 0.4010；达到 0.80 绝对门前不解锁。</p></article>
         </div>
       </section>
@@ -1056,6 +1136,11 @@
           </div>
         </div>
         <div class="artifact-list">
+          <a class="artifact" href="REMAP_FORMER_M1I_RELIABLE_HISTORY_RESULT_CN.md"><strong>最新：M1i 完整结果</strong><span>架构、冻结训练、K=8 四条件盲测、4/5 gates、诚实结论与下一只读分解</span></a>
+          <a class="artifact" href="REMAP_FORMER_M1I_PILOT_SUMMARY.json"><strong>M1i 盲测 JSON</strong><span>128 probes、四条件、context geometry、choice dynamics 与冻结五门</span></a>
+          <a class="artifact" href="m1i_reliable_history_pilot_protocol.json"><strong>M1i 冻结协议</strong><span>digest 锁、2,479 参数范围、唯一 sensory CE、固定 step 600 与 run-once seed9931</span></a>
+          <a class="artifact" href="REMAP_FORMER_M1I_TRAIN_SUMMARY.json"><strong>M1i 训练汇总</strong><span>K=1/2/4/8 curriculum、固定 final checkpoint、训练轨迹与耗时</span></a>
+          <a class="artifact" href="REMAP_FORMER_M1I_RELIABLE_HISTORY_PILOT_CN.md"><strong>M1i 自动盲测报告</strong><span>四条件主表、五门 PASS/FAIL 与 learned caller dynamics</span></a>
           <a class="artifact" href="REMAP_FORMER_M1H_HISTORY_ATTENTION_RESULT_CN.md"><strong>最新：M1h 完整结果</strong><span>架构、hard 上界、600 步训练、K=8 盲测、失败归因与下一合法协议</span></a>
           <a class="artifact" href="REMAP_FORMER_M1H_NEURAL_PILOT_SUMMARY.json"><strong>M1h Neural 盲测 JSON</strong><span>M1f/neural/no-call 三条件、context probe、choice dynamics 与冻结五门</span></a>
           <a class="artifact" href="REMAP_FORMER_M1H_FAILURE_AUDIT_SUMMARY.json"><strong>M1h 失败审计 JSON</strong><span>exact key 可用性、Q/K top-1、attention confidence、call refusal 与 value 污染</span></a>
@@ -1098,7 +1183,7 @@
       </section>
     </main>
 
-    <footer>ReMAP-Former internal dashboard · 2026-07-14 · M1b 仍是正式模型；M1h hard 上界成立但 neural pilot 被拒绝；下一协议只解决 key anchor / abstain / archival value，formal 未解锁</footer>
+    <footer>ReMAP-Former internal dashboard · 2026-07-14 · M1b 仍是正式模型；M1i 可靠历史调用达到 0.6406、五门过四门但未晋级；下一步只在新 seed 分解 call-to-recall，formal 未解锁</footer>
   </div>
 </body>
 </html>

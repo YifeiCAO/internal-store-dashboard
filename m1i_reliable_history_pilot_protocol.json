@@ -1,0 +1,82 @@
+{
+  "format": "remap_former.m1i_reliable_history_pilot_protocol.v1",
+  "frozen_date": "2026-07-14",
+  "scope": "single training seed and one new K=8 dev pilot after the M1h neural caller was rejected; no stress, formal validation, test, or multi-seed expansion",
+  "source_model_seed": 712,
+  "source_checkpoint": "runs/remap_former/m1b_covariance_ridge0p03_seed712_frozen/m1b_frozen.pt",
+  "content_hpc_covariance_ridge": 0.001,
+  "architecture": {
+    "attention_temperature": 0.05,
+    "evidence_temperature": 0.02,
+    "null_decision_temperature": 0.05,
+    "null_similarity_min": 0.75,
+    "null_similarity_max": 0.99,
+    "initial_null_similarity": 0.9,
+    "controller_hidden_dim": 32,
+    "key": "fixed normalized causal cyclic relation signature; no learned Q/K in Stage A",
+    "history_value": "immutable base_context at prior proposal tokens j<t; active recalled context is never written back into history values",
+    "choices": [
+      "hold_current",
+      "refresh_from_base",
+      "call_archival_history"
+    ],
+    "call_rule": "continuous soft structural evidence competes with a learned bounded null similarity; no exact equality, hard threshold, top-k, index lookup, or persistence counter",
+    "initial_hold_refresh_bias": [0.0, 2.0]
+  },
+  "train_seed": 1813,
+  "train_split": "train",
+  "training_generator": "make_novel_distractor_capacity_batch",
+  "capacity_curriculum": [1, 2, 4, 8],
+  "curriculum_schedule": "deterministic equal-frequency cycle over K=1,2,4,8",
+  "max_jitter_cycles": 4,
+  "steps": 600,
+  "batch_size": 4,
+  "grid_size": 11,
+  "learning_rate": 0.001,
+  "weight_decay": 0.0001,
+  "gradient_clip": 1.0,
+  "eval_every": 100,
+  "eval_batches_per_level": 2,
+  "dev_monitor_seed": 22713,
+  "checkpoint_selection": "none; fixed final step 600 is the only K=8 candidate",
+  "trainable_scope": "bounded null similarity plus hold/refresh LayerNorm and MLP only; fixed structural keys and all pretrained PFC, EC, place, context head, content HPC, fusion, and decoder parameters are frozen",
+  "loss": "one unweighted all-token sensory cross-entropy only",
+  "forbidden_losses": [
+    "room or context classification",
+    "history matching or contrastive loss",
+    "hard-caller distillation",
+    "attention entropy or confidence loss",
+    "return or query reweighting"
+  ],
+  "forbidden_state": [
+    "context slots",
+    "second fast-weight matrix",
+    "recursive write-back of recalled context into archival values",
+    "room, segment, path-family, return-reference, position, or place metadata"
+  ],
+  "causal_contract": "prediction t reads actions through t, sensory only through t-1, and archival PFC proposal tokens j<t; x_t is revealed only after prediction and then enters the existing content-HPC write",
+  "k8_pilot": {
+    "generator_seed": 9931,
+    "capacity_level": 8,
+    "max_jitter_cycles": 4,
+    "batch_size": 4,
+    "batches": 16,
+    "episodes": 64,
+    "return_conflict_probes": 128,
+    "conditions": [
+      "frozen_m1f",
+      "m1i_reliable_history",
+      "m1i_no_history_call",
+      "m1i_force_history_call"
+    ],
+    "frozen_thresholds": {
+      "reliable_return_conflict_acc_at_least": 0.75,
+      "reliable_gain_vs_m1f_at_least": 0.2,
+      "history_call_gain_vs_no_call_at_least": 0.15,
+      "reliable_clean_drop_vs_m1f_at_most": 0.02,
+      "reliable_context_pair_accuracy_at_least": 0.8
+    },
+    "force_history_call_role": "diagnostic only; it cannot change the five frozen progression gates"
+  },
+  "post_result_rule": "all five K=8 gates must pass before any three-seed training; otherwise stop and report without tuning on generator seed 9931"
+}
