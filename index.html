@@ -486,13 +486,13 @@
       <div class="status-grid" aria-label="最新状态">
         <article class="status-card primary">
           <h2>当前主线</h2>
-          <strong>M1b 保留，容量升级待解</strong>
-          <p>旧 random-return 正式结果仍成立；新奇干扰容量中 K=1 为 0.75，K>=2 掉到 0。诊断已把瓶颈定位到 context re-entry，而不是 PFC 泄漏或任务损坏。</p>
+          <strong>M1b 冻结；M1d 未晋级</strong>
+          <p>旧 random-return 正式结果仍成立。M1d 已把 context re-entry 做成因果多信号递归调用，但 PFC acceptance 未通过 dev gate；formal split 继续封存。</p>
           <div class="badge-row">
             <span class="badge"><span class="dot blue"></span>无 room / 位置输入</span>
             <span class="badge"><span class="dot teal"></span>Neural EC</span>
             <span class="badge"><span class="dot amber"></span>Covariance HPC</span>
-            <span class="badge"><span class="dot green"></span>单一 sensory CE</span>
+            <span class="badge"><span class="dot green"></span>正式 M1b：单一 sensory CE</span>
           </div>
         </article>
         <article class="status-card hold">
@@ -506,16 +506,16 @@
           <p>同 600×batch4 单 seed；均稳定降 loss，但 return-conflict 都为 0</p>
         </article>
         <article class="status-card fail">
-          <h2>候选压力测试</h2>
-          <strong>M1c / Gate 拒绝</strong>
-          <p>M1c 反转顺序后全档 0.50；动作神经门 precision 0.597、误触发 5.35/episode</p>
+          <h2>M1d 递归调用</h2>
+          <strong>Proposal 成功，Acceptance 失败</strong>
+          <p>真边界覆盖 1.00；PFC 接受门 precision 0.347、recall 0.786、误调用 12.4/episode</p>
         </article>
       </div>
 
       <section>
         <div class="decision">
-          <strong>当前决策：保留 M1b，停止 M1c，先修 context re-entry</strong>
-          <p>旧任务的一次性 test `0.8201 ± 0.0200` 和 4356 步重复干扰结果仍有效，但不能外推到不断加入新奇 context。ridge `0.001` 在精确地址下 K=1..12 全为 1.0，所以下一步只训练多信号 recurrent context boundary；通过原顺序和反转顺序 dev gate 后，才铺外部基线多 seed 和正式容量 validation。</p>
+          <strong>当前决策：保留 M1b，停止 M1c/M1d，不用 formal 数据救候选</strong>
+          <p>旧任务的一次性 test `0.8201 ± 0.0200` 和 4356 步重复干扰结果仍有效，但不能外推到不断加入新奇 context。M1d 只读取动作、因果 PFC hidden、上一时刻 prediction error 与 HPC surprise；候选 proposal 覆盖全部真边界，但 acceptance 仍有大量周期相似误触发。该分支停在单种子 dev，不访问 stress seed，不铺多 seed。</p>
         </div>
       </section>
 
@@ -554,9 +554,12 @@
                 <tr><td data-label="检查">M1c 反转 target order</td><td data-label="结果" class="num">全 0.50</td><td data-label="判断" class="red">拒绝</td></tr>
                 <tr><td data-label="检查">动作神经门 precision</td><td data-label="结果" class="num">0.5974</td><td data-label="判断" class="red">拒绝</td></tr>
                 <tr><td data-label="检查">误触发 / episode</td><td data-label="结果" class="num">5.35</td><td data-label="判断" class="red">拒绝</td></tr>
+                <tr><td data-label="检查">M1d proposal recall</td><td data-label="结果" class="num">1.000</td><td data-label="判断" class="green">提议机制通过</td></tr>
+                <tr><td data-label="检查">M1d acceptance P / R</td><td data-label="结果" class="num">0.347 / 0.786</td><td data-label="判断" class="red">拒绝</td></tr>
+                <tr><td data-label="检查">M1d 误调用 / episode</td><td data-label="结果" class="num">12.4</td><td data-label="判断" class="red">拒绝</td></tr>
               </tbody>
             </table>
-            <p style="margin:10px 0 0;color:var(--muted);font-size:12px;">任务 gates 全绿；M1c 和动作-only gate 都未进入主模型。下一候选必须联合动作、PFC hidden、预测误差与 HPC surprise。</p>
+            <p style="margin:10px 0 0;color:var(--muted);font-size:12px;">M1d 已联合动作、PFC hidden、上一时刻预测误差与 HPC surprise，仍未把真正重入和周期相似负例分开。69 项回归全绿；失败点是调用判别，不是代码回归或 HPC 容量。</p>
           </article>
         </div>
 
@@ -747,7 +750,7 @@
           <article class="stage done"><b>长延迟 OOD</b><p>8-seed 到 836；预选 3-seed 到 4356，全部 gates 通过。</p></article>
           <article class="stage done"><b>新容量 + 基线</b><p>新路径/新内容 generator 全绿；Transformer 与 Titans 已接入。</p></article>
           <article class="stage blocked"><b>M1c / 动作 Gate</b><p>顺序压力测试与 held-out detector gate 均失败，已停止。</p></article>
-          <article class="stage active"><b>下一版 Context</b><p>多信号 recurrent re-entry inference；先过双顺序 dev gate。</p></article>
+          <article class="stage blocked"><b>M1d Recurrent Context</b><p>Proposal recall 1.00；PFC acceptance gate 失败，停在 dev。</p></article>
         </div>
       </section>
 
@@ -759,6 +762,7 @@
           </div>
         </div>
         <div class="artifact-list">
+          <a class="artifact" href="REMAP_FORMER_M1D_RECURRENT_CONTEXT_RESULT_CN.md"><strong>M1d 递归调用结果</strong><span>因果架构、五个 train/dev 分支、门槛结果与停止决策</span></a>
           <a class="artifact" href="REMAP_FORMER_NOVEL_CAPACITY_BASELINES_20260713_CN.md"><strong>新容量 + 外部基线报告</strong><span>Transformer、Titans、容量曲线、失败归因与下一决策</span></a>
           <a class="artifact" href="REMAP_FORMER_ICLR_DESIGN_CN.md"><strong>ICLR 实验设计</strong><span>冻结接口、任务 gates、模型阶段和停机规则</span></a>
           <a class="artifact" href="REMAP_FORMER_M1B_COVARIANCE_RESULT_CN.md"><strong>M1b 结果报告</strong><span>诊断、ridge sweep、配对 validation 与微调审计</span></a>
@@ -776,7 +780,7 @@
       </section>
     </main>
 
-    <footer>ReMAP-Former internal dashboard · 2026-07-13 · 当前决策：旧 headline 保留；新奇容量瓶颈定位到 context re-entry</footer>
+    <footer>ReMAP-Former internal dashboard · 2026-07-13 · 当前决策：M1b 正式结果保留；M1d acceptance 未过 dev gate</footer>
   </div>
 </body>
 </html>
