@@ -472,7 +472,7 @@
         <p>Transformer=PFC 主干，EC 供结构，covariance-corrected HPC 供外挂记忆</p>
       </div>
       <nav aria-label="看板分区">
-        <a href="#m1f">M1f 最新</a>
+        <a href="#m1f">M1f 归因</a>
         <a href="#closure">机制诊断</a>
         <a href="#capacity">新容量</a>
         <a href="#results">结果</a>
@@ -488,8 +488,8 @@
       <div class="status-grid" aria-label="最新状态">
         <article class="status-card primary">
           <h2>当前主线</h2>
-          <strong>M1b 仍是正式模型；M1f Dev 证据完成</strong>
-          <p>M1f 三 seed 总体提升 +19.58 pp；独立扩大样本 K=8 又提升 +8.33 pp、3/3 seeds 正向。当前只晋级到 formal protocol design，正式数据仍封存。</p>
+          <strong>M1b 仍是正式模型；M1f 已锁定唯一主瓶颈</strong>
+          <p>M1f 在 K=8 的正常准确率只有 0.4010，暂不进入 formal。冻结 oracle 将正确历史 context 送回同一 HPC 后恢复到 0.9844，说明下一版只需解决返回时的历史 context 身份检索。</p>
           <div class="badge-row">
             <span class="badge"><span class="dot blue"></span>无 room / 位置输入</span>
             <span class="badge"><span class="dot teal"></span>Neural EC</span>
@@ -498,36 +498,36 @@
           </div>
         </article>
         <article class="status-card pass">
-          <h2>M1f 三 Seed</h2>
-          <strong>+26.25 / +20.00 / +12.50 pp</strong>
-          <p>平均 paired gain +19.58 pp；最差 seed 仍超过预注册 +5 pp 门槛</p>
+          <h2>正确历史 Context</h2>
+          <strong>0.9844</strong>
+          <p>相对 normal 净增益 +58.33 pp；三颗 seed 均至少 0.9688</p>
         </article>
         <article class="status-card pass">
-          <h2>Refresh 因果性</h2>
-          <strong>0.6083 vs 0.0167</strong>
-          <p>关闭 refresh 后 re-entry 几乎消失；M1f 没有 hard gate、第二套 memory 或新增参数</p>
+          <h2>精确地址 HPC 上限</h2>
+          <strong>Raw 0.9896</strong>
+          <p>完整融合仍为 0.9844；内容存储和 PFC-HPC 融合都健康</p>
         </article>
-        <article class="status-card pass">
-          <h2>K=8 独立确认</h2>
-          <strong>+8.33 pp，3/3 正向</strong>
-          <p>384 个全新 probes 上旧下降未复现；M1b 0.3177，M1f 0.4010</p>
+        <article class="status-card hold">
+          <h2>Formal 绝对门</h2>
+          <strong>0.4010 &lt; 0.8000</strong>
+          <p>相对改进真实，但绝对能力仍不够；formal split 继续封存</p>
         </article>
       </div>
 
       <section>
         <div class="decision">
-          <strong>当前决策：M1f 晋级到 formal protocol design；formal split 继续封存</strong>
-          <p>M1f 只增加确定性的 balanced-window context hold/refresh，参数量与 M1b 完全相同。K=8 独立确认已完成，不再修改 detector、初始化或 ridge。Balanced 比等次数随机高 12.24 pp，但只比 delay+6 高 3.13 pp，因此 claim 冻结为“结构约束、时间容忍较宽的 hold/refresh”，不声称精确边界检测。</p>
+          <strong>当前决策：暂停 formal；下一版只攻历史 context 身份检索</strong>
+          <p>Balanced hold/refresh 的因果收益已确认，但它只能把 K=8 拉到 0.4010。正确历史 context 与精确历史地址都达到 0.9844，而错误历史 context 为 0；因此不重做 covariance HPC、不增加内容槽、不改 EC/place 或 decoder。下一机制必须从可观察历史中调用正确的 episode-relative context。</p>
         </div>
       </section>
 
       <section id="m1f">
         <div class="section-head">
           <div>
-            <h2>最新：M1f 零参数 Context Refresh</h2>
-            <p>三个独立 M1b slow-weight seeds × 三个独立 dev episode seeds；总计 480 个相同输入的 paired return-conflict probes。</p>
+            <h2>最新：M1f Context 身份归因</h2>
+            <p>先用 480 probes 确认零参数 refresh，再在同一批 K=8、384 个 paired probes 上拆分 context、地址、HPC 内容与融合。</p>
           </div>
-          <div class="source">更新：2026-07-13 · formal 未访问</div>
+          <div class="source">更新：2026-07-14 · formal 未访问</div>
         </div>
 
         <div class="grid-2">
@@ -600,6 +600,22 @@
             </tbody>
           </table>
           <p style="margin:10px 0 0;color:var(--muted);font-size:12px;">全新 384 probes。Balanced、delay+6、random 都严格为 62 次 refresh/episode。结论：旧 K=8 下降未复现；不是任意平滑，但至少容忍约 6 步时间偏移。</p>
+        </article>
+
+        <article class="panel" style="margin-top:12px;">
+          <h3>K=8 冻结 Oracle 归因</h3>
+          <table>
+            <thead><tr><th>条件</th><th>Return-conflict</th><th>相对 Normal</th><th>结论</th></tr></thead>
+            <tbody>
+              <tr><td data-label="条件">M1f normal fused</td><td data-label="Return-conflict" class="num">0.4010</td><td data-label="相对 Normal" class="num">0.0000</td><td data-label="结论" class="red">绝对值不足</td></tr>
+              <tr><td data-label="条件"><strong>正确历史 context</strong></td><td data-label="Return-conflict" class="num"><strong>0.9844</strong></td><td data-label="相对 Normal" class="num green">+0.5833</td><td data-label="结论" class="green">恢复 378 / 384</td></tr>
+              <tr><td data-label="条件">错误历史 context</td><td data-label="Return-conflict" class="num">0.0000</td><td data-label="相对 Normal" class="num red">-0.4010</td><td data-label="结论" class="red">身份方向完全因果</td></tr>
+              <tr><td data-label="条件">精确历史地址 + 融合</td><td data-label="Return-conflict" class="num">0.9844</td><td data-label="相对 Normal" class="num green">+0.5833</td><td data-label="结论" class="green">与正确 context 相同</td></tr>
+              <tr><td data-label="条件">精确历史地址 + Raw HPC</td><td data-label="Return-conflict" class="num"><strong>0.9896</strong></td><td data-label="相对 Normal" class="num green">+0.5885</td><td data-label="结论" class="green">内容 substrate 健康</td></tr>
+            </tbody>
+          </table>
+          <p style="margin:10px 0 0;color:var(--muted);font-size:12px;">三个模型 seed、384 个完全配对 probes；五个看结果前冻结的 gate 全过。Correct-context 相对 normal：226 个 probe 被救回，只有 2 个反向。冻结分类：CONTEXT_IDENTITY_RETRIEVAL_DOMINANT。</p>
+          <div class="no-slot">这不是给模型 room/context ID：audit metadata 只在冻结 normal forward 完成后用于 return-probe 干预。可部署模型仍只能看动作与因果感觉历史。</div>
         </article>
       </section>
 
@@ -893,7 +909,9 @@
           <article class="stage blocked"><b>M1e Context Fast Weight</b><p>Delta / covariance recall 净贡献 0 / -3.75 pp，停止于 dev。</p></article>
           <article class="stage done"><b>M1f 三 Seed Dev</b><p>聚合 +19.58 pp；3/3 正向；五个冻结 gates 全过。</p></article>
           <article class="stage done"><b>K=8 独立确认</b><p>+8.33 pp、3/3 正向；旧小样本下降未复现。</p></article>
-          <article class="stage active"><b>Formal Protocol Design</b><p>正式数据仍封存；claim 限定为结构约束、宽时机容忍。</p></article>
+          <article class="stage done"><b>K=8 Oracle 归因</b><p>正确历史 0.9844、错误历史 0、Raw HPC 0.9896；身份检索主瓶颈。</p></article>
+          <article class="stage active"><b>历史 Context 身份检索</b><p>下一版只解决 episode-relative context 调用；HPC、EC/place 与融合保持冻结。</p></article>
+          <article class="stage blocked"><b>Formal Protocol</b><p>normal K=8 仅 0.4010；达到 0.80 绝对门前不解锁。</p></article>
         </div>
       </section>
 
@@ -905,6 +923,9 @@
           </div>
         </div>
         <div class="artifact-list">
+          <a class="artifact" href="REMAP_FORMER_M1F_K8_ORACLE_DECOMPOSITION_CN.md"><strong>最新：M1f K=8 Oracle 归因</strong><span>384-probe 正确/错误历史 context、精确地址、Raw HPC 与冻结瓶颈分类</span></a>
+          <a class="artifact" href="REMAP_FORMER_M1F_K8_ORACLE_SUMMARY.json"><strong>最新：Oracle 机器可读结果</strong><span>逐 seed 六条件指标、paired counts、context/address geometry 与五个 gates</span></a>
+          <a class="artifact" href="REMAP_FORMER_M1F_K8_ORACLE_PROTOCOL.json"><strong>Oracle 看结果前冻结协议</strong><span>同 K=8 episodes、诊断条件、绝对阈值、互斥归因规则与禁止项</span></a>
           <a class="artifact" href="REMAP_FORMER_M1F_K8_TIMING_CONFIRMATION_CN.md"><strong>最新：M1f K=8 独立确认</strong><span>384-probe 复查、等次数 random、delay+6、同 probe 方向性与冻结机制判读</span></a>
           <a class="artifact" href="REMAP_FORMER_M1F_K8_TIMING_SUMMARY.json"><strong>最新：K=8 机器可读结果</strong><span>逐 seed 五条件指标、schedule 数量、paired counts 与 specificity gates</span></a>
           <a class="artifact" href="REMAP_FORMER_M1F_K8_TIMING_PROTOCOL.json"><strong>K=8 看结果前冻结协议</strong><span>全新 seeds、4 倍样本、random/delay controls 和三分支分类规则</span></a>
@@ -931,7 +952,7 @@
       </section>
     </main>
 
-    <footer>ReMAP-Former internal dashboard · 2026-07-13 · M1b 仍是正式模型；M1f Dev 证据完成并晋级 formal protocol design；K=8 +8.33 pp，精确 token 时机不特异</footer>
+    <footer>ReMAP-Former internal dashboard · 2026-07-14 · M1b 仍是正式模型；M1f K=8 normal 0.4010，正确历史 context 0.9844；下一步只攻 context 身份检索，formal 未解锁</footer>
   </div>
 </body>
 </html>

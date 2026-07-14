@@ -1,0 +1,46 @@
+{
+  "format": "remap_former.m1f_k8_oracle_decomposition_protocol.v1",
+  "frozen_date": "2026-07-14",
+  "scope": "paired K=8 dev-only oracle decomposition; no training, checkpoint selection, stress, formal validation, or test",
+  "reuses_episode_protocol": "runs/remap_former/m1f_k8_timing_protocol.json",
+  "model_seeds": [712, 713, 714],
+  "generator_seeds": [3921, 3922, 3923],
+  "capacity_level": 8,
+  "grid_size": 11,
+  "max_jitter_cycles": 4,
+  "batch_size": 4,
+  "batches_per_seed": 16,
+  "episodes_per_seed": 64,
+  "return_conflict_probes_per_seed": 128,
+  "return_conflict_probes_total": 384,
+  "content_hpc_covariance_ridge": 0.001,
+  "conditions": [
+    "m1f_normal_fused",
+    "m1f_normal_raw_hpc",
+    "m1f_correct_historical_context",
+    "m1f_wrong_historical_context",
+    "m1f_exact_reference_address_fused",
+    "m1f_exact_reference_address_raw_hpc"
+  ],
+  "oracle_scope": "evaluation-only return probes; metadata is used only after a frozen normal M1f forward and is never exposed to PFC, EC, context inference, training, or checkpoint selection",
+  "historical_context_oracle": "at each return probe, replay the frozen M1f context emitted at the matching pass-1 query in the correct or wrong reference segment",
+  "exact_address_oracle": "at each return probe, replay the full frozen conjunctive address emitted at the matching pass-1 query in the correct reference segment; all other addresses remain normal",
+  "frozen_thresholds": {
+    "correct_context_acc_at_least": 0.8,
+    "correct_context_gain_vs_normal_at_least": 0.25,
+    "correct_vs_wrong_context_gap_at_least": 0.3,
+    "exact_address_raw_hpc_acc_at_least": 0.9,
+    "exact_address_fused_acc_at_least": 0.8
+  },
+  "classification_rule": {
+    "CONTEXT_IDENTITY_RETRIEVAL_DOMINANT": "correct-context absolute, gain, and directionality gates pass",
+    "CONTENT_HPC_CAPACITY_DOMINANT": "exact-address raw-HPC ceiling fails",
+    "PFC_HPC_FUSION_DOMINANT": "exact-address raw-HPC ceiling passes but fused ceiling fails",
+    "ADDRESS_RECONSTRUCTION_DOMINANT": "exact-address raw and fused ceilings pass, but correct-context recovery fails",
+    "MIXED_OR_UNRESOLVED": "none of the frozen exclusive diagnoses applies"
+  },
+  "training": "none",
+  "checkpoint_selection": "none",
+  "model_change": "none",
+  "post_result_rule": "do not change conditions, seeds, episodes, thresholds, or classification after reading results"
+}
