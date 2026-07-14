@@ -1,0 +1,29 @@
+{
+  "format": "remap_former.m1h_neural_failure_audit.v1",
+  "protocol_result": "NEURAL_HISTORY_CALL_PILOT_REJECTED",
+  "reuse_notice": "post-hoc read-only localization on the frozen seed 8928 pilot; not eligible for tuning, model selection, or a new performance claim",
+  "checkpoint_step": 600,
+  "signature_match_cosine": 0.99999,
+  "metrics": {
+    "return_conflict_probes": 128.0,
+    "history_available_rate": 1.0,
+    "exact_signature_match_available_rate": 0.84375,
+    "learned_qk_top1_exact_match_rate": 0.5925925925925926,
+    "raw_signature_top1_exact_match_rate": 1.0,
+    "learned_raw_top1_agreement_rate": 0.375,
+    "mean_attention_mass_on_exact_matches": 0.39795306614919185,
+    "mean_attention_max": 0.29150309739634395,
+    "mean_attention_entropy": 0.5356738781556487,
+    "mean_call_weight_at_last_proposal": 0.8041437203064561,
+    "call_argmax_rate_at_last_proposal": 1.0,
+    "uncertain_call_argmax_rate": 1.0,
+    "neural_return_conflict_acc": 0.171875,
+    "no_call_return_conflict_acc": 0.390625,
+    "neural_context_pair_accuracy": 0.6875,
+    "learned_top_value_context_pair_accuracy": 0.6875,
+    "neural_acc_when_top1_exact": 0.15625,
+    "neural_acc_when_top1_not_exact": 0.1875,
+    "top1_exact_probe_count": 64.0,
+    "top1_not_exact_probe_count": 64.0
+  }
+}

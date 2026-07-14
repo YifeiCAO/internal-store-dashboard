@@ -1,0 +1,205 @@
+{
+  "format": "remap_former.m1h_neural_attention_pilot_result.v1",
+  "protocol": {
+    "format": "remap_former.m1h_neural_attention_pilot_protocol.v1",
+    "frozen_date": "2026-07-14",
+    "scope": "single training seed and one new K=8 dev pilot after PERSISTENT_HISTORY_CALL_CONFIRMED; no stress, formal validation, test, or multi-seed expansion",
+    "source_model_seed": 712,
+    "source_checkpoint": "runs/remap_former/m1b_covariance_ridge0p03_seed712_frozen/m1b_frozen.pt",
+    "content_hpc_covariance_ridge": 0.001,
+    "train_seed": 1712,
+    "train_split": "train",
+    "training_generator": "make_procedural_context_batch",
+    "steps": 600,
+    "batch_size": 4,
+    "grid_size": 11,
+    "learning_rate": 0.001,
+    "weight_decay": 0.0001,
+    "gradient_clip": 1.0,
+    "eval_every": 50,
+    "eval_batches": 8,
+    "dev_monitor_seed": 21712,
+    "checkpoint_selection": "none; fixed final step 600 is the only K=8 candidate",
+    "attention": {
+      "temperature": 0.1,
+      "controller_hidden_dim": 32,
+      "query_key_input": "action-only PFC state concatenated with the causal cyclic relation token",
+      "history_value": "the model's own previously emitted context at proposal tokens j<t",
+      "choices": [
+        "hold_current",
+        "refresh_from_base",
+        "call_history"
+      ],
+      "initial_choice_bias": [
+        -1.0,
+        2.0,
+        -1.0
+      ],
+      "signature_identity_initialization": true
+    },
+    "trainable_scope": "history_query, history_key, context_choice_norm, and context_choice_head only; all pretrained PFC, EC, place, context head, content HPC, fusion, and decoder parameters frozen",
+    "loss": "one unweighted all-token sensory cross-entropy only",
+    "forbidden_losses": [
+      "room or context classification",
+      "history matching or contrastive loss",
+      "hard-caller distillation",
+      "attention entropy loss",
+      "return/query reweighting"
+    ],
+    "causal_contract": "context for prediction t reads actions through t and PFC event tokens j<t; x_t is revealed only after prediction and then enters the existing content-HPC write",
+    "k8_pilot": {
+      "generator_seed": 8928,
+      "capacity_level": 8,
+      "max_jitter_cycles": 4,
+      "batch_size": 4,
+      "batches": 16,
+      "episodes": 64,
+      "return_conflict_probes": 128,
+      "conditions": [
+        "frozen_m1f",
+        "m1h_neural_attention",
+        "m1h_no_history_call"
+      ],
+      "frozen_thresholds": {
+        "neural_return_conflict_acc_at_least": 0.75,
+        "neural_gain_vs_m1f_at_least": 0.2,
+        "history_call_gain_vs_no_call_at_least": 0.15,
+        "neural_clean_drop_vs_m1f_at_most": 0.02,
+        "neural_context_pair_accuracy_at_least": 0.8
+      }
+    },
+    "post_result_rule": "all five K=8 gates must pass before any three-seed training; otherwise stop and report the learned choice dynamics without tuning on seed 8928"
+  },
+  "device": "cuda",
+  "baseline_checkpoint_step": 600,
+  "neural_checkpoint": "runs\\remap_former\\m1h_neural_attention_seed1712_s600\\m1h_final.pt",
+  "neural_checkpoint_step": 600,
+  "metrics": {
+    "frozen_m1f": {
+      "loss": 1.9557148545744965,
+      "query_acc": 0.9348958333333334,
+      "query_queries": 3072.0,
+      "clean_acc": 0.95390625,
+      "clean_queries": 2560.0,
+      "conflict_acc": 0.83984375,
+      "conflict_queries": 512.0,
+      "return_acc": 0.4375,
+      "return_queries": 256.0,
+      "return_conflict_acc": 0.40625,
+      "return_conflict_queries": 128.0,
+      "other_room_target_rate": 0.03125,
+      "correct_target_probability": 0.3264347418953548,
+      "other_room_target_probability": 0.04978929318485725,
+      "target_probability_margin": 0.27664544871049757,
+      "tokens": 36448.0
+    },
+    "m1h_neural_attention": {
+      "loss": 1.6383085644381208,
+      "query_acc": 0.9290364583333334,
+      "query_queries": 3072.0,
+      "clean_acc": 0.95625,
+      "clean_queries": 2560.0,
+      "conflict_acc": 0.79296875,
+      "conflict_queries": 512.0,
+      "return_acc": 0.2421875,
+      "return_queries": 256.0,
+      "return_conflict_acc": 0.171875,
+      "return_conflict_queries": 128.0,
+      "other_room_target_rate": 0.046875,
+      "correct_target_probability": 0.14959913468919694,
+      "other_room_target_probability": 0.020611504260159563,
+      "target_probability_margin": 0.12898763042903738,
+      "tokens": 36448.0
+    },
+    "m1h_no_history_call": {
+      "loss": 1.8812573561027868,
+      "query_acc": 0.93359375,
+      "query_queries": 3072.0,
+      "clean_acc": 0.95078125,
+      "clean_queries": 2560.0,
+      "conflict_acc": 0.84765625,
+      "conflict_queries": 512.0,
+      "return_acc": 0.3828125,
+      "return_queries": 256.0,
+      "return_conflict_acc": 0.390625,
+      "return_conflict_queries": 128.0,
+      "other_room_target_rate": 0.046875,
+      "correct_target_probability": 0.3251317792746704,
+      "other_room_target_probability": 0.040099255170195774,
+      "target_probability_margin": 0.28503252410447466,
+      "tokens": 36448.0
+    }
+  },
+  "context_metrics": {
+    "frozen_m1f": {
+      "pair_accuracy_tie_adjusted": 0.828125,
+      "correct_preference_rate": 0.828125,
+      "wrong_preference_rate": 0.171875,
+      "tie_rate": 0.0,
+      "correct_reference_cosine": 0.8295175023376942,
+      "wrong_reference_cosine": 0.6559080388396978,
+      "correct_minus_wrong_cosine": 0.17360946349799633,
+      "mean_evidence_strength": 1.0,
+      "return_conflict_queries": 128.0
+    },
+    "m1h_neural_attention": {
+      "pair_accuracy_tie_adjusted": 0.6875,
+      "correct_preference_rate": 0.6875,
+      "wrong_preference_rate": 0.3125,
+      "tie_rate": 0.0,
+      "correct_reference_cosine": 0.8835043534636497,
+      "wrong_reference_cosine": 0.8174182400107384,
+      "correct_minus_wrong_cosine": 0.06608611345291138,
+      "mean_evidence_strength": 0.0,
+      "return_conflict_queries": 128.0
+    },
+    "m1h_no_history_call": {
+      "pair_accuracy_tie_adjusted": 0.8125,
+      "correct_preference_rate": 0.8125,
+      "wrong_preference_rate": 0.1875,
+      "tie_rate": 0.0,
+      "correct_reference_cosine": 0.8335350975394249,
+      "wrong_reference_cosine": 0.6752014253288507,
+      "correct_minus_wrong_cosine": 0.15833367221057415,
+      "mean_evidence_strength": 0.0,
+      "return_conflict_queries": 128.0
+    }
+  },
+  "choice_dynamics": {
+    "m1h_neural_attention": {
+      "choice_hold_mean": 0.042935016989518626,
+      "choice_refresh_mean": 0.17212166339395663,
+      "choice_call_mean": 0.7849433256748052,
+      "choice_call_argmax_rate": 0.9830598200105876,
+      "history_attention_max_mean": 0.344096348628474,
+      "history_attention_entropy_mean": 0.6123110925759688,
+      "proposal_choices": 3778.0,
+      "history_available_choices": 3714.0
+    },
+    "m1h_no_history_call": {
+      "choice_hold_mean": 0.194077697236933,
+      "choice_refresh_mean": 0.8059222825687988,
+      "choice_call_mean": 0.0,
+      "choice_call_argmax_rate": 0.0,
+      "history_attention_max_mean": 0.344096348628474,
+      "history_attention_entropy_mean": 0.6123110925759688,
+      "proposal_choices": 3778.0,
+      "history_available_choices": 3714.0
+    }
+  },
+  "decision": {
+    "status": "NEURAL_HISTORY_CALL_PILOT_REJECTED",
+    "gates": {
+      "neural_return_absolute": false,
+      "neural_gain_vs_m1f": false,
+      "history_call_necessary": false,
+      "neural_clean_preserved": true,
+      "neural_context_identity": false
+    },
+    "differences": {
+      "neural_return_gain_vs_m1f": -0.234375,
+      "history_call_return_gain_vs_no_call": -0.21875,
+      "neural_clean_drop_vs_m1f": 0.0
+    }
+  }
+}

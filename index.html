@@ -473,6 +473,7 @@
         <p>Transformer=PFC 主干，EC 供结构，covariance-corrected HPC 供外挂记忆</p>
       </div>
       <nav aria-label="看板分区">
+        <a href="#m1h">M1h 历史调用</a>
         <a href="#m1g">M1g 反解</a>
         <a href="#m1f">M1f 归因</a>
         <a href="#closure">机制诊断</a>
@@ -490,36 +491,110 @@
       <div class="status-grid" aria-label="最新状态">
         <article class="status-card primary">
           <h2>当前主线</h2>
-          <strong>M1b 仍是正式模型；M1g 反向 HPC 路线已停止</strong>
-          <p>M1f 在 K=8 为 0.4010，正确历史 context 可恢复到 0.9844；但 transpose 与 least-squares 都不能从现有 content HPC 因果反推出可辨识 context。下一版只改 Transformer/PFC 的历史调用。</p>
+          <strong>M1b 仍是正式模型；M1h 神经历史调用未通过盲测</strong>
+          <p>普通 PFC 历史确有足够信息：hard persistence 上界达到 0.8438。但只用 sensory CE 训练的神经 Q/K caller 在全新 K=8 上从 M1f 0.4062 降到 0.1719，封死 call 反而为 0.3906。</p>
           <div class="badge-row">
             <span class="badge"><span class="dot blue"></span>无 room / 位置输入</span>
             <span class="badge"><span class="dot teal"></span>Neural EC</span>
             <span class="badge"><span class="dot amber"></span>Covariance HPC</span>
-            <span class="badge"><span class="dot green"></span>正式 M1b：单一 sensory CE</span>
+            <span class="badge"><span class="dot green"></span>正式 M1b 不变</span>
+            <span class="badge"><span class="dot red"></span>M1h 不铺三 seed</span>
           </div>
         </article>
         <article class="status-card pass">
-          <h2>正确历史 Context</h2>
-          <strong>0.9844</strong>
-          <p>相对 normal 净增益 +58.33 pp；三颗 seed 均至少 0.9688</p>
+          <h2>Hard 历史调用上界</h2>
+          <strong>0.8438</strong>
+          <p>相对同批 M1f +37.50 pp；相对 shuffled +74.22 pp</p>
+        </article>
+        <article class="status-card fail">
+          <h2>M1h Neural 盲测</h2>
+          <strong>0.1719</strong>
+          <p>M1f 0.4062；no-call 0.3906；五门只过 clean</p>
         </article>
         <article class="status-card hold">
-          <h2>M1g LS Context</h2>
-          <strong>0.4844</strong>
-          <p>低于 shuffled 0.5625；八个冻结 gate 仅 exact replay 通过</p>
-        </article>
-        <article class="status-card hold">
-          <h2>Formal 绝对门</h2>
-          <strong>0.4010 &lt; 0.8000</strong>
-          <p>相对改进真实，但绝对能力仍不够；formal split 继续封存</p>
+          <h2>失败定位</h2>
+          <strong>100% 低置信调用</strong>
+          <p>attention max&lt;0.5 时仍全部选择 call；Q/K key 漂移并污染 history value</p>
         </article>
       </div>
 
       <section>
         <div class="decision">
-          <strong>当前决策：停止 content-HPC 反解；下一版做 PFC 历史 attention 调用</strong>
-          <p>Transpose causal pair accuracy 只有 0.6094，rolling LS 为 0.4844，且 LS 比 shuffled 低 7.81 pp。两条回放误差都是 0，说明不是实现问题。Covariance HPC、EC/place 与融合继续冻结；不加 context slot、room signal 或第二套记忆。</p>
+          <strong>当前决策：M1h 停在单 seed；正式 M1b 与 formal 封存状态不变</strong>
+          <p>下一协议只能修 PFC 调用可靠性：锚定已验证的 structural key、加入可微 null/abstain、隔离不可递归污染的 archival token value。Covariance HPC、EC/place 与融合继续冻结；不加 context slot、room signal 或第二套记忆。</p>
+        </div>
+      </section>
+
+      <section id="m1h">
+        <div class="section-head">
+          <div>
+            <h2>最新：M1h Transformer/PFC 因果历史调用</h2>
+            <p>先证明 ordinary token history 可调用，再训练 3,467 参数的 soft Q/K caller；固定 step 600 后只做一次全新 K=8 seed 盲测。</p>
+          </div>
+          <div class="source">更新：2026-07-14 · 113 tests passed · formal 未访问</div>
+        </div>
+
+        <div class="grid-2">
+          <article class="panel">
+            <h3>硬可行性门：信号存在</h3>
+            <table>
+              <thead><tr><th>条件</th><th>M1f</th><th>正确调用</th><th>Shuffled</th><th>冻结判断</th></tr></thead>
+              <tbody>
+                <tr><td data-label="条件">G1：可被覆盖</td><td data-label="M1f" class="num">0.3438</td><td data-label="正确调用" class="num green"><strong>0.6406</strong></td><td data-label="Shuffled" class="num">0.1484</td><td data-label="判断" class="red">coverage 0.8281</td></tr>
+                <tr><td data-label="条件">G1b：32 步保持</td><td data-label="M1f" class="num">0.4688</td><td data-label="正确调用" class="num green"><strong>0.8438</strong></td><td data-label="Shuffled" class="num">0.1016</td><td data-label="判断" class="green">六门全过</td></tr>
+              </tbody>
+            </table>
+            <p style="margin:10px 0 0;color:var(--muted);font-size:12px;">128/128 probes 之前都曾成功调用；G1 的 22 个 miss 全部来自随后一次 unmatched proposal 覆盖。G1b 是 hard ceiling，不是最终模型。</p>
+          </article>
+
+          <article class="panel">
+            <h3>神经版 K=8 盲测：被拒绝</h3>
+            <table>
+              <thead><tr><th>条件</th><th>Return-conflict</th><th>Clean</th><th>Context pair</th></tr></thead>
+              <tbody>
+                <tr><td data-label="条件">冻结 M1f</td><td data-label="Return" class="num">0.4062</td><td data-label="Clean" class="num">0.9539</td><td data-label="Pair" class="num">0.8281</td></tr>
+                <tr><td data-label="条件"><strong>M1h neural</strong></td><td data-label="Return" class="num red"><strong>0.1719</strong></td><td data-label="Clean" class="num green">0.9563</td><td data-label="Pair" class="num red">0.6875</td></tr>
+                <tr><td data-label="条件">M1h no-call</td><td data-label="Return" class="num">0.3906</td><td data-label="Clean" class="num">0.9508</td><td data-label="Pair" class="num">0.8125</td></tr>
+              </tbody>
+            </table>
+            <p style="margin:10px 0 0;color:var(--muted);font-size:12px;">Neural-M1f = -23.44 pp；Neural-no-call = -21.88 pp。固定五门只过 clean preservation，按协议不铺三训练种子、不在 seed 8928 上回调。</p>
+          </article>
+        </div>
+
+        <article class="panel" style="margin-top:12px;">
+          <h3>实际调用链：PFC 历史，不是第二个海马</h3>
+          <div class="task-flow">
+            <div class="flow-node ref0"><strong>Transformer / PFC</strong><span>action-only state<br />cyclic relation signature</span></div>
+            <div class="flow-node ref1"><strong>严格因果 Attention</strong><span>Q/K 只看 proposal j&lt;t<br />V 是历史 context token</span></div>
+            <div class="flow-node distractor"><strong>三路控制</strong><span>hold current<br />refresh base / call history</span></div>
+            <div class="flow-node return"><strong>原有外挂 HPC</strong><span>place × context 地址<br />单一 covariance content store</span></div>
+          </div>
+          <div class="no-slot">没有 room/context/位置输入；没有离散 memory slots；没有第二套 context fast weights。History 是 Transformer/PFC 已有的因果 event-token KV，object/value 仍只写入原来的 episode-local content HPC。</div>
+        </article>
+
+        <div class="grid-2" style="margin-top:12px;">
+          <article class="panel">
+            <h3>为什么训练内 0.9688，盲测却崩</h3>
+            <table>
+              <thead><tr><th>审计项</th><th>数值</th><th>含义</th></tr></thead>
+              <tbody>
+                <tr><td data-label="审计项">Exact key 可用</td><td data-label="数值" class="num">0.8438</td><td data-label="含义" class="green">历史不是没信号</td></tr>
+                <tr><td data-label="审计项">Raw signature top-1</td><td data-label="数值" class="num">1.0000</td><td data-label="含义" class="green">结构 key 健康</td></tr>
+                <tr><td data-label="审计项">Learned Q/K top-1</td><td data-label="数值" class="num red">0.5926</td><td data-label="含义" class="red">训练后 key 漂移</td></tr>
+                <tr><td data-label="审计项">Attention max</td><td data-label="数值" class="num red">0.2915</td><td data-label="含义" class="red">K=8 证据分散</td></tr>
+                <tr><td data-label="审计项">低置信仍 call</td><td data-label="数值" class="num red">1.0000</td><td data-label="含义" class="red">不会拒绝调用</td></tr>
+              </tbody>
+            </table>
+          </article>
+          <article class="panel">
+            <h3>下一协议的三条结构约束</h3>
+            <ol style="margin:0;padding-left:20px;color:var(--muted);">
+              <li>固定 structural signature，或只允许受限 residual 修正，避免 Q/K 漂移。</li>
+              <li>加入 soft null/abstain；不确定时保持 current context，不从任意历史强取一个。</li>
+              <li>历史 V 使用不可递归污染的 archival/base token context；active read 不回写污染 V。</li>
+            </ol>
+            <p style="margin:10px 0 0;color:var(--muted);font-size:12px;">训练仍只用 sensory CE，但必须覆盖独立 K=1..8 curriculum，再用新的、从未见过的 dev seed 做一次冻结门。</p>
+          </article>
         </div>
       </section>
 
@@ -529,7 +604,7 @@
             <h2>最新：M1g 双向 HPC Context 审计</h2>
             <p>冻结 M1f 和同一 content fast-weight HPC；两组互不重叠的新 K=8 dev episodes；零训练、零新增参数、formal 未访问。</p>
           </div>
-          <div class="source">更新：2026-07-14 · 98 tests passed</div>
+          <div class="source">历史结论 · 已纳入 113-test 回归</div>
         </div>
 
         <div class="grid-2">
@@ -966,7 +1041,9 @@
           <article class="stage done"><b>K=8 独立确认</b><p>+8.33 pp、3/3 正向；旧小样本下降未复现。</p></article>
           <article class="stage done"><b>K=8 Oracle 归因</b><p>正确历史 0.9844、错误历史 0、Raw HPC 0.9896；身份检索主瓶颈。</p></article>
           <article class="stage blocked"><b>M1g HPC 反向恢复</b><p>Transpose 0.6094；LS 0.4844 且低于 shuffled。两条零参数路线停止。</p></article>
-          <article class="stage active"><b>PFC 历史 Attention 调用</b><p>下一版只让 Transformer 调用过去 context token；HPC、EC/place 与融合保持冻结。</p></article>
+          <article class="stage done"><b>M1h Hard 上界</b><p>32-step persistence 达 0.8438；确认普通 PFC 历史包含足够 context 信号。</p></article>
+          <article class="stage blocked"><b>M1h Neural Pilot</b><p>新 K=8 为 0.1719，no-call 0.3906；五门只过 clean，停止于单 seed。</p></article>
+          <article class="stage active"><b>可靠历史调用协议</b><p>只设计 key anchor、null/abstain 与 archival value；新 seed 前不运行。</p></article>
           <article class="stage blocked"><b>Formal Protocol</b><p>normal K=8 仅 0.4010；达到 0.80 绝对门前不解锁。</p></article>
         </div>
       </section>
@@ -979,6 +1056,14 @@
           </div>
         </div>
         <div class="artifact-list">
+          <a class="artifact" href="REMAP_FORMER_M1H_HISTORY_ATTENTION_RESULT_CN.md"><strong>最新：M1h 完整结果</strong><span>架构、hard 上界、600 步训练、K=8 盲测、失败归因与下一合法协议</span></a>
+          <a class="artifact" href="REMAP_FORMER_M1H_NEURAL_PILOT_SUMMARY.json"><strong>M1h Neural 盲测 JSON</strong><span>M1f/neural/no-call 三条件、context probe、choice dynamics 与冻结五门</span></a>
+          <a class="artifact" href="REMAP_FORMER_M1H_FAILURE_AUDIT_SUMMARY.json"><strong>M1h 失败审计 JSON</strong><span>exact key 可用性、Q/K top-1、attention confidence、call refusal 与 value 污染</span></a>
+          <a class="artifact" href="m1h_neural_attention_pilot_protocol.json"><strong>M1h 冻结训练与盲测协议</strong><span>3,467 参数范围、唯一 sensory CE、固定 step 600、新 seed K=8 五门</span></a>
+          <a class="artifact" href="REMAP_FORMER_M1H_NEURAL_TRAIN_SUMMARY.json"><strong>M1h 训练轨迹汇总</strong><span>固定 600 步首尾 dev、训练参数范围、耗时与唯一 final checkpoint</span></a>
+          <a class="artifact" href="REMAP_FORMER_M1H_NEURAL_ATTENTION_PILOT_CN.md"><strong>M1h Neural 单独结果</strong><span>三条件主表、五门 PASS/FAIL 与 learned choice dynamics</span></a>
+          <a class="artifact" href="REMAP_FORMER_M1H_NEURAL_FAILURE_AUDIT_CN.md"><strong>M1h 失败定位</strong><span>只读 post-hoc 审计；明确不得据 seed8928 调参或选模型</span></a>
+          <a class="artifact" href="REMAP_FORMER_M1H_HISTORY_CALL_G1B_CN.md"><strong>M1h G1b Hard 上界</strong><span>32-step PFC-window persistence、shuffled control、六门确认</span></a>
           <a class="artifact" href="REMAP_FORMER_M1G_BIDIRECTIONAL_CONTEXT_RESULT_CN.md"><strong>最新：M1g 双向 HPC 冻结结论</strong><span>Transpose 与 rolling LS 两个新 seed gate、因果/泄漏/shuffled 对照和下一决策</span></a>
           <a class="artifact" href="REMAP_FORMER_M1G_LEAST_SQUARES_G0B_SUMMARY.json"><strong>最新：LS G0b 机器可读结果</strong><span>四条件 context geometry、下游 return 干预、八个 gates 与 exact replay</span></a>
           <a class="artifact" href="m1g_least_squares_g0b_protocol.json"><strong>LS G0b 冻结协议</strong><span>全新 episodes、12 步 causal solver、relative ridge、阈值和 post-result rule</span></a>
@@ -1013,7 +1098,7 @@
       </section>
     </main>
 
-    <footer>ReMAP-Former internal dashboard · 2026-07-14 · M1b 仍是正式模型；M1g transpose / LS 反解均被拒绝；下一步只做 PFC 历史 attention 调用，formal 未解锁</footer>
+    <footer>ReMAP-Former internal dashboard · 2026-07-14 · M1b 仍是正式模型；M1h hard 上界成立但 neural pilot 被拒绝；下一协议只解决 key anchor / abstain / archival value，formal 未解锁</footer>
   </div>
 </body>
 </html>

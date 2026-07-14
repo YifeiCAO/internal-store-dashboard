@@ -1,0 +1,62 @@
+{
+  "format": "remap_former.m1h_neural_attention_pilot_protocol.v1",
+  "frozen_date": "2026-07-14",
+  "scope": "single training seed and one new K=8 dev pilot after PERSISTENT_HISTORY_CALL_CONFIRMED; no stress, formal validation, test, or multi-seed expansion",
+  "source_model_seed": 712,
+  "source_checkpoint": "runs/remap_former/m1b_covariance_ridge0p03_seed712_frozen/m1b_frozen.pt",
+  "content_hpc_covariance_ridge": 0.001,
+  "train_seed": 1712,
+  "train_split": "train",
+  "training_generator": "make_procedural_context_batch",
+  "steps": 600,
+  "batch_size": 4,
+  "grid_size": 11,
+  "learning_rate": 0.001,
+  "weight_decay": 0.0001,
+  "gradient_clip": 1.0,
+  "eval_every": 50,
+  "eval_batches": 8,
+  "dev_monitor_seed": 21712,
+  "checkpoint_selection": "none; fixed final step 600 is the only K=8 candidate",
+  "attention": {
+    "temperature": 0.1,
+    "controller_hidden_dim": 32,
+    "query_key_input": "action-only PFC state concatenated with the causal cyclic relation token",
+    "history_value": "the model's own previously emitted context at proposal tokens j<t",
+    "choices": ["hold_current", "refresh_from_base", "call_history"],
+    "initial_choice_bias": [-1.0, 2.0, -1.0],
+    "signature_identity_initialization": true
+  },
+  "trainable_scope": "history_query, history_key, context_choice_norm, and context_choice_head only; all pretrained PFC, EC, place, context head, content HPC, fusion, and decoder parameters frozen",
+  "loss": "one unweighted all-token sensory cross-entropy only",
+  "forbidden_losses": [
+    "room or context classification",
+    "history matching or contrastive loss",
+    "hard-caller distillation",
+    "attention entropy loss",
+    "return/query reweighting"
+  ],
+  "causal_contract": "context for prediction t reads actions through t and PFC event tokens j<t; x_t is revealed only after prediction and then enters the existing content-HPC write",
+  "k8_pilot": {
+    "generator_seed": 8928,
+    "capacity_level": 8,
+    "max_jitter_cycles": 4,
+    "batch_size": 4,
+    "batches": 16,
+    "episodes": 64,
+    "return_conflict_probes": 128,
+    "conditions": [
+      "frozen_m1f",
+      "m1h_neural_attention",
+      "m1h_no_history_call"
+    ],
+    "frozen_thresholds": {
+      "neural_return_conflict_acc_at_least": 0.75,
+      "neural_gain_vs_m1f_at_least": 0.2,
+      "history_call_gain_vs_no_call_at_least": 0.15,
+      "neural_clean_drop_vs_m1f_at_most": 0.02,
+      "neural_context_pair_accuracy_at_least": 0.8
+    }
+  },
+  "post_result_rule": "all five K=8 gates must pass before any three-seed training; otherwise stop and report the learned choice dynamics without tuning on seed 8928"
+}
