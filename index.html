@@ -477,7 +477,7 @@
         <p>Transformer=PFC 主干，EC 供结构，covariance-corrected HPC 供外挂记忆</p>
       </div>
       <nav aria-label="看板分区">
-        <a href="#m1i">M1i 可靠调用</a>
+        <a href="#m1i">M1i + G2 审计</a>
         <a href="#m1h">M1h 历史调用</a>
         <a href="#m1g">M1g 反解</a>
         <a href="#m1f">M1f 归因</a>
@@ -496,50 +496,78 @@
       <div class="status-grid" aria-label="最新状态">
         <article class="status-card primary">
           <h2>当前主线</h2>
-          <strong>M1b 仍是正式模型；M1i 可靠历史调用通过 4/5 盲测门</strong>
-          <p>固定 key、不可变 archival value 和 learned null 把全新 K=8 从 M1f 0.3906 提到 0.6406；no-call 只有 0.2812，说明历史调用产生了真实收益。但绝对门槛是 0.75，M1i 仍未晋级。</p>
+          <strong>M1b 仍是正式模型；G2 已把 M1i 的剩余瓶颈锁定为 context 精度</strong>
+          <p>M1i pilot 的 0.6406 仍未过 0.75 晋级门。全新 seed10932 的冻结只读审计中，query-only 正确历史 context oracle 把 0.4688 提到 0.8594；68 个错误有 50 个是“pair 已正确、exact context 仍不够准”。</p>
           <div class="badge-row">
             <span class="badge"><span class="dot blue"></span>无 room / 位置输入</span>
             <span class="badge"><span class="dot teal"></span>Neural EC</span>
             <span class="badge"><span class="dot amber"></span>Covariance HPC</span>
             <span class="badge"><span class="dot green"></span>正式 M1b 不变</span>
-            <span class="badge"><span class="dot red"></span>M1i 不铺三 seed</span>
+            <span class="badge"><span class="dot red"></span>Formal 继续封存</span>
           </div>
         </article>
         <article class="status-card hold">
-          <h2>M1i K=8 盲测</h2>
-          <strong>0.6406</strong>
-          <p>绝对门需 0.75；还差 14 / 128 个 return-conflict probes</p>
+          <h2>G2 冻结 M1i</h2>
+          <strong>0.4688</strong>
+          <p>fresh seed10932；M1f 为 0.3125；不训练、不调参</p>
         </article>
         <article class="status-card pass">
-          <h2>相对 M1f 增益</h2>
-          <strong>+25.00 pp</strong>
-          <p>冻结门要求 +20 pp；clean 反而提高 1.56 pp</p>
+          <h2>Query-only Oracle</h2>
+          <strong>0.8594</strong>
+          <p>只改当前 query 的正确历史 context；增益 +39.06 pp</p>
         </article>
         <article class="status-card pass">
-          <h2>调用必要性</h2>
-          <strong>+35.94 pp</strong>
-          <p>M1i 0.6406 对 no-call 0.2812；context pair 0.8750</p>
+          <h2>主导错误</h2>
+          <strong>50 / 68</strong>
+          <p>73.53% 是 context 精度不足；覆盖与安装错误都是 0</p>
         </article>
       </div>
 
       <section>
         <div class="decision">
-          <strong>当前决策：M1i 停在单 seed；正式 M1b 与 formal 封存状态不变</strong>
-          <p>五门过四门，说明 neural PFC history call 方向有效，但还不够可靠。下一步只在全新 dev seed 做只读错误分解，区分 key 命中、call、后续覆盖与下游 recall；不在盲测 seed 9931 调参，不加 context slot、room signal 或第二套 fast weights。</p>
+          <strong>当前决策：不做 retention，不堆新记忆；预注册 confidence-conditioned transport</strong>
+          <p>G2 已排除历史缺失、attention 来源错误、call 后覆盖和未安装为主因。下一版保留 fixed signature、archival value、learned null 与唯一 covariance HPC，只改善已检索 context 的精确运输；raw pfc_hidden cosine 也尚不能直接当检索 key。</p>
         </div>
       </section>
 
       <section id="m1i">
         <div class="section-head">
           <div>
-            <h2>最新：M1i 可靠辅助历史调用</h2>
-            <p>固定 structural key、不可变 base-context value、连续 learned null；主 Transformer/PFC 与 EC/place/content-HPC/fusion 全冻结，只训练 2,479 个 caller 参数。</p>
+            <h2>最新：M1i 可靠调用 + G2 错误分解</h2>
+            <p>先用 fixed structural key、不可变 base-context value 和连续 learned null 完成 pilot，再在全新 seed 上冻结模型，逐 probe 分解 call-to-recall。</p>
           </div>
-          <div class="source">更新：2026-07-14 · 126 tests passed · formal 未访问</div>
+          <div class="source">更新：2026-07-14 · 全套 ReMAP 回归 139 passed · formal 未访问</div>
         </div>
 
-        <div class="grid-2">
+        <div class="grid-2" style="margin-top:12px;">
+          <article class="panel">
+            <h3>G2：Fresh-seed 因果上界</h3>
+            <table>
+              <thead><tr><th>条件</th><th>Return-conflict</th><th>相对 M1i</th></tr></thead>
+              <tbody>
+                <tr><td data-label="条件">冻结 M1f</td><td data-label="Return" class="num">0.3125</td><td data-label="差值" class="num">-0.1562</td></tr>
+                <tr><td data-label="条件"><strong>冻结 M1i</strong></td><td data-label="Return" class="num"><strong>0.4688</strong></td><td data-label="差值" class="num">基准</td></tr>
+                <tr><td data-label="条件">仅当前 query 换正确 context</td><td data-label="Return" class="num green"><strong>0.8594</strong></td><td data-label="差值" class="num green">+0.3906</td></tr>
+              </tbody>
+            </table>
+            <p style="margin:10px 0 0;color:var(--muted);font-size:12px;">seed10932；64 episodes；128 probes。每次 oracle rollout 只修改当前被测 query，避免污染同 episode 的后续 probe。</p>
+          </article>
+
+          <article class="panel">
+            <h3>68 个错误的互斥分解</h3>
+            <table>
+              <thead><tr><th>类别</th><th>数量</th><th>占错误</th></tr></thead>
+              <tbody>
+                <tr><td data-label="类别"><strong>Context 精度不足</strong></td><td data-label="数量" class="num green"><strong>50</strong></td><td data-label="占比" class="num green">73.53%</td></tr>
+                <tr><td data-label="类别">正确 context 下游仍错</td><td data-label="数量" class="num">14</td><td data-label="占比" class="num">20.59%</td></tr>
+                <tr><td data-label="类别">Archival value 几何错误</td><td data-label="数量" class="num">4</td><td data-label="占比" class="num">5.88%</td></tr>
+                <tr><td data-label="类别">历史 / 来源 / 安装 / 覆盖</td><td data-label="数量" class="num">0</td><td data-label="占比" class="num">0%</td></tr>
+              </tbody>
+            </table>
+          </article>
+        </div>
+
+        <div class="grid-2" style="margin-top:12px;">
           <article class="panel">
             <h3>一次性 K=8 盲测</h3>
             <table>
@@ -594,11 +622,12 @@
             </table>
           </article>
           <article class="panel">
-            <h3>为什么没有直接继续加模型</h3>
+            <h3>G2 冻结决策</h3>
             <ol style="margin:0;padding-left:20px;color:var(--muted);">
-              <li>正常调用比 M1f 高 25 pp，方向已经成立。</li>
-              <li>Force-call 的 context pair 更高，但 return 与 clean 都差，证明“多调”不是答案。</li>
-              <li>先在新 seed 分解正确 key、正确 call、后续覆盖和 recall，再决定做 retention、纯化 transport，还是让 caller 真正读取严格因果的 pfc_hidden。</li>
+              <li>50 / 68 错误已经在正确 context pair 内，下一步要提高 exact context 精度。</li>
+              <li>覆盖与安装错误为 0，所以不加 persistence counter 或更多 call。</li>
+              <li>raw pfc_hidden top-1 只有 0.0625，低于 fixed signature 的 0.7500；暂不直接替换 key。</li>
+              <li>下一独立协议：confidence-conditioned transport，使用全新训练与盲测 seed。</li>
             </ol>
           </article>
         </div>
@@ -607,7 +636,7 @@
       <section id="m1h">
         <div class="section-head">
           <div>
-            <h2>最新：M1h Transformer/PFC 因果历史调用</h2>
+            <h2>M1h：辅助 action-only 因果历史调用</h2>
             <p>先证明 ordinary token history 可调用，再训练 3,467 参数的 soft Q/K caller；固定 step 600 后只做一次全新 K=8 seed 盲测。</p>
           </div>
           <div class="source">历史结果 · 已纳入 126-test 回归 · formal 未访问</div>
@@ -723,7 +752,7 @@
             <div class="flow-node ref0"><strong>正常正向写读</strong><span>place × context 地址<br />covariance dual write</span></div>
             <div class="flow-node ref1"><strong>反向审计</strong><span>M^T value 或 R(c)=value<br />仅用同一 content HPC</span></div>
             <div class="flow-node distractor"><strong>结果</strong><span>恢复共同方向<br />不能分开历史身份</span></div>
-            <div class="flow-node return"><strong>唯一下一候选</strong><span>Transformer/PFC 历史 attention<br />调用过去 context token</span></div>
+            <div class="flow-node return"><strong>当时下一候选</strong><span>辅助结构历史 attention<br />不读取原生 PFC hidden</span></div>
           </div>
           <p style="margin:10px 0 0;color:var(--muted);font-size:12px;">严格因果 arm 在时刻 t 只用 x&lt;t；same-step 仅作泄漏上限。两种方法的正常 HPC retrieval replay 最大误差均为 0，因此负结果来自信号不可辨识，不是代码偏差。</p>
           <div class="no-slot">M1g 没有成为模型：不加固定 context slots、候选 bank、第二套 fast weights 或 room embedding。正式模型仍是 frozen M1b；M1f 与两种 M1g arm 都只保留为候选/诊断证据。</div>
@@ -1120,10 +1149,11 @@
           <article class="stage done"><b>K=8 独立确认</b><p>+8.33 pp、3/3 正向；旧小样本下降未复现。</p></article>
           <article class="stage done"><b>K=8 Oracle 归因</b><p>正确历史 0.9844、错误历史 0、Raw HPC 0.9896；身份检索主瓶颈。</p></article>
           <article class="stage blocked"><b>M1g HPC 反向恢复</b><p>Transpose 0.6094；LS 0.4844 且低于 shuffled。两条零参数路线停止。</p></article>
-          <article class="stage done"><b>M1h Hard 上界</b><p>32-step persistence 达 0.8438；确认普通 PFC 历史包含足够 context 信号。</p></article>
+          <article class="stage done"><b>M1h Hard 上界</b><p>32-step persistence 达 0.8438；确认 auxiliary action-only 历史包含足够 context 信号。</p></article>
           <article class="stage blocked"><b>M1h Neural Pilot</b><p>新 K=8 为 0.1719，no-call 0.3906；五门只过 clean，停止于单 seed。</p></article>
           <article class="stage blocked"><b>M1i 可靠调用</b><p>0.6406；相对 M1f +25 pp，五门过四门；绝对 0.75 门失败。</p></article>
-          <article class="stage active"><b>新 Seed 只读分解</b><p>定位 key、call、后续覆盖与 recall；不得使用 seed9931 调参。</p></article>
+          <article class="stage done"><b>G2 新 Seed 只读分解</b><p>50/68 为 context 精度不足；retention、安装与 attention 来源错误均非主因。</p></article>
+          <article class="stage active"><b>下一协议预注册</b><p>Confidence-conditioned transport；新 seeds；不加 slot、第二套 fast weights 或硬保持。</p></article>
           <article class="stage blocked"><b>Formal Protocol</b><p>normal K=8 仅 0.4010；达到 0.80 绝对门前不解锁。</p></article>
         </div>
       </section>
@@ -1136,7 +1166,10 @@
           </div>
         </div>
         <div class="artifact-list">
-          <a class="artifact" href="REMAP_FORMER_M1I_RELIABLE_HISTORY_RESULT_CN.md"><strong>最新：M1i 完整结果</strong><span>架构、冻结训练、K=8 四条件盲测、4/5 gates、诚实结论与下一只读分解</span></a>
+          <a class="artifact" href="REMAP_FORMER_M1I_FAILURE_AUDIT_G2_CN.md"><strong>最新：M1i G2 错误分解</strong><span>fresh seed、query-only oracle、68 个互斥错误桶与冻结下一分支</span></a>
+          <a class="artifact" href="REMAP_FORMER_M1I_FAILURE_AUDIT_G2_SUMMARY.json"><strong>M1i G2 机器结果</strong><span>逐 probe 分类、attention mass、archival geometry 与 raw pfc_hidden 对照</span></a>
+          <a class="artifact" href="m1i_failure_audit_g2_protocol.json"><strong>M1i G2 冻结协议</strong><span>seed10932、category priority、query isolation、阈值和 post-result rule</span></a>
+          <a class="artifact" href="REMAP_FORMER_M1I_RELIABLE_HISTORY_RESULT_CN.md"><strong>M1i + G2 完整结果</strong><span>架构、冻结训练、K=8 四条件盲测、G2 互斥错误分解与下一协议</span></a>
           <a class="artifact" href="REMAP_FORMER_M1I_PILOT_SUMMARY.json"><strong>M1i 盲测 JSON</strong><span>128 probes、四条件、context geometry、choice dynamics 与冻结五门</span></a>
           <a class="artifact" href="m1i_reliable_history_pilot_protocol.json"><strong>M1i 冻结协议</strong><span>digest 锁、2,479 参数范围、唯一 sensory CE、固定 step 600 与 run-once seed9931</span></a>
           <a class="artifact" href="REMAP_FORMER_M1I_TRAIN_SUMMARY.json"><strong>M1i 训练汇总</strong><span>K=1/2/4/8 curriculum、固定 final checkpoint、训练轨迹与耗时</span></a>
@@ -1183,7 +1216,7 @@
       </section>
     </main>
 
-    <footer>ReMAP-Former internal dashboard · 2026-07-14 · M1b 仍是正式模型；M1i 可靠历史调用达到 0.6406、五门过四门但未晋级；下一步只在新 seed 分解 call-to-recall，formal 未解锁</footer>
+    <footer>ReMAP-Former internal dashboard · 2026-07-14 · M1b 仍是正式模型；G2 将 M1i 的 50/68 个错误定位为 context 精度不足；下一步预注册 confidence-conditioned transport，formal 未解锁</footer>
   </div>
 </body>
 </html>

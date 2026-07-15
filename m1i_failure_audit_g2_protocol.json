@@ -1,0 +1,86 @@
+{
+  "format": "remap_former.m1i_failure_audit_g2_protocol.v1",
+  "frozen_date": "2026-07-14",
+  "scope": "read-only localization after the rejected M1i 4-of-5 pilot; fresh dev episodes; no training, model selection, formal validation, or test access",
+  "source_training_protocol": "runs/remap_former/m1i_reliable_history_pilot_protocol.json",
+  "source_checkpoint": "runs/remap_former/m1i_reliable_history_seed1813_s600/m1i_final.pt",
+  "source_checkpoint_step": 600,
+  "source_model_status": "M1I_RELIABLE_HISTORY_PILOT_REJECTED",
+  "baseline_checkpoint": "runs/remap_former/m1b_covariance_ridge0p03_seed712_frozen/m1b_frozen.pt",
+  "content_hpc_covariance_ridge": 0.001,
+  "generator": "make_novel_distractor_capacity_batch",
+  "generator_seed": 10932,
+  "split": "dev",
+  "capacity_level": 8,
+  "max_jitter_cycles": 4,
+  "batch_size": 4,
+  "batches": 16,
+  "episodes": 64,
+  "expected_return_conflict_probes": 128,
+  "grid_size": 11,
+  "signature_match_cosine": 0.99999,
+  "pair_margin_epsilon": 0.000001,
+  "correct_reference": "frozen M1f context at the matching earlier reference query; metadata is evaluator-only",
+  "query_oracle": "replace M1i context only at return-conflict query tokens with the correct earlier reference; preserve the normal M1i context trajectory everywhere else",
+  "pfc_hidden_probe": "zero-training raw cosine geometry over causal prior proposal tokens; diagnostic only and never a progression gate",
+  "mutually_exclusive_miss_priority": [
+    "downstream_recall_failure",
+    "context_precision_insufficient",
+    "no_causal_history",
+    "no_correct_exact_history",
+    "attention_source_ambiguous_or_wrong",
+    "archival_value_geometry_wrong",
+    "successful_call_later_overwritten",
+    "correct_history_not_installed"
+  ],
+  "category_contract": {
+    "downstream_recall_failure": "normal prediction is wrong and even the query-only correct-context oracle remains wrong",
+    "context_precision_insufficient": "the query-only correct-context oracle fixes the miss, but query-time context already wins the correct-vs-wrong pair test",
+    "no_causal_history": "the last proposal at or before the query has no prior proposal token",
+    "no_correct_exact_history": "no prior proposal from the correct reference segment has structural cosine at least signature_match_cosine",
+    "attention_source_ambiguous_or_wrong": "a correct exact candidate exists, but aggregate attention mass on the correct segment is not strictly larger than every competing segment",
+    "archival_value_geometry_wrong": "attention source passes, but the attended archival context does not prefer the correct over wrong reference by pair_margin_epsilon",
+    "successful_call_later_overwritten": "an earlier final-segment proposal had call as argmax, a correct archival value, and a correct emitted context, but query-time context is wrong",
+    "correct_history_not_installed": "the last archival context is correct, the query-only oracle fixes the miss, but query-time emitted context is wrong and no earlier successful call was later overwritten"
+  },
+  "family_mapping": {
+    "history_or_transport": [
+      "no_causal_history",
+      "no_correct_exact_history",
+      "attention_source_ambiguous_or_wrong",
+      "archival_value_geometry_wrong"
+    ],
+    "call_or_retention": [
+      "successful_call_later_overwritten",
+      "correct_history_not_installed"
+    ],
+    "context_precision": [
+      "context_precision_insufficient"
+    ],
+    "downstream_recall": [
+      "downstream_recall_failure"
+    ]
+  },
+  "frozen_interpretation_thresholds": {
+    "dominant_family_share_of_misses_at_least": 0.4,
+    "dominant_family_lead_over_runner_up_at_least": 0.1,
+    "raw_pfc_hidden_top1_gain_vs_signature_at_least": 0.1
+  },
+  "frozen_branch_mapping": {
+    "history_or_transport+PFC_HIDDEN_GEOMETRY_PROMISING": "PRE_REGISTER_NATIVE_PFC_HIDDEN_CALLER",
+    "history_or_transport+PFC_HIDDEN_GEOMETRY_NOT_ESTABLISHED": "PRE_REGISTER_ARCHIVAL_TRANSPORT_REPAIR",
+    "call_or_retention+ANY": "PRE_REGISTER_CONTINUOUS_RETENTION",
+    "context_precision+PFC_HIDDEN_GEOMETRY_PROMISING": "PRE_REGISTER_NATIVE_PFC_HIDDEN_CONTEXT_REFINEMENT",
+    "context_precision+PFC_HIDDEN_GEOMETRY_NOT_ESTABLISHED": "PRE_REGISTER_CONFIDENCE_CONDITIONED_TRANSPORT",
+    "downstream_recall+ANY": "STOP_CALLER_CHANGES_AND_AUDIT_CONTENT_RECALL",
+    "MIXED_FAILURE+ANY": "NO_SINGLE_MECHANISM_YET"
+  },
+  "forbidden_during_audit": [
+    "gradient computation or optimizer step",
+    "room, segment, position, path, return-reference, or place metadata entering model forward",
+    "changing model parameters, temperatures, null, thresholds, category priority, or sample count after seeing seed 10932",
+    "using force-call, hard persistence, slots, a second fast-weight matrix, or a new trained probe",
+    "claiming raw pfc_hidden cosine geometry is a trained Transformer caller"
+  ],
+  "post_result_rule": "write the frozen category table and branch classification first; do not train or tune on seed 10932; any new retention, transport, or native-pfc-hidden caller requires a separate protocol and a new generator seed"
+}
