@@ -477,7 +477,7 @@
         <p>Transformer=PFC 主干，EC 供结构，covariance-corrected HPC 供外挂记忆</p>
       </div>
       <nav aria-label="看板分区">
-        <a href="#m1j">M1j + G3 信用审计</a>
+        <a href="#m1j">M1j G3-G5 收口</a>
         <a href="#m1i">M1i + G2 审计</a>
         <a href="#m1h">M1h 历史调用</a>
         <a href="#m1g">M1g 反解</a>
@@ -497,8 +497,8 @@
       <div class="status-grid" aria-label="最新状态">
         <article class="status-card primary">
           <h2>当前主线</h2>
-          <strong>G3 看到强聚合信用冲突，但逐 batch 稳定门未过；先定位样本异质性</strong>
-          <p>全新 seed17181 上，all-token 与 return-conflict 的聚合梯度 cosine 为 -0.9579；前者压低全部 return 段 transport，后者提高全部 transport。但仅 9/16 batch 反向，低于冻结门 12/16，正式分类只能是 MIXED。</p>
+          <strong>M1j 已完成 G3-G5 归因并停止训练：没有单一机制足以解释局部冲突</strong>
+          <p>第三个全新 seed19184 上，正确 query context oracle 从 0.4375 提到 0.8594，但 40 个 reject probe 分散在五个互斥桶；最大 local-geometry 只有 40%，未到 50% 主导门。冻结状态 MIXED_CONTEXT_VALUE_ADDRESS_GEOMETRY。</p>
           <div class="badge-row">
             <span class="badge"><span class="dot blue"></span>无 room / 位置输入</span>
             <span class="badge"><span class="dot teal"></span>Neural EC</span>
@@ -507,40 +507,73 @@
             <span class="badge"><span class="dot red"></span>Formal 继续封存</span>
           </div>
         </article>
-        <article class="status-card hold">
-          <h2>聚合梯度 Cosine</h2>
-          <strong>-0.9579</strong>
-          <p>只看 8 个条件权重、不含 bias 时仍为 -0.8854</p>
-        </article>
         <article class="status-card pass">
-          <h2>事件更新方向</h2>
-          <strong>0% / 100%</strong>
-          <p>all-token 正向率 / return-conflict 正向率；286 个 return 段事件</p>
+          <h2>Source / Context Oracle</h2>
+          <strong>0.4375 / 0.8594</strong>
+          <p>每次 rollout 每 episode 只替换一个 query；因果空间仍然很大</p>
+        </article>
+        <article class="status-card hold">
+          <h2>Probe Credit</h2>
+          <strong>88 / 40</strong>
+          <p>Support / Reject；reject 子集跨新 seed 复现并扩大</p>
         </article>
         <article class="status-card fail">
-          <h2>逐 Batch 稳定门</h2>
-          <strong>9 / 16</strong>
-          <p>需要至少 12 / 16；冻结状态 MIXED_GRADIENT_CREDIT</p>
+          <h2>最大互斥错误桶</h2>
+          <strong>16 / 40</strong>
+          <p>Local transport geometry = 40%；主导门要求至少 50%</p>
         </article>
       </div>
 
       <section>
         <div class="decision">
-          <strong>当前决策：不训练新 loss；另立新 seed 做 probe 级因果信用审计</strong>
-          <p>G3 的实现门全部通过，聚合冲突也很强，但不同 batch 的 return 梯度存在两类相反方向。下一步定位它是否由 source 已答对/答错、wrong-room error 或 context pair 状态解释；不在 seed17181 调阈值，不把聚合结果冒充稳定结论。</p>
+          <strong>当前决策：M1j 小修路线停止；不再加 loss、小 gate、只正 residual 或第二套记忆</strong>
+          <p>Reject 五桶为 source-correct 8、downstream 8、archival value 2、shared scalar 6、local geometry 16，没有单机制主导。正式模型仍是 M1b；若重启，应另立“query-conditioned context readout”新课题，而不是继续给 M1j 打补丁。</p>
         </div>
       </section>
 
       <section id="m1j">
         <div class="section-head">
           <div>
-            <h2>最新：M1j + G3 梯度信用审计</h2>
-            <p>先完成 77 参数 bounded transport pilot，再在 exact step-0 source-equivalent 状态读取三种 sensory CE 的首次更新方向。</p>
+            <h2>最新：M1j G3-G5 完整归因与停止结论</h2>
+            <p>从 batch 梯度到 probe 局部信用，再到同 episode 配对和 query-only context oracle；三组全新 seed 均只读、参数不变。</p>
           </div>
-          <div class="source">更新：2026-07-14 · 全套 ReMAP 回归 153 passed · formal 未访问</div>
+          <div class="source">更新：2026-07-14 · 全套 ReMAP 回归 171 passed · formal 未访问</div>
         </div>
 
         <div class="grid-2">
+          <article class="panel">
+            <h3>G5：因果空间与同 Episode 配对</h3>
+            <table>
+              <thead><tr><th>指标</th><th>结果</th></tr></thead>
+              <tbody>
+                <tr><td data-label="指标">Source return-conflict</td><td data-label="结果" class="num">0.4375</td></tr>
+                <tr><td data-label="指标"><strong>Query-only correct context</strong></td><td data-label="结果" class="num green"><strong>0.8594</strong></td></tr>
+                <tr><td data-label="指标">Support / Reject / Neutral</td><td data-label="结果" class="num">88 / 40 / 0</td></tr>
+                <tr><td data-label="指标">Reject 被 oracle 救回</td><td data-label="结果" class="num green">32 / 40</td></tr>
+                <tr><td data-label="指标">Reject archival pair 正确</td><td data-label="结果" class="num green">38 / 40</td></tr>
+                <tr><td data-label="指标">Strict shared-conflict pairs</td><td data-label="结果" class="num">14 / 64</td></tr>
+              </tbody>
+            </table>
+            <p style="margin:10px 0 0;color:var(--muted);font-size:12px;">seed19184；每个 oracle rollout 每 episode 只改一个 query；参数哈希和 9 维梯度门全部通过。</p>
+          </article>
+
+          <article class="panel">
+            <h3>40 个 Reject 的互斥错误桶</h3>
+            <table>
+              <thead><tr><th>类别</th><th>数量</th><th>占比</th></tr></thead>
+              <tbody>
+                <tr><td data-label="类别">Source 已答对饱和</td><td data-label="数量" class="num">8</td><td data-label="占比" class="num">20%</td></tr>
+                <tr><td data-label="类别">正确 context 仍下游失败</td><td data-label="数量" class="num">8</td><td data-label="占比" class="num">20%</td></tr>
+                <tr><td data-label="类别">Archival context value 错</td><td data-label="数量" class="num">2</td><td data-label="占比" class="num">5%</td></tr>
+                <tr><td data-label="类别">共享标量 transport 冲突</td><td data-label="数量" class="num">6</td><td data-label="占比" class="num">15%</td></tr>
+                <tr><td data-label="类别"><strong>局部 transport 几何</strong></td><td data-label="数量" class="num red"><strong>16</strong></td><td data-label="占比" class="num red"><strong>40%</strong></td></tr>
+              </tbody>
+            </table>
+            <p style="margin:10px 0 0;color:var(--muted);font-size:12px;">最大桶 40% &lt; 预注册 50%；leader 比 runner-up 高 20 pp，但 share 门失败，不能挑它硬做下一模型。</p>
+          </article>
+        </div>
+
+        <div class="grid-2" style="margin-top:12px;">
           <article class="panel">
             <h3>G3：同一次 Forward 的聚合梯度</h3>
             <table>
@@ -630,7 +663,7 @@
               <li>梯度可达且 CE 正常下降，不是训练管线坏掉。</li>
               <li>100% history events 为负 shift，模型学成统一抑制调用。</li>
               <li>Disabled 精确回到 0.7344，把退化锁定在 transport residual。</li>
-              <li>G3 聚合冲突很强，但 9/16 batch 稳定门失败；下一步必须降到 probe 级解释。</li>
+              <li>G3 聚合冲突后已完成 G4/G5；局部信用与几何为多因素混合，整条 M1j 小修路线停止。</li>
             </ol>
           </article>
         </div>
@@ -642,7 +675,7 @@
             <h2>M1i 可靠调用 + G2 错误分解</h2>
             <p>先用 fixed structural key、不可变 base-context value 和连续 learned null 完成 pilot，再在全新 seed 上冻结模型，逐 probe 分解 call-to-recall。</p>
           </div>
-          <div class="source">更新：2026-07-14 · 全套 ReMAP 回归 153 passed · formal 未访问</div>
+          <div class="source">更新：2026-07-14 · 全套 ReMAP 回归 171 passed · formal 未访问</div>
         </div>
 
         <div class="grid-2" style="margin-top:12px;">
@@ -733,7 +766,7 @@
               <li>50 / 68 错误已经在正确 context pair 内，下一步要提高 exact context 精度。</li>
               <li>覆盖与安装错误为 0，所以不加 persistence counter 或更多 call。</li>
               <li>raw pfc_hidden top-1 只有 0.0625，低于 fixed signature 的 0.7500；暂不直接替换 key。</li>
-              <li>M1j 已执行该分支并被拒绝：source/disabled 0.7344，M1j 0.0781；下一步转 gradient-credit 审计。</li>
+              <li>M1j 已执行并完成 G3-G5：最终五个 reject 桶无单一主导，停止继续训练。</li>
             </ol>
           </article>
         </div>
@@ -1261,7 +1294,9 @@
           <article class="stage done"><b>G2 新 Seed 只读分解</b><p>50/68 为 context 精度不足；retention、安装与 attention 来源错误均非主因。</p></article>
           <article class="stage blocked"><b>M1j Confidence Transport</b><p>Source/disabled 0.7344，M1j 0.0781；100% negative shift，七门只过三门。</p></article>
           <article class="stage done"><b>G3 Gradient-credit</b><p>聚合 cosine -0.9579；事件方向 0% / 100%，但逐 batch 仅 9/16 反向，分类 MIXED。</p></article>
-          <article class="stage active"><b>G4 Probe 级归因</b><p>新 seed；定位正负 transport credit 与答对/答错、wrong-room error、context pair 的关系。</p></article>
+          <article class="stage done"><b>G4 Probe 级归因</b><p>112 support / 16 reject；六特征 BA 0.500/0.596，停止 event-balanced 训练。</p></article>
+          <article class="stage blocked"><b>G5 几何分解</b><p>88/40；reject 五桶最大仅 40%，分类 MIXED，无单机制可继续训练。</p></article>
+          <article class="stage active"><b>下一课题重构</b><p>另立 query-conditioned context readout 设计；不是继续小修 M1j。</p></article>
           <article class="stage blocked"><b>Formal Protocol</b><p>normal K=8 仅 0.4010；达到 0.80 绝对门前不解锁。</p></article>
         </div>
       </section>
@@ -1274,10 +1309,16 @@
           </div>
         </div>
         <div class="artifact-list">
-          <a class="artifact" href="REMAP_FORMER_M1J_GRADIENT_CREDIT_AUDIT_G3_CN.md"><strong>最新：M1j G3 梯度信用审计</strong><span>三种 CE 的 9 维首次更新、事件方向、逐 batch 稳定门与冻结 MIXED 分类</span></a>
+          <a class="artifact" href="REMAP_FORMER_M1J_SHARED_TRANSPORT_GEOMETRY_G5_CN.md"><strong>最新：M1j G5 几何分解</strong><span>同 episode 梯度配对、query-isolated context oracle、40 个 reject 五桶与冻结停止结论</span></a>
+          <a class="artifact" href="REMAP_FORMER_M1J_SHARED_TRANSPORT_GEOMETRY_G5_SUMMARY.json"><strong>G5 机器结果</strong><span>128 probe、64 pair、oracle、互斥分类、实现哈希和 frozen branch</span></a>
+          <a class="artifact" href="m1j_shared_transport_geometry_g5_protocol.json"><strong>G5 冻结协议</strong><span>seed19184、query isolation、共享冲突门、类别优先级和主导阈值</span></a>
+          <a class="artifact" href="REMAP_FORMER_M1J_PROBE_CREDIT_AUDIT_G4_CN.md"><strong>M1j G4 Probe 信用审计</strong><span>112/16 局部方向、六特征留 batch 验证和 event-balanced 停止门</span></a>
+          <a class="artifact" href="REMAP_FORMER_M1J_PROBE_CREDIT_AUDIT_G4_SUMMARY.json"><strong>G4 机器结果</strong><span>逐 probe 9 维梯度、causal features、subgroups、CV probe 和冻结分类</span></a>
+          <a class="artifact" href="m1j_probe_credit_audit_g4_protocol.json"><strong>G4 冻结协议</strong><span>seed18182、batched VJP、六特征输入边界、分支门与禁止项</span></a>
+          <a class="artifact" href="REMAP_FORMER_M1J_GRADIENT_CREDIT_AUDIT_G3_CN.md"><strong>M1j G3 梯度信用审计</strong><span>三种 CE 的 9 维首次更新、事件方向、逐 batch 稳定门与冻结 MIXED 分类</span></a>
           <a class="artifact" href="REMAP_FORMER_M1J_GRADIENT_CREDIT_AUDIT_G3_SUMMARY.json"><strong>G3 机器结果</strong><span>16 batch 梯度向量、cosine、3718 个事件方向、实现哈希与冻结判读</span></a>
           <a class="artifact" href="m1j_gradient_credit_audit_g3_protocol.json"><strong>G3 冻结协议</strong><span>seed17181、只读边界、三种 loss mask、阈值、状态顺序与 post-result rule</span></a>
-          <a class="artifact" href="REMAP_FORMER_M1J_CONFIDENCE_TRANSPORT_RESULT_CN.md"><strong>M1j 完整结果</strong><span>77 参数架构、固定训练轨迹、四条件 blind、七门与 G3 后续</span></a>
+          <a class="artifact" href="REMAP_FORMER_M1J_CONFIDENCE_TRANSPORT_RESULT_CN.md"><strong>M1j 完整结果</strong><span>77 参数架构、固定训练、blind 拒绝与 G3-G5 全链路归因</span></a>
           <a class="artifact" href="REMAP_FORMER_M1J_PILOT_SUMMARY.json"><strong>M1j Blind 机器结果</strong><span>四条件指标、context geometry、transport dynamics、disabled 精确等价与冻结七门</span></a>
           <a class="artifact" href="REMAP_FORMER_M1J_TRAIN_SUMMARY.json"><strong>M1j 训练汇总</strong><span>step0→600 CE、K8 return、strength/shift 轨迹、77 参数范围与耗时</span></a>
           <a class="artifact" href="m1j_confidence_transport_pilot_protocol.json"><strong>M1j 冻结协议</strong><span>digest、fresh seeds、±3 transport、唯一 sensory CE、固定 final 与 post-result rule</span></a>
@@ -1332,7 +1373,7 @@
       </section>
     </main>
 
-    <footer>ReMAP-Former internal dashboard · 2026-07-14 · M1b 仍是正式模型；G3 聚合 cosine -0.9579、事件方向 0%/100%，但逐 batch 仅 9/16 反向；下一步 probe 级归因，formal 未解锁</footer>
+    <footer>ReMAP-Former internal dashboard · 2026-07-14 · M1b 仍是正式模型；M1j G5 为 88 support/40 reject，五桶最大 40%，冻结 MIXED_CONTEXT_VALUE_ADDRESS_GEOMETRY；M1j 停止训练，formal 未解锁</footer>
   </div>
 </body>
 </html>

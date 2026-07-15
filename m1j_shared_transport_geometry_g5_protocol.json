@@ -1,0 +1,118 @@
+{
+  "format": "remap_former.m1j_shared_transport_geometry_g5_protocol.v1",
+  "frozen_date": "2026-07-14",
+  "scope": "fresh-seed read-only geometry decomposition after G4 stopped event-balanced training; no model training, optimizer, parameter mutation, feature fitting, checkpoint selection, blind-seed reuse, formal validation, or test access",
+  "scientific_question": "when a wrong return probe locally rejects stronger transport, is the cause downstream content recall failure, a wrong archival context value, conflict with another query sharing the same transport event, or the local scalar interpolation geometry",
+  "parent_g4_protocol": "runs/remap_former/m1j_probe_credit_audit_g4_protocol.json",
+  "parent_g4_protocol_sha256": "7ee34780271b1a6d1d51b9a3936ca71d0a462ff64291389670a5681f60209f1f",
+  "parent_g4_result": "runs/remap_former/m1j_probe_credit_audit_g4/summary.json",
+  "parent_g4_result_file_sha256": "96314e079443eebcf033f8496117a17c2f716e2aa5658be140144a76eda66645",
+  "parent_g4_status": "PROBE_CREDIT_MIXED",
+  "parent_g4_branch": "STOP_EVENT_BALANCED_TRAINING_AND_RETURN_TO_CONTEXT_VALUE_OR_ADDRESS_GEOMETRY",
+  "source_m1j_protocol": "runs/remap_former/m1j_confidence_transport_pilot_protocol.json",
+  "source_m1j_protocol_sha256": "211c2baaccd0ffc37a365a4f9b251a190d191e3adbe7619cb10c9f05bfa521ba",
+  "source_checkpoint": "runs/remap_former/m1i_reliable_history_seed1813_s600/m1i_final.pt",
+  "source_checkpoint_sha256": "7d944fa7f818111216a93455e9eed61075233bafc4f62874b9dff906c3144ead",
+  "source_checkpoint_step": 600,
+  "audited_model_state": "the exact step-0 M1j initialization from the frozen M1j pilot; the trained M1j checkpoint is not loaded",
+  "reference_model_checkpoint": "runs/remap_former/m1b_covariance_ridge0p03_seed712_frozen/m1b_frozen.pt",
+  "reference_model_checkpoint_sha256": "4c16ea253abe1f277b09b3538e17e8b14d6cee11e6f6c08750c8af4ff79fbacf",
+  "reference_model": "zero-added-parameter M1f converted from the frozen M1b slow weights with content covariance ridge 0.001; used only to emit earlier reference contexts",
+  "content_hpc_covariance_ridge": 0.001,
+  "transport_initialization_seed": 31415,
+  "generator_seed": 19184,
+  "split": "dev",
+  "capacity_level": 8,
+  "max_jitter_cycles": 4,
+  "batch_size": 4,
+  "grid_size": 11,
+  "batches": 16,
+  "episodes": 64,
+  "expected_return_conflict_probes": 128,
+  "expected_return_conflict_probes_per_episode": 2,
+  "probe_credit": {
+    "loss": "one unreduced sensory cross-entropy per return-conflict probe",
+    "parameter_scope": "step-0 final transport Linear(8,1) weight and bias, exactly 9 dimensions",
+    "causal_event_scope": "history-available proposals in the same episode, final return segment, at or before the probe",
+    "support_reject_epsilon": 1e-10
+  },
+  "query_only_correct_context_oracle": {
+    "reference": "the exact frozen M1f context at the matching earlier reference query",
+    "intervention": "replace M1j context only at the one currently evaluated return-conflict query; preserve the normal context trajectory and every other query",
+    "purpose": "test whether correct query address/context is sufficient without changing earlier writes or another probe"
+  },
+  "within_episode_pair": {
+    "pairing": "the two return-conflict probes from the same episode",
+    "gradient_cosine": "cosine between their two 9-dimensional probe CE gradients",
+    "event_overlap": "Jaccard overlap between their causal final-segment proposal times",
+    "shared_conflict_contract": "one support and one reject label, gradient cosine at most -0.5, and causal event Jaccard at least 0.5"
+  },
+  "reject_category_priority": [
+    "source_correct_saturation",
+    "downstream_content_recall_failure",
+    "archival_context_value_wrong",
+    "shared_scalar_transport_conflict",
+    "local_transport_geometry_mismatch"
+  ],
+  "reject_category_contract": {
+    "source_correct_saturation": "the local credit rejects stronger transport but the normal probe is already correct",
+    "downstream_content_recall_failure": "the normal probe is wrong, its local credit rejects transport, and the query-only exact correct-context oracle remains wrong",
+    "archival_context_value_wrong": "the exact correct-context oracle fixes the reject probe, but the last causal archival history context does not prefer the correct over wrong reference",
+    "shared_scalar_transport_conflict": "the oracle fixes the reject probe, its archival context pair is correct, and the same episode contains a support probe satisfying the frozen shared-conflict gradient and event-overlap thresholds",
+    "local_transport_geometry_mismatch": "the oracle fixes the reject probe and archival value is pair-correct, but no frozen shared-event conflict explains why infinitesimal scalar transport is locally harmful"
+  },
+  "prohibited_operations": [
+    "optimizer construction or optimizer step",
+    "loss.backward accumulating parameter gradients",
+    "parameter or buffer mutation",
+    "loading the trained M1j checkpoint",
+    "fitting any diagnostic feature probe",
+    "using G3 seed17181, G4 seed18182, or M1j blind seed16180",
+    "feeding room, segment, return, target, position, place, correctness, or oracle metadata into any model forward"
+  ],
+  "numerics": {
+    "gradient_norm_epsilon": 1e-10,
+    "direction_zero_epsilon": 1e-10,
+    "pair_margin_epsilon": 1e-06,
+    "gradient_cosine_epsilon": 1e-12
+  },
+  "implementation_gates": {
+    "audited_final_parameter_count_exactly": 9,
+    "source_prediction_max_abs_diff_at_most": 1e-06,
+    "source_context_max_abs_diff_at_most": 1e-06,
+    "parameter_state_sha256_must_be_unchanged": true,
+    "every_probe_gradient_must_be_nonzero": true,
+    "every_probe_must_have_causal_return_event": true,
+    "every_episode_must_have_two_return_conflict_probes": true,
+    "observed_return_conflict_probes_must_equal_expected": true,
+    "query_oracle_must_change_only_one_probe_per_episode_per_rollout": true
+  },
+  "frozen_decision_thresholds": {
+    "minimum_reject_probe_count": 8,
+    "dominant_reject_category_share_at_least": 0.5,
+    "dominant_reject_category_lead_over_runner_up_at_least": 0.15,
+    "shared_conflict_gradient_cosine_at_most": -0.5,
+    "shared_conflict_event_jaccard_at_least": 0.5
+  },
+  "frozen_status_order": [
+    "INVALID_IMPLEMENTATION",
+    "REJECT_SUBSET_NOT_REPLICATED",
+    "SOURCE_CORRECT_SATURATION_DOMINANT",
+    "DOWNSTREAM_CONTENT_RECALL_DOMINANT",
+    "ARCHIVAL_CONTEXT_VALUE_DOMINANT",
+    "SHARED_SCALAR_TRANSPORT_CONFLICT_DOMINANT",
+    "LOCAL_TRANSPORT_GEOMETRY_DOMINANT",
+    "MIXED_CONTEXT_VALUE_ADDRESS_GEOMETRY"
+  ],
+  "frozen_branch_mapping": {
+    "INVALID_IMPLEMENTATION": "STOP_AND_FIX_G5_AUDIT_ONLY",
+    "REJECT_SUBSET_NOT_REPLICATED": "STOP_WITHOUT_NEW_MODEL_AND_REQUIRE_ANOTHER_FRESH_READ_ONLY_REPLICATION_BEFORE_MECHANISM_CHANGE",
+    "SOURCE_CORRECT_SATURATION_DOMINANT": "DO_NOT_REWEIGHT_LOSS_UNTIL_A_CAUSAL_CALLER_CAN_DISTINGUISH_ALREADY_SOLVED_QUERIES_WITHOUT_ORACLE_INPUT",
+    "DOWNSTREAM_CONTENT_RECALL_DOMINANT": "STOP_CALLER_CHANGES_AND_AUDIT_CONTENT_HPC_OR_DECODER_ON_REJECT_PROBES",
+    "ARCHIVAL_CONTEXT_VALUE_DOMINANT": "PRE_REGISTER_ARCHIVAL_CONTEXT_VALUE_REPRESENTATION_REPAIR_WITHOUT_NEW_MEMORY",
+    "SHARED_SCALAR_TRANSPORT_CONFLICT_DOMINANT": "PRE_REGISTER_QUERY_CONDITIONED_CONTEXT_READOUT_FROM_THE_SAME_HISTORY_WITHOUT_GLOBAL_CONTEXT_TRANSPORT",
+    "LOCAL_TRANSPORT_GEOMETRY_DOMINANT": "PRE_REGISTER_VECTOR_CONTEXT_REFINEMENT_OR_MONOTONIC_TRANSPORT_GEOMETRY_WITHOUT_NEW_MEMORY",
+    "MIXED_CONTEXT_VALUE_ADDRESS_GEOMETRY": "NO_SINGLE_MECHANISM_YET_AND_DO_NOT_TRAIN"
+  },
+  "post_result_rule": "classify once with frozen category priority and thresholds; do not tune on seed19184; any model change requires a new protocol and new train, monitor, and blind seeds"
+}

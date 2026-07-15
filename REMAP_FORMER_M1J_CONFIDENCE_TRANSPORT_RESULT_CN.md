@@ -96,11 +96,33 @@ M1j 相对来源 M1i 和 disabled 都是 `-65.625 pp`。disabled 的 prediction/
 - 但逐 batch 的 all-vs-return cosine 只有 `9/16=0.5625` 为负，没有达到预注册 `0.75` 稳定门；不同 batch 的 return 梯度确实存在两类相反方向。
 - 77/9 参数门、source prediction/context 等价、其余 68 参数零梯度、参数哈希不变和 128-probe 数量门全部通过。
 
-因此不能把强聚合反向直接升级成“均匀 CE 信用冲突已证实”；冻结状态是 `MIXED_GRADIENT_CREDIT`。下一步按协议另立新 seed 的 probe 级因果信用审计，定位正负方向是否由 source 已答对/答错、wrong-room error 或 context pair 状态解释。在该定位完成前，不训练 event-balanced loss。完整结果见 `reports/REMAP_FORMER_M1J_GRADIENT_CREDIT_AUDIT_G3_CN.md`。
+因此不能把强聚合反向直接升级成“均匀 CE 信用冲突已证实”；冻结状态是 `MIXED_GRADIENT_CREDIT`。后续按协议另立新 seed 的 probe 级因果信用审计。完整结果见 `reports/REMAP_FORMER_M1J_GRADIENT_CREDIT_AUDIT_G3_CN.md`。
 
-若 all-token 与 return-conflict 梯度稳定反向，下一独立模型协议才允许研究 event-balanced sensory objective；若 return-conflict 本身也要求负 transport，则停止 transport 路线，回到 context value/地址几何。任何新模型继续只允许一个 content HPC，不加 context slot、第二套 fast weights 或 oracle 输入。
+## 7. G4 Probe 级信用审计
 
-## 7. 可复现资产
+G4 已在另一全新 dev seed18182 上完成。每个 return-conflict probe 单独读取 9 维 CE 梯度，只分析同 episode、最终 return 段、query 之前的 causal transport events；room、target、correctness 与 context pair 仅在 forward 后分组。另用 transport 当时本来可见的六个 raw confidence features 做 16-fold leave-one-generator-batch-out ridge probe，不给它 logits、target、room、位置、PFC hidden 或 metadata。
+
+- 新 seed 上 all-token/return 聚合梯度 cosine 为 `-0.9894`，逐 batch `14/16=0.875` 为负；G3 的平均目标冲突在这里复现得更稳定。
+- 128 个 probe 中 `112` 个支持提高 transport，`16` 个要求压低；neutral 为 `0`。
+- Source 已答对的 `60/60` 全部支持提高 transport；答错的 `52/68` 支持、`16/68` 拒绝。因此正负方向不是“答对就关、答错就开”，预注册的 outcome-conditional gate 失败。
+- 六特征预测 support/reject 的 balanced accuracy 为 `0.5000`（把 128 个全判 support）；预测 source incorrect 为 `0.5961`，两条可分门都未到 `0.70`。
+- Reference-room / target-index support-rate range 为 `0.1250/0.2143`，均通过无 label-direction 偏置门。9 参数、source 等价、每 probe 非零梯度、每 probe causal event、参数哈希不变和 128-probe 实现门全部通过。
+
+冻结分类为 `PROBE_CREDIT_MIXED`，下一分支是 `STOP_EVENT_BALANCED_TRAINING_AND_RETURN_TO_CONTEXT_VALUE_OR_ADDRESS_GEOMETRY`。这不是说 return CE 平均上不支持 transport，而是说当前共享标量 transport 对少数 query 给出相反局部信用，六个 caller 特征又不能识别它们；直接重加权只会把冲突换一种平均方式。后续只允许只读的同 episode 梯度冲突与 query-only correct-context oracle 分解。完整结果见 `reports/REMAP_FORMER_M1J_PROBE_CREDIT_AUDIT_G4_CN.md`。
+
+## 8. G5 Context/Value/Address 几何分解
+
+G5 已在第三个全新 dev seed19184 上执行。它复现每个 probe 的局部 transport credit，并加入两项严格干预：同 episode 两个 return probe 的 9 维梯度/event-time 配对，以及每次 rollout 每 episode 只替换一个 query 的 frozen-M1f correct-context oracle。
+
+- Source return-conflict 为 `0.4375`，query-only correct-context oracle 为 `0.8594`，再次确认 context/address 仍有很大因果空间。
+- 128 probes 为 `88 support / 40 reject / 0 neutral`；G4 的 reject 子集不仅复现，而且从 16 增至 40。
+- 40 个 reject 中 `32/40=0.8000` 被正确 query context oracle 救回，`38/40=0.9500` 的最后 archival context pair 本来就是正确的。
+- 同 episode 两 probe 为 36 个 support/support、16 个 support/reject、12 个 reject/reject；14 对满足“一正一负、梯度 cosine≤-0.5、causal event Jaccard≥0.5”的共享标量冲突门。
+- Reject 互斥桶：source 已答对饱和 `8`、正确 context 仍下游失败 `8`、archival value pair 错 `2`、共享标量 transport 冲突 `6`、局部标量 transport 几何不匹配 `16`。
+
+局部几何是最大桶，但只占 `0.40`，没有达到预注册 `0.50` 主导门；runner-up 为两个 `0.20` 桶。实现门、query isolation 和参数哈希门全部通过，因此冻结分类是 `MIXED_CONTEXT_VALUE_ADDRESS_GEOMETRY`，下一分支 `NO_SINGLE_MECHANISM_YET_AND_DO_NOT_TRAIN`。当前证据不支持继续给 M1j 加 loss、小 gate、只正 residual 或另一套 fast weights；正式模型保持 M1b。完整结果见 `reports/REMAP_FORMER_M1J_SHARED_TRANSPORT_GEOMETRY_G5_CN.md`。
+
+## 9. 可复现资产
 
 - 冻结协议：`runs/remap_former/m1j_confidence_transport_pilot_protocol.json`
 - 模型：`remap_former/m1j.py`
@@ -111,4 +133,7 @@ M1j 相对来源 M1i 和 disabled 都是 `-65.625 pp`。disabled 的 prediction/
 - 训练摘要：`runs/remap_former/m1j_confidence_transport_seed31415_s600/summary.json`
 - 盲测摘要：`runs/remap_former/m1j_confidence_transport_pilot/summary.json`
 - 自动盲测报告：`reports/REMAP_FORMER_M1J_CONFIDENCE_TRANSPORT_PILOT_CN.md`
-- 回归：`test_remap_former*.py` 共 `146 passed`
+- G3 协议/脚本/结果：`runs/remap_former/m1j_gradient_credit_audit_g3_protocol.json`、`diagnose_remap_m1j_gradient_credit_g3.py`、`runs/remap_former/m1j_gradient_credit_audit_g3/summary.json`
+- G4 协议/脚本/结果：`runs/remap_former/m1j_probe_credit_audit_g4_protocol.json`、`diagnose_remap_m1j_probe_credit_g4.py`、`runs/remap_former/m1j_probe_credit_audit_g4/summary.json`
+- G5 协议/脚本/结果：`runs/remap_former/m1j_shared_transport_geometry_g5_protocol.json`、`diagnose_remap_m1j_shared_transport_geometry_g5.py`、`runs/remap_former/m1j_shared_transport_geometry_g5/summary.json`
+- 回归：`test_remap_former*.py` 共 `171 passed`

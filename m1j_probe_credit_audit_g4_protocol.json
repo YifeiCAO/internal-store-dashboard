@@ -1,0 +1,117 @@
+{
+  "format": "remap_former.m1j_probe_credit_audit_g4_protocol.v1",
+  "frozen_date": "2026-07-14",
+  "scope": "fresh-seed read-only probe-level decomposition of the mixed G3 gradient credit; no model training, optimizer step, parameter mutation, checkpoint selection, blind-seed reuse, formal validation, or test access",
+  "scientific_question": "are opposite return-credit directions explained by whether the source model already solves each probe, and can the six causal transport confidence features distinguish those directions without room or target metadata",
+  "parent_g3_protocol": "runs/remap_former/m1j_gradient_credit_audit_g3_protocol.json",
+  "parent_g3_protocol_sha256": "a60ded29f6e14b244aa8ca57def8ad9daa6fab6f492b32cc7eb895cc4844ebb7",
+  "parent_g3_result": "runs/remap_former/m1j_gradient_credit_audit_g3/summary.json",
+  "parent_g3_result_file_sha256": "8e75ee0bdef8ac390a9c90e4710c389c94435205ac2a51cbf7faa425cbf6da70",
+  "parent_g3_status": "MIXED_GRADIENT_CREDIT",
+  "source_m1j_protocol": "runs/remap_former/m1j_confidence_transport_pilot_protocol.json",
+  "source_m1j_protocol_sha256": "211c2baaccd0ffc37a365a4f9b251a190d191e3adbe7619cb10c9f05bfa521ba",
+  "source_checkpoint": "runs/remap_former/m1i_reliable_history_seed1813_s600/m1i_final.pt",
+  "source_checkpoint_sha256": "7d944fa7f818111216a93455e9eed61075233bafc4f62874b9dff906c3144ead",
+  "source_checkpoint_step": 600,
+  "audited_model_state": "the exact step-0 M1j initialization from the frozen M1j pilot; the trained M1j checkpoint is not loaded",
+  "transport_initialization_seed": 31415,
+  "generator_seed": 18182,
+  "split": "dev",
+  "capacity_level": 8,
+  "max_jitter_cycles": 4,
+  "batch_size": 4,
+  "grid_size": 11,
+  "batches": 16,
+  "episodes": 64,
+  "expected_return_conflict_probes": 128,
+  "expected_return_conflict_probes_per_batch": 8,
+  "probe_gradient": {
+    "loss": "one unreduced sensory cross-entropy per return-conflict probe",
+    "parameter_scope": "final transport Linear(8,1) weight and bias, exactly 9 dimensions",
+    "computation": "one torch.autograd.grad batched VJP per batch with an identity grad-output matrix and is_grads_batched=True",
+    "direction": "negative unit gradient, representing the infinitesimal probe-CE descent direction",
+    "causal_event_scope": "history-available transport proposals in the same episode, in the final return segment, at or before the probed token",
+    "support_label": "mean first-order transport-logit change over causal events is greater than +1e-10",
+    "reject_label": "mean first-order transport-logit change over causal events is less than -1e-10",
+    "neutral_label": "absolute mean first-order transport-logit change is at most 1e-10"
+  },
+  "post_forward_labels": {
+    "source_correct": "step-0 M1j argmax equals the sensory target",
+    "wrong_room_error": "step-0 M1j argmax equals batch.other_room_targets on an incorrect probe",
+    "context_pair": "current transported context cosine to the correct versus wrong earlier reference, using immutable base_context anchors constructed only after forward",
+    "reference_room_and_target_index": "generator metadata used only for subgroup auditing after forward; never a model or feature-probe input"
+  },
+  "causal_transport_features": [
+    "source M1i call probability",
+    "history attention maximum",
+    "one minus normalized history attention entropy",
+    "history evidence minus learned null similarity",
+    "current-history alignment minus current-base alignment",
+    "base-history alignment"
+  ],
+  "feature_probe": {
+    "input": "mean raw six-dimensional causal transport feature over each probe's causal return events",
+    "forbidden_inputs": "prediction logits, target, correctness, room id, segment id, target index, sensory identity, position, place id, return metadata, pfc_hidden, and Transformer KV",
+    "targets": [
+      "probe transport support versus reject",
+      "source incorrect versus correct"
+    ],
+    "method": "leave-one-generator-batch-out standardized linear ridge classifier",
+    "folds": 16,
+    "ridge": 1.0,
+    "standardization": "training-fold mean and standard deviation only; constant dimensions use scale 1",
+    "intercept": "unregularized",
+    "metric": "balanced accuracy pooled over all held-out predictions",
+    "model_effect": "the diagnostic probe is fit on CPU after all frozen model forwards and never changes or feeds the M1j model"
+  },
+  "prohibited_operations": [
+    "optimizer construction or optimizer step on M1j",
+    "loss.backward that accumulates M1j parameter gradients",
+    "M1j parameter or buffer mutation",
+    "loading the trained M1j checkpoint",
+    "using G3 seed17181 or M1j blind seed16180",
+    "feeding any post-forward label or metadata into M1j or the six-feature probe"
+  ],
+  "numerics": {
+    "gradient_norm_epsilon": 1e-10,
+    "direction_zero_epsilon": 1e-10,
+    "pair_margin_epsilon": 0.0,
+    "cosine_epsilon": 1e-12
+  },
+  "implementation_gates": {
+    "audited_final_parameter_count_exactly": 9,
+    "source_prediction_max_abs_diff_at_most": 1e-06,
+    "source_context_max_abs_diff_at_most": 1e-06,
+    "parameter_state_sha256_must_be_unchanged": true,
+    "every_probe_gradient_must_be_nonzero": true,
+    "every_probe_must_have_causal_return_event": true,
+    "observed_return_conflict_probes_must_equal_expected": true
+  },
+  "frozen_decision_thresholds": {
+    "minimum_correct_probe_count": 16,
+    "minimum_incorrect_probe_count": 16,
+    "neutral_probe_rate_at_most": 0.05,
+    "incorrect_probe_transport_support_rate_at_least": 0.75,
+    "correct_probe_transport_reject_rate_at_least": 0.75,
+    "incorrect_minus_correct_support_rate_at_least": 0.5,
+    "support_feature_probe_balanced_accuracy_at_least": 0.7,
+    "incorrect_feature_probe_balanced_accuracy_at_least": 0.7,
+    "reference_room_support_rate_range_at_most": 0.25,
+    "target_index_support_rate_range_at_most": 0.35
+  },
+  "frozen_status_order": [
+    "INVALID_IMPLEMENTATION",
+    "LABEL_CONDITIONAL_CREDIT",
+    "OUTCOME_CONDITIONAL_FEATURE_SEPARABLE",
+    "OUTCOME_CONDITIONAL_CALLER_FEATURES_INSUFFICIENT",
+    "PROBE_CREDIT_MIXED"
+  ],
+  "frozen_branch_mapping": {
+    "INVALID_IMPLEMENTATION": "STOP_AND_FIX_G4_AUDIT_ONLY",
+    "LABEL_CONDITIONAL_CREDIT": "STOP_AND_AUDIT_GENERATOR_OR_DECODER_DIRECTION_ASYMMETRY_BEFORE_ANY_TRAINING",
+    "OUTCOME_CONDITIONAL_FEATURE_SEPARABLE": "PRE_REGISTER_EVENT_BALANCED_SENSORY_OBJECTIVE_WITH_UNCHANGED_M1J_ARCHITECTURE_ON_NEW_SEEDS",
+    "OUTCOME_CONDITIONAL_CALLER_FEATURES_INSUFFICIENT": "DO_NOT_CHANGE_LOSS_AND_PRE_REGISTER_A_CAUSAL_CALLER_FEATURE_REDESIGN",
+    "PROBE_CREDIT_MIXED": "STOP_EVENT_BALANCED_TRAINING_AND_RETURN_TO_CONTEXT_VALUE_OR_ADDRESS_GEOMETRY"
+  },
+  "post_result_rule": "classify once with frozen thresholds; do not tune on seed18182; any trained follow-up or feature redesign requires a new protocol and new train, monitor, and blind generator seeds"
+}
