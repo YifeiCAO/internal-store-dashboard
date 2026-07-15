@@ -1,0 +1,316 @@
+{
+  "format": "remap_former.m1j_confidence_transport_pilot_result.v1",
+  "protocol": {
+    "format": "remap_former.m1j_confidence_transport_pilot_protocol.v1",
+    "frozen_date": "2026-07-14",
+    "scope": "single training seed and one fresh K=8 dev blind pilot after M1i G2 selected context precision; no stress, formal validation, test, or multi-seed expansion",
+    "source_model": "M1i reliable archival history caller",
+    "source_training_protocol": "runs/remap_former/m1i_reliable_history_pilot_protocol.json",
+    "source_training_protocol_sha256": "2ec6cadba803325b99f3a4292608f55fac31acc31b1120fb6698db02deec568b",
+    "source_checkpoint": "runs/remap_former/m1i_reliable_history_seed1813_s600/m1i_final.pt",
+    "source_checkpoint_step": 600,
+    "source_model_status": "M1I_RELIABLE_HISTORY_PILOT_REJECTED",
+    "content_hpc_covariance_ridge": 0.001,
+    "architecture": {
+      "name": "confidence-conditioned context transport",
+      "transport_feature_dim": 6,
+      "transport_hidden_dim": 8,
+      "max_transport_logit_shift": 3.0,
+      "confidence_features": [
+        "source M1i call probability",
+        "history attention maximum",
+        "one minus normalized history attention entropy",
+        "history evidence minus learned null similarity",
+        "current-history alignment minus current-base alignment",
+        "base-history alignment"
+      ],
+      "transport_head": "LayerNorm(6) -> Linear(6,8) -> GELU -> Linear(8,1) -> 3*tanh",
+      "transport_formula": "sigmoid(logit(source_call_probability) + bounded_transport_logit_shift)",
+      "initialization": "final transport layer is exactly zero, making step-0 M1j exactly equal to the frozen source M1i",
+      "ablation": "disable_transport_residual sets logit shift to zero and must exactly recover the frozen source M1i after training",
+      "fixed_components": "source M1i fixed structural signature key, immutable archival base_context values, learned null, hold/refresh controller, Transformer/PFC, EC, place, covariance content HPC, fusion, and decoder",
+      "caller_input_boundary": "transport reads scalar causal confidence geometry only; it does not read pfc_hidden, native Transformer KV, room, context labels, position, place id, segment, path family, or return metadata",
+      "memory_contract": "one episode-local covariance content HPC only; no context slot, second fast-weight matrix, recursive archival write-back, or persistence counter"
+    },
+    "train_seed": 31415,
+    "train_split": "train",
+    "training_generator": "make_novel_distractor_capacity_batch",
+    "capacity_curriculum": [
+      1,
+      2,
+      4,
+      8
+    ],
+    "curriculum_schedule": "deterministic equal-frequency cycle over K=1,2,4,8",
+    "max_jitter_cycles": 4,
+    "steps": 600,
+    "batch_size": 4,
+    "grid_size": 11,
+    "learning_rate": 0.001,
+    "weight_decay": 0.0001,
+    "gradient_clip": 1.0,
+    "eval_every": 100,
+    "eval_batches_per_level": 2,
+    "dev_monitor_seed": 27182,
+    "checkpoint_selection": "none; fixed final step 600 is the only K=8 candidate",
+    "trainable_scope": "transport LayerNorm and 6->8->1 MLP only; exactly 77 trainable parameters",
+    "loss": "one unweighted all-token sensory cross-entropy only",
+    "forbidden_losses": [
+      "room or context classification",
+      "history matching, contrastive, or transport supervision",
+      "oracle context distillation",
+      "attention entropy or confidence loss",
+      "return, query, conflict, or capacity reweighting"
+    ],
+    "implementation_gates_before_training": {
+      "trainable_parameter_count_exactly": 77,
+      "step0_source_prediction_max_abs_diff_at_most": 1e-06,
+      "step0_source_context_max_abs_diff_at_most": 1e-06,
+      "disabled_residual_source_prediction_max_abs_diff_at_most": 1e-06,
+      "disabled_residual_source_context_max_abs_diff_at_most": 1e-06,
+      "longest_k8_smoke_loss_and_gradient_finite": true
+    },
+    "k8_blind_pilot": {
+      "generator_seed": 16180,
+      "capacity_level": 8,
+      "max_jitter_cycles": 4,
+      "batch_size": 4,
+      "batches": 16,
+      "episodes": 64,
+      "return_conflict_probes": 128,
+      "conditions": [
+        "frozen_m1f",
+        "source_m1i",
+        "m1j_confidence_transport",
+        "m1j_transport_disabled"
+      ],
+      "frozen_thresholds": {
+        "m1j_return_conflict_acc_at_least": 0.75,
+        "m1j_gain_vs_source_m1i_at_least": 0.1,
+        "transport_gain_vs_disabled_at_least": 0.1,
+        "m1j_clean_drop_vs_source_m1i_at_most": 0.02,
+        "m1j_context_pair_accuracy_at_least": 0.85,
+        "disabled_residual_prediction_max_abs_diff_at_most": 1e-06,
+        "disabled_residual_context_max_abs_diff_at_most": 1e-06
+      }
+    },
+    "post_result_rule": "all frozen K=8 gates must pass before any three-seed training; otherwise stop and report without tuning on generator seed 16180; any changed feature set, width, logit bound, loss, threshold, or training budget requires a new protocol and new seeds"
+  },
+  "protocol_sha256": "211c2baaccd0ffc37a365a4f9b251a190d191e3adbe7619cb10c9f05bfa521ba",
+  "device": "cuda",
+  "baseline_checkpoint_step": 600,
+  "source_m1i_checkpoint_step": 600,
+  "m1j_checkpoint": "runs\\remap_former\\m1j_confidence_transport_seed31415_s600\\m1j_final.pt",
+  "m1j_checkpoint_step": 600,
+  "metrics": {
+    "frozen_m1f": {
+      "loss": 1.9803353390564338,
+      "query_acc": 0.9140625,
+      "query_queries": 3072.0,
+      "clean_acc": 0.93046875,
+      "clean_queries": 2560.0,
+      "conflict_acc": 0.83203125,
+      "conflict_queries": 512.0,
+      "return_acc": 0.3828125,
+      "return_queries": 256.0,
+      "return_conflict_acc": 0.375,
+      "return_conflict_queries": 128.0,
+      "other_room_target_rate": 0.140625,
+      "correct_target_probability": 0.2459510811313521,
+      "other_room_target_probability": 0.1004471000196645,
+      "target_probability_margin": 0.1455039811116876,
+      "tokens": 36576.0
+    },
+    "source_m1i": {
+      "loss": 1.7957982674879873,
+      "query_acc": 0.9596354166666666,
+      "query_queries": 3072.0,
+      "clean_acc": 0.96640625,
+      "clean_queries": 2560.0,
+      "conflict_acc": 0.92578125,
+      "conflict_queries": 512.0,
+      "return_acc": 0.703125,
+      "return_queries": 256.0,
+      "return_conflict_acc": 0.734375,
+      "return_conflict_queries": 128.0,
+      "other_room_target_rate": 0.015625,
+      "correct_target_probability": 0.3654313897714019,
+      "other_room_target_probability": 0.026993619147106074,
+      "target_probability_margin": 0.3384377706242958,
+      "tokens": 36576.0
+    },
+    "m1j_confidence_transport": {
+      "loss": 1.5865700655826225,
+      "query_acc": 0.91796875,
+      "query_queries": 3072.0,
+      "clean_acc": 0.94765625,
+      "clean_queries": 2560.0,
+      "conflict_acc": 0.76953125,
+      "conflict_queries": 512.0,
+      "return_acc": 0.09375,
+      "return_queries": 256.0,
+      "return_conflict_acc": 0.078125,
+      "return_conflict_queries": 128.0,
+      "other_room_target_rate": 0.015625,
+      "correct_target_probability": 0.036662315935245715,
+      "other_room_target_probability": 0.01952897918090457,
+      "target_probability_margin": 0.017133336754341144,
+      "tokens": 36576.0
+    },
+    "m1j_transport_disabled": {
+      "loss": 1.7957982674879873,
+      "query_acc": 0.9596354166666666,
+      "query_queries": 3072.0,
+      "clean_acc": 0.96640625,
+      "clean_queries": 2560.0,
+      "conflict_acc": 0.92578125,
+      "conflict_queries": 512.0,
+      "return_acc": 0.703125,
+      "return_queries": 256.0,
+      "return_conflict_acc": 0.734375,
+      "return_conflict_queries": 128.0,
+      "other_room_target_rate": 0.015625,
+      "correct_target_probability": 0.3654313897714019,
+      "other_room_target_probability": 0.026993619147106074,
+      "target_probability_margin": 0.3384377706242958,
+      "tokens": 36576.0
+    }
+  },
+  "context_metrics": {
+    "frozen_m1f": {
+      "pair_accuracy_tie_adjusted": 0.796875,
+      "correct_preference_rate": 0.796875,
+      "wrong_preference_rate": 0.203125,
+      "tie_rate": 0.0,
+      "correct_reference_cosine": 0.8546891771256924,
+      "wrong_reference_cosine": 0.6972896009683609,
+      "correct_minus_wrong_cosine": 0.15739957615733147,
+      "mean_evidence_strength": 1.0,
+      "return_conflict_queries": 128.0
+    },
+    "source_m1i": {
+      "pair_accuracy_tie_adjusted": 0.890625,
+      "correct_preference_rate": 0.890625,
+      "wrong_preference_rate": 0.109375,
+      "tie_rate": 0.0,
+      "correct_reference_cosine": 0.9291088543832302,
+      "wrong_reference_cosine": 0.7888058722019196,
+      "correct_minus_wrong_cosine": 0.14030298218131065,
+      "mean_evidence_strength": 1.0,
+      "return_conflict_queries": 128.0
+    },
+    "m1j_confidence_transport": {
+      "pair_accuracy_tie_adjusted": 0.546875,
+      "correct_preference_rate": 0.546875,
+      "wrong_preference_rate": 0.453125,
+      "tie_rate": 0.0,
+      "correct_reference_cosine": 0.8227656856179237,
+      "wrong_reference_cosine": 0.8204560205340385,
+      "correct_minus_wrong_cosine": 0.002309665083885193,
+      "mean_evidence_strength": 1.0,
+      "return_conflict_queries": 128.0
+    },
+    "m1j_transport_disabled": {
+      "pair_accuracy_tie_adjusted": 0.890625,
+      "correct_preference_rate": 0.890625,
+      "wrong_preference_rate": 0.109375,
+      "tie_rate": 0.0,
+      "correct_reference_cosine": 0.9291088543832302,
+      "wrong_reference_cosine": 0.7888058722019196,
+      "correct_minus_wrong_cosine": 0.14030298218131065,
+      "mean_evidence_strength": 1.0,
+      "return_conflict_queries": 128.0
+    }
+  },
+  "choice_dynamics": {
+    "source_m1i": {
+      "choice_hold_mean": 0.4046566408312434,
+      "choice_refresh_mean": 0.16113584774222772,
+      "choice_call_mean": 0.4342075094124332,
+      "choice_call_argmax_rate": 0.5755015839493136,
+      "history_attention_max_mean": 0.3882996490511295,
+      "history_attention_entropy_mean": 0.5175550555056071,
+      "history_evidence_mean": 0.886702442271625,
+      "null_similarity_mean": 0.9273880447404085,
+      "proposal_choices": 3788.0,
+      "history_available_choices": 3724.0
+    },
+    "m1j_confidence_transport": {
+      "choice_hold_mean": 0.7279507899863416,
+      "choice_refresh_mean": 0.1843456391170385,
+      "choice_call_mean": 0.08770355906380771,
+      "choice_call_argmax_rate": 0.0,
+      "history_attention_max_mean": 0.3882996490511295,
+      "history_attention_entropy_mean": 0.5175550555056071,
+      "history_evidence_mean": 0.886702442271625,
+      "null_similarity_mean": 0.9273880447404085,
+      "proposal_choices": 3788.0,
+      "history_available_choices": 3724.0
+    },
+    "m1j_transport_disabled": {
+      "choice_hold_mean": 0.4046566408312434,
+      "choice_refresh_mean": 0.16113584774222772,
+      "choice_call_mean": 0.4342075094124332,
+      "choice_call_argmax_rate": 0.5755015839493136,
+      "history_attention_max_mean": 0.3882996490511295,
+      "history_attention_entropy_mean": 0.5175550555056071,
+      "history_evidence_mean": 0.886702442271625,
+      "null_similarity_mean": 0.9273880447404085,
+      "proposal_choices": 3788.0,
+      "history_available_choices": 3724.0
+    }
+  },
+  "transport_dynamics": {
+    "source_m1i": {
+      "source_call_probability_mean": 0.4416697058590603,
+      "transport_strength_mean": 0.4416697058590603,
+      "transport_logit_shift_mean": 0.0,
+      "transport_logit_shift_abs_mean": 0.0,
+      "transport_strength_abs_delta_mean": 0.0,
+      "transport_positive_shift_rate": 0.0,
+      "transport_negative_shift_rate": 0.0,
+      "transport_history_events": 3724.0
+    },
+    "m1j_confidence_transport": {
+      "source_call_probability_mean": 0.4416697058590603,
+      "transport_strength_mean": 0.08921081320683759,
+      "transport_logit_shift_mean": -2.532763422751913,
+      "transport_logit_shift_abs_mean": 2.532763422751913,
+      "transport_strength_abs_delta_mean": 0.352458902639682,
+      "transport_positive_shift_rate": 0.0,
+      "transport_negative_shift_rate": 1.0,
+      "transport_history_events": 3724.0
+    },
+    "m1j_transport_disabled": {
+      "source_call_probability_mean": 0.4416697058590603,
+      "transport_strength_mean": 0.4416697058590603,
+      "transport_logit_shift_mean": 0.0,
+      "transport_logit_shift_abs_mean": 0.0,
+      "transport_strength_abs_delta_mean": 0.0,
+      "transport_positive_shift_rate": 0.0,
+      "transport_negative_shift_rate": 0.0,
+      "transport_history_events": 3724.0
+    }
+  },
+  "disabled_equivalence": {
+    "disabled_prediction_max_abs_diff": 0.0,
+    "disabled_context_max_abs_diff": 0.0
+  },
+  "decision": {
+    "status": "M1J_CONFIDENCE_TRANSPORT_PILOT_REJECTED",
+    "gates": {
+      "m1j_return_absolute": false,
+      "m1j_gain_vs_source": false,
+      "transport_functionally_necessary": false,
+      "m1j_clean_preserved": true,
+      "m1j_context_identity": false,
+      "disabled_prediction_exact": true,
+      "disabled_context_exact": true
+    },
+    "differences": {
+      "m1j_return_gain_vs_source_m1i": -0.65625,
+      "transport_return_gain_vs_disabled": -0.65625,
+      "m1j_clean_drop_vs_source_m1i": 0.018750000000000044
+    }
+  }
+}

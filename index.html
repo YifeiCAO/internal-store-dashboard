@@ -477,6 +477,7 @@
         <p>Transformer=PFC 主干，EC 供结构，covariance-corrected HPC 供外挂记忆</p>
       </div>
       <nav aria-label="看板分区">
+        <a href="#m1j">M1j Transport</a>
         <a href="#m1i">M1i + G2 审计</a>
         <a href="#m1h">M1h 历史调用</a>
         <a href="#m1g">M1g 反解</a>
@@ -496,8 +497,8 @@
       <div class="status-grid" aria-label="最新状态">
         <article class="status-card primary">
           <h2>当前主线</h2>
-          <strong>M1b 仍是正式模型；G2 已把 M1i 的剩余瓶颈锁定为 context 精度</strong>
-          <p>M1i pilot 的 0.6406 仍未过 0.75 晋级门。全新 seed10932 的冻结只读审计中，query-only 正确历史 context oracle 把 0.4688 提到 0.8594；68 个错误有 50 个是“pair 已正确、exact context 仍不够准”。</p>
+          <strong>M1b 仍是正式模型；M1j 被拒绝，均匀 CE 把 transport 学成了全局关调用</strong>
+          <p>全新 seed16180 上，source M1i 与 M1j-disabled 都是 0.7344，训练后的 M1j 只有 0.0781；disabled prediction/context 差均为 0。77 参数 residual 在 100% history events 上输出负 shift，因果退化归因明确。</p>
           <div class="badge-row">
             <span class="badge"><span class="dot blue"></span>无 room / 位置输入</span>
             <span class="badge"><span class="dot teal"></span>Neural EC</span>
@@ -507,36 +508,111 @@
           </div>
         </article>
         <article class="status-card hold">
-          <h2>G2 冻结 M1i</h2>
-          <strong>0.4688</strong>
-          <p>fresh seed10932；M1f 为 0.3125；不训练、不调参</p>
+          <h2>Source M1i</h2>
+          <strong>0.7344</strong>
+          <p>新 blind seed16180；绝对门 0.75，仅差 2 / 128 probes</p>
+        </article>
+        <article class="status-card fail">
+          <h2>M1j Transport</h2>
+          <strong>0.0781</strong>
+          <p>相对 source / disabled 都是 -65.625 pp；正式拒绝</p>
         </article>
         <article class="status-card pass">
-          <h2>Query-only Oracle</h2>
-          <strong>0.8594</strong>
-          <p>只改当前 query 的正确历史 context；增益 +39.06 pp</p>
-        </article>
-        <article class="status-card pass">
-          <h2>主导错误</h2>
-          <strong>50 / 68</strong>
-          <p>73.53% 是 context 精度不足；覆盖与安装错误都是 0</p>
+          <h2>Disabled 因果对照</h2>
+          <strong>0.7344</strong>
+          <p>prediction/context max diff = 0 / 0；退化只来自 learned residual</p>
         </article>
       </div>
 
       <section>
         <div class="decision">
-          <strong>当前决策：不做 retention，不堆新记忆；预注册 confidence-conditioned transport</strong>
-          <p>G2 已排除历史缺失、attention 来源错误、call 后覆盖和未安装为主因。下一版保留 fixed signature、archival value、learned null 与唯一 covariance HPC，只改善已检索 context 的精确运输；raw pfc_hidden cosine 也尚不能直接当检索 key。</p>
+          <strong>当前决策：M1j 停止；先审计 gradient credit，不立刻改 loss 或限制 residual 符号</strong>
+          <p>CE 从 1.5002 降到 1.4118，但 K8 monitor 从 0.625 掉到 0.125，transport strength 从 0.450 掉到 0.099。下一步用全新 dev seed 只读比较 all-token、clean 与 return-conflict CE 的梯度方向；不在 seed16180 调参，不加 slot 或第二套 fast weights。</p>
+        </div>
+      </section>
+
+      <section id="m1j">
+        <div class="section-head">
+          <div>
+            <h2>最新：M1j Confidence-conditioned Transport</h2>
+            <p>在 frozen M1i 的 call probability 上只加 77 参数 bounded logit residual；初始化严格等价，训练后 disabled 仍精确恢复 source。</p>
+          </div>
+          <div class="source">更新：2026-07-14 · 全套 ReMAP 回归 146 passed · formal 未访问</div>
+        </div>
+
+        <div class="grid-2">
+          <article class="panel">
+            <h3>一次性 K=8 Blind</h3>
+            <table>
+              <thead><tr><th>条件</th><th>Return</th><th>Clean</th><th>Context pair</th></tr></thead>
+              <tbody>
+                <tr><td data-label="条件">冻结 M1f</td><td data-label="Return" class="num">0.3750</td><td data-label="Clean" class="num">0.9305</td><td data-label="Pair" class="num">0.7969</td></tr>
+                <tr><td data-label="条件"><strong>Source M1i</strong></td><td data-label="Return" class="num green"><strong>0.7344</strong></td><td data-label="Clean" class="num">0.9664</td><td data-label="Pair" class="num">0.8906</td></tr>
+                <tr><td data-label="条件">M1j Transport</td><td data-label="Return" class="num red"><strong>0.0781</strong></td><td data-label="Clean" class="num">0.9477</td><td data-label="Pair" class="num red">0.5469</td></tr>
+                <tr><td data-label="条件"><strong>M1j Disabled</strong></td><td data-label="Return" class="num green"><strong>0.7344</strong></td><td data-label="Clean" class="num">0.9664</td><td data-label="Pair" class="num">0.8906</td></tr>
+              </tbody>
+            </table>
+            <p style="margin:10px 0 0;color:var(--muted);font-size:12px;">seed16180；64 episodes；128 return-conflict probes。Disabled 与 source 的 prediction/context 最大差均为 0。</p>
+          </article>
+
+          <article class="panel">
+            <h3>冻结七门：3 PASS / 4 FAIL</h3>
+            <table>
+              <thead><tr><th>Gate</th><th>观测</th><th>结果</th></tr></thead>
+              <tbody>
+                <tr><td data-label="Gate">绝对 return ≥0.75</td><td data-label="观测" class="num">0.0781</td><td data-label="结果" class="red">FAIL</td></tr>
+                <tr><td data-label="Gate">对 source / disabled 增益</td><td data-label="观测" class="num">-0.6562 / -0.6562</td><td data-label="结果" class="red">FAIL</td></tr>
+                <tr><td data-label="Gate">Clean drop ≤0.02</td><td data-label="观测" class="num">0.0188</td><td data-label="结果" class="green">PASS</td></tr>
+                <tr><td data-label="Gate">Context pair ≥0.85</td><td data-label="观测" class="num">0.5469</td><td data-label="结果" class="red">FAIL</td></tr>
+                <tr><td data-label="Gate">Disabled prediction/context</td><td data-label="观测" class="num">0 / 0</td><td data-label="结果" class="green">PASS / PASS</td></tr>
+              </tbody>
+            </table>
+          </article>
+        </div>
+
+        <article class="panel" style="margin-top:12px;">
+          <h3>真实结构：没有新记忆</h3>
+          <div class="task-flow">
+            <div class="flow-node ref0"><strong>Frozen M1i caller</strong><span>fixed signature key<br />archival base-context value</span></div>
+            <div class="flow-node ref1"><strong>6 个置信度标量</strong><span>attention / entropy / evidence<br />context alignment</span></div>
+            <div class="flow-node distractor"><strong>77 参数 Residual</strong><span>LayerNorm + 6→8→1<br />logit shift 限制 ±3</span></div>
+            <div class="flow-node return"><strong>唯一 Content HPC</strong><span>place × transported context<br />covariance fast weight</span></div>
+          </div>
+          <div class="no-slot">M1j 不读取 pfc_hidden 或 Transformer 原生 KV，不增加 context slot、第二套 fast weights、hard threshold、persistence counter 或辅助 loss。主 Transformer/PFC 仍负责最终 sensory prediction。</div>
+        </article>
+
+        <div class="grid-2" style="margin-top:12px;">
+          <article class="panel">
+            <h3>固定训练轨迹</h3>
+            <table>
+              <thead><tr><th>Step</th><th>CE</th><th>K8 Return</th><th>Strength</th><th>Shift</th></tr></thead>
+              <tbody>
+                <tr><td data-label="Step">0</td><td data-label="CE" class="num">1.5002</td><td data-label="Return" class="num green">0.625</td><td data-label="Strength" class="num">0.450</td><td data-label="Shift" class="num">0.000</td></tr>
+                <tr><td data-label="Step">100</td><td data-label="CE" class="num">1.4510</td><td data-label="Return" class="num">0.250</td><td data-label="Strength" class="num">0.276</td><td data-label="Shift" class="num">-1.104</td></tr>
+                <tr><td data-label="Step">300</td><td data-label="CE" class="num">1.4160</td><td data-label="Return" class="num">0.250</td><td data-label="Strength" class="num">0.120</td><td data-label="Shift" class="num">-2.269</td></tr>
+                <tr><td data-label="Step">600</td><td data-label="CE" class="num">1.4118</td><td data-label="Return" class="num red">0.125</td><td data-label="Strength" class="num red">0.099</td><td data-label="Shift" class="num red">-2.474</td></tr>
+              </tbody>
+            </table>
+          </article>
+          <article class="panel">
+            <h3>冻结判读</h3>
+            <ol style="margin:0;padding-left:20px;color:var(--muted);">
+              <li>梯度可达且 CE 正常下降，不是训练管线坏掉。</li>
+              <li>100% history events 为负 shift，模型学成统一抑制调用。</li>
+              <li>Disabled 精确回到 0.7344，把退化锁定在 transport residual。</li>
+              <li>下一步只读审计 gradient credit；不在 blind seed 上改 loss 或符号约束。</li>
+            </ol>
+          </article>
         </div>
       </section>
 
       <section id="m1i">
         <div class="section-head">
           <div>
-            <h2>最新：M1i 可靠调用 + G2 错误分解</h2>
+            <h2>M1i 可靠调用 + G2 错误分解</h2>
             <p>先用 fixed structural key、不可变 base-context value 和连续 learned null 完成 pilot，再在全新 seed 上冻结模型，逐 probe 分解 call-to-recall。</p>
           </div>
-          <div class="source">更新：2026-07-14 · 全套 ReMAP 回归 139 passed · formal 未访问</div>
+          <div class="source">更新：2026-07-14 · 全套 ReMAP 回归 146 passed · formal 未访问</div>
         </div>
 
         <div class="grid-2" style="margin-top:12px;">
@@ -627,7 +703,7 @@
               <li>50 / 68 错误已经在正确 context pair 内，下一步要提高 exact context 精度。</li>
               <li>覆盖与安装错误为 0，所以不加 persistence counter 或更多 call。</li>
               <li>raw pfc_hidden top-1 只有 0.0625，低于 fixed signature 的 0.7500；暂不直接替换 key。</li>
-              <li>下一独立协议：confidence-conditioned transport，使用全新训练与盲测 seed。</li>
+              <li>M1j 已执行该分支并被拒绝：source/disabled 0.7344，M1j 0.0781；下一步转 gradient-credit 审计。</li>
             </ol>
           </article>
         </div>
@@ -1153,7 +1229,8 @@
           <article class="stage blocked"><b>M1h Neural Pilot</b><p>新 K=8 为 0.1719，no-call 0.3906；五门只过 clean，停止于单 seed。</p></article>
           <article class="stage blocked"><b>M1i 可靠调用</b><p>0.6406；相对 M1f +25 pp，五门过四门；绝对 0.75 门失败。</p></article>
           <article class="stage done"><b>G2 新 Seed 只读分解</b><p>50/68 为 context 精度不足；retention、安装与 attention 来源错误均非主因。</p></article>
-          <article class="stage active"><b>下一协议预注册</b><p>Confidence-conditioned transport；新 seeds；不加 slot、第二套 fast weights 或硬保持。</p></article>
+          <article class="stage blocked"><b>M1j Confidence Transport</b><p>Source/disabled 0.7344，M1j 0.0781；100% negative shift，七门只过三门。</p></article>
+          <article class="stage active"><b>Gradient-credit 审计</b><p>新 seed；只读比较 all-token、clean、return-conflict CE 的 transport 梯度方向。</p></article>
           <article class="stage blocked"><b>Formal Protocol</b><p>normal K=8 仅 0.4010；达到 0.80 绝对门前不解锁。</p></article>
         </div>
       </section>
@@ -1166,7 +1243,12 @@
           </div>
         </div>
         <div class="artifact-list">
-          <a class="artifact" href="REMAP_FORMER_M1I_FAILURE_AUDIT_G2_CN.md"><strong>最新：M1i G2 错误分解</strong><span>fresh seed、query-only oracle、68 个互斥错误桶与冻结下一分支</span></a>
+          <a class="artifact" href="REMAP_FORMER_M1J_CONFIDENCE_TRANSPORT_RESULT_CN.md"><strong>最新：M1j 完整结果</strong><span>77 参数架构、固定训练轨迹、四条件 blind、七门与 gradient-credit 下一步</span></a>
+          <a class="artifact" href="REMAP_FORMER_M1J_PILOT_SUMMARY.json"><strong>M1j Blind 机器结果</strong><span>四条件指标、context geometry、transport dynamics、disabled 精确等价与冻结七门</span></a>
+          <a class="artifact" href="REMAP_FORMER_M1J_TRAIN_SUMMARY.json"><strong>M1j 训练汇总</strong><span>step0→600 CE、K8 return、strength/shift 轨迹、77 参数范围与耗时</span></a>
+          <a class="artifact" href="m1j_confidence_transport_pilot_protocol.json"><strong>M1j 冻结协议</strong><span>digest、fresh seeds、±3 transport、唯一 sensory CE、固定 final 与 post-result rule</span></a>
+          <a class="artifact" href="REMAP_FORMER_M1J_CONFIDENCE_TRANSPORT_PILOT_CN.md"><strong>M1j 自动 Blind 报告</strong><span>source/M1j/disabled 主表、七门 PASS/FAIL 与 transport 动态</span></a>
+          <a class="artifact" href="REMAP_FORMER_M1I_FAILURE_AUDIT_G2_CN.md"><strong>M1i G2 错误分解</strong><span>fresh seed、query-only oracle、68 个互斥错误桶与冻结下一分支</span></a>
           <a class="artifact" href="REMAP_FORMER_M1I_FAILURE_AUDIT_G2_SUMMARY.json"><strong>M1i G2 机器结果</strong><span>逐 probe 分类、attention mass、archival geometry 与 raw pfc_hidden 对照</span></a>
           <a class="artifact" href="m1i_failure_audit_g2_protocol.json"><strong>M1i G2 冻结协议</strong><span>seed10932、category priority、query isolation、阈值和 post-result rule</span></a>
           <a class="artifact" href="REMAP_FORMER_M1I_RELIABLE_HISTORY_RESULT_CN.md"><strong>M1i + G2 完整结果</strong><span>架构、冻结训练、K=8 四条件盲测、G2 互斥错误分解与下一协议</span></a>
@@ -1216,7 +1298,7 @@
       </section>
     </main>
 
-    <footer>ReMAP-Former internal dashboard · 2026-07-14 · M1b 仍是正式模型；G2 将 M1i 的 50/68 个错误定位为 context 精度不足；下一步预注册 confidence-conditioned transport，formal 未解锁</footer>
+    <footer>ReMAP-Former internal dashboard · 2026-07-14 · M1b 仍是正式模型；M1j 0.0781、source/disabled 0.7344，signed transport + uniform CE 被拒绝；下一步 gradient-credit 只读审计，formal 未解锁</footer>
   </div>
 </body>
 </html>

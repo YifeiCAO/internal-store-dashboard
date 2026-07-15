@@ -139,17 +139,18 @@ query-only oracle 相对正常 M1i 提高 `+39.06 pp`，证明剩余误差主要
 - **G2 允许的结论**：M1i 的主要剩余问题是“取到了大致正确的 context，却没有精确运输到可用地址”，不是“没有历史”“没有 call”或“call 后保持不住”。
 - **G2 不允许的结论**：raw `pfc_hidden` 已经可直接作为 history key，或一个 confidence-conditioned transport 新模型已经有效；两者都尚未训练和盲测。
 
-## 7. 下一步
+## 7. M1j 后续结果与下一步
 
-G2 已经完成只读错误分解。下一步另立一份协议、使用全新训练 seed 和全新一次性盲测 seed，实现最小的 **confidence-conditioned context transport**：
+G2 指定的最小 **confidence-conditioned context transport** 已作为 M1j 按独立协议完成：
 
-1. 保留 fixed structural signature key、immutable archival `base_context` value 和 learned null；
-2. 保留唯一 covariance content HPC，不加 slot 或第二套 fast-weight matrix；
-3. 只在 evidence 高且 attention 集中时，把 history context 向 archival value 做精确 transport；低置信度时继续 hold/refresh；
-4. 继续只优化全 token sensory CE，不添加 context label、room probe 或 oracle 辅助 loss；
-5. 先过单 seed dev 的 context 精度与 clean gate，再使用全新 seed 做一次 K=8 盲测。
+1. 保留 fixed structural key、archival value、learned null 和唯一 covariance content HPC；
+2. 只增加 77 参数 bounded transport residual；
+3. 继续只优化全 token sensory CE；
+4. seed31415 固定训练 600 步，随后一次性 blind seed16180。
 
-由于 raw `pfc_hidden` top-1 远低于 fixed signature，本轮不直接改用 native hidden cosine key。若以后要检验 Transformer hidden caller，必须另立表征学习协议和独立 seed，且不能把 G2 的只读几何诊断冒充训练证据。
+结果是 source M1i/M1j/disabled `0.7344/0.0781/0.7344`；disabled prediction/context 与 source 的最大差均为 `0`。M1j 把 transport strength 从约 `0.45` 压到 `0.09`，100% history events 为负 shift，冻结拒绝。完整结论见 `reports/REMAP_FORMER_M1J_CONFIDENCE_TRANSPORT_RESULT_CN.md`。
+
+下一步不直接改成正 residual 或换 loss，而是在全新 seed 做只读 gradient-credit 审计，比较 all-token、clean 与 return-conflict sensory CE 对同一 transport head 的梯度方向。raw `pfc_hidden` 仍不作为 key；任何 native hidden caller 继续需要独立协议。
 
 ## 8. 可复现资产
 
