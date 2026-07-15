@@ -1,0 +1,76 @@
+{
+  "format": "remap_former.m1j_gradient_credit_audit_g3_protocol.v1",
+  "frozen_date": "2026-07-14",
+  "scope": "read-only first-update gradient audit on one fresh K=8 dev seed; no optimizer step, parameter mutation, training, checkpoint selection, blind-seed reuse, formal validation, or test access",
+  "scientific_question": "does uniform all-token sensory CE oppose the return-conflict gradient and suppress confidence-conditioned history transport, or does return-conflict CE itself reject the transport geometry",
+  "source_m1j_protocol": "runs/remap_former/m1j_confidence_transport_pilot_protocol.json",
+  "source_m1j_protocol_sha256": "211c2baaccd0ffc37a365a4f9b251a190d191e3adbe7619cb10c9f05bfa521ba",
+  "source_checkpoint": "runs/remap_former/m1i_reliable_history_seed1813_s600/m1i_final.pt",
+  "source_checkpoint_sha256": "7d944fa7f818111216a93455e9eed61075233bafc4f62874b9dff906c3144ead",
+  "source_checkpoint_step": 600,
+  "audited_model_state": "the exact step-0 M1j initialization from the frozen M1j pilot, initialized from source M1i; the trained M1j checkpoint is not loaded",
+  "transport_initialization_seed": 31415,
+  "generator_seed": 17181,
+  "split": "dev",
+  "capacity_level": 8,
+  "max_jitter_cycles": 4,
+  "batch_size": 4,
+  "grid_size": 11,
+  "batches": 16,
+  "episodes": 64,
+  "expected_return_conflict_probes": 128,
+  "loss_views": {
+    "all_token_ce": "mean sensory cross-entropy over every sequence token",
+    "clean_query_ce": "mean sensory cross-entropy only where batch.clean_mask is true",
+    "return_conflict_ce": "mean sensory cross-entropy only where batch.return_mask and batch.conflict_mask are both true"
+  },
+  "forward_boundary": "all three losses are sliced from one identical causal model forward; metadata masks are never model inputs and are used only after prediction logits exist",
+  "gradient_scope": "the final transport Linear(8,1) weight and bias, exactly 9 dimensions; at the exact zero-final initialization the other 68 transport parameters must have zero gradient",
+  "event_direction_definition": "for each history-available proposal, compute the first-order logit-shift change under the unit gradient-descent direction; the frozen decision uses events in the final return segment and also reports all history events",
+  "prohibited_operations": [
+    "optimizer construction or optimizer step",
+    "loss.backward that accumulates parameter gradients",
+    "parameter or buffer mutation",
+    "loading the trained M1j checkpoint",
+    "using generator seed 16180 from the M1j blind pilot",
+    "feeding room id, segment id, return mask, conflict mask, position, place id, or target metadata into the model"
+  ],
+  "numerics": {
+    "gradient_norm_epsilon": 1e-10,
+    "direction_zero_epsilon": 1e-10,
+    "cosine_epsilon": 1e-12
+  },
+  "implementation_gates": {
+    "trainable_parameter_count_exactly": 77,
+    "audited_final_parameter_count_exactly": 9,
+    "source_prediction_max_abs_diff_at_most": 1e-06,
+    "source_context_max_abs_diff_at_most": 1e-06,
+    "non_final_gradient_max_abs_at_most": 1e-10,
+    "parameter_state_sha256_must_be_unchanged": true,
+    "observed_return_conflict_probes_must_equal_expected": true
+  },
+  "frozen_decision_thresholds": {
+    "nonzero_gradient_batch_rate_at_least": 0.875,
+    "aggregate_all_vs_return_gradient_cosine_at_most": -0.25,
+    "negative_all_vs_return_batch_cosine_rate_at_least": 0.75,
+    "return_phase_return_update_positive_rate_at_least": 0.6,
+    "return_phase_all_update_negative_rate_at_least": 0.6,
+    "return_phase_return_update_mean_must_be_positive": true,
+    "return_phase_all_update_mean_must_be_negative": true,
+    "return_credit_rejection_negative_rate_at_least": 0.6,
+    "return_credit_rejection_mean_must_be_negative": true
+  },
+  "frozen_status_order": [
+    "INVALID_IMPLEMENTATION",
+    "RETURN_CREDIT_REJECTS_TRANSPORT",
+    "UNIFORM_CE_CREDIT_CONFLICT",
+    "MIXED_GRADIENT_CREDIT"
+  ],
+  "frozen_branch_mapping": {
+    "INVALID_IMPLEMENTATION": "STOP_AND_FIX_AUDIT_ONLY",
+    "RETURN_CREDIT_REJECTS_TRANSPORT": "STOP_M1J_TRANSPORT_AND_RETURN_TO_CONTEXT_VALUE_OR_ADDRESS_GEOMETRY",
+    "UNIFORM_CE_CREDIT_CONFLICT": "PRE_REGISTER_EVENT_BALANCED_SENSORY_OBJECTIVE_WITH_UNCHANGED_M1J_ARCHITECTURE_ON_NEW_SEEDS",
+    "MIXED_GRADIENT_CREDIT": "DO_NOT_TRAIN_YET_AND_DESIGN_A_HIGHER_RESOLUTION_CAUSAL_CREDIT_AUDIT"
+  },
+  "post_result_rule": "classify once with the frozen thresholds; do not tune on seed17181; any trained follow-up must use a new protocol and new train, monitor, and blind generator seeds"
+}

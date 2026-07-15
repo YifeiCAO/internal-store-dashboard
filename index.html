@@ -477,7 +477,7 @@
         <p>Transformer=PFC 主干，EC 供结构，covariance-corrected HPC 供外挂记忆</p>
       </div>
       <nav aria-label="看板分区">
-        <a href="#m1j">M1j Transport</a>
+        <a href="#m1j">M1j + G3 信用审计</a>
         <a href="#m1i">M1i + G2 审计</a>
         <a href="#m1h">M1h 历史调用</a>
         <a href="#m1g">M1g 反解</a>
@@ -497,8 +497,8 @@
       <div class="status-grid" aria-label="最新状态">
         <article class="status-card primary">
           <h2>当前主线</h2>
-          <strong>M1b 仍是正式模型；M1j 被拒绝，均匀 CE 把 transport 学成了全局关调用</strong>
-          <p>全新 seed16180 上，source M1i 与 M1j-disabled 都是 0.7344，训练后的 M1j 只有 0.0781；disabled prediction/context 差均为 0。77 参数 residual 在 100% history events 上输出负 shift，因果退化归因明确。</p>
+          <strong>G3 看到强聚合信用冲突，但逐 batch 稳定门未过；先定位样本异质性</strong>
+          <p>全新 seed17181 上，all-token 与 return-conflict 的聚合梯度 cosine 为 -0.9579；前者压低全部 return 段 transport，后者提高全部 transport。但仅 9/16 batch 反向，低于冻结门 12/16，正式分类只能是 MIXED。</p>
           <div class="badge-row">
             <span class="badge"><span class="dot blue"></span>无 room / 位置输入</span>
             <span class="badge"><span class="dot teal"></span>Neural EC</span>
@@ -508,39 +508,69 @@
           </div>
         </article>
         <article class="status-card hold">
-          <h2>Source M1i</h2>
-          <strong>0.7344</strong>
-          <p>新 blind seed16180；绝对门 0.75，仅差 2 / 128 probes</p>
-        </article>
-        <article class="status-card fail">
-          <h2>M1j Transport</h2>
-          <strong>0.0781</strong>
-          <p>相对 source / disabled 都是 -65.625 pp；正式拒绝</p>
+          <h2>聚合梯度 Cosine</h2>
+          <strong>-0.9579</strong>
+          <p>只看 8 个条件权重、不含 bias 时仍为 -0.8854</p>
         </article>
         <article class="status-card pass">
-          <h2>Disabled 因果对照</h2>
-          <strong>0.7344</strong>
-          <p>prediction/context max diff = 0 / 0；退化只来自 learned residual</p>
+          <h2>事件更新方向</h2>
+          <strong>0% / 100%</strong>
+          <p>all-token 正向率 / return-conflict 正向率；286 个 return 段事件</p>
+        </article>
+        <article class="status-card fail">
+          <h2>逐 Batch 稳定门</h2>
+          <strong>9 / 16</strong>
+          <p>需要至少 12 / 16；冻结状态 MIXED_GRADIENT_CREDIT</p>
         </article>
       </div>
 
       <section>
         <div class="decision">
-          <strong>当前决策：M1j 停止；先审计 gradient credit，不立刻改 loss 或限制 residual 符号</strong>
-          <p>CE 从 1.5002 降到 1.4118，但 K8 monitor 从 0.625 掉到 0.125，transport strength 从 0.450 掉到 0.099。下一步用全新 dev seed 只读比较 all-token、clean 与 return-conflict CE 的梯度方向；不在 seed16180 调参，不加 slot 或第二套 fast weights。</p>
+          <strong>当前决策：不训练新 loss；另立新 seed 做 probe 级因果信用审计</strong>
+          <p>G3 的实现门全部通过，聚合冲突也很强，但不同 batch 的 return 梯度存在两类相反方向。下一步定位它是否由 source 已答对/答错、wrong-room error 或 context pair 状态解释；不在 seed17181 调阈值，不把聚合结果冒充稳定结论。</p>
         </div>
       </section>
 
       <section id="m1j">
         <div class="section-head">
           <div>
-            <h2>最新：M1j Confidence-conditioned Transport</h2>
-            <p>在 frozen M1i 的 call probability 上只加 77 参数 bounded logit residual；初始化严格等价，训练后 disabled 仍精确恢复 source。</p>
+            <h2>最新：M1j + G3 梯度信用审计</h2>
+            <p>先完成 77 参数 bounded transport pilot，再在 exact step-0 source-equivalent 状态读取三种 sensory CE 的首次更新方向。</p>
           </div>
-          <div class="source">更新：2026-07-14 · 全套 ReMAP 回归 146 passed · formal 未访问</div>
+          <div class="source">更新：2026-07-14 · 全套 ReMAP 回归 153 passed · formal 未访问</div>
         </div>
 
         <div class="grid-2">
+          <article class="panel">
+            <h3>G3：同一次 Forward 的聚合梯度</h3>
+            <table>
+              <thead><tr><th>Loss 视图</th><th>CE</th><th>梯度范数</th><th>Return 段正向率</th><th>方向均值</th></tr></thead>
+              <tbody>
+                <tr><td data-label="Loss">All-token CE</td><td data-label="CE" class="num">1.7394</td><td data-label="范数" class="num">0.3488</td><td data-label="正向率" class="num red">0.0000</td><td data-label="均值" class="num red">-3.6743</td></tr>
+                <tr><td data-label="Loss">Clean-query CE</td><td data-label="CE" class="num">0.1690</td><td data-label="范数" class="num">0.0823</td><td data-label="正向率" class="num red">0.0000</td><td data-label="均值" class="num red">-3.2715</td></tr>
+                <tr><td data-label="Loss"><strong>Return-conflict CE</strong></td><td data-label="CE" class="num">1.9885</td><td data-label="范数" class="num">1.5914</td><td data-label="正向率" class="num green"><strong>1.0000</strong></td><td data-label="均值" class="num green"><strong>+3.5055</strong></td></tr>
+              </tbody>
+            </table>
+            <p style="margin:10px 0 0;color:var(--muted);font-size:12px;">seed17181；64 episodes；128 probes；3718 history events，其中 286 个位于最终 return 段。</p>
+          </article>
+
+          <article class="panel">
+            <h3>为什么现在仍不能换 Loss</h3>
+            <table>
+              <thead><tr><th>判据</th><th>观测</th><th>结果</th></tr></thead>
+              <tbody>
+                <tr><td data-label="判据">聚合 all vs return cosine ≤-0.25</td><td data-label="观测" class="num green">-0.9579</td><td data-label="结果" class="green">PASS</td></tr>
+                <tr><td data-label="判据">逐 batch 负 cosine ≥0.75</td><td data-label="观测" class="num red">0.5625</td><td data-label="结果" class="red">FAIL</td></tr>
+                <tr><td data-label="判据">Return CE 提高 transport</td><td data-label="观测" class="num green">286 / 286</td><td data-label="结果" class="green">PASS</td></tr>
+                <tr><td data-label="判据">All-token CE 压低 transport</td><td data-label="观测" class="num green">286 / 286</td><td data-label="结果" class="green">PASS</td></tr>
+                <tr><td data-label="判据">实现与参数不变</td><td data-label="观测" class="num green">全部通过</td><td data-label="结果" class="green">PASS</td></tr>
+              </tbody>
+            </table>
+            <p style="margin:10px 0 0;color:var(--muted);font-size:12px;">冻结分类：<strong class="red">MIXED_GRADIENT_CREDIT</strong>。强平均效应不能替代跨样本稳定性。</p>
+          </article>
+        </div>
+
+        <div class="grid-2" style="margin-top:12px;">
           <article class="panel">
             <h3>一次性 K=8 Blind</h3>
             <table>
@@ -600,7 +630,7 @@
               <li>梯度可达且 CE 正常下降，不是训练管线坏掉。</li>
               <li>100% history events 为负 shift，模型学成统一抑制调用。</li>
               <li>Disabled 精确回到 0.7344，把退化锁定在 transport residual。</li>
-              <li>下一步只读审计 gradient credit；不在 blind seed 上改 loss 或符号约束。</li>
+              <li>G3 聚合冲突很强，但 9/16 batch 稳定门失败；下一步必须降到 probe 级解释。</li>
             </ol>
           </article>
         </div>
@@ -612,7 +642,7 @@
             <h2>M1i 可靠调用 + G2 错误分解</h2>
             <p>先用 fixed structural key、不可变 base-context value 和连续 learned null 完成 pilot，再在全新 seed 上冻结模型，逐 probe 分解 call-to-recall。</p>
           </div>
-          <div class="source">更新：2026-07-14 · 全套 ReMAP 回归 146 passed · formal 未访问</div>
+          <div class="source">更新：2026-07-14 · 全套 ReMAP 回归 153 passed · formal 未访问</div>
         </div>
 
         <div class="grid-2" style="margin-top:12px;">
@@ -1230,7 +1260,8 @@
           <article class="stage blocked"><b>M1i 可靠调用</b><p>0.6406；相对 M1f +25 pp，五门过四门；绝对 0.75 门失败。</p></article>
           <article class="stage done"><b>G2 新 Seed 只读分解</b><p>50/68 为 context 精度不足；retention、安装与 attention 来源错误均非主因。</p></article>
           <article class="stage blocked"><b>M1j Confidence Transport</b><p>Source/disabled 0.7344，M1j 0.0781；100% negative shift，七门只过三门。</p></article>
-          <article class="stage active"><b>Gradient-credit 审计</b><p>新 seed；只读比较 all-token、clean、return-conflict CE 的 transport 梯度方向。</p></article>
+          <article class="stage done"><b>G3 Gradient-credit</b><p>聚合 cosine -0.9579；事件方向 0% / 100%，但逐 batch 仅 9/16 反向，分类 MIXED。</p></article>
+          <article class="stage active"><b>G4 Probe 级归因</b><p>新 seed；定位正负 transport credit 与答对/答错、wrong-room error、context pair 的关系。</p></article>
           <article class="stage blocked"><b>Formal Protocol</b><p>normal K=8 仅 0.4010；达到 0.80 绝对门前不解锁。</p></article>
         </div>
       </section>
@@ -1243,7 +1274,10 @@
           </div>
         </div>
         <div class="artifact-list">
-          <a class="artifact" href="REMAP_FORMER_M1J_CONFIDENCE_TRANSPORT_RESULT_CN.md"><strong>最新：M1j 完整结果</strong><span>77 参数架构、固定训练轨迹、四条件 blind、七门与 gradient-credit 下一步</span></a>
+          <a class="artifact" href="REMAP_FORMER_M1J_GRADIENT_CREDIT_AUDIT_G3_CN.md"><strong>最新：M1j G3 梯度信用审计</strong><span>三种 CE 的 9 维首次更新、事件方向、逐 batch 稳定门与冻结 MIXED 分类</span></a>
+          <a class="artifact" href="REMAP_FORMER_M1J_GRADIENT_CREDIT_AUDIT_G3_SUMMARY.json"><strong>G3 机器结果</strong><span>16 batch 梯度向量、cosine、3718 个事件方向、实现哈希与冻结判读</span></a>
+          <a class="artifact" href="m1j_gradient_credit_audit_g3_protocol.json"><strong>G3 冻结协议</strong><span>seed17181、只读边界、三种 loss mask、阈值、状态顺序与 post-result rule</span></a>
+          <a class="artifact" href="REMAP_FORMER_M1J_CONFIDENCE_TRANSPORT_RESULT_CN.md"><strong>M1j 完整结果</strong><span>77 参数架构、固定训练轨迹、四条件 blind、七门与 G3 后续</span></a>
           <a class="artifact" href="REMAP_FORMER_M1J_PILOT_SUMMARY.json"><strong>M1j Blind 机器结果</strong><span>四条件指标、context geometry、transport dynamics、disabled 精确等价与冻结七门</span></a>
           <a class="artifact" href="REMAP_FORMER_M1J_TRAIN_SUMMARY.json"><strong>M1j 训练汇总</strong><span>step0→600 CE、K8 return、strength/shift 轨迹、77 参数范围与耗时</span></a>
           <a class="artifact" href="m1j_confidence_transport_pilot_protocol.json"><strong>M1j 冻结协议</strong><span>digest、fresh seeds、±3 transport、唯一 sensory CE、固定 final 与 post-result rule</span></a>
@@ -1298,7 +1332,7 @@
       </section>
     </main>
 
-    <footer>ReMAP-Former internal dashboard · 2026-07-14 · M1b 仍是正式模型；M1j 0.0781、source/disabled 0.7344，signed transport + uniform CE 被拒绝；下一步 gradient-credit 只读审计，formal 未解锁</footer>
+    <footer>ReMAP-Former internal dashboard · 2026-07-14 · M1b 仍是正式模型；G3 聚合 cosine -0.9579、事件方向 0%/100%，但逐 batch 仅 9/16 反向；下一步 probe 级归因，formal 未解锁</footer>
   </div>
 </body>
 </html>

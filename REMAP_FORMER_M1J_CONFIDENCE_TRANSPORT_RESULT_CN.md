@@ -87,9 +87,16 @@ M1j 相对来源 M1i 和 disabled 都是 `-65.625 pp`。disabled 的 prediction/
 - **不能升级 M1i**：来源 M1i 在 seed16180 达到 `0.7344`，很接近 `0.75`，但它是 M1j 协议中的对照条件，不能据此追溯改写 M1i 原先 4/5 门的拒绝结论。
 - **仍未测试**：native Transformer hidden caller。M1j 和 M1i 都不读取 `pfc_hidden` 作为 call key。
 
-## 6. 下一步
+## 6. G3 梯度信用审计
 
-不立刻换 loss，也不把 residual 改成只允许正值。下一步先在全新 dev seed 做**只读 gradient-credit 审计**：在 step0 source-equivalent M1j 上，分别计算均匀全 token CE、clean token CE、return-conflict CE 对同一 transport head 的梯度方向、余弦和量级。metadata 只负责在 forward 后切片 loss，不进入模型输入，也不做 optimizer step。
+后续 G3 已在全新 dev seed17181 上完成。审计使用 step0 source-equivalent M1j、K=8、64 episodes、128 return-conflict probes；同一次 causal forward 后分别切 all-token、clean-query 与 return-conflict sensory CE，只用 `torch.autograd.grad` 读取最后 9 维 transport 参数的首次更新方向，无 optimizer、无参数修改。
+
+- 聚合 `cos(all-token, return-conflict)=-0.9579`；只看 8 个条件权重、不含 bias 时为 `-0.8854`。
+- 聚合 return-conflict CE 会让 100% return 段事件提高 transport，均匀 all-token CE 与 clean-query CE 都会让 100% return 段事件压低 transport。
+- 但逐 batch 的 all-vs-return cosine 只有 `9/16=0.5625` 为负，没有达到预注册 `0.75` 稳定门；不同 batch 的 return 梯度确实存在两类相反方向。
+- 77/9 参数门、source prediction/context 等价、其余 68 参数零梯度、参数哈希不变和 128-probe 数量门全部通过。
+
+因此不能把强聚合反向直接升级成“均匀 CE 信用冲突已证实”；冻结状态是 `MIXED_GRADIENT_CREDIT`。下一步按协议另立新 seed 的 probe 级因果信用审计，定位正负方向是否由 source 已答对/答错、wrong-room error 或 context pair 状态解释。在该定位完成前，不训练 event-balanced loss。完整结果见 `reports/REMAP_FORMER_M1J_GRADIENT_CREDIT_AUDIT_G3_CN.md`。
 
 若 all-token 与 return-conflict 梯度稳定反向，下一独立模型协议才允许研究 event-balanced sensory objective；若 return-conflict 本身也要求负 transport，则停止 transport 路线，回到 context value/地址几何。任何新模型继续只允许一个 content HPC，不加 context slot、第二套 fast weights 或 oracle 输入。
 
