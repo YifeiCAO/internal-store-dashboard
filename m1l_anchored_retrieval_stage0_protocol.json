@@ -1,0 +1,103 @@
+{
+  "format": "remap_former.m1l_anchored_retrieval_stage0_protocol.v1",
+  "frozen_date": "2026-07-15",
+  "scope": "fresh-seed read-only Stage 0 after M1k stopped; no optimizer, trainable model, parameter mutation, checkpoint selection, reuse of M1k blind seed427151, formal validation, or test access",
+  "scientific_question": "before training another caller, does a capacity-stable fixed structural identity key retrieve the correct earlier archival context when the current event is explicitly excluded, and does causal confidence separate safe reads from unsafe reads",
+  "parent_m1k_protocol": "runs/remap_former/m1k_query_context_readout_pilot_protocol.json",
+  "parent_m1k_protocol_sha256": "453ed278c252bb33303f6160f9b701b7a447c294c93856580cf8ffcf78b07d28",
+  "parent_m1k_result": "runs/remap_former/m1k_query_context_pilot/summary.json",
+  "parent_m1k_result_file_sha256": "6842ec88b1d6cab1a3109bc52a8487af497c4e9e0cee41b7ab5d8dc3eaf924a6",
+  "parent_m1k_status": "INVALID_IMPLEMENTATION",
+  "parent_scientific_result": "M1k failed four of five scientific gates independently of the numerical implementation gate; M1k is stopped and seed427151 is sealed",
+  "research_reset": "M1l changes identity retrieval itself: fixed event anchors, no learned Q/K, current-event exclusion, explicit confidence feasibility, and cross-capacity read-only gating before any training",
+  "source_model_seed": 712,
+  "source_checkpoint": "runs/remap_former/m1b_covariance_ridge0p03_seed712_frozen/m1b_frozen.pt",
+  "source_checkpoint_sha256": "4c16ea253abe1f277b09b3538e17e8b14d6cee11e6f6c08750c8af4ff79fbacf",
+  "source_conversion": "parameter-free M1f with covariance-corrected content HPC ridge 0.001",
+  "content_hpc_covariance_ridge": 0.001,
+  "retrieval": {
+    "event_detector": "rising edge of the causal balanced-action structural proposal: proposal[t] and not proposal[t-1]",
+    "query_anchor": "the cyclic action signature captured at the latest detected event and carried causally to the current token",
+    "candidate_events": "all detected event anchors strictly earlier than the latest/current anchor",
+    "current_event_exclusion": "the latest anchor and its base-context value are never candidates for its own segment",
+    "key": "fixed normalized cyclic action signature; no learned query/key projection",
+    "value": "frozen M1f base_context activation at the candidate event",
+    "attention": "softmax cosine attention over candidate events",
+    "attention_temperature": 0.05,
+    "confidence_score": "top1 attention probability multiplied by one minus normalized attention entropy",
+    "shuffled_control": "deterministic one-step rotation of candidate archival values within the same causal candidate set; keys, weights, count, timing, and episode remain unchanged",
+    "new_memory_slots": 0,
+    "new_fast_weight_systems": 0,
+    "trainable_parameters": 0
+  },
+  "causal_input_contract": {
+    "allowed": [
+      "actions through current token",
+      "frozen structural proposals computed from actions",
+      "frozen cyclic action signatures",
+      "earlier frozen base-context activations from the same episode"
+    ],
+    "forbidden_model_inputs": [
+      "room or context id",
+      "position or place id",
+      "segment id",
+      "path family or variant id",
+      "return reference id",
+      "target index",
+      "query, return, conflict, correctness, or oracle masks",
+      "current sensory target",
+      "correct or wrong reference context"
+    ],
+    "diagnostic_metadata_rule": "room, segment, target, return, and reference metadata may be read only after retrieval to score identity, controls, and query-only interventions"
+  },
+  "generator_seed": 527151,
+  "split": "dev",
+  "capacity_levels": [
+    1,
+    4,
+    8
+  ],
+  "max_jitter_cycles": 4,
+  "batch_size": 4,
+  "grid_size": 11,
+  "batches_per_level": 16,
+  "episodes_per_level": 64,
+  "expected_return_conflict_probes_per_level": 128,
+  "query_only_intervention": {
+    "normal_trajectory": "run frozen M1f normally for every earlier read and write",
+    "candidate": "replace context only at the currently scored return-conflict query with the anchored retrieval candidate",
+    "shuffled": "replace only that query with the same-weight rotated-value control",
+    "isolation": "at most one query per episode is changed in any rollout"
+  },
+  "implementation_gates": {
+    "source_checkpoint_digest_must_match": true,
+    "model_parameter_state_must_be_unchanged": true,
+    "every_probe_must_have_a_latest_current_event": true,
+    "latest_event_must_belong_to_the_final_return_segment_for_every_probe": true,
+    "correct_reference_event_must_be_in_the_candidate_set_for_every_probe": true,
+    "current_event_must_never_be_in_the_candidate_set": true,
+    "attention_rows_must_sum_to_one": true,
+    "query_only_candidate_and_shuffle_isolation_must_hold": true,
+    "observed_probe_count_must_equal_expected_at_every_level": true
+  },
+  "frozen_thresholds": {
+    "k8_context_pair_accuracy_at_least": 0.8,
+    "k8_correct_segment_attention_top1_rate_at_least": 0.8,
+    "k8_query_only_return_conflict_acc_at_least": 0.7,
+    "k8_query_only_gain_vs_source_at_least": 0.15,
+    "k8_candidate_gain_vs_shuffled_at_least": 0.15,
+    "context_pair_drop_k1_to_k8_at_most": 0.1,
+    "confidence_auroc_for_context_pair_correct_at_least": 0.7
+  },
+  "frozen_status_order": [
+    "INVALID_IMPLEMENTATION",
+    "M1L_ANCHORED_RETRIEVAL_STAGE0_PASSED",
+    "M1L_ANCHORED_RETRIEVAL_STAGE0_REJECTED"
+  ],
+  "frozen_branch_mapping": {
+    "INVALID_IMPLEMENTATION": "STOP_AND_FIX_STAGE0_AUDIT_ONLY_WITHOUT_MODEL_TRAINING",
+    "M1L_ANCHORED_RETRIEVAL_STAGE0_PASSED": "PRE_REGISTER_M1L_CAPACITY_CURRICULUM_WITH_EXPLICIT_ABSTENTION_AND_FRESH_TRAIN_MONITOR_BLIND_SEEDS",
+    "M1L_ANCHORED_RETRIEVAL_STAGE0_REJECTED": "STOP_M1L_WITHOUT_TRAINING_AND_RETAIN_FORMAL_M1B"
+  },
+  "post_result_rule": "classify once across all three capacity levels; do not tune temperature, event definition, confidence score, thresholds, or current-event exclusion on seed527151; Stage 1 requires every implementation and scientific gate to pass"
+}

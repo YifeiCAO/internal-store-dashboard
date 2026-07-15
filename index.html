@@ -477,6 +477,7 @@
         <p>Transformer=PFC 主干，EC 供结构，covariance-corrected HPC 供外挂记忆</p>
       </div>
       <nav aria-label="看板分区">
+        <a href="#m1l">M1l 固定锚点检索</a>
         <a href="#m1k">M1k Query Readout</a>
         <a href="#m1j">M1j G3-G5 收口</a>
         <a href="#m1i">M1i + G2 审计</a>
@@ -498,37 +499,110 @@
       <div class="status-grid" aria-label="最新状态">
         <article class="status-card primary">
           <h2>当前主线</h2>
-          <strong>M1k token 级 Query Context Readout 已完成单 seed blind，并停止扩展</strong>
-          <p>全新 seed427151 的 K=8 blind 中，M1f/M1k/disabled return-conflict 为 0.3594/0.0938/0.3594。长历史使 attention 重新弥散，但 gate 仍高开；context identity 被破坏。冻结状态 INVALID_IMPLEMENTATION，科学五门也只过 clean。</p>
+          <strong>M1l 固定锚点检索 Stage 0 已完成：身份几何修复，但 5 / 7 门不足以进入训练</strong>
+          <p>全新 seed527151、零训练的 K=8 审计中，source/candidate/shuffled return-conflict 为 0.3750/0.6406/0.3125；context pair 与 segment top-1 达 0.9219/0.8125。绝对回忆与置信度 AUROC 两门未过，冻结状态为 REJECTED，M1l 在 Stage 0 停止。</p>
           <div class="badge-row">
             <span class="badge"><span class="dot blue"></span>无 room / 位置输入</span>
-            <span class="badge"><span class="dot teal"></span>Neural EC</span>
-            <span class="badge"><span class="dot amber"></span>Covariance HPC</span>
+            <span class="badge"><span class="dot teal"></span>零训练只读审计</span>
+            <span class="badge"><span class="dot amber"></span>固定事件锚点</span>
             <span class="badge"><span class="dot green"></span>正式 M1b 不变</span>
-            <span class="badge"><span class="dot red"></span>Formal 继续封存</span>
+            <span class="badge"><span class="dot red"></span>Stage 1 未解锁</span>
           </div>
         </article>
-        <article class="status-card fail">
-          <h2>M1f / M1k Return</h2>
-          <strong>0.3594 / 0.0938</strong>
-          <p>禁用 readout 后回到 0.3594；当前 readout 是负因果贡献</p>
+        <article class="status-card pass">
+          <h2>Source / Candidate</h2>
+          <strong>0.3750 / 0.6406</strong>
+          <p>K=8 同 probe 提升 26.56 pp，固定锚点带来明确正因果贡献</p>
+        </article>
+        <article class="status-card pass">
+          <h2>Pair / Segment Top-1</h2>
+          <strong>0.9219 / 0.8125</strong>
+          <p>长历史下仍能定位正确身份段，M1k 的身份漂移已被修复</p>
         </article>
         <article class="status-card fail">
-          <h2>Context Pair</h2>
-          <strong>0.8438 → 0.5938</strong>
-          <p>错误位于历史身份选择，不是 clean recall 整体崩溃</p>
-        </article>
-        <article class="status-card hold">
-          <h2>Attention / Gate</h2>
-          <strong>0.3328 / 0.8517</strong>
-          <p>候选选择弥散，但 return-conflict 调用强度仍接近全开</p>
+          <h2>Confidence AUROC</h2>
+          <strong>0.6783 &lt; 0.70</strong>
+          <p>错误候选仍不能被可靠拒绝；绝对回忆 0.6406 也低于 0.70 门</p>
         </article>
       </div>
 
       <section>
         <div class="decision">
-          <strong>当前决策：M1k 不扩 seed，不在 blind 上调 attention、gate 或等价阈值</strong>
-          <p>Token-specific 架构没有自动带来 query-specific 行为：同 episode 两 probes 的 gate 差只有 0.0107。正式模型仍是 M1b；M1j 停止结论不变，formal 继续封存。</p>
+          <strong>当前决策：M1l 不进入 Stage 1，不在 seed527151 上调温度、置信度公式或冻结门槛</strong>
+          <p>固定锚点证明容量稳定的身份检索可以成立，但最终回忆与可靠拒绝尚未同时成立。任何后续模型都必须另立协议并使用全新 seeds；正式模型仍是 M1b，formal 继续封存。</p>
+        </div>
+      </section>
+
+      <section id="m1l">
+        <div class="section-head">
+          <div>
+            <h2>最新：M1l 固定事件锚点检索 Stage 0</h2>
+            <p>独立于 M1k 的零训练、只读因果审计。当前 query 只匹配更早事件锚点，并显式排除当前事件；无 room/context/位置输入，无 optimizer、slot 或第二套 fast weights。</p>
+          </div>
+          <div class="source">更新：2026-07-15 · seed527151 · K=1/4/8 共 384 probes · ReMAP 185 passed</div>
+        </div>
+
+        <article class="panel">
+          <h3>容量曲线与因果对照</h3>
+          <table>
+            <thead><tr><th>历史容量 K</th><th>Source</th><th>固定锚点 Candidate</th><th>Shuffled value</th><th>Context pair</th><th>Segment top-1</th></tr></thead>
+            <tbody>
+              <tr><td data-label="K"><strong>1</strong></td><td data-label="Source" class="num">0.8438</td><td data-label="Candidate" class="num green"><strong>0.8906</strong></td><td data-label="Shuffled" class="num">0.3125</td><td data-label="Context pair" class="num green">0.9531</td><td data-label="Segment top-1" class="num green">0.9375</td></tr>
+              <tr><td data-label="K"><strong>4</strong></td><td data-label="Source" class="num">0.7344</td><td data-label="Candidate" class="num green"><strong>0.8281</strong></td><td data-label="Shuffled" class="num">0.2656</td><td data-label="Context pair" class="num green">0.8906</td><td data-label="Segment top-1" class="num green">0.8438</td></tr>
+              <tr><td data-label="K"><strong>8</strong></td><td data-label="Source" class="num">0.3750</td><td data-label="Candidate" class="num amber"><strong>0.6406</strong></td><td data-label="Shuffled" class="num">0.3125</td><td data-label="Context pair" class="num green">0.9219</td><td data-label="Segment top-1" class="num green">0.8125</td></tr>
+            </tbody>
+          </table>
+          <p style="margin:10px 0 0;color:var(--muted);font-size:12px;">Candidate 在 K=8 比 source 高 26.56 pp、比 shuffled 高 32.81 pp；context pair 从 K=1 到 K=8 仅下降 3.13 pp。</p>
+        </article>
+
+        <div class="grid-2" style="margin-top:12px;">
+          <article class="panel">
+            <h3>冻结七门：5 PASS / 2 FAIL</h3>
+            <table>
+              <thead><tr><th>门</th><th>要求</th><th>结果</th></tr></thead>
+              <tbody>
+                <tr><td data-label="门">K=8 绝对回忆</td><td data-label="要求" class="num">≥ 0.70</td><td data-label="结果" class="num red">0.6406 · FAIL</td></tr>
+                <tr><td data-label="门">K=8 Context pair</td><td data-label="要求" class="num">≥ 0.80</td><td data-label="结果" class="num green">0.9219 · PASS</td></tr>
+                <tr><td data-label="门">K=8 Segment top-1</td><td data-label="要求" class="num">≥ 0.80</td><td data-label="结果" class="num green">0.8125 · PASS</td></tr>
+                <tr><td data-label="门">相对 Source 增益</td><td data-label="要求" class="num">≥ +0.15</td><td data-label="结果" class="num green">+0.2656 · PASS</td></tr>
+                <tr><td data-label="门">相对 Shuffled 增益</td><td data-label="要求" class="num">≥ +0.15</td><td data-label="结果" class="num green">+0.3281 · PASS</td></tr>
+                <tr><td data-label="门">K=1→8 Pair drop</td><td data-label="要求" class="num">≤ 0.10</td><td data-label="结果" class="num green">0.0313 · PASS</td></tr>
+                <tr><td data-label="门">置信度 AUROC</td><td data-label="要求" class="num">≥ 0.70</td><td data-label="结果" class="num red">0.6783 · FAIL</td></tr>
+              </tbody>
+            </table>
+          </article>
+
+          <article class="panel">
+            <h3>Stage 0 到底做了什么</h3>
+            <ul>
+              <li>事件锚点：balanced-action structural proposal 的上升沿。</li>
+              <li>Query：当前最新事件的归一化 cyclic signature；候选只含更早事件。</li>
+              <li>Key：固定 signature，不学习 Q/K；cosine softmax 温度固定为 0.05。</li>
+              <li>Value：冻结 M1f 的 base context 激活；shuffled 对照在同一候选集内循环移位。</li>
+              <li>置信度：top-1 attention × (1 - normalized entropy)。</li>
+              <li>干预只改每个 episode、每次 rollout 至多一个 return-conflict query。</li>
+            </ul>
+          </article>
+        </div>
+
+        <div class="grid-2" style="margin-top:12px;">
+          <article class="panel">
+            <h3>已经证明的部分</h3>
+            <ul>
+              <li>K=8 attention max 为 0.7810，context pair 为 0.9219：固定事件锚点修复了 M1k 的身份漂移和容量稀释。</li>
+              <li>Candidate 同时显著胜过 source 与 shuffled：提升来自正确 archival value，不是注意力或干预形式本身。</li>
+              <li>所有实现门通过，当前负结论不是泄漏、候选越界或对照失效造成的。</li>
+            </ul>
+          </article>
+
+          <article class="panel">
+            <h3>为什么仍然停止</h3>
+            <ul>
+              <li>身份段找对不等于最终内容必然回忆正确；K=8 candidate 仍只有 0.6406。</li>
+              <li>384 个 probes 中 pair-correct / pair-wrong 为 354 / 30，置信度均值虽分开，但 AUROC 只有 0.6783，不能可靠 abstain。</li>
+              <li>预注册要求所有七门同时通过；因此冻结状态是 M1L_ANCHORED_RETRIEVAL_STAGE0_REJECTED，不得训练 Stage 1。</li>
+            </ul>
+          </article>
         </div>
       </section>
 
@@ -1360,7 +1434,8 @@
           <article class="stage done"><b>G4 Probe 级归因</b><p>112 support / 16 reject；六特征 BA 0.500/0.596，停止 event-balanced 训练。</p></article>
           <article class="stage blocked"><b>G5 几何分解</b><p>88/40；reject 五桶最大仅 40%，分类 MIXED，无单机制可继续训练。</p></article>
           <article class="stage blocked"><b>M1k Query Readout</b><p>K8 0.0938；attention 弥散、gate 高开、context pair 0.5938，停止于单 seed。</p></article>
-          <article class="stage active"><b>下一步：先重新冻结问题</b><p>任何容量稳定、可拒绝的身份检索必须使用新协议与新 seeds；不得继续调 seed427151。</p></article>
+          <article class="stage blocked"><b>M1l 固定锚点 Stage 0</b><p>K8 candidate 0.6406、pair 0.9219、AUROC 0.6783；七门过五门，依法停止于训练前。</p></article>
+          <article class="stage active"><b>当前停点</b><p>没有合法 Stage 1。若继续研究精确 context refinement 或可靠拒绝，必须另立协议并使用全新 seeds。</p></article>
           <article class="stage blocked"><b>Formal Protocol</b><p>normal K=8 仅 0.4010；达到 0.80 绝对门前不解锁。</p></article>
         </div>
       </section>
@@ -1373,6 +1448,9 @@
           </div>
         </div>
         <div class="artifact-list">
+          <a class="artifact" href="REMAP_FORMER_M1L_ANCHORED_RETRIEVAL_STAGE0_CN.md"><strong>最新：M1l 固定锚点 Stage 0</strong><span>零训练架构、K=1/4/8 容量曲线、七个冻结门、因果对照与停止结论</span></a>
+          <a class="artifact" href="REMAP_FORMER_M1L_ANCHORED_RETRIEVAL_STAGE0_SUMMARY.json"><strong>M1l Stage 0 机器结果</strong><span>384 probes、source/candidate/shuffled、context geometry、置信度 AUROC 与冻结状态</span></a>
+          <a class="artifact" href="m1l_anchored_retrieval_stage0_protocol.json"><strong>M1l 冻结协议</strong><span>canonical digest、事件锚点、候选边界、七门、run-once seed 与禁止调参规则</span></a>
           <a class="artifact" href="REMAP_FORMER_M1K_QUERY_CONTEXT_PILOT_CN.md"><strong>最新：M1k Query Context Pilot</strong><span>17,464 参数架构、固定训练、K=8 三条件 blind、五门与 attention/gate 失败归因</span></a>
           <a class="artifact" href="REMAP_FORMER_M1K_QUERY_CONTEXT_PILOT_SUMMARY.json"><strong>M1k Blind 机器结果</strong><span>128 probes、三条件指标、context geometry、readout dynamics、实现门与冻结状态</span></a>
           <a class="artifact" href="REMAP_FORMER_M1K_TRAINING_SUMMARY.json"><strong>M1k 训练汇总</strong><span>step0→600 monitor、gate/attention 轨迹、冻结 backbone hash 与固定 final checkpoint</span></a>
@@ -1441,7 +1519,7 @@
       </section>
     </main>
 
-    <footer>ReMAP-Former internal dashboard · 2026-07-15 · M1b 仍是正式模型；M1k K8 blind 为 0.0938，context pair 0.5938，冻结 INVALID_IMPLEMENTATION 且科学五门只过 clean；M1k 不扩 seed，formal 未解锁</footer>
+    <footer>ReMAP-Former internal dashboard · 2026-07-15 · M1b 仍是正式模型；M1l K8 candidate 0.6406、context pair 0.9219、confidence AUROC 0.6783；Stage 0 七门过五门，不进入训练，formal 未解锁</footer>
   </div>
 </body>
 </html>
