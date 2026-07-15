@@ -477,6 +477,7 @@
         <p>Transformer=PFC 主干，EC 供结构，covariance-corrected HPC 供外挂记忆</p>
       </div>
       <nav aria-label="看板分区">
+        <a href="#m1k">M1k Query Readout</a>
         <a href="#m1j">M1j G3-G5 收口</a>
         <a href="#m1i">M1i + G2 审计</a>
         <a href="#m1h">M1h 历史调用</a>
@@ -497,8 +498,8 @@
       <div class="status-grid" aria-label="最新状态">
         <article class="status-card primary">
           <h2>当前主线</h2>
-          <strong>M1j 已完成 G3-G5 归因并停止训练：没有单一机制足以解释局部冲突</strong>
-          <p>第三个全新 seed19184 上，正确 query context oracle 从 0.4375 提到 0.8594，但 40 个 reject probe 分散在五个互斥桶；最大 local-geometry 只有 40%，未到 50% 主导门。冻结状态 MIXED_CONTEXT_VALUE_ADDRESS_GEOMETRY。</p>
+          <strong>M1k token 级 Query Context Readout 已完成单 seed blind，并停止扩展</strong>
+          <p>全新 seed427151 的 K=8 blind 中，M1f/M1k/disabled return-conflict 为 0.3594/0.0938/0.3594。长历史使 attention 重新弥散，但 gate 仍高开；context identity 被破坏。冻结状态 INVALID_IMPLEMENTATION，科学五门也只过 clean。</p>
           <div class="badge-row">
             <span class="badge"><span class="dot blue"></span>无 room / 位置输入</span>
             <span class="badge"><span class="dot teal"></span>Neural EC</span>
@@ -507,27 +508,89 @@
             <span class="badge"><span class="dot red"></span>Formal 继续封存</span>
           </div>
         </article>
-        <article class="status-card pass">
-          <h2>Source / Context Oracle</h2>
-          <strong>0.4375 / 0.8594</strong>
-          <p>每次 rollout 每 episode 只替换一个 query；因果空间仍然很大</p>
-        </article>
-        <article class="status-card hold">
-          <h2>Probe Credit</h2>
-          <strong>88 / 40</strong>
-          <p>Support / Reject；reject 子集跨新 seed 复现并扩大</p>
+        <article class="status-card fail">
+          <h2>M1f / M1k Return</h2>
+          <strong>0.3594 / 0.0938</strong>
+          <p>禁用 readout 后回到 0.3594；当前 readout 是负因果贡献</p>
         </article>
         <article class="status-card fail">
-          <h2>最大互斥错误桶</h2>
-          <strong>16 / 40</strong>
-          <p>Local transport geometry = 40%；主导门要求至少 50%</p>
+          <h2>Context Pair</h2>
+          <strong>0.8438 → 0.5938</strong>
+          <p>错误位于历史身份选择，不是 clean recall 整体崩溃</p>
+        </article>
+        <article class="status-card hold">
+          <h2>Attention / Gate</h2>
+          <strong>0.3328 / 0.8517</strong>
+          <p>候选选择弥散，但 return-conflict 调用强度仍接近全开</p>
         </article>
       </div>
 
       <section>
         <div class="decision">
-          <strong>当前决策：M1j 小修路线停止；不再加 loss、小 gate、只正 residual 或第二套记忆</strong>
-          <p>Reject 五桶为 source-correct 8、downstream 8、archival value 2、shared scalar 6、local geometry 16，没有单机制主导。正式模型仍是 M1b；若重启，应另立“query-conditioned context readout”新课题，而不是继续给 M1j 打补丁。</p>
+          <strong>当前决策：M1k 不扩 seed，不在 blind 上调 attention、gate 或等价阈值</strong>
+          <p>Token-specific 架构没有自动带来 query-specific 行为：同 episode 两 probes 的 gate 差只有 0.0107。正式模型仍是 M1b；M1j 停止结论不变，formal 继续封存。</p>
+        </div>
+      </section>
+
+      <section id="m1k">
+        <div class="section-head">
+          <div>
+            <h2>最新：M1k Query-conditioned Archival Context Readout</h2>
+            <p>从 frozen M1f 独立起步；每个 token 用 causal Transformer hidden 查询同 episode archival context。无 room/context/位置输入，无新 slot 或第二套 fast weights。</p>
+          </div>
+          <div class="source">更新：2026-07-15 · 固定 step600 · K=8 blind 128 probes · ReMAP 179 passed</div>
+        </div>
+
+        <div class="grid-2">
+          <article class="panel">
+            <h3>K=8 Blind 主表</h3>
+            <table>
+              <thead><tr><th>条件</th><th>Return-conflict</th><th>Clean</th><th>Context pair</th></tr></thead>
+              <tbody>
+                <tr><td data-label="条件">冻结 M1f</td><td data-label="Return" class="num">0.3594</td><td data-label="Clean" class="num">0.9398</td><td data-label="Context pair" class="num green">0.8438</td></tr>
+                <tr><td data-label="条件"><strong>M1k Query Readout</strong></td><td data-label="Return" class="num red"><strong>0.0938</strong></td><td data-label="Clean" class="num">0.9391</td><td data-label="Context pair" class="num red"><strong>0.5938</strong></td></tr>
+                <tr><td data-label="条件">M1k 禁用 Readout</td><td data-label="Return" class="num">0.3594</td><td data-label="Clean" class="num">0.9398</td><td data-label="Context pair" class="num green">0.8438</td></tr>
+              </tbody>
+            </table>
+            <p style="margin:10px 0 0;color:var(--muted);font-size:12px;">train seed27151；blind seed427151；固定 final step600，没有 checkpoint 选择。</p>
+          </article>
+
+          <article class="panel">
+            <h3>冻结五门</h3>
+            <table>
+              <thead><tr><th>门</th><th>要求</th><th>结果</th></tr></thead>
+              <tbody>
+                <tr><td data-label="门">绝对 Return</td><td data-label="要求" class="num">≥ 0.70</td><td data-label="结果" class="num red">0.0938 · FAIL</td></tr>
+                <tr><td data-label="门">相对 M1f 增益</td><td data-label="要求" class="num">≥ +0.15</td><td data-label="结果" class="num red">-0.2656 · FAIL</td></tr>
+                <tr><td data-label="门">Readout 必要性</td><td data-label="要求" class="num">≥ +0.10</td><td data-label="结果" class="num red">-0.2656 · FAIL</td></tr>
+                <tr><td data-label="门">Clean drop</td><td data-label="要求" class="num">≤ 0.02</td><td data-label="结果" class="num green">0.0008 · PASS</td></tr>
+                <tr><td data-label="门">Context pair</td><td data-label="要求" class="num">≥ 0.80</td><td data-label="结果" class="num red">0.5938 · FAIL</td></tr>
+              </tbody>
+            </table>
+          </article>
+        </div>
+
+        <div class="grid-2" style="margin-top:12px;">
+          <article class="panel">
+            <h3>M1k 到底加了什么</h3>
+            <ul>
+              <li>Query/key 输入：causal Transformer hidden + action-only state + cyclic signature。</li>
+              <li>History value：更早 structural proposals 上冻结的 base context 激活。</li>
+              <li>Readout：16 维逐通道 gate，在 M1f source context 与 archival context 间插值。</li>
+              <li>新增参数：17,464；唯一 loss 仍为均匀 all-token sensory CE。</li>
+              <li>没有 room、position、segment、target id、oracle context、slot 或第二套 fast weights。</li>
+            </ul>
+          </article>
+
+          <article class="panel">
+            <h3>为什么失败</h3>
+            <ul>
+              <li>训练 monitor 的 attention max 约 0.84；K=8 blind 降到 0.3328，entropy 升到 0.6394。</li>
+              <li>Return gate 仍为 0.8517，没在不确定时 abstain。</li>
+              <li>同 episode 两 probes 的 gate 差只有 0.0107，实际行为仍接近全局调用。</li>
+              <li>Disabled context 差 5.96e-8，但长序列 prediction 差放大为 7.68e-5，超过预注册 1e-6；状态必须记 INVALID_IMPLEMENTATION。</li>
+            </ul>
+          </article>
         </div>
       </section>
 
@@ -1296,7 +1359,8 @@
           <article class="stage done"><b>G3 Gradient-credit</b><p>聚合 cosine -0.9579；事件方向 0% / 100%，但逐 batch 仅 9/16 反向，分类 MIXED。</p></article>
           <article class="stage done"><b>G4 Probe 级归因</b><p>112 support / 16 reject；六特征 BA 0.500/0.596，停止 event-balanced 训练。</p></article>
           <article class="stage blocked"><b>G5 几何分解</b><p>88/40；reject 五桶最大仅 40%，分类 MIXED，无单机制可继续训练。</p></article>
-          <article class="stage active"><b>下一课题重构</b><p>另立 query-conditioned context readout 设计；不是继续小修 M1j。</p></article>
+          <article class="stage blocked"><b>M1k Query Readout</b><p>K8 0.0938；attention 弥散、gate 高开、context pair 0.5938，停止于单 seed。</p></article>
+          <article class="stage active"><b>下一步：先重新冻结问题</b><p>任何容量稳定、可拒绝的身份检索必须使用新协议与新 seeds；不得继续调 seed427151。</p></article>
           <article class="stage blocked"><b>Formal Protocol</b><p>normal K=8 仅 0.4010；达到 0.80 绝对门前不解锁。</p></article>
         </div>
       </section>
@@ -1309,6 +1373,10 @@
           </div>
         </div>
         <div class="artifact-list">
+          <a class="artifact" href="REMAP_FORMER_M1K_QUERY_CONTEXT_PILOT_CN.md"><strong>最新：M1k Query Context Pilot</strong><span>17,464 参数架构、固定训练、K=8 三条件 blind、五门与 attention/gate 失败归因</span></a>
+          <a class="artifact" href="REMAP_FORMER_M1K_QUERY_CONTEXT_PILOT_SUMMARY.json"><strong>M1k Blind 机器结果</strong><span>128 probes、三条件指标、context geometry、readout dynamics、实现门与冻结状态</span></a>
+          <a class="artifact" href="REMAP_FORMER_M1K_TRAINING_SUMMARY.json"><strong>M1k 训练汇总</strong><span>step0→600 monitor、gate/attention 轨迹、冻结 backbone hash 与固定 final checkpoint</span></a>
+          <a class="artifact" href="m1k_query_context_readout_pilot_protocol.json"><strong>M1k 冻结协议</strong><span>canonical digest、因果输入边界、唯一 sensory CE、fresh seeds、blind 五门和 run-once 规则</span></a>
           <a class="artifact" href="REMAP_FORMER_M1J_SHARED_TRANSPORT_GEOMETRY_G5_CN.md"><strong>最新：M1j G5 几何分解</strong><span>同 episode 梯度配对、query-isolated context oracle、40 个 reject 五桶与冻结停止结论</span></a>
           <a class="artifact" href="REMAP_FORMER_M1J_SHARED_TRANSPORT_GEOMETRY_G5_SUMMARY.json"><strong>G5 机器结果</strong><span>128 probe、64 pair、oracle、互斥分类、实现哈希和 frozen branch</span></a>
           <a class="artifact" href="m1j_shared_transport_geometry_g5_protocol.json"><strong>G5 冻结协议</strong><span>seed19184、query isolation、共享冲突门、类别优先级和主导阈值</span></a>
@@ -1373,7 +1441,7 @@
       </section>
     </main>
 
-    <footer>ReMAP-Former internal dashboard · 2026-07-14 · M1b 仍是正式模型；M1j G5 为 88 support/40 reject，五桶最大 40%，冻结 MIXED_CONTEXT_VALUE_ADDRESS_GEOMETRY；M1j 停止训练，formal 未解锁</footer>
+    <footer>ReMAP-Former internal dashboard · 2026-07-15 · M1b 仍是正式模型；M1k K8 blind 为 0.0938，context pair 0.5938，冻结 INVALID_IMPLEMENTATION 且科学五门只过 clean；M1k 不扩 seed，formal 未解锁</footer>
   </div>
 </body>
 </html>

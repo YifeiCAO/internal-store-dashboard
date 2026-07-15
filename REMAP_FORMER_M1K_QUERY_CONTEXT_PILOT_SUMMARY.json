@@ -1,0 +1,261 @@
+{
+  "format": "remap_former.m1k_query_context_pilot_result.v1",
+  "protocol_sha256": "453ed278c252bb33303f6160f9b701b7a447c294c93856580cf8ffcf78b07d28",
+  "protocol": {
+    "format": "remap_former.m1k_query_context_readout_pilot_protocol.v1",
+    "frozen_date": "2026-07-15",
+    "scope": "new research branch after G5 closed M1j; one training seed, one fixed final checkpoint, and one fresh K=8 dev blind pilot; no formal validation, test, multi-seed expansion, or reuse of G3-G5 diagnostic seeds",
+    "scientific_question": "can a token-specific causal Transformer query retrieve the correct archival context from the same history without a global event-level transport scalar, oracle context input, new memory slots, or second fast weights",
+    "parent_g5_protocol": "runs/remap_former/m1j_shared_transport_geometry_g5_protocol.json",
+    "parent_g5_protocol_sha256": "7eea24734e8274f9fc7ac5aebe331a1581295fd39d9f2305f785f4f8f8f6ff67",
+    "parent_g5_result": "runs/remap_former/m1j_shared_transport_geometry_g5/summary.json",
+    "parent_g5_result_file_sha256": "a1ce8ae8a0e432c1f343d44f67de59acb8e5ed4d4065afd10af8f491fc478c88",
+    "parent_g5_status": "MIXED_CONTEXT_VALUE_ADDRESS_GEOMETRY",
+    "research_reset": "M1k is not an M1j repair and does not alter the frozen M1j stop decision or formal M1b status",
+    "source_model_seed": 712,
+    "source_checkpoint": "runs/remap_former/m1b_covariance_ridge0p03_seed712_frozen/m1b_frozen.pt",
+    "source_checkpoint_sha256": "4c16ea253abe1f277b09b3538e17e8b14d6cee11e6f6c08750c8af4ff79fbacf",
+    "source_conversion": "parameter-free M1f with covariance-corrected content HPC ridge 0.001",
+    "content_hpc_covariance_ridge": 0.001,
+    "architecture": {
+      "name": "token-specific query-conditioned archival context readout",
+      "query_key_input": "causal Transformer pfc_hidden concatenated with action-only persistent state and causal cyclic action signature",
+      "query_key_dim": 32,
+      "attention_temperature": 0.1,
+      "history_event_mask": "strictly earlier balanced-action structural proposals only; current and future tokens are masked",
+      "history_value": "frozen M1b context_head(base state) at each earlier proposal; values are episode-local activations, not parameters or slots",
+      "read_gate": "16-dimensional token-specific sigmoid gate interpolating each context channel between frozen M1f source context and attended archival context",
+      "gate_hidden_dim": 32,
+      "initial_gate_logit": -3.0,
+      "disabled_path": "gate exactly zero, reproducing frozen M1f context and prediction",
+      "new_memory_slots": 0,
+      "new_fast_weight_systems": 0
+    },
+    "causal_input_contract": {
+      "allowed": [
+        "actions through current token",
+        "sensory observations strictly before current token through causal Transformer hidden",
+        "frozen PFC action-only state",
+        "frozen cyclic action signature",
+        "earlier proposal activations and archival base contexts from the same episode"
+      ],
+      "forbidden_model_inputs": [
+        "room id",
+        "context id",
+        "position or absolute coordinate",
+        "place id",
+        "segment id",
+        "path family id",
+        "return reference id",
+        "target index",
+        "query, clean, conflict, return, switch, or correctness masks",
+        "current sensory target before prediction",
+        "oracle or reference context"
+      ]
+    },
+    "train_seed": 27151,
+    "train_split": "train",
+    "training_generator": "make_procedural_context_batch",
+    "steps": 600,
+    "batch_size": 4,
+    "grid_size": 11,
+    "learning_rate": 0.001,
+    "weight_decay": 0.0001,
+    "gradient_clip": 1.0,
+    "eval_every": 100,
+    "eval_batches": 4,
+    "dev_monitor_seed": 327151,
+    "checkpoint_selection": "none; fixed final step 600 is the only blind candidate",
+    "trainable_scope": "query projection, key projection, read-gate norm, and read-gate MLP only; all pretrained PFC, state, context head, EC, place, address, content HPC, fusion, and decoder tensors frozen",
+    "loss": "one unweighted all-token sensory cross-entropy only",
+    "forbidden_losses": [
+      "room or context classification",
+      "oracle context regression",
+      "history matching or contrastive labels",
+      "query, return, conflict, or event reweighting",
+      "attention entropy or gate supervision",
+      "distillation from G5 oracle outputs"
+    ],
+    "blind_k8": {
+      "generator_seed": 427151,
+      "split": "dev",
+      "capacity_level": 8,
+      "max_jitter_cycles": 4,
+      "batch_size": 4,
+      "batches": 16,
+      "episodes": 64,
+      "expected_return_conflict_probes": 128,
+      "conditions": [
+        "frozen_m1f",
+        "m1k_query_readout",
+        "m1k_readout_disabled"
+      ],
+      "frozen_thresholds": {
+        "m1k_return_conflict_acc_at_least": 0.7,
+        "m1k_gain_vs_m1f_at_least": 0.15,
+        "readout_gain_vs_disabled_at_least": 0.1,
+        "m1k_clean_drop_vs_m1f_at_most": 0.02,
+        "m1k_context_pair_accuracy_at_least": 0.8
+      }
+    },
+    "implementation_gates": {
+      "disabled_prediction_max_abs_diff_at_most": 1e-06,
+      "disabled_context_max_abs_diff_at_most": 1e-06,
+      "current_sensory_target_must_not_change_current_context_or_prediction": true,
+      "prefix_outputs_must_be_invariant_to_future_suffix": true,
+      "all_non_m1k_parameters_must_be_frozen": true,
+      "every_active_history_attention_row_must_sum_to_one": true,
+      "model_forward_must_accept_no_task_metadata": true
+    },
+    "frozen_status_order": [
+      "INVALID_IMPLEMENTATION",
+      "M1K_QUERY_CONTEXT_PILOT_PASSED",
+      "M1K_QUERY_CONTEXT_PILOT_REJECTED"
+    ],
+    "post_result_rule": "open blind seed427151 exactly once after fixed step600; all five scientific gates and every implementation gate must pass before any multi-seed expansion; otherwise stop M1k without tuning on train monitor or blind outputs"
+  },
+  "device": "cuda",
+  "baseline_checkpoint_step": 600,
+  "candidate_checkpoint": "runs\\remap_former\\m1k_query_context_seed27151_s600\\m1k_final.pt",
+  "candidate_checkpoint_sha256": "9231fafadeef7eeb69d9d876a8415950465e1b2ca099b8226e3aafcfabfea4ea",
+  "candidate_checkpoint_step": 600,
+  "observed_return_conflict_probes": 128,
+  "implementation_diagnostics": {
+    "disabled_prediction_max_abs_diff": 7.677078247070312e-05,
+    "disabled_context_max_abs_diff": 5.960464477539063e-08
+  },
+  "metrics": {
+    "frozen_m1f": {
+      "loss": 1.9557042023231244,
+      "query_acc": 0.921875,
+      "query_queries": 3072.0,
+      "clean_acc": 0.93984375,
+      "clean_queries": 2560.0,
+      "conflict_acc": 0.83203125,
+      "conflict_queries": 512.0,
+      "return_acc": 0.4296875,
+      "return_queries": 256.0,
+      "return_conflict_acc": 0.359375,
+      "return_conflict_queries": 128.0,
+      "other_room_target_rate": 0.0625,
+      "correct_target_probability": 0.23712301603518426,
+      "other_room_target_probability": 0.06159083818420186,
+      "target_probability_margin": 0.1755321778509824,
+      "tokens": 37120.0
+    },
+    "m1k_query_readout": {
+      "loss": 1.5976701933762123,
+      "query_acc": 0.91015625,
+      "query_queries": 3072.0,
+      "clean_acc": 0.9390625,
+      "clean_queries": 2560.0,
+      "conflict_acc": 0.765625,
+      "conflict_queries": 512.0,
+      "return_acc": 0.0703125,
+      "return_queries": 256.0,
+      "return_conflict_acc": 0.09375,
+      "return_conflict_queries": 128.0,
+      "other_room_target_rate": 0.015625,
+      "correct_target_probability": 0.057942705403547734,
+      "other_room_target_probability": 0.021666716484105564,
+      "target_probability_margin": 0.03627598891944217,
+      "tokens": 37120.0
+    },
+    "m1k_readout_disabled": {
+      "loss": 1.9557041628607388,
+      "query_acc": 0.921875,
+      "query_queries": 3072.0,
+      "clean_acc": 0.93984375,
+      "clean_queries": 2560.0,
+      "conflict_acc": 0.83203125,
+      "conflict_queries": 512.0,
+      "return_acc": 0.4296875,
+      "return_queries": 256.0,
+      "return_conflict_acc": 0.359375,
+      "return_conflict_queries": 128.0,
+      "other_room_target_rate": 0.0625,
+      "correct_target_probability": 0.23712301824707538,
+      "other_room_target_probability": 0.06159083939201082,
+      "target_probability_margin": 0.17553217885506456,
+      "tokens": 37120.0
+    }
+  },
+  "context_metrics": {
+    "frozen_m1f": {
+      "pair_accuracy_tie_adjusted": 0.84375,
+      "correct_preference_rate": 0.84375,
+      "wrong_preference_rate": 0.15625,
+      "tie_rate": 0.0,
+      "correct_reference_cosine": 0.8653439991176128,
+      "wrong_reference_cosine": 0.6914294715970755,
+      "correct_minus_wrong_cosine": 0.17391452752053738,
+      "mean_evidence_strength": 1.0,
+      "return_conflict_queries": 128.0
+    },
+    "m1k_query_readout": {
+      "pair_accuracy_tie_adjusted": 0.59375,
+      "correct_preference_rate": 0.59375,
+      "wrong_preference_rate": 0.40625,
+      "tie_rate": 0.0,
+      "correct_reference_cosine": 0.8844369240105152,
+      "wrong_reference_cosine": 0.8238569870591164,
+      "correct_minus_wrong_cosine": 0.06057993695139885,
+      "mean_evidence_strength": 0.8517100624740124,
+      "return_conflict_queries": 128.0
+    },
+    "m1k_readout_disabled": {
+      "pair_accuracy_tie_adjusted": 0.84375,
+      "correct_preference_rate": 0.84375,
+      "wrong_preference_rate": 0.15625,
+      "tie_rate": 0.0,
+      "correct_reference_cosine": 0.8653439991176128,
+      "wrong_reference_cosine": 0.6914294715970755,
+      "correct_minus_wrong_cosine": 0.17391452752053738,
+      "mean_evidence_strength": 0.0,
+      "return_conflict_queries": 128.0
+    }
+  },
+  "readout_dynamics": {
+    "m1k_query_readout": {
+      "query_context_gate_mean": 0.8392596183096568,
+      "return_conflict_gate_mean": 0.8517100624740124,
+      "history_attention_max_mean": 0.33279629628708324,
+      "history_attention_entropy_mean": 0.6394051557438892,
+      "history_attention_row_max_abs_error": 2.384185791015625e-07,
+      "same_episode_probe_gate_abs_difference_mean": 0.010726535692811012,
+      "history_available_tokens": 36314.0
+    },
+    "m1k_readout_disabled": {
+      "query_context_gate_mean": 0.0,
+      "return_conflict_gate_mean": 0.0,
+      "history_attention_max_mean": 0.33279629628708324,
+      "history_attention_entropy_mean": 0.6394051557438892,
+      "history_attention_row_max_abs_error": 2.384185791015625e-07,
+      "same_episode_probe_gate_abs_difference_mean": 0.0,
+      "history_available_tokens": 36314.0
+    }
+  },
+  "decision": {
+    "status": "INVALID_IMPLEMENTATION",
+    "scientific_gates": {
+      "m1k_return_absolute": false,
+      "m1k_gain_vs_m1f": false,
+      "query_readout_necessary": false,
+      "m1k_clean_preserved": true,
+      "m1k_context_identity": false
+    },
+    "implementation_gates": {
+      "disabled_prediction_equivalence": false,
+      "disabled_context_equivalence": true,
+      "attention_rows_normalized": true,
+      "expected_return_conflict_probes": true,
+      "finite_outputs": true,
+      "source_checkpoint_digest": true
+    },
+    "differences": {
+      "m1k_return_gain_vs_m1f": -0.265625,
+      "readout_return_gain_vs_disabled": -0.265625,
+      "m1k_clean_drop_vs_m1f": 0.0007812499999999556
+    }
+  }
+}
