@@ -477,6 +477,7 @@
         <p>Transformer=PFC 主干，EC 供结构，covariance-corrected HPC 供外挂记忆</p>
       </div>
       <nav aria-label="看板分区">
+        <a href="#m1o">M1o 最新</a>
         <a href="#m1n">M1m→M1n 收口</a>
         <a href="#m1l">M1l 固定锚点</a>
         <a href="#m1k">M1k Query Readout</a>
@@ -500,38 +501,148 @@
       <div class="status-grid" aria-label="最新状态">
         <article class="status-card primary">
           <h2>当前主线</h2>
-          <strong>M1m→M1n 已完整收口：正确历史值存在，但统一 CE 没学会高覆盖事件调用</strong>
-          <p>G0 将 K=8 hard top-1 / oracle-best / exact-correct 定位为 0.7448 / 1.0000 / 1.0000，锁定 key ranking；G1 的零参数 context basin 只有 0.4167。M1n 固定训练 6,166 个参数后，fresh blind 的 M1f / M1n / disabled 为 0.5000 / 0.5312 / 0.5000，128 probes 只调用历史 10 次，按预注册规则拒绝。</p>
+          <strong>M1o 已收口：证据耦合调用修对了结构，但统一 CE 仍只学成高精度、极低召回调用器</strong>
+          <p>Dense re-entry G0 v4 的固定 hard archive 从 source 0.6781 提高到 0.8938，10/10 gates 通过；固定 800 步训练后，original-K8 monitor 只从 0.3438 到 0.3750，64 个 return probes 仅调用 archive 2 次。两次都选对 room，clean 不降，但覆盖率远低于冻结门。</p>
           <div class="badge-row">
             <span class="badge"><span class="dot blue"></span>无 room / 位置输入</span>
-            <span class="badge"><span class="dot teal"></span>14 / 14 实现门通过</span>
-            <span class="badge"><span class="dot amber"></span>固定锚点 + 有界残差</span>
+            <span class="badge"><span class="dot teal"></span>17 / 17 实现门通过</span>
+            <span class="badge"><span class="dot green"></span>G0 v4 · 10 / 10</span>
+            <span class="badge"><span class="dot amber"></span>两阶段证据耦合调用</span>
             <span class="badge"><span class="dot green"></span>正式 M1b 不变</span>
-            <span class="badge"><span class="dot red"></span>M1n 不扩 seed</span>
+            <span class="badge"><span class="dot red"></span>Fresh blind 未打开</span>
           </div>
         </article>
         <article class="status-card pass">
-          <h2>G0 Hard / Oracle-best</h2>
-          <strong>0.7448 / 1.0000</strong>
-          <p>正确 archival value 已在同一合法候选集，下游 HPC 链路健康</p>
-        </article>
-        <article class="status-card pass">
-          <h2>M1n Blind</h2>
-          <strong>0.5000 → 0.5312</strong>
-          <p>相对 source 和 disabled 都只增 3.13 pp，远低于冻结 +20 pp 门</p>
+          <h2>G0 v4 Source → Hard</h2>
+          <strong>0.6781 → 0.8938</strong>
+          <p>记忆需求密度 2.743x，正确 room 0.9469，训练任务可解</p>
         </article>
         <article class="status-card fail">
-          <h2>History Calls</h2>
-          <strong>10 / 128</strong>
-          <p>10 次调用都来自正确 reference segment，但覆盖率只有 7.81%</p>
+          <h2>M1o Final Monitor</h2>
+          <strong>0.3438 → 0.3750</strong>
+          <p>固定 step800；只增 3.13 pp，绝对、增益和覆盖门均失败</p>
+        </article>
+        <article class="status-card fail">
+          <h2>Archive Calls</h2>
+          <strong>2 / 64</strong>
+          <p>调用 precision 1.000，但 correct-room coverage 只有 0.03125</p>
         </article>
       </div>
 
       <section>
         <div class="decision">
-          <strong>当前决策：停止 M1n，不在 blind seed847151 上调 null、loss、checkpoint 或门槛</strong>
-          <p>M1n 学成了高精度、极低召回的 abstainer，而不是可靠事件排序器。M1m→M1n 作为 key-ranking 与 sparse-credit 的机制负结果封存；正式模型仍是 M1b，formal 继续封存。</p>
+          <strong>当前决策：M1o training gate 拒绝，fresh blind seed1257151 保持未打开</strong>
+          <p>不调 bias、阈值、LR 或 checkpoint，不扩 seed。下一条合法路线是独立 objective-level reset：让 source/archive 两条因果分支的真实 sensory likelihood 直接给 latent routing 信用；仍禁 room、segment、return 和正确 event 标签。</p>
         </div>
+      </section>
+
+      <section id="m1o">
+        <div class="section-head">
+          <div>
+            <h2>最新：M1o 证据耦合调用与 Dense Re-entry</h2>
+            <p>M1o 让调用头真正看见历史检索证据，再决定继续使用 frozen source，还是调用一个严格更早 event 的原始 base context。没有 room/context/位置/segment 真值，没有新增 slot 或第二套 fast weights。</p>
+          </div>
+          <div class="source">更新：2026-07-15 · 固定 step800 · 6,150 trainable params · fresh blind 未打开 · ReMAP 223 passed</div>
+        </div>
+
+        <article>
+          <h3>M1o 数据流：Transformer 是 PFC，HPC 仍是 episode 内外挂内容记忆</h3>
+          <div class="arch-flow">
+            <div class="arch-node input">
+              <h3>合法输入</h3>
+              <ul><li>当前动作</li><li>严格滞后 sensory</li><li>因果 event history</li></ul>
+              <p style="margin-top:9px;">禁 room、位置、segment、return mask 与 oracle event。</p>
+            </div>
+            <div class="arch-node pfc">
+              <h3>冻结 Transformer / PFC</h3>
+              <ul><li>窗口 causal hidden</li><li>action-state</li><li>source context</li></ul>
+              <p style="margin-top:9px;">PFC、state/context head 全冻结。</p>
+            </div>
+            <div class="arch-node ec">
+              <h3>阶段 A：事件排序</h3>
+              <ul><li>固定 cyclic anchor</li><li>有界 neural residual</li><li>只排严格更早 event</li></ul>
+              <p style="margin-top:9px;">取一个精确 archival base context，并产生检索统计。</p>
+            </div>
+            <div class="arch-node hpc">
+              <h3>阶段 B：调用判定</h3>
+              <ul><li>8 个 retrieval evidence</li><li>source / archive 二选一</li><li>不递归写回 ranker</li></ul>
+              <p style="margin-top:9px;">训练参数只在排序器与调用头，共 6,150 个。</p>
+            </div>
+            <div class="arch-node output">
+              <h3>冻结 EC / Place / HPC</h3>
+              <ul><li>place × context 地址</li><li>covariance content-HPC</li><li>fusion + sensory decoder</li></ul>
+              <p style="margin-top:9px;">仍只用一个均匀 all-token sensory CE。</p>
+            </div>
+          </div>
+        </article>
+
+        <article class="panel" style="margin-top:12px;">
+          <h3>训练前 G0：前三版被 gate 拦下，v4 才允许训练</h3>
+          <table>
+            <thead><tr><th>版本</th><th>分布</th><th>密度倍率</th><th>Source</th><th>Fixed hard</th><th>增益</th><th>正确 event / room</th><th>决策</th></tr></thead>
+            <tbody>
+              <tr><td data-label="版本">v1</td><td data-label="分布">K4/K8 · 4 targets</td><td data-label="密度" class="num">1.515x</td><td data-label="Source" class="num">0.5312</td><td data-label="Hard" class="num">0.7422</td><td data-label="增益" class="num">+0.2109</td><td data-label="正确率" class="num">0.8672</td><td data-label="决策" class="red">密度不足</td></tr>
+              <tr><td data-label="版本">v2</td><td data-label="分布">内环 + 外环 8 targets</td><td data-label="密度" class="num">2.283x</td><td data-label="Source" class="num">0.5273</td><td data-label="Hard" class="num">0.5859</td><td data-label="增益" class="num">+0.0586</td><td data-label="正确率" class="num">0.7695</td><td data-label="决策" class="red">机制门失败</td></tr>
+              <tr><td data-label="版本">v3</td><td data-label="分布">外环 + 对角 8 targets</td><td data-label="密度" class="num">2.020x</td><td data-label="Source" class="num">0.2656</td><td data-label="Hard" class="num">0.5156</td><td data-label="增益" class="num">+0.2500</td><td data-label="正确率" class="num">0.7773</td><td data-label="决策" class="red">绝对门失败</td></tr>
+              <tr><td data-label="版本"><strong>v4</strong></td><td data-label="分布"><strong>每 4 个 novel 后 re-entry · K8/K12</strong></td><td data-label="密度" class="num green"><strong>2.743x</strong></td><td data-label="Source" class="num">0.6781</td><td data-label="Hard" class="num green"><strong>0.8938</strong></td><td data-label="增益" class="num green">+0.2156</td><td data-label="正确率" class="num green">0.9469</td><td data-label="决策" class="green"><strong>10/10 PASS</strong></td></tr>
+            </tbody>
+          </table>
+        </article>
+
+        <div class="grid-2" style="margin-top:12px;">
+          <article class="panel">
+            <h3>Original-K8 固定训练轨迹</h3>
+            <table>
+              <thead><tr><th>Step</th><th>M1o</th><th>Source</th><th>Return call</th><th>Correct room</th><th>Distractor null</th></tr></thead>
+              <tbody>
+                <tr><td data-label="Step" class="num">0</td><td data-label="M1o" class="num">0.3438</td><td data-label="Source" class="num">0.3438</td><td data-label="Call" class="num">0.0000</td><td data-label="Room" class="num">0.0000</td><td data-label="Null" class="num green">1.000</td></tr>
+                <tr><td data-label="Step" class="num">400</td><td data-label="M1o" class="num">0.3438</td><td data-label="Source" class="num">0.3438</td><td data-label="Call" class="num">0.0000</td><td data-label="Room" class="num">0.0000</td><td data-label="Null" class="num green">1.000</td></tr>
+                <tr><td data-label="Step" class="num">500</td><td data-label="M1o" class="num">0.2500</td><td data-label="Source" class="num">0.3438</td><td data-label="Call" class="num">0.0000</td><td data-label="Room" class="num">0.0000</td><td data-label="Null" class="num">0.967</td></tr>
+                <tr><td data-label="Step" class="num">600</td><td data-label="M1o" class="num">0.2812</td><td data-label="Source" class="num">0.3438</td><td data-label="Call" class="num">0.0312</td><td data-label="Room" class="num">0.0312</td><td data-label="Null" class="num">0.978</td></tr>
+                <tr><td data-label="Step" class="num">700</td><td data-label="M1o" class="num amber">0.4062</td><td data-label="Source" class="num">0.3438</td><td data-label="Call" class="num">0.0625</td><td data-label="Room" class="num">0.0625</td><td data-label="Null" class="num">0.937</td></tr>
+                <tr><td data-label="Step" class="num"><strong>800</strong></td><td data-label="M1o" class="num red"><strong>0.3750</strong></td><td data-label="Source" class="num">0.3438</td><td data-label="Call" class="num red">0.0312</td><td data-label="Room" class="num red">0.0312</td><td data-label="Null" class="num green">0.937</td></tr>
+              </tbody>
+            </table>
+            <p style="margin:10px 0 0;color:var(--muted);font-size:12px;">Step700 只是中间波动，不是合法 checkpoint；唯一决策点是固定 step800。</p>
+          </article>
+
+          <article class="panel">
+            <h3>固定终点：会调对，但几乎不调</h3>
+            <table>
+              <thead><tr><th>指标</th><th>Frozen source</th><th>M1o</th><th>差值 / 状态</th></tr></thead>
+              <tbody>
+                <tr><td data-label="指标">Return-conflict</td><td data-label="Source" class="num">0.3438</td><td data-label="M1o" class="num red"><strong>0.3750</strong></td><td data-label="差值" class="num red">+0.0313</td></tr>
+                <tr><td data-label="指标">Clean</td><td data-label="Source" class="num green">0.9516</td><td data-label="M1o" class="num green">0.9516</td><td data-label="差值" class="num green">0.0000</td></tr>
+                <tr><td data-label="指标">Archive call</td><td data-label="Source" class="num">-</td><td data-label="M1o" class="num red">2 / 64</td><td data-label="状态" class="red">coverage 0.03125</td></tr>
+                <tr><td data-label="指标">Call precision</td><td data-label="Source" class="num">-</td><td data-label="M1o" class="num green">1.000</td><td data-label="状态" class="green">两次都选对 room</td></tr>
+                <tr><td data-label="指标">Dense K8 / K12</td><td data-label="Source" class="num">0.6250 / 0.7292</td><td data-label="M1o" class="num">0.6250 / 0.7292</td><td data-label="状态" class="red">return call 均为 0</td></tr>
+              </tbody>
+            </table>
+          </article>
+        </div>
+
+        <div class="grid-2" style="margin-top:12px;">
+          <article class="panel">
+            <h3>Training gates：4 PASS / 4 FAIL</h3>
+            <ul>
+              <li><span class="red">FAIL</span>：absolute 0.3750 &lt; 0.65；gain +0.0313 &lt; +0.10。</li>
+              <li><span class="red">FAIL</span>：archive coverage 0.03125 &lt; 0.35；correct-room coverage 0.03125 &lt; 0.50。</li>
+              <li><span class="green">PASS</span>：clean drop 0；distractor null 0.9368。</li>
+              <li><span class="green">PASS</span>：frozen backbone hash 不变；所有指标 finite。</li>
+            </ul>
+          </article>
+          <article class="panel">
+            <h3>机制结论与下一条合法路线</h3>
+            <ul>
+              <li>结构问题已修：调用头能看见检索证据，G0 hard archive 也确实有效。</li>
+              <li>失败仍在信用分配：all-token CE 奖励保守 source，稀疏 return 收益没有把 soft preference 稳定推过 hard-call 阈值。</li>
+              <li>不得在 monitor 或未打开 blind 上调 bias、阈值、LR、loss、checkpoint。</li>
+              <li>下一次需另立协议：用 source/archive 两条只读分支的真实 sensory likelihood 训练 latent routing，部署时再 hard select。</li>
+            </ul>
+          </article>
+        </div>
+
+        <div class="no-slot">冻结结论：M1O_TRAINING_GATE_REJECTED。Fresh blind seed1257151 未打开，不扩 seed；正式 M1b、原 content-HPC 与 formal 封存状态不变。</div>
       </section>
 
       <section id="m1n">
@@ -1552,7 +1663,9 @@
           <article class="stage done"><b>M1m G0 精度链</b><p>Hard 0.7448、oracle-best/exact 1.0000；锁定 event key ranking，排除 archival value 与 HPC 下游。</p></article>
           <article class="stage blocked"><b>M1m G1 Context Basin</b><p>Basin 0.4167，低于 fixed signature 0.7135；零参数 nearest-neighbor 不足。</p></article>
           <article class="stage blocked"><b>M1n Neural Ranker</b><p>Blind 0.5312，source/disabled 0.5000；只调用 10/128，六门只过 clean，停止。</p></article>
-          <article class="stage active"><b>当前停点</b><p>M1n 已冻结拒绝。任何新目标必须是独立 research reset 和全新 seeds；正式 M1b 不变。</p></article>
+          <article class="stage done"><b>M1o Dense G0 v4</b><p>Source 0.6781→hard 0.8938，密度 2.743x，正确 room 0.9469；10/10 gates 通过。</p></article>
+          <article class="stage blocked"><b>M1o Evidence-coupled Training</b><p>固定 step800 为 0.3750 vs source 0.3438；只调用 2/64，4/8 gates 通过，停止。</p></article>
+          <article class="stage active"><b>当前停点</b><p>M1o 已冻结拒绝，fresh blind 未打开。下一目标必须是 objective-level research reset 与全新 seeds；正式 M1b 不变。</p></article>
           <article class="stage blocked"><b>Formal Protocol</b><p>normal K=8 仅 0.4010；达到 0.80 绝对门前不解锁。</p></article>
         </div>
       </section>
@@ -1565,6 +1678,14 @@
           </div>
         </div>
         <div class="artifact-list">
+          <a class="artifact" href="REMAP_FORMER_M1O_EVIDENCE_COUPLED_V4_RESULT_CN.md"><strong>最新：M1o 证据耦合调用完整结果</strong><span>两阶段架构、四轮 G0、固定训练轨迹、八个 training gates、机制解释与下一条合法路线</span></a>
+          <a class="artifact" href="REMAP_FORMER_M1O_TRAINING_SUMMARY.json"><strong>M1o 训练机器汇总</strong><span>固定 step800、original/dense monitors、调用覆盖、冻结 hash、checkpoint SHA 与拒绝分支</span></a>
+          <a class="artifact" href="REMAP_FORMER_M1O_TRAINING_METRICS.jsonl"><strong>M1o 完整训练轨迹</strong><span>step0→800 的 source、candidate、soft/hard call、correct-room coverage 与 distractor null</span></a>
+          <a class="artifact" href="REMAP_FORMER_M1O_TRAINING_DISTRIBUTION_G0_V4_CN.md"><strong>M1o Dense G0 v4</strong><span>K8/K12 long-delay repeated re-entry、2.743x 密度、10/10 gates 与训练解锁依据</span></a>
+          <a class="artifact" href="REMAP_FORMER_M1O_G0_V4_SUMMARY.json"><strong>M1o G0 v4 机器结果</strong><span>source/hard/gain、正确 room、密度倍率、实现门与 canonical protocol digest</span></a>
+          <a class="artifact" href="m1o_evidence_coupled_dense_v4_pilot_protocol.json"><strong>M1o v4 冻结协议</strong><span>输入边界、两阶段 caller、K8/K12 curriculum、固定终点、blind 解锁门与禁止项</span></a>
+          <a class="artifact" href="REMAP_FORMER_M1O_SMOKE.json"><strong>M1o Smoke 机器结果</strong><span>17/17 implementation gates、合法候选边界、disabled 等价与冻结模块验证</span></a>
+          <a class="artifact" href="REMAP_FORMER_M1O_RESEARCH_RESET_PLAN_CN.md"><strong>M1o Research Reset 计划与执行记录</strong><span>为什么独立重置、预注册分支、G0 v1→v4 修正链和最终训练裁决</span></a>
           <a class="artifact" href="REMAP_FORMER_M1M_M1N_KEY_RANKING_RESULT_CN.md"><strong>最新：M1m→M1n 完整收口</strong><span>模型架构、G0/G1 因果链、训练轨迹、fresh blind 六门与机制结论</span></a>
           <a class="artifact" href="REMAP_FORMER_M1N_ANCHORED_RESIDUAL_RANKER_PILOT_CN.md"><strong>M1n 自动 Blind 报告</strong><span>Mermaid 架构、三条件主表、14 个实现门、六个科学门与低覆盖 abstention 归因</span></a>
           <a class="artifact" href="REMAP_FORMER_M1N_ANCHORED_RANKER_PILOT_SUMMARY.json"><strong>M1n Blind 机器结果</strong><span>128 probes、context geometry、ranker dynamics、checkpoint hash、冻结状态与分支</span></a>
@@ -1647,7 +1768,7 @@
       </section>
     </main>
 
-    <footer>ReMAP-Former internal dashboard · 2026-07-15 · M1b 仍是正式模型；M1n fresh blind 0.5312，source/disabled 0.5000，history call 10/128；14 个实现门全绿、六个科学门只过 clean，M1n 停止，formal 未解锁</footer>
+    <footer>ReMAP-Former internal dashboard · 2026-07-15 · M1b 仍是正式模型；M1o G0 v4 为 0.6781→0.8938，但固定训练仅 0.3438→0.3750，archive call 2/64；17 个实现门全绿、training gates 4/8，fresh blind 未打开，formal 未解锁</footer>
   </div>
 </body>
 </html>
