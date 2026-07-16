@@ -1,0 +1,120 @@
+{
+  "format": "remap_former.m1m_context_basin_g1_protocol.v1",
+  "frozen_date": "2026-07-15",
+  "scope": "fresh-seed zero-parameter query-only G1 after M1m G0 classified key ranking as dominant; no optimizer, model mutation, checkpoint selection, formal validation, test access, or reuse of G0 seeds",
+  "scientific_question": "can the current causal PFC base-context act as a basin cue that projects onto the correct earlier event context without learned Q/K, additional memory, or oracle inputs, and is its nearest-neighbor margin sufficient for safe abstention",
+  "parent_m1m_protocol": "runs/remap_former/m1m_precision_chain_g0_protocol.json",
+  "parent_m1m_protocol_sha256": "329dda91b12253fc039626af74fbcbada122ec092c24cab005a5a35365cb005c",
+  "parent_m1m_result": "runs/remap_former/m1m_precision_chain_g0/summary.json",
+  "parent_m1m_result_file_sha256": "b572f1fc9cd86cc8c00033f7c2804fe056935b32db2456420aacd1aeec627ef2",
+  "parent_m1m_status": "M1M_KEY_RANKING_DOMINANT",
+  "parent_result_boundary": "on 384 fresh K8 probes, soft/hard/oracle-best/exact-correct were 0.6927/0.7448/1.0000/1.0000; the correct archival value exists and the original HPC downstream is healthy, but fixed cyclic key ranking is insufficient",
+  "source_checkpoint": "runs/remap_former/m1b_covariance_ridge0p03_seed712_frozen/m1b_frozen.pt",
+  "source_checkpoint_sha256": "4c16ea253abe1f277b09b3538e17e8b14d6cee11e6f6c08750c8af4ff79fbacf",
+  "source_conversion": "parameter-free M1f with covariance-corrected content HPC ridge 0.001",
+  "content_hpc_covariance_ridge": 0.001,
+  "capacity_level": 8,
+  "generator_seeds": [
+    727151,
+    737151,
+    747151
+  ],
+  "split": "dev",
+  "max_jitter_cycles": 4,
+  "batch_size": 4,
+  "grid_size": 11,
+  "batches_per_seed": 16,
+  "episodes_per_seed": 64,
+  "expected_return_conflict_probes_per_seed": 128,
+  "expected_total_return_conflict_probes": 384,
+  "event_archive": {
+    "event_detector": "rising edge of the causal balanced-action structural proposal",
+    "latest_event": "most recent detected event before the current query",
+    "candidate_events": "all detected event anchors strictly earlier than the latest event",
+    "current_event_excluded": true,
+    "archival_value": "frozen normalized M1f base_context at each candidate event",
+    "trainable_parameters": 0,
+    "new_memory_slots": 0,
+    "new_fast_weight_systems": 0
+  },
+  "rankers": {
+    "signature_hard_top1": "deterministic earliest-index argmax of fixed cyclic-signature cosine, exactly matching M1m G0 hard baseline",
+    "context_basin_hard": "deterministic earliest-index argmax of cosine between frozen base_context at the latest event and frozen base_context at each earlier candidate event",
+    "context_basin_shuffled_value": "use the unchanged context-basin selected candidate index but replace its archival value by a deterministic one-step rotation within the same causal candidate list",
+    "oracle_best_archival_value": "diagnostic-only argmax of candidate-value cosine to exact correct reference context",
+    "confidence": "top1 minus top2 context-basin key cosine; zero when fewer than two candidates"
+  },
+  "query_only_conditions": [
+    "source",
+    "signature_hard_top1",
+    "context_basin_hard",
+    "context_basin_shuffled_value",
+    "oracle_best_archival_value",
+    "exact_correct_context",
+    "exact_wrong_context"
+  ],
+  "causal_input_contract": {
+    "allowed_for_context_basin": [
+      "actions through current token",
+      "frozen structural proposals",
+      "frozen cyclic action signatures for the baseline only",
+      "frozen causal base_context at the latest and earlier event anchors from the same episode"
+    ],
+    "forbidden_model_inputs": [
+      "room or context id",
+      "position or place id",
+      "segment id",
+      "path family or variant id",
+      "return reference id",
+      "target index",
+      "return, conflict, correctness, or oracle mask",
+      "current sensory target",
+      "correct or wrong reference context"
+    ],
+    "oracle_boundary": "oracle-best and exact reference conditions may use metadata only after source, signature, basin, and shuffled candidates are emitted and only for query-only scoring"
+  },
+  "query_only_isolation": "at most one scored query per episode is changed in any rollout; every prior address, HPC read, and HPC write remains source M1f",
+  "implementation_gates": {
+    "parent_and_source_digests_must_match": true,
+    "model_parameter_state_must_be_unchanged": true,
+    "every_probe_must_have_latest_and_earlier_events": true,
+    "latest_event_must_be_in_final_segment": true,
+    "current_event_must_be_excluded": true,
+    "signature_ranker_must_equal_fixed_key_argmax": true,
+    "context_basin_ranker_must_equal_current_context_argmax": true,
+    "shuffled_control_must_preserve_selected_index_keys_count_and_episode": true,
+    "oracle_best_must_equal_value_cosine_argmax": true,
+    "all_interventions_must_be_query_only": true,
+    "local_hpc_replay_must_match_full_rollout": true,
+    "observed_probe_counts_must_equal_expected": true
+  },
+  "frozen_thresholds": {
+    "exact_correct_return_conflict_acc_at_least": 0.9,
+    "exact_wrong_return_conflict_acc_at_most": 0.1,
+    "oracle_best_return_conflict_acc_at_least": 0.95,
+    "context_basin_return_conflict_acc_at_least": 0.8,
+    "context_basin_gain_vs_signature_at_least": 0.1,
+    "context_basin_gain_vs_source_at_least": 0.3,
+    "context_basin_gain_vs_shuffled_at_least": 0.2,
+    "context_basin_context_pair_accuracy_at_least": 0.9,
+    "context_basin_correct_segment_top1_rate_at_least": 0.9,
+    "context_basin_gain_positive_seed_count_at_least": 2,
+    "confidence_auroc_for_basin_pair_correct_at_least": 0.7
+  },
+  "frozen_status_order": [
+    "INVALID_IMPLEMENTATION",
+    "CONTEXT_BASIN_RETRIEVAL_CONFIRMED",
+    "CONTEXT_BASIN_IDENTITY_WITHOUT_ABSTENTION",
+    "CONTEXT_BASIN_RANKING_INSUFFICIENT",
+    "CONTEXT_BASIN_CONTROL_OR_CEILING_FAILURE"
+  ],
+  "frozen_classification_rule": "after implementation and exact/oracle/shuffled controls, classify RETRIEVAL_CONFIRMED only when every retrieval and confidence gate passes; classify IDENTITY_WITHOUT_ABSTENTION when every retrieval gate passes except confidence; classify RANKING_INSUFFICIENT when controls pass but one or more retrieval gates fail; otherwise classify CONTROL_OR_CEILING_FAILURE",
+  "frozen_branch_mapping": {
+    "INVALID_IMPLEMENTATION": "STOP_AND_FIX_G1_AUDIT_ONLY",
+    "CONTEXT_BASIN_RETRIEVAL_CONFIRMED": "PRE_REGISTER_FULL_SEQUENCE_CONTEXT_BASIN_CALLER_WITH_FRESH_SEEDS_NO_TRAINING",
+    "CONTEXT_BASIN_IDENTITY_WITHOUT_ABSTENTION": "STOP_FULL_SEQUENCE_DEPLOYMENT_AND_PRE_REGISTER_SEPARATE_CAUSAL_ABSTENTION_RESEARCH",
+    "CONTEXT_BASIN_RANKING_INSUFFICIENT": "PRE_REGISTER_NEURAL_EVENT_RANKER_WITH_SINGLE_SENSORY_CE_AND_FRESH_TRAIN_MONITOR_BLIND_SEEDS",
+    "CONTEXT_BASIN_CONTROL_OR_CEILING_FAILURE": "STOP_M1M_AND_RETAIN_FORMAL_M1B"
+  },
+  "post_result_rule": "run all three seeds once and classify once; do not tune event definition, context key, tie break, shuffled control, confidence score, thresholds, or category order on seeds727151/737151/747151; G1 never unlocks formal access or training by itself"
+}

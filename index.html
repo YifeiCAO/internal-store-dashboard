@@ -477,7 +477,8 @@
         <p>Transformer=PFC 主干，EC 供结构，covariance-corrected HPC 供外挂记忆</p>
       </div>
       <nav aria-label="看板分区">
-        <a href="#m1l">M1l 固定锚点检索</a>
+        <a href="#m1n">M1m→M1n 收口</a>
+        <a href="#m1l">M1l 固定锚点</a>
         <a href="#m1k">M1k Query Readout</a>
         <a href="#m1j">M1j G3-G5 收口</a>
         <a href="#m1i">M1i + G2 审计</a>
@@ -499,38 +500,151 @@
       <div class="status-grid" aria-label="最新状态">
         <article class="status-card primary">
           <h2>当前主线</h2>
-          <strong>M1l 固定锚点检索 Stage 0 已完成：身份几何修复，但 5 / 7 门不足以进入训练</strong>
-          <p>全新 seed527151、零训练的 K=8 审计中，source/candidate/shuffled return-conflict 为 0.3750/0.6406/0.3125；context pair 与 segment top-1 达 0.9219/0.8125。绝对回忆与置信度 AUROC 两门未过，冻结状态为 REJECTED，M1l 在 Stage 0 停止。</p>
+          <strong>M1m→M1n 已完整收口：正确历史值存在，但统一 CE 没学会高覆盖事件调用</strong>
+          <p>G0 将 K=8 hard top-1 / oracle-best / exact-correct 定位为 0.7448 / 1.0000 / 1.0000，锁定 key ranking；G1 的零参数 context basin 只有 0.4167。M1n 固定训练 6,166 个参数后，fresh blind 的 M1f / M1n / disabled 为 0.5000 / 0.5312 / 0.5000，128 probes 只调用历史 10 次，按预注册规则拒绝。</p>
           <div class="badge-row">
             <span class="badge"><span class="dot blue"></span>无 room / 位置输入</span>
-            <span class="badge"><span class="dot teal"></span>零训练只读审计</span>
-            <span class="badge"><span class="dot amber"></span>固定事件锚点</span>
+            <span class="badge"><span class="dot teal"></span>14 / 14 实现门通过</span>
+            <span class="badge"><span class="dot amber"></span>固定锚点 + 有界残差</span>
             <span class="badge"><span class="dot green"></span>正式 M1b 不变</span>
-            <span class="badge"><span class="dot red"></span>Stage 1 未解锁</span>
+            <span class="badge"><span class="dot red"></span>M1n 不扩 seed</span>
           </div>
         </article>
         <article class="status-card pass">
-          <h2>Source / Candidate</h2>
-          <strong>0.3750 / 0.6406</strong>
-          <p>K=8 同 probe 提升 26.56 pp，固定锚点带来明确正因果贡献</p>
+          <h2>G0 Hard / Oracle-best</h2>
+          <strong>0.7448 / 1.0000</strong>
+          <p>正确 archival value 已在同一合法候选集，下游 HPC 链路健康</p>
         </article>
         <article class="status-card pass">
-          <h2>Pair / Segment Top-1</h2>
-          <strong>0.9219 / 0.8125</strong>
-          <p>长历史下仍能定位正确身份段，M1k 的身份漂移已被修复</p>
+          <h2>M1n Blind</h2>
+          <strong>0.5000 → 0.5312</strong>
+          <p>相对 source 和 disabled 都只增 3.13 pp，远低于冻结 +20 pp 门</p>
         </article>
         <article class="status-card fail">
-          <h2>Confidence AUROC</h2>
-          <strong>0.6783 &lt; 0.70</strong>
-          <p>错误候选仍不能被可靠拒绝；绝对回忆 0.6406 也低于 0.70 门</p>
+          <h2>History Calls</h2>
+          <strong>10 / 128</strong>
+          <p>10 次调用都来自正确 reference segment，但覆盖率只有 7.81%</p>
         </article>
       </div>
 
       <section>
         <div class="decision">
-          <strong>当前决策：M1l 不进入 Stage 1，不在 seed527151 上调温度、置信度公式或冻结门槛</strong>
-          <p>固定锚点证明容量稳定的身份检索可以成立，但最终回忆与可靠拒绝尚未同时成立。任何后续模型都必须另立协议并使用全新 seeds；正式模型仍是 M1b，formal 继续封存。</p>
+          <strong>当前决策：停止 M1n，不在 blind seed847151 上调 null、loss、checkpoint 或门槛</strong>
+          <p>M1n 学成了高精度、极低召回的 abstainer，而不是可靠事件排序器。M1m→M1n 作为 key-ranking 与 sparse-credit 的机制负结果封存；正式模型仍是 M1b，formal 继续封存。</p>
         </div>
+      </section>
+
+      <section id="m1n">
+        <div class="section-head">
+          <div>
+            <h2>最新：M1m→M1n 事件 Key Ranking 收口</h2>
+            <p>从零参数精度链、context-basin 反证，到固定 600 步 neural ranker 与 fresh K=8 blind。所有模型仍只接收 actions 与因果 sensory 历史；没有 room/context/位置/segment 真值，没有新 slot 或第二套 fast weights。</p>
+          </div>
+          <div class="source">更新：2026-07-15 · 3+3 diagnostic seeds · 固定 step600 · blind 128 probes · ReMAP 210 passed</div>
+        </div>
+
+        <article class="panel">
+          <h3>实验任务链</h3>
+          <div class="task-flow">
+            <div class="flow-node ref0"><strong>G0 · 精度链</strong><span>Soft / hard / oracle-best / exact context 拆分失败层</span></div>
+            <div class="flow-node ref1"><strong>G1 · Context basin</strong><span>当前 causal context 对历史事件做零参数 nearest-neighbor</span></div>
+            <div class="flow-node distractor"><strong>M1n · 固定训练</strong><span>6,166 参数、K=1/2/4/8、600 步、单一 sensory CE</span></div>
+            <div class="flow-node return"><strong>Fresh blind</strong><span>seed847151、64 episodes、128 return-conflict probes</span></div>
+          </div>
+        </article>
+
+        <article class="panel" style="margin-top:12px;">
+          <h3>M1n 数据流：Transformer 是 PFC，HPC 仍是外挂内容记忆</h3>
+          <div class="arch-flow">
+            <div class="arch-node input">
+              <h3>合法输入</h3>
+              <ul><li>当前动作</li><li>严格因果 sensory 历史</li></ul>
+              <p style="margin-top:9px;">禁 room、位置、segment、query/conflict mask 与 oracle event。</p>
+            </div>
+            <div class="arch-node pfc">
+              <h3>Transformer / PFC</h3>
+              <ul><li>窗口 causal hidden</li><li>action-only state</li><li>cyclic signature</li></ul>
+              <p style="margin-top:9px;">主干与 context head 全冻结。</p>
+            </div>
+            <div class="arch-node ec">
+              <h3>事件排序器</h3>
+              <ul><li>固定 signature anchor</li><li>±3 neural residual</li><li>source/null 候选</li></ul>
+              <p style="margin-top:9px;">Hard 选 source 或一个更早 event 的原始 base context。</p>
+            </div>
+            <div class="arch-node hpc">
+              <h3>EC / Place / HPC</h3>
+              <ul><li>EC grid → place</li><li>place × context 地址</li><li>episode 内 covariance content-HPC</li></ul>
+              <p style="margin-top:9px;">无新增 memory；先读后写。</p>
+            </div>
+            <div class="arch-node output">
+              <h3>冻结输出链</h3>
+              <ul><li>HPC retrieval</li><li>融合回 PFC hidden</li><li>sensory decoder</li></ul>
+              <p style="margin-top:9px;">训练只用均匀 all-token CE。</p>
+            </div>
+          </div>
+        </article>
+
+        <div class="grid-2" style="margin-top:12px;">
+          <article class="panel">
+            <h3>G0：正确值存在，下游能到 1.0</h3>
+            <table>
+              <thead><tr><th>Source</th><th>Soft</th><th>Hard</th><th>Oracle-best</th><th>Exact correct</th><th>Exact wrong</th></tr></thead>
+              <tbody><tr><td data-label="Source" class="num">0.3542</td><td data-label="Soft" class="num">0.6927</td><td data-label="Hard" class="num amber">0.7448</td><td data-label="Oracle-best" class="num green"><strong>1.0000</strong></td><td data-label="Exact correct" class="num green">1.0000</td><td data-label="Exact wrong" class="num">0.0052</td></tr></tbody>
+            </table>
+            <p style="margin:10px 0 0;color:var(--muted);font-size:12px;">Hard 仅比 soft 高 5.21 pp；oracle-best 比 hard 高 25.52 pp。正确 context value 已在合法 archive，瓶颈是 event key ranking。</p>
+          </article>
+
+          <article class="panel">
+            <h3>G1：Context basin 不够</h3>
+            <table>
+              <thead><tr><th>Source</th><th>Signature hard</th><th>Context basin</th><th>Shuffled</th><th>Oracle-best</th></tr></thead>
+              <tbody><tr><td data-label="Source" class="num">0.3958</td><td data-label="Signature" class="num green">0.7135</td><td data-label="Basin" class="num red">0.4167</td><td data-label="Shuffled" class="num">0.2812</td><td data-label="Oracle" class="num green">0.9896</td></tr></tbody>
+            </table>
+            <p style="margin:10px 0 0;color:var(--muted);font-size:12px;">Basin correct-segment top-1 0.3333，confidence AUROC 0.6519；零参数 nearest-neighbor 不能替代固定结构签名。</p>
+          </article>
+        </div>
+
+        <article class="panel" style="margin-top:12px;">
+          <h3>M1n Fresh K=8 Blind</h3>
+          <table>
+            <thead><tr><th>条件</th><th>Return-conflict</th><th>Clean</th><th>Context pair</th><th>Context margin</th></tr></thead>
+            <tbody>
+              <tr><td data-label="条件">Frozen M1f source</td><td data-label="Return" class="num">0.5000</td><td data-label="Clean" class="num green">0.9469</td><td data-label="Pair" class="num">0.8906</td><td data-label="Margin" class="num">+0.1481</td></tr>
+              <tr><td data-label="条件"><strong>M1n anchored residual</strong></td><td data-label="Return" class="num amber"><strong>0.5312</strong></td><td data-label="Clean" class="num">0.9289</td><td data-label="Pair" class="num">0.8906</td><td data-label="Margin" class="num">+0.1394</td></tr>
+              <tr><td data-label="条件">M1n disabled</td><td data-label="Return" class="num">0.5000</td><td data-label="Clean" class="num green">0.9469</td><td data-label="Pair" class="num">0.8906</td><td data-label="Margin" class="num">+0.1481</td></tr>
+            </tbody>
+          </table>
+        </article>
+
+        <div class="grid-2" style="margin-top:12px;">
+          <article class="panel">
+            <h3>冻结六门：1 PASS / 5 FAIL</h3>
+            <table>
+              <thead><tr><th>门</th><th>要求</th><th>结果</th></tr></thead>
+              <tbody>
+                <tr><td data-label="门">绝对 return</td><td data-label="要求" class="num">≥ 0.80</td><td data-label="结果" class="num red">0.5312 · FAIL</td></tr>
+                <tr><td data-label="门">相对 M1f 增益</td><td data-label="要求" class="num">≥ +0.20</td><td data-label="结果" class="num red">+0.0312 · FAIL</td></tr>
+                <tr><td data-label="门">相对 disabled 增益</td><td data-label="要求" class="num">≥ +0.20</td><td data-label="结果" class="num red">+0.0312 · FAIL</td></tr>
+                <tr><td data-label="门">Clean drop</td><td data-label="要求" class="num">≤ 0.02</td><td data-label="结果" class="num green">0.0180 · PASS</td></tr>
+                <tr><td data-label="门">Context pair</td><td data-label="要求" class="num">≥ 0.90</td><td data-label="结果" class="num red">0.8906 · FAIL</td></tr>
+                <tr><td data-label="门">正确 segment</td><td data-label="要求" class="num">≥ 0.90</td><td data-label="结果" class="num red">0.0781 · FAIL</td></tr>
+              </tbody>
+            </table>
+          </article>
+
+          <article class="panel">
+            <h3>失败不是“乱调用”</h3>
+            <ul>
+              <li>History-available tokens 上 null hard-selection 为 0.9214。</li>
+              <li>128 个 return probes 只调用历史 10 次；10 次都来自正确 reference segment。</li>
+              <li>Attention max / entropy 为 0.2841 / 1.3106：候选排序仍弥散。</li>
+              <li>统一 all-token CE 在绝大多数 source 已健康的 token 上奖励 abstain，稀疏 return credit 不足。</li>
+              <li>14 / 14 实现门通过，disabled prediction/context diff 都为 0；负结论可归因于机制与目标，不是代码坏了。</li>
+            </ul>
+          </article>
+        </div>
+
+        <div class="no-slot">冻结结论：M1N_ANCHORED_RESIDUAL_RANKER_REJECTED。不得在 blind seed847151 调 null logit、residual、loss、checkpoint 或阈值；不扩多 seed。正式 M1b 与 formal 封存状态不变。</div>
       </section>
 
       <section id="m1l">
@@ -1435,7 +1549,10 @@
           <article class="stage blocked"><b>G5 几何分解</b><p>88/40；reject 五桶最大仅 40%，分类 MIXED，无单机制可继续训练。</p></article>
           <article class="stage blocked"><b>M1k Query Readout</b><p>K8 0.0938；attention 弥散、gate 高开、context pair 0.5938，停止于单 seed。</p></article>
           <article class="stage blocked"><b>M1l 固定锚点 Stage 0</b><p>K8 candidate 0.6406、pair 0.9219、AUROC 0.6783；七门过五门，依法停止于训练前。</p></article>
-          <article class="stage active"><b>当前停点</b><p>没有合法 Stage 1。若继续研究精确 context refinement 或可靠拒绝，必须另立协议并使用全新 seeds。</p></article>
+          <article class="stage done"><b>M1m G0 精度链</b><p>Hard 0.7448、oracle-best/exact 1.0000；锁定 event key ranking，排除 archival value 与 HPC 下游。</p></article>
+          <article class="stage blocked"><b>M1m G1 Context Basin</b><p>Basin 0.4167，低于 fixed signature 0.7135；零参数 nearest-neighbor 不足。</p></article>
+          <article class="stage blocked"><b>M1n Neural Ranker</b><p>Blind 0.5312，source/disabled 0.5000；只调用 10/128，六门只过 clean，停止。</p></article>
+          <article class="stage active"><b>当前停点</b><p>M1n 已冻结拒绝。任何新目标必须是独立 research reset 和全新 seeds；正式 M1b 不变。</p></article>
           <article class="stage blocked"><b>Formal Protocol</b><p>normal K=8 仅 0.4010；达到 0.80 绝对门前不解锁。</p></article>
         </div>
       </section>
@@ -1448,6 +1565,17 @@
           </div>
         </div>
         <div class="artifact-list">
+          <a class="artifact" href="REMAP_FORMER_M1M_M1N_KEY_RANKING_RESULT_CN.md"><strong>最新：M1m→M1n 完整收口</strong><span>模型架构、G0/G1 因果链、训练轨迹、fresh blind 六门与机制结论</span></a>
+          <a class="artifact" href="REMAP_FORMER_M1N_ANCHORED_RESIDUAL_RANKER_PILOT_CN.md"><strong>M1n 自动 Blind 报告</strong><span>Mermaid 架构、三条件主表、14 个实现门、六个科学门与低覆盖 abstention 归因</span></a>
+          <a class="artifact" href="REMAP_FORMER_M1N_ANCHORED_RANKER_PILOT_SUMMARY.json"><strong>M1n Blind 机器结果</strong><span>128 probes、context geometry、ranker dynamics、checkpoint hash、冻结状态与分支</span></a>
+          <a class="artifact" href="REMAP_FORMER_M1N_TRAINING_SUMMARY.json"><strong>M1n 训练汇总</strong><span>6,166 参数、K=1/2/4/8 step0→600 轨迹、冻结 backbone hash 与固定 final monitor</span></a>
+          <a class="artifact" href="m1n_anchored_residual_ranker_pilot_protocol.json"><strong>M1n 冻结协议</strong><span>因果输入边界、固定 anchor、有界 residual、唯一 sensory CE、fresh blind 与禁止调参规则</span></a>
+          <a class="artifact" href="REMAP_FORMER_M1M_CONTEXT_BASIN_G1_CN.md"><strong>M1m G1 Context Basin</strong><span>三 seed 零参数 nearest-neighbor、signature/shuffled/oracle 对照、置信度与停止结论</span></a>
+          <a class="artifact" href="REMAP_FORMER_M1M_CONTEXT_BASIN_G1_SUMMARY.json"><strong>G1 机器结果</strong><span>384 probes、context geometry、correct-segment top-1、AUROC 与 22 个实现门</span></a>
+          <a class="artifact" href="m1m_context_basin_g1_protocol.json"><strong>G1 冻结协议</strong><span>全新 seeds、候选边界、nearest-neighbor 定义、阈值和分支映射</span></a>
+          <a class="artifact" href="REMAP_FORMER_M1M_PRECISION_CHAIN_G0_CN.md"><strong>M1m G0 精度链</strong><span>Soft/hard/oracle-best/exact context、首个失败层与 key-ranking 分类</span></a>
+          <a class="artifact" href="REMAP_FORMER_M1M_PRECISION_CHAIN_G0_SUMMARY.json"><strong>G0 机器结果</strong><span>384 probes、六条件、context/address/retrieval/decoder 链路与 22 个实现门</span></a>
+          <a class="artifact" href="m1m_precision_chain_g0_protocol.json"><strong>G0 冻结协议</strong><span>三全新 seeds、精度链干预、分类优先级与禁止训练边界</span></a>
           <a class="artifact" href="REMAP_FORMER_M1L_ANCHORED_RETRIEVAL_STAGE0_CN.md"><strong>最新：M1l 固定锚点 Stage 0</strong><span>零训练架构、K=1/4/8 容量曲线、七个冻结门、因果对照与停止结论</span></a>
           <a class="artifact" href="REMAP_FORMER_M1L_ANCHORED_RETRIEVAL_STAGE0_SUMMARY.json"><strong>M1l Stage 0 机器结果</strong><span>384 probes、source/candidate/shuffled、context geometry、置信度 AUROC 与冻结状态</span></a>
           <a class="artifact" href="m1l_anchored_retrieval_stage0_protocol.json"><strong>M1l 冻结协议</strong><span>canonical digest、事件锚点、候选边界、七门、run-once seed 与禁止调参规则</span></a>
@@ -1519,7 +1647,7 @@
       </section>
     </main>
 
-    <footer>ReMAP-Former internal dashboard · 2026-07-15 · M1b 仍是正式模型；M1l K8 candidate 0.6406、context pair 0.9219、confidence AUROC 0.6783；Stage 0 七门过五门，不进入训练，formal 未解锁</footer>
+    <footer>ReMAP-Former internal dashboard · 2026-07-15 · M1b 仍是正式模型；M1n fresh blind 0.5312，source/disabled 0.5000，history call 10/128；14 个实现门全绿、六个科学门只过 clean，M1n 停止，formal 未解锁</footer>
   </div>
 </body>
 </html>

@@ -1,0 +1,137 @@
+{
+  "format": "remap_former.m1n_anchored_residual_ranker_pilot_protocol.v1",
+  "frozen_date": "2026-07-15",
+  "scope": "single train seed, fixed monitor, fixed final checkpoint, and one fresh K8 blind pilot after M1m G1 rejected zero-parameter context-basin ranking; no formal validation, test access, checkpoint selection, or reuse of G0/G1 seeds",
+  "scientific_question": "can a small neural event ranker improve the fixed cyclic anchor without erasing it, choose between source/null and an exact archival event context under one uniform sensory CE, and generalize to a fresh K8 full-sequence rollout",
+  "parent_g1_protocol": "runs/remap_former/m1m_context_basin_g1_protocol.json",
+  "parent_g1_protocol_sha256": "76d3b0567489832ad32590dd73b11fb3cbd86dbdee7e79d0790e112409e48653",
+  "parent_g1_result": "runs/remap_former/m1m_context_basin_g1/summary.json",
+  "parent_g1_result_file_sha256": "b228fd171a0e3a7075a3e2c8b326a35202a9dd0fcd24864042985754e14478d9",
+  "parent_g1_status": "CONTEXT_BASIN_RANKING_INSUFFICIENT",
+  "parent_result_boundary": "signature hard was 0.7135 while current-context nearest-neighbor fell to 0.4167; oracle-best remained 0.9896, so fixed archive/value/HPC stay frozen and only legal event ranking may learn",
+  "source_checkpoint": "runs/remap_former/m1b_covariance_ridge0p03_seed712_frozen/m1b_frozen.pt",
+  "source_checkpoint_sha256": "4c16ea253abe1f277b09b3538e17e8b14d6cee11e6f6c08750c8af4ff79fbacf",
+  "source_conversion": "parameter-free M1f with covariance-corrected content HPC ridge 0.001",
+  "content_hpc_covariance_ridge": 0.001,
+  "architecture": {
+    "name": "anchored bounded-residual event ranker with explicit source/null candidate",
+    "event_detector": "rising edge of causal balanced-action structural proposal",
+    "query_event": "latest detected event carried across the current segment",
+    "candidate_events": "detected event anchors strictly earlier than the latest event; current event is always excluded",
+    "event_feature": "frozen causal Transformer pfc_hidden + action-only state + base_context + cyclic signature at each event",
+    "rank_dim": 16,
+    "fixed_anchor": "cyclic-signature cosine centered at the best valid candidate and divided by temperature 0.05; learned terms cannot delete this score",
+    "fixed_anchor_temperature": 0.05,
+    "learned_residual_features": [
+      "fixed signature cosine",
+      "learned normalized event embedding cosine",
+      "frozen base-context cosine",
+      "frozen action-state cosine"
+    ],
+    "residual_scale": 3.0,
+    "source_null_candidate": "source M1f context is an explicit non-archival candidate scored from the latest event feature",
+    "initial_null_logit": 1.0,
+    "null_residual_scale": 3.0,
+    "selection": "straight-through hard argmax over archival events plus source/null; forward always uses one exact context while backward uses softmax",
+    "archival_value": "frozen M1f base_context at the selected earlier event; never a recursively written output context",
+    "disabled_path": "force source/null at every token and reproduce frozen M1f context",
+    "new_memory_slots": 0,
+    "new_fast_weight_systems": 0
+  },
+  "causal_input_contract": {
+    "allowed": [
+      "actions through current token",
+      "sensory observations strictly before current token through causal Transformer hidden",
+      "frozen action-only state and cyclic signature",
+      "frozen base-context and Transformer activations at current/latest and earlier event anchors"
+    ],
+    "forbidden_model_inputs": [
+      "room or context id",
+      "position or place id",
+      "segment id",
+      "path family or variant id",
+      "return reference id",
+      "target index",
+      "query, clean, conflict, return, switch, event-label, correctness, or oracle masks",
+      "current sensory target before prediction",
+      "correct or wrong reference context",
+      "oracle-best event index"
+    ]
+  },
+  "train_seed": 827151,
+  "train_split": "train",
+  "training_generator": "make_novel_distractor_capacity_batch",
+  "capacity_curriculum": [
+    1,
+    2,
+    4,
+    8
+  ],
+  "max_jitter_cycles": 4,
+  "steps": 600,
+  "batch_size": 4,
+  "grid_size": 11,
+  "learning_rate": 0.0003,
+  "weight_decay": 0.0001,
+  "gradient_clip": 1.0,
+  "eval_every": 100,
+  "eval_batches_per_level": 2,
+  "dev_monitor_seed": 837151,
+  "checkpoint_selection": "none; fixed final step 600 is the only blind candidate",
+  "trainable_scope": "event feature norm, event query/key projections, four bounded residual coefficients and bias, and source/null linear scorer only; all PFC, state, context head, EC, place, address, content HPC, fusion, decoder, and archival values frozen",
+  "loss": "one unweighted all-token sensory cross-entropy only",
+  "forbidden_losses": [
+    "room or context classification",
+    "oracle context or oracle event regression",
+    "history matching, contrastive, pairwise ranking, or segment labels",
+    "query, return, conflict, event, or capacity reweighting",
+    "attention entropy, null, confidence, or gate supervision",
+    "distillation from G0/G1 oracle-best outputs"
+  ],
+  "blind_k8": {
+    "generator_seed": 847151,
+    "split": "dev",
+    "capacity_level": 8,
+    "max_jitter_cycles": 4,
+    "batch_size": 4,
+    "batches": 16,
+    "episodes": 64,
+    "expected_return_conflict_probes": 128,
+    "conditions": [
+      "frozen_m1f_source",
+      "m1n_full_sequence_ranker",
+      "m1n_ranker_disabled"
+    ],
+    "frozen_thresholds": {
+      "m1n_return_conflict_acc_at_least": 0.8,
+      "m1n_gain_vs_m1f_at_least": 0.2,
+      "ranker_gain_vs_disabled_at_least": 0.2,
+      "m1n_clean_drop_vs_m1f_at_most": 0.02,
+      "m1n_context_pair_accuracy_at_least": 0.9,
+      "m1n_selected_correct_segment_rate_at_least": 0.9
+    }
+  },
+  "implementation_gates": {
+    "source_checkpoint_digest_must_match": true,
+    "disabled_context_and_prediction_max_abs_diff_at_most": 1e-06,
+    "prefix_outputs_must_be_invariant_to_future_suffix": true,
+    "current_sensory_target_must_not_change_current_context_or_prediction": true,
+    "current_event_must_never_be_an_archival_candidate": true,
+    "active_selection_rows_must_sum_to_one": true,
+    "forward_context_must_be_exactly_source_or_one_archival_value": true,
+    "all_non_ranker_parameters_must_remain_frozen": true,
+    "model_forward_must_accept_no_task_metadata": true,
+    "observed_blind_probe_count_must_equal_expected": true
+  },
+  "frozen_status_order": [
+    "INVALID_IMPLEMENTATION",
+    "M1N_ANCHORED_RESIDUAL_RANKER_PASSED",
+    "M1N_ANCHORED_RESIDUAL_RANKER_REJECTED"
+  ],
+  "frozen_branch_mapping": {
+    "INVALID_IMPLEMENTATION": "STOP_AND_FIX_M1N_IMPLEMENTATION_WITHOUT_REUSING_BLIND",
+    "M1N_ANCHORED_RESIDUAL_RANKER_PASSED": "PRE_REGISTER_THREE_SEED_STABILITY_WITH_FRESH_SEEDS_BEFORE_FORMAL",
+    "M1N_ANCHORED_RESIDUAL_RANKER_REJECTED": "STOP_M1N_WITHOUT_TUNING_AND_RETAIN_FORMAL_M1B"
+  },
+  "post_result_rule": "train once to fixed step600, open blind seed847151 once, and require every implementation and scientific gate; do not tune architecture, learning rate, residual scales, null initialization, curriculum, loss, threshold, or checkpoint on monitor or blind outputs"
+}

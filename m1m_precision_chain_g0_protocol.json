@@ -1,0 +1,134 @@
+{
+  "format": "remap_former.m1m_precision_chain_g0_protocol.v1",
+  "frozen_date": "2026-07-15",
+  "scope": "fresh-seed read-only G0 after M1l Stage 0 rejection; no optimizer, parameter mutation, checkpoint selection, formal validation, test access, or reuse of seed527151",
+  "scientific_question": "given that fixed anchors recover segment identity but not exact recall, is the remaining K=8 failure caused primarily by soft value mixing, fixed-key ranking, archival value precision, or the downstream context-to-address-to-retrieval path",
+  "parent_m1l_protocol": "runs/remap_former/m1l_anchored_retrieval_stage0_protocol.json",
+  "parent_m1l_protocol_sha256": "7a6ef46b251ca5a97fe6ca193bacfa4977e5df02ba4fdee696bc18420b05d1e2",
+  "parent_m1l_result": "runs/remap_former/m1l_anchored_retrieval_stage0/summary.json",
+  "parent_m1l_result_file_sha256": "0488bf17ba906ffda77a3568219fea5066fb4f071dcf11f9a984122c6eff52f9",
+  "parent_m1l_status": "M1L_ANCHORED_RETRIEVAL_STAGE0_REJECTED",
+  "parent_result_boundary": "M1l fixed anchors passed identity, causal gain, shuffled, and capacity gates but failed K8 absolute recall 0.640625 and confidence AUROC 0.678343; seed527151 is sealed",
+  "source_checkpoint": "runs/remap_former/m1b_covariance_ridge0p03_seed712_frozen/m1b_frozen.pt",
+  "source_checkpoint_sha256": "4c16ea253abe1f277b09b3538e17e8b14d6cee11e6f6c08750c8af4ff79fbacf",
+  "source_conversion": "parameter-free M1f with covariance-corrected content HPC ridge 0.001",
+  "content_hpc_covariance_ridge": 0.001,
+  "capacity_level": 8,
+  "generator_seeds": [
+    627151,
+    637151,
+    647151
+  ],
+  "split": "dev",
+  "max_jitter_cycles": 4,
+  "batch_size": 4,
+  "grid_size": 11,
+  "batches_per_seed": 16,
+  "episodes_per_seed": 64,
+  "expected_return_conflict_probes_per_seed": 128,
+  "expected_total_return_conflict_probes": 384,
+  "retrieval_frozen_from_m1l": {
+    "event_detector": "rising edge of the causal balanced-action structural proposal",
+    "query_anchor": "fixed normalized cyclic signature at the latest detected event",
+    "candidate_events": "all event anchors strictly earlier than the latest/current event",
+    "current_event_excluded": true,
+    "key": "fixed normalized cyclic action signature",
+    "value": "frozen M1f base_context at each candidate event",
+    "attention": "softmax cosine attention over candidate events",
+    "attention_temperature": 0.05,
+    "trainable_parameters": 0,
+    "new_memory_slots": 0,
+    "new_fast_weight_systems": 0
+  },
+  "query_only_conditions": {
+    "source": "unmodified frozen M1f trajectory",
+    "soft_candidate": "the exact frozen M1l attention-weighted archival context",
+    "hard_top1_event": "the single causal candidate event with maximum fixed-key cosine; deterministic earliest-index tie break",
+    "oracle_best_archival_value": "diagnostic-only upper bound selecting the causal candidate value with maximum cosine to the exact correct reference context",
+    "exact_correct_context": "diagnostic-only exact earlier correct-reference context",
+    "exact_wrong_context": "diagnostic-only exact earlier wrong-reference context"
+  },
+  "causal_input_contract": {
+    "allowed_for_source_soft_and_hard": [
+      "actions through current token",
+      "frozen structural proposals",
+      "frozen cyclic action signatures",
+      "earlier frozen base-context activations from the same episode"
+    ],
+    "forbidden_model_inputs": [
+      "room or context id",
+      "position or place id",
+      "segment id",
+      "path family or variant id",
+      "return reference id",
+      "target index",
+      "return, conflict, correctness, or oracle mask",
+      "current sensory target",
+      "correct or wrong reference context"
+    ],
+    "oracle_boundary": "oracle_best_archival_value and exact reference conditions may use metadata only after the frozen soft/hard candidates are emitted, only at scored query tokens, and only for diagnosis"
+  },
+  "chain_audit": {
+    "stages": [
+      "context",
+      "address",
+      "retrieval",
+      "prediction"
+    ],
+    "pair_rule": "at context, address, and retrieval, candidate is correct when cosine to the exact-correct intervention output exceeds cosine to the exact-wrong intervention output by more than 1e-6",
+    "first_failure_priority": [
+      "context_pair_failure",
+      "address_pair_failure",
+      "retrieval_pair_failure",
+      "decoder_or_fusion_failure",
+      "correct"
+    ]
+  },
+  "query_only_isolation": "at most one scored query per episode is changed in any rollout; all prior reads and writes remain source M1f",
+  "implementation_gates": {
+    "parent_protocol_and_result_digests_must_match": true,
+    "source_checkpoint_digest_must_match": true,
+    "model_parameter_state_must_be_unchanged": true,
+    "every_probe_must_have_a_latest_event_and_nonempty_earlier_candidate_set": true,
+    "current_event_must_be_excluded": true,
+    "soft_attention_rows_must_sum_to_one": true,
+    "hard_top1_must_equal_fixed_key_argmax": true,
+    "oracle_best_must_equal_value_cosine_argmax": true,
+    "soft_hard_oracle_and_exact_query_only_isolation_must_hold": true,
+    "observed_probe_count_must_equal_expected_for_every_seed_and_total": true,
+    "chain_outputs_must_align_for_every_probe": true
+  },
+  "frozen_thresholds": {
+    "exact_correct_return_conflict_acc_at_least": 0.9,
+    "exact_wrong_return_conflict_acc_at_most": 0.1,
+    "hard_top1_return_conflict_acc_at_least": 0.7,
+    "hard_top1_gain_vs_soft_at_least": 0.1,
+    "hard_context_pair_drop_vs_soft_at_most": 0.05,
+    "hard_gain_positive_seed_count_at_least": 2,
+    "oracle_best_return_conflict_acc_at_least": 0.7,
+    "oracle_best_gain_vs_hard_at_least": 0.1,
+    "oracle_best_gain_positive_seed_count_at_least": 2,
+    "archival_value_return_conflict_acc_below": 0.7,
+    "exact_correct_gain_vs_oracle_best_at_least": 0.2,
+    "dominant_first_failure_share_at_least": 0.5,
+    "dominant_first_failure_lead_at_least": 0.15
+  },
+  "frozen_status_order": [
+    "INVALID_IMPLEMENTATION",
+    "M1M_DOWNSTREAM_PATH_LIMITED",
+    "M1M_SOFT_MIXING_DOMINANT",
+    "M1M_KEY_RANKING_DOMINANT",
+    "M1M_ARCHIVAL_VALUE_PRECISION_DOMINANT",
+    "M1M_MIXED_PRECISION_FAILURE"
+  ],
+  "frozen_classification_rule": "after implementation gates, classify DOWNSTREAM when exact-correct is below its floor or exact-wrong exceeds its ceiling; else SOFT_MIXING when hard reaches its absolute, gain, pair-drop, and seed-direction gates; else KEY_RANKING when oracle-best reaches its absolute, gain, and seed-direction gates; else ARCHIVAL_VALUE_PRECISION when oracle-best remains below 0.70 and exact-correct exceeds it by at least 0.20; otherwise MIXED",
+  "frozen_branch_mapping": {
+    "INVALID_IMPLEMENTATION": "STOP_AND_FIX_G0_AUDIT_ONLY",
+    "M1M_DOWNSTREAM_PATH_LIMITED": "STOP_CALLER_DESIGN_AND_AUDIT_CONTEXT_TO_ADDRESS_TO_HPC_PATH",
+    "M1M_SOFT_MIXING_DOMINANT": "PRE_REGISTER_PARAMETER_FREE_HARD_RETRIEVAL_CONFIRMATION_WITH_FRESH_SEEDS_AND_SEPARATE_ABSTENTION_GATE",
+    "M1M_KEY_RANKING_DOMINANT": "PRE_REGISTER_KEY_RANKING_RESEARCH_WITH_FRESH_TRAIN_MONITOR_AND_BLIND_SEEDS",
+    "M1M_ARCHIVAL_VALUE_PRECISION_DOMINANT": "REDESIGN_CAUSAL_ARCHIVAL_VALUE_CAPTURE_BEFORE_ANY_CALLER_TRAINING",
+    "M1M_MIXED_PRECISION_FAILURE": "STOP_M1M_AND_RETAIN_FORMAL_M1B"
+  },
+  "post_result_rule": "run all three seeds once and classify once; do not tune event definition, temperature, hard tie break, value definition, thresholds, or category order on seeds627151/637151/647151; G0 never unlocks formal access or model training by itself"
+}
