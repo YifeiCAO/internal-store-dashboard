@@ -477,7 +477,8 @@
         <p>Transformer=PFC 主干，EC 供结构，covariance-corrected HPC 供外挂记忆</p>
       </div>
       <nav aria-label="看板分区">
-        <a href="#m1p">M1p 最新</a>
+        <a href="#m1r">M1r 最新</a>
+        <a href="#m1p">M1p 概率路由</a>
         <a href="#m1o">M1o 低调用</a>
         <a href="#m1n">M1m→M1n 收口</a>
         <a href="#m1l">M1l 固定锚点</a>
@@ -502,39 +503,151 @@
       <div class="status-grid" aria-label="最新状态">
         <article class="status-card primary">
           <h2>当前主线</h2>
-          <strong>M1p 已收口：likelihood marginal 解决了“几乎不调用”，但 hard 部署仍被训练门拒绝</strong>
-          <p>全新 G0 v2 的 16/16 gates 通过；固定 400 步后，original-K8 hard 从 source 0.5000 提高到 0.5938，archive 调用达到 25/32。相同 checkpoint 的 soft marginal 为 0.6563，说明当前瓶颈已从低召回转成 soft-train / hard-deploy 不一致。</p>
+          <strong>M1r 学会了真正的 hard 调用：训练 9/9 全绿，但一次性 blind 以 6/7 近失收口</strong>
+          <p>同一单 HPC、同一 285 参数 router，只把信用改为 class-balanced counterfactual preference。固定 step400 从 source 0.3438 提高到 hard 0.7500；fresh blind 从 0.4063 提高到 0.7344，少 2/128 probes 未达预注册 0.75 绝对门。</p>
           <div class="badge-row">
             <span class="badge"><span class="dot blue"></span>无 room / 位置输入</span>
             <span class="badge"><span class="dot teal"></span>单一 episode-local HPC</span>
-            <span class="badge"><span class="dot green"></span>G0 v2 · 16 / 16</span>
-            <span class="badge"><span class="dot teal"></span>Smoke 19 / 19 · Tests 233</span>
+            <span class="badge"><span class="dot amber"></span>Target 仅训练 loss 可见</span>
+            <span class="badge"><span class="dot green"></span>G0 18 / 18 · Train 9 / 9</span>
+            <span class="badge"><span class="dot teal"></span>Smoke 24 / 24 · Tests 250</span>
             <span class="badge"><span class="dot green"></span>正式 M1b 不变</span>
-            <span class="badge"><span class="dot red"></span>Fresh blind 未打开</span>
+            <span class="badge"><span class="dot red"></span>Blind 6 / 7 · 冻结拒绝</span>
           </div>
         </article>
         <article class="status-card pass">
-          <h2>G0 v2 Source → Archive</h2>
-          <strong>0.7250 → 0.8250</strong>
-          <p>Route-changing probes 的 likelihood alignment 均为 1.000</p>
+          <h2>Fixed Train Monitor</h2>
+          <strong>0.3438 → 0.7500</strong>
+          <p>Hard gain +40.63 pp；9/9 training unlock gates 全绿</p>
         </article>
         <article class="status-card fail">
-          <h2>M1p Hard Final</h2>
-          <strong>0.5000 → 0.5938</strong>
-          <p>固定 step400；绝对门与 +0.10 增益门差一点，7/9 gates 通过</p>
+          <h2>One-shot Fresh Blind</h2>
+          <strong>0.4063 → 0.7344</strong>
+          <p>增益 +32.81 pp；94/128，距离 96/128 的门槛少 2 个</p>
         </article>
         <article class="status-card hold">
-          <h2>Soft vs Hard</h2>
-          <strong>0.6563 / 0.5938</strong>
-          <p>同一 checkpoint；soft 仅为预注册诊断，不能追认为 hard 成功</p>
+          <h2>Blind Call / Room</h2>
+          <strong>0.8750 / 0.7656</strong>
+          <p>Clean drop 0.31 pp；其余六个 blind gates 全部通过</p>
         </article>
       </div>
 
       <section>
         <div class="decision">
-          <strong>当前决策：M1p hard training gate 以 7/9 拒绝，fresh blind seed1457151 保持未打开</strong>
-          <p>不调 hard 阈值、LR 或 checkpoint，也不追认 soft diagnostic。下一协议必须先选清语义：坚持离散“调用”就用 hard-consistent 无标签目标；接受概率 latent retrieval，就把 soft marginal 预注册为正式部署。</p>
+          <strong>当前决策：M1r blind 以 6/7 冻结拒绝，状态不是“差不多通过”</strong>
+          <p>不重跑 seed1657151，不把 hard threshold 或 absolute gate 往结果上调，也不因少 2 probes 直接扩 seed。M1r 是目前最强 neural-call mechanism pilot；正式 headline 仍保留 M1b，formal 继续封存。</p>
         </div>
+      </section>
+
+      <section id="m1r">
+        <div class="section-head">
+          <div>
+            <h2>最新：M1q 硬风险反证 → M1r 反事实偏好调用</h2>
+            <p>两版都沿用 M1p 的 Transformer/PFC、EC、place、单一 covariance HPC、固定 archive 候选和 285 参数 router。M1q 证明硬采样本身会被 source regret 支配；M1r 只改信用聚合后学会离散调用。</p>
+          </div>
+          <div class="source">更新：2026-07-16 · 固定 step400 · 250 passed · M1r train 9/9 · one-shot blind 6/7</div>
+        </div>
+
+        <article>
+          <h3>数据流：Target 只产生训练信用，不是模型输入</h3>
+          <div class="arch-flow">
+            <div class="arch-node input">
+              <h3>合法部署输入</h3>
+              <ul><li>当前动作</li><li>严格滞后 sensory</li><li>因果 history features</li></ul>
+              <p style="margin-top:9px;">无 room、位置、return、query/conflict 或 branch winner。</p>
+            </div>
+            <div class="arch-node pfc">
+              <h3>冻结 Transformer / PFC</h3>
+              <ul><li>窗口 causal hidden</li><li>source context</li><li>冻结 sensory decoder</li></ul>
+              <p style="margin-top:9px;">Transformer 仍是 PFC 主干，slow weights 不训练。</p>
+            </div>
+            <div class="arch-node ec">
+              <h3>EC + Fixed Archive</h3>
+              <ul><li>rotation-grid → sparse place</li><li>严格更早 event</li><li>cyclic signature top-1</li></ul>
+              <p style="margin-top:9px;">只改变读地址，不提供 oracle context。</p>
+            </div>
+            <div class="arch-node hpc">
+              <h3>唯一 Covariance HPC</h3>
+              <ul><li>同一写前状态双 read</li><li>每 token source-write 一次</li><li>episode 结束清空</li></ul>
+              <p style="margin-top:9px;">没有 slot、archive memory 或第二套 fast weights。</p>
+            </div>
+            <div class="arch-node output">
+              <h3>M1r Router</h3>
+              <ul><li>14 causal features</li><li>285 trainable params</li><li>logit ≥ 0 hard call</li></ul>
+              <p style="margin-top:9px;">训练 target 只比较两条 detached NLL；部署不可见。</p>
+            </div>
+          </div>
+        </article>
+
+        <div class="grid-2" style="margin-top:12px;">
+          <article class="panel">
+            <h3>M1q：硬采样为何塌成全 source</h3>
+            <table>
+              <thead><tr><th>子集</th><th>Tokens</th><th>Archive better</th><th>Source better</th><th>Archive regret</th><th>Source regret</th></tr></thead>
+              <tbody>
+                <tr><td data-label="子集">History</td><td data-label="Tokens" class="num">18,966</td><td data-label="Archive" class="num">5,186</td><td data-label="Source" class="num">13,772</td><td data-label="A regret" class="num">9,167</td><td data-label="S regret" class="num red"><strong>48,118</strong></td></tr>
+                <tr><td data-label="子集">Return-conflict</td><td data-label="Tokens" class="num">320</td><td data-label="Archive" class="num">198</td><td data-label="Source" class="num">122</td><td data-label="A regret" class="num green">371</td><td data-label="S regret" class="num">101</td></tr>
+                <tr><td data-label="子集">Distractor</td><td data-label="Tokens" class="num">14,080</td><td data-label="Archive" class="num">3,150</td><td data-label="Source" class="num">10,926</td><td data-label="A regret" class="num">6,631</td><td data-label="S regret" class="num red">44,587</td></tr>
+              </tbody>
+            </table>
+            <p style="margin:10px 0 0;color:var(--muted);font-size:12px;">总体 source/archive regret mass 比为 5.249x。M1q sampled call 从 18.8% 降到 0.5%，step400 hard/source/soft 均 0.28125，blind1557151 未打开。</p>
+          </article>
+
+          <article class="panel">
+            <h3>唯一改变：如何聚合信用</h3>
+            <table>
+              <thead><tr><th>版本</th><th>训练目标</th><th>Class balance</th><th>Step400 hard</th><th>Training gates</th></tr></thead>
+              <tbody>
+                <tr><td data-label="版本">M1q</td><td data-label="目标">Sampled hard-route sensory NLL</td><td data-label="平衡" class="red">无</td><td data-label="Hard" class="num red">0.28125</td><td data-label="Gates" class="num red">5 / 9</td></tr>
+                <tr><td data-label="版本"><strong>M1r</strong></td><td data-label="目标">两组 detached branch-preference BCE</td><td data-label="平衡" class="green">0.5 / 0.5</td><td data-label="Hard" class="num green"><strong>0.75000</strong></td><td data-label="Gates" class="num green"><strong>9 / 9</strong></td></tr>
+              </tbody>
+            </table>
+            <p style="margin:10px 0 0;color:var(--muted);font-size:12px;">M1r 明确允许 current target 在训练 loss 内产生 branch preference；它不是 forward 输入，也没有 room/return metadata weighting。</p>
+          </article>
+        </div>
+
+        <article class="panel" style="margin-top:12px;">
+          <h3>M1r 固定训练轨迹</h3>
+          <table>
+            <thead><tr><th>Step</th><th>Hard</th><th>Source</th><th>Soft</th><th>Archive call</th><th>Correct room</th><th>Distractor source</th></tr></thead>
+            <tbody>
+              <tr><td data-label="Step" class="num">0</td><td data-label="Hard" class="num">0.34375</td><td data-label="Source" class="num">0.34375</td><td data-label="Soft" class="num">0.37500</td><td data-label="Call" class="num">0.00000</td><td data-label="Room" class="num">0.00000</td><td data-label="D-source" class="num green">1.00000</td></tr>
+              <tr><td data-label="Step" class="num">100</td><td data-label="Hard" class="num">0.46875</td><td data-label="Source" class="num">0.34375</td><td data-label="Soft" class="num">0.59375</td><td data-label="Call" class="num">0.31250</td><td data-label="Room" class="num">0.28125</td><td data-label="D-source" class="num">0.63828</td></tr>
+              <tr><td data-label="Step" class="num">150</td><td data-label="Hard" class="num">0.53125</td><td data-label="Source" class="num">0.34375</td><td data-label="Soft" class="num">0.59375</td><td data-label="Call" class="num">0.53125</td><td data-label="Room" class="num">0.50000</td><td data-label="D-source" class="num">0.64286</td></tr>
+              <tr><td data-label="Step" class="num">250</td><td data-label="Hard" class="num">0.59375</td><td data-label="Source" class="num">0.34375</td><td data-label="Soft" class="num">0.62500</td><td data-label="Call" class="num">0.78125</td><td data-label="Room" class="num">0.75000</td><td data-label="D-source" class="num">0.58914</td></tr>
+              <tr><td data-label="Step" class="num">300</td><td data-label="Hard" class="num green">0.68750</td><td data-label="Source" class="num">0.34375</td><td data-label="Soft" class="num">0.68750</td><td data-label="Call" class="num">0.87500</td><td data-label="Room" class="num">0.84375</td><td data-label="D-source" class="num">0.56730</td></tr>
+              <tr><td data-label="Step" class="num"><strong>400</strong></td><td data-label="Hard" class="num green"><strong>0.75000</strong></td><td data-label="Source" class="num">0.34375</td><td data-label="Soft" class="num">0.68750</td><td data-label="Call" class="num green">0.96875</td><td data-label="Room" class="num green">0.90625</td><td data-label="D-source" class="num green">0.56213</td></tr>
+            </tbody>
+          </table>
+        </article>
+
+        <div class="grid-2" style="margin-top:12px;">
+          <article class="panel">
+            <h3>一次性 Blind：主表</h3>
+            <table>
+              <thead><tr><th>条件</th><th>Return</th><th>Clean</th><th>Query</th><th>Conflict</th></tr></thead>
+              <tbody>
+                <tr><td data-label="条件">Source / disabled</td><td data-label="Return" class="num">0.40625</td><td data-label="Clean" class="num">0.93906</td><td data-label="Query" class="num">0.92253</td><td data-label="Conflict" class="num">0.83984</td></tr>
+                <tr><td data-label="条件">Fixed archive</td><td data-label="Return" class="num">0.78125</td><td data-label="Clean" class="num red">0.28125</td><td data-label="Query" class="num">0.31966</td><td data-label="Conflict" class="num">0.51172</td></tr>
+                <tr><td data-label="条件">Soft diagnostic</td><td data-label="Return" class="num">0.71875</td><td data-label="Clean" class="num">0.93281</td><td data-label="Query" class="num">0.92448</td><td data-label="Conflict" class="num">0.88281</td></tr>
+                <tr><td data-label="条件"><strong>M1r hard</strong></td><td data-label="Return" class="num red"><strong>0.734375</strong></td><td data-label="Clean" class="num green">0.93594</td><td data-label="Query" class="num green">0.92839</td><td data-label="Conflict" class="num green">0.89063</td></tr>
+                <tr><td data-label="条件">Oracle</td><td data-label="Return" class="num green">0.859375</td><td data-label="Clean" class="num green">0.96172</td><td data-label="Query" class="num green">0.96094</td><td data-label="Conflict" class="num green">0.95703</td></tr>
+              </tbody>
+            </table>
+          </article>
+
+          <article class="panel">
+            <h3>Blind gates：6 PASS / 1 FAIL</h3>
+            <ul>
+              <li><span class="red">FAIL</span>：absolute 0.734375 &lt; 0.75，即 94/128 对 96/128。</li>
+              <li><span class="green">PASS</span>：gain vs source / disabled 均为 +0.328125。</li>
+              <li><span class="green">PASS</span>：clean drop 0.003125；disabled 与 source 精确等价。</li>
+              <li><span class="green">PASS</span>：archive call 0.8750；correct-room 0.765625。</li>
+            </ul>
+          </article>
+        </div>
+
+        <div class="no-slot">冻结结论：M1R_COUNTERFACTUAL_ROUTER_REJECTED。机制 pilot 很强，但不重跑 blind、不改阈值、不扩 seed；正式 M1b 与 formal 封存状态保持不变。</div>
       </section>
 
       <section id="m1p">
@@ -1775,7 +1888,12 @@
           <article class="stage blocked"><b>M1p G0 v1</b><p>11/12 gates；无条件 return sign-rate 混入 route-irrelevant probes，未训练。</p></article>
           <article class="stage done"><b>M1p G0 v2</b><p>Fresh seed 的 utility-conditioned likelihood geometry 为 16/16 PASS，允许固定训练。</p></article>
           <article class="stage blocked"><b>M1p Likelihood Training</b><p>Hard 0.5938、soft 0.6563、archive call 25/32；7/9 gates，hard 部署拒绝。</p></article>
-          <article class="stage active"><b>当前停点</b><p>Fresh blind seed1457151 未打开。下一协议先选 hard 离散调用或正式 soft latent marginal；不得调本 monitor。</p></article>
+          <article class="stage done"><b>M1q G0 + Smoke</b><p>Fresh G0 16/16、CUDA smoke 24/24；hard-consistent 实现与 likelihood geometry 健康。</p></article>
+          <article class="stage blocked"><b>M1q Binary-Concrete</b><p>Hard/source/soft 均 0.28125，call 0；regret mass 5.249x 偏 source，5/9 gates。</p></article>
+          <article class="stage done"><b>M1q Regret Audit</b><p>18,966 history tokens；source/archive regret 48,118/9,167，锁定信用失衡。</p></article>
+          <article class="stage done"><b>M1r G0 + Training</b><p>G0 18/18，固定 step400 hard 0.7500 vs source 0.3438，training 9/9。</p></article>
+          <article class="stage blocked"><b>M1r One-shot Blind</b><p>Hard 0.7344、gain +0.3281、clean drop 0.0031；6/7，absolute 少 2/128。</p></article>
+          <article class="stage active"><b>当前停点</b><p>M1r 冻结拒绝，不重跑、不扩 seed、不改阈值。正式 M1b 与 formal 封存状态不变。</p></article>
           <article class="stage blocked"><b>Formal Protocol</b><p>normal K=8 仅 0.4010；达到 0.80 绝对门前不解锁。</p></article>
         </div>
       </section>
@@ -1788,6 +1906,19 @@
           </div>
         </div>
         <div class="artifact-list">
+          <a class="artifact" href="REMAP_FORMER_M1Q_M1R_HARD_ROUTING_RESULT_CN.md"><strong>最新：M1q / M1r 硬调用完整结果</strong><span>单 HPC 架构、两种 objective、regret-mass 归因、固定训练、one-shot blind 与冻结结论</span></a>
+          <a class="artifact" href="REMAP_FORMER_M1R_BLIND_SUMMARY.json"><strong>M1r 一次性 Blind 机器结果</strong><span>128 probes、五条件主表、7 个 gates、调用与正确 room 覆盖、冻结拒绝分支</span></a>
+          <a class="artifact" href="REMAP_FORMER_M1R_TRAINING_SUMMARY.json"><strong>M1r 训练机器汇总</strong><span>固定 step400、9/9 unlock gates、frozen hash、checkpoint SHA 与 dense/original monitors</span></a>
+          <a class="artifact" href="REMAP_FORMER_M1R_TRAINING_METRICS.jsonl"><strong>M1r 完整训练轨迹</strong><span>step0→400 的 preference loss、hard/source/soft、call、correct-room 与 distractor-source</span></a>
+          <a class="artifact" href="REMAP_FORMER_M1R_G0_SUMMARY.json"><strong>M1r G0 机器结果</strong><span>18/18 gates、source/archive/oracle、preference class fraction 与 NLL-gap geometry</span></a>
+          <a class="artifact" href="REMAP_FORMER_M1R_SMOKE.json"><strong>M1r CUDA Smoke</strong><span>24/24 implementation gates、detached NLL、1:1 class means、梯度符号与输入边界</span></a>
+          <a class="artifact" href="m1r_counterfactual_preference_router_pilot_protocol.json"><strong>M1r 冻结协议</strong><span>单一 counterfactual preference BCE、fresh seeds、固定终点、blind 门与禁止项</span></a>
+          <a class="artifact" href="REMAP_FORMER_M1Q_REGRET_MASS_AUDIT.json"><strong>M1q Regret-mass 审计</strong><span>History/return/distractor 的 preference 数量、累计 regret、5.249x source 支配与最终 logits</span></a>
+          <a class="artifact" href="REMAP_FORMER_M1Q_TRAINING_SUMMARY.json"><strong>M1q 训练机器汇总</strong><span>Binary-Concrete 固定 step400、5/9 gates、全 source collapse 与 checkpoint/frozen hashes</span></a>
+          <a class="artifact" href="REMAP_FORMER_M1Q_TRAINING_METRICS.jsonl"><strong>M1q 完整训练轨迹</strong><span>温度 1.0→0.1、sampled call 18.8%→0.5% 与 hard/source/soft 轨迹</span></a>
+          <a class="artifact" href="REMAP_FORMER_M1Q_G0_SUMMARY.json"><strong>M1q G0 机器结果</strong><span>16/16 gates、source 0.7125、fixed archive 0.9500 与 utility alignment</span></a>
+          <a class="artifact" href="REMAP_FORMER_M1Q_SMOKE.json"><strong>M1q CUDA Smoke</strong><span>24/24 implementation gates、binary forward、ST gradient、温度端点与单 HPC 边界</span></a>
+          <a class="artifact" href="m1q_binary_concrete_router_pilot_protocol.json"><strong>M1q 冻结协议</strong><span>Straight-through Binary-Concrete、fresh seeds、400 步与 sealed blind1557151</span></a>
           <a class="artifact" href="REMAP_FORMER_M1P_LIKELIHOOD_ROUTER_RESULT_CN.md"><strong>最新：M1p Likelihood Router 完整结果</strong><span>单 HPC 架构、G0 v1/v2、固定训练轨迹、9 个 unlock gates 与 hard/soft 机制结论</span></a>
           <a class="artifact" href="REMAP_FORMER_M1P_TRAINING_SUMMARY.json"><strong>M1p 训练机器汇总</strong><span>固定 step400、五种 readout、调用与正确 room 覆盖、冻结 hash、checkpoint SHA 和拒绝分支</span></a>
           <a class="artifact" href="REMAP_FORMER_M1P_TRAINING_METRICS.jsonl"><strong>M1p 完整训练轨迹</strong><span>step0→400 的 source、soft/hard、archive call、correct-room 与 distractor-source</span></a>
@@ -1870,7 +2001,7 @@
           <a class="artifact" href="REMAP_FORMER_M1E_PAIRED_DEV2918_SUMMARY.json"><strong>最新：机器可读成对结果</strong><span>逐容量、总体指标、同 probe 胜负计数与冻结晋级决定</span></a>
           <a class="artifact" href="REMAP_FORMER_M1D_RECURRENT_CONTEXT_RESULT_CN.md"><strong>M1d 早期递归调用结果</strong><span>五个 train/dev 分支与旧边界分类 gate；请结合最新收口报告阅读</span></a>
           <a class="artifact" href="REMAP_FORMER_NOVEL_CAPACITY_BASELINES_20260713_CN.md"><strong>新容量 + 外部基线报告</strong><span>Transformer、Titans、容量曲线、失败归因与下一决策</span></a>
-          <a class="artifact" href="REMAP_FORMER_ICLR_DESIGN_CN.md"><strong>ICLR 实验设计 v17</strong><span>冻结接口、任务 gates、M1p objective-level reset 和后续语义分支</span></a>
+          <a class="artifact" href="REMAP_FORMER_ICLR_DESIGN_CN.md"><strong>ICLR 实验设计 v18</strong><span>冻结接口、M1q regret 反证、M1r counterfactual preference 与 blind 决策</span></a>
           <a class="artifact" href="REMAP_FORMER_M1B_COVARIANCE_RESULT_CN.md"><strong>M1b 结果报告</strong><span>诊断、ridge sweep、配对 validation 与微调审计</span></a>
           <a class="artifact" href="REMAP_FORMER_MATCHED_HIPPOFORMER_M1B_CN.md"><strong>预算匹配终审</strong><span>Hippoformer / M-delta / M1b 三 seed 同批 validation</span></a>
           <a class="artifact" href="REMAP_FORMER_8SEED_HEADLINE_TEST_CN.md"><strong>8-seed Test Headline</strong><span>预注册单次 test、逐 seed 指标、paired probes 与结论边界</span></a>
@@ -1886,7 +2017,7 @@
       </section>
     </main>
 
-    <footer>ReMAP-Former internal dashboard · 2026-07-15 · M1b 仍是正式模型；M1p G0 v2 16/16，通过固定训练后 hard 0.5000→0.5938、soft diagnostic 0.6563、archive call 25/32；training gates 7/9，fresh blind 未打开，formal 未解锁</footer>
+    <footer>ReMAP-Former internal dashboard · 2026-07-16 · M1b 仍是正式模型；M1r fixed train 0.3438→0.7500、9/9 gates，one-shot blind 0.4063→0.7344、6/7 gates，少 2/128 未达 absolute 门；冻结拒绝，不重跑、不扩 seed，formal 未解锁</footer>
   </div>
 </body>
 </html>
