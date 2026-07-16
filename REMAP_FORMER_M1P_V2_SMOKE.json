@@ -1,0 +1,46 @@
+{
+  "format": "remap_former.m1p_smoke_result.v1",
+  "protocol_sha256": "612de339ec1e98d45f715beed56b4435f671e8c7ab893030739922841f2cd987",
+  "device": "cuda",
+  "loss": 1.7901564836502075,
+  "trainable_parameter_count": 285,
+  "trainable_parameter_names": [
+    "router_norm.weight",
+    "router_norm.bias",
+    "router_head.0.weight",
+    "router_head.0.bias",
+    "router_head.2.weight",
+    "router_head.2.bias"
+  ],
+  "diagnostics": {
+    "source_prediction_max_abs_diff": 0.0,
+    "disabled_prediction_max_abs_diff": 0.0,
+    "prefix_prediction_max_abs_diff": 1.9073486328125e-06,
+    "current_source_prediction_max_abs_diff": 0.0,
+    "current_archive_prediction_max_abs_diff": 0.0,
+    "current_router_logit_max_abs_diff": 0.0,
+    "marginal_probability_row_max_abs_error": 2.980232238769531e-07
+  },
+  "gates": {
+    "checkpoint_and_parent_digests_match": true,
+    "source_branch_matches_frozen_m1f": true,
+    "disabled_router_matches_frozen_m1f": true,
+    "prefix_prediction_causal": true,
+    "current_sensory_source_read_isolated": true,
+    "current_sensory_archive_read_isolated": true,
+    "current_sensory_router_isolated": true,
+    "marginal_probability_rows_normalized": true,
+    "current_event_excluded": true,
+    "history_candidates_exist": true,
+    "unavailable_history_forces_source": true,
+    "router_feature_dimension_exact": true,
+    "trainable_scope_exact": true,
+    "all_trainable_parameters_receive_gradients": true,
+    "frozen_parameters_receive_no_gradients": true,
+    "forward_accepts_no_task_metadata": true,
+    "one_hpc_module_only": true,
+    "no_parallel_or_archive_memory_module": true,
+    "loss_is_finite": true
+  },
+  "all_gates_pass": true
+}
