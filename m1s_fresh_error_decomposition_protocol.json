@@ -1,0 +1,116 @@
+{
+  "format": "remap_former.m1s_fresh_error_decomposition_protocol.v1",
+  "frozen_date": "2026-07-16",
+  "scope": "read-only fresh-seed localization after the one-shot M1r blind rejection; no blind rerun, threshold tuning, checkpoint selection, or model training",
+  "scientific_question": "are the remaining hard-routing errors dominated by a wrong source-versus-archive decision, wrong archival event identity, or failure of both frozen read branches despite a correct archival room",
+  "parent_m1r_protocol": "runs/remap_former/m1r_counterfactual_preference_router_pilot_protocol.json",
+  "parent_m1r_protocol_canonical_sha256": "89fcd72e8e96dfb58dbb905b924198942cb9f712e9f0a1045b9aa31682f52a54",
+  "parent_m1r_protocol_file_sha256": "dc994d07c09c44492de474c2b46cbf6f0dee399e9a49f7b899e78c6044450b44",
+  "parent_m1r_result": "runs/remap_former/m1r_counterfactual_seed1637151_s400/summary.json",
+  "parent_m1r_result_file_sha256": "be76db0c5e92b0eff509ef91ae756df5e67451b2b4d8f3ffc9d6cecb57c5d157",
+  "parent_m1r_checkpoint": "runs/remap_former/m1r_counterfactual_seed1637151_s400/m1r_final.pt",
+  "parent_m1r_checkpoint_sha256": "fae8c87a6841cf78b5099245c61bead3b14a24705b378056cc839542ff365c9e",
+  "parent_m1r_blind_result": "runs/remap_former/m1r_counterfactual_seed1637151_s400/blind_seed1657151.json",
+  "parent_m1r_blind_result_file_sha256": "6f3109f54ba06dfa2cf31e98be06bdfaf0e19d282a29653166b766ec800066f8",
+  "parent_boundary": "M1r fixed training passed 9/9 unlock gates; one-shot blind seed1657151 reached hard/source 0.734375/0.40625 and passed 6/7 gates, missing only the frozen 0.75 absolute gate by 2 of 128 probes; its status remains M1R_COUNTERFACTUAL_ROUTER_REJECTED",
+  "model_contract": {
+    "checkpoint_step": 400,
+    "trainable_parameter_count_at_training_time": 285,
+    "memory_state": "one episode-local covariance-corrected content HPC",
+    "new_memory_slots": 0,
+    "new_fast_weight_systems": 0,
+    "parallel_memory_states": 0,
+    "diagnostic_model_mutation": false
+  },
+  "diagnostic": {
+    "seed": 1727151,
+    "split": "validation",
+    "generator": "make_novel_distractor_capacity_batch",
+    "capacity_level": 8,
+    "n_query_targets": 4,
+    "n_conflict_targets": 2,
+    "max_jitter_cycles": 4,
+    "batch_size": 4,
+    "batches": 32,
+    "episodes": 128,
+    "expected_return_conflict_probes": 256,
+    "forbidden_seeds": [1457151, 1557151, 1657151],
+    "conditions": [
+      "frozen_m1f_source",
+      "fixed_archive_read",
+      "m1r_hard_deployment",
+      "target_likelihood_oracle",
+      "m1r_router_disabled"
+    ]
+  },
+  "error_partition": {
+    "evaluated_subset": "return_mask AND conflict_mask",
+    "correctness": "argmax sensory prediction equals target",
+    "missed_archive_call": "archive branch correct, source branch wrong, hard router selected source",
+    "harmful_archive_call": "source branch correct, archive branch wrong, hard router selected archive",
+    "no_correct_branch_wrong_archive_room": "source and archive branches both wrong, selected archive event belongs to the wrong room",
+    "no_correct_branch_correct_archive_room": "source and archive branches both wrong, selected archive event belongs to the correct room",
+    "hard_correct": "deployed hard prediction is correct",
+    "unclassified_error": "any hard error not covered by the four frozen error categories",
+    "partition_must_be_exact": true
+  },
+  "router_diagnostics": {
+    "preference_label": "archive target log-likelihood strictly exceeds source target log-likelihood; exact ties excluded",
+    "prediction": "router_logit greater than or equal to zero",
+    "reported_subsets": [
+      "all history tokens",
+      "return-conflict probes",
+      "exactly-one-branch-correct return-conflict probes",
+      "distractor history tokens"
+    ],
+    "metrics": [
+      "balanced accuracy",
+      "AUROC",
+      "archive-preference recall",
+      "source-preference recall",
+      "exactly-one-branch route accuracy"
+    ],
+    "no_probe_training": true
+  },
+  "task_health_gates": {
+    "pair_observable_identity_rate_must_equal": 1.0,
+    "unique_pre_return_family_rate_must_equal": 1.0,
+    "unique_pre_return_content_rate_must_equal": 1.0,
+    "return_conflict_probes_per_episode_must_equal": 2,
+    "only_actions_and_sensory_are_model_inputs": true,
+    "return_reference_one_rate_between": [0.45, 0.55]
+  },
+  "implementation_gates": {
+    "parent_digests_match": true,
+    "checkpoint_step_matches": true,
+    "fresh_seed_excludes_all_prior_blinds": true,
+    "source_branch_matches_frozen_m1f_at_most": 0.000005,
+    "disabled_router_matches_frozen_m1f_at_most": 0.000005,
+    "hard_prediction_equals_selected_branch_at_most": 0.000005,
+    "full_model_state_hash_unchanged": true,
+    "expected_probe_count": 256,
+    "error_partition_exact": true,
+    "all_metrics_finite": true
+  },
+  "dominance_rule": {
+    "denominator": "all incorrect M1r hard return-conflict probes",
+    "dominant_share_at_least": 0.5,
+    "route_decision_share": "(missed_archive_call + harmful_archive_call) / errors",
+    "archive_event_identity_share": "no_correct_branch_wrong_archive_room / errors",
+    "correct_room_branch_recall_share": "no_correct_branch_correct_archive_room / errors",
+    "priority_if_exact_tie": [
+      "M1S_ROUTER_DECISION_DOMINANT",
+      "M1S_ARCHIVE_EVENT_IDENTITY_DOMINANT",
+      "M1S_CORRECT_ROOM_BRANCH_RECALL_DOMINANT"
+    ],
+    "fallback": "M1S_MIXED_NO_SINGLE_MECHANISM"
+  },
+  "frozen_branch_mapping": {
+    "INVALID_M1S_IMPLEMENTATION_OR_TASK": "STOP_AND_FIX_WITHOUT_TOUCHING_ANY_BLIND_OR_TRAINING_NEW_MODEL",
+    "M1S_ROUTER_DECISION_DOMINANT": "PRE_REGISTER_ONE_ROUTER_MECHANISM_WITH_NEW_SEEDS",
+    "M1S_ARCHIVE_EVENT_IDENTITY_DOMINANT": "PRE_REGISTER_ONE_ARCHIVE_CANDIDATE_MECHANISM_WITH_NEW_SEEDS",
+    "M1S_CORRECT_ROOM_BRANCH_RECALL_DOMINANT": "RETURN_TO_CONTENT_HPC_OR_FUSION_DIAGNOSTICS_WITH_NEW_SEEDS",
+    "M1S_MIXED_NO_SINGLE_MECHANISM": "STOP_MODEL_STACKING_AND_RETAIN_FORMAL_M1B"
+  },
+  "post_result_rule": "run once on seed1727151; do not inspect or regenerate seeds1457151,1557151,1657151; do not change M1r threshold/checkpoint; proceed only along the uniquely selected frozen branch"
+}

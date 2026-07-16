@@ -477,7 +477,8 @@
         <p>Transformer=PFC 主干，EC 供结构，covariance-corrected HPC 供外挂记忆</p>
       </div>
       <nav aria-label="看板分区">
-        <a href="#m1r">M1r 最新</a>
+        <a href="#m1s">M1s 最新</a>
+        <a href="#m1r">M1r 硬调用</a>
         <a href="#m1p">M1p 概率路由</a>
         <a href="#m1o">M1o 低调用</a>
         <a href="#m1n">M1m→M1n 收口</a>
@@ -503,40 +504,134 @@
       <div class="status-grid" aria-label="最新状态">
         <article class="status-card primary">
           <h2>当前主线</h2>
-          <strong>M1r 学会了真正的 hard 调用：训练 9/9 全绿，但一次性 blind 以 6/7 近失收口</strong>
-          <p>同一单 HPC、同一 285 参数 router，只把信用改为 class-balanced counterfactual preference。固定 step400 从 source 0.3438 提高到 hard 0.7500；fresh blind 从 0.4063 提高到 0.7344，少 2/128 probes 未达预注册 0.75 绝对门。</p>
+          <strong>M1s 定位完成：M1r 剩余错误分散在 router、event identity 与正确 room 下游，停止继续堆模型</strong>
+          <p>全新 seed1727151 的 256 个 return-conflict probes 上，M1r hard 从 source 0.3672 提高到 0.6875；80 个错误按预注册互斥分解为 router 30、wrong archive room 28、correct-room branch ceiling 22，没有一项达到 50% dominance。</p>
           <div class="badge-row">
             <span class="badge"><span class="dot blue"></span>无 room / 位置输入</span>
             <span class="badge"><span class="dot teal"></span>单一 episode-local HPC</span>
-            <span class="badge"><span class="dot amber"></span>Target 仅训练 loss 可见</span>
-            <span class="badge"><span class="dot green"></span>G0 18 / 18 · Train 9 / 9</span>
-            <span class="badge"><span class="dot teal"></span>Smoke 24 / 24 · Tests 250</span>
+            <span class="badge"><span class="dot green"></span>Task 6 / 6 · Implementation 10 / 10</span>
+            <span class="badge"><span class="dot teal"></span>Read-only · 258 passed</span>
             <span class="badge"><span class="dot green"></span>正式 M1b 不变</span>
-            <span class="badge"><span class="dot red"></span>Blind 6 / 7 · 冻结拒绝</span>
+            <span class="badge"><span class="dot red"></span>Mixed · 不创建 M1t</span>
           </div>
         </article>
         <article class="status-card pass">
-          <h2>Fixed Train Monitor</h2>
-          <strong>0.3438 → 0.7500</strong>
-          <p>Hard gain +40.63 pp；9/9 training unlock gates 全绿</p>
+          <h2>Fresh Source → M1r</h2>
+          <strong>0.3672 → 0.6875</strong>
+          <p>仍有 +32.03 pp 增益；oracle 0.7969</p>
         </article>
         <article class="status-card fail">
-          <h2>One-shot Fresh Blind</h2>
-          <strong>0.4063 → 0.7344</strong>
-          <p>增益 +32.81 pp；94/128，距离 96/128 的门槛少 2 个</p>
+          <h2>Error Split</h2>
+          <strong>30 / 28 / 22</strong>
+          <p>Router / wrong event room / correct-room branch ceiling</p>
         </article>
         <article class="status-card hold">
-          <h2>Blind Call / Room</h2>
-          <strong>0.8750 / 0.7656</strong>
-          <p>Clean drop 0.31 pp；其余六个 blind gates 全部通过</p>
+          <h2>Exact Route / Retain</h2>
+          <strong>0.773 / 0.300</strong>
+          <p>Exactly-one-correct route accuracy / source-only retention</p>
         </article>
       </div>
 
       <section>
         <div class="decision">
-          <strong>当前决策：M1r blind 以 6/7 冻结拒绝，状态不是“差不多通过”</strong>
-          <p>不重跑 seed1657151，不把 hard threshold 或 absolute gate 往结果上调，也不因少 2 probes 直接扩 seed。M1r 是目前最强 neural-call mechanism pilot；正式 headline 仍保留 M1b，formal 继续封存。</p>
+          <strong>当前决策：M1S_MIXED_NO_SINGLE_MECHANISM，停止模型堆叠</strong>
+          <p>最大单项 router 只解释 37.5% 错误，未达 50% dominance；不创建 M1t，也不把三个局部补丁一起塞进新模型。课题转入正式 M1b headline、M1p-q-r objective ablation 与诚实停止证据的论文收口。</p>
         </div>
+      </section>
+
+      <section id="m1s">
+        <div class="section-head">
+          <div>
+            <h2>最新：M1s Fresh-Seed 剩余错误分解</h2>
+            <p>不重跑 blind1657151，不训练 probe 或新模型。冻结 M1r step400 checkpoint 在全新 validation seed1727151 上只读 forward，随后用评价 metadata 将每个 hard error 精确分到四个互斥桶。</p>
+          </div>
+          <div class="source">更新：2026-07-16 · 128 episodes · 256 probes · task 6/6 · implementation 10/10 · 258 passed</div>
+        </div>
+
+        <article>
+          <h3>只读诊断链：Metadata 不进入模型</h3>
+          <div class="arch-flow">
+            <div class="arch-node input">
+              <h3>模型合法输入</h3>
+              <ul><li>当前动作</li><li>严格滞后 sensory</li></ul>
+              <p style="margin-top:9px;">Forward 仍禁 room、return、target 和 conflict mask。</p>
+            </div>
+            <div class="arch-node pfc">
+              <h3>冻结 M1r</h3>
+              <ul><li>Transformer / PFC</li><li>EC / place</li><li>285 参数 router</li></ul>
+              <p style="margin-top:9px;">完整 state hash 前后相同，没有 optimizer 或 backward。</p>
+            </div>
+            <div class="arch-node hpc">
+              <h3>唯一 HPC 双 Read</h3>
+              <ul><li>Source prediction</li><li>Archive prediction</li><li>Hard selected prediction</li></ul>
+              <p style="margin-top:9px;">同一个 pre-write memory state，仍只 source-write 一次。</p>
+            </div>
+            <div class="arch-node ec">
+              <h3>离线四桶</h3>
+              <ul><li>漏调 / 误调</li><li>Wrong archive room</li><li>Correct-room ceiling</li></ul>
+              <p style="margin-top:9px;">评价 metadata 只在所有 forward 完成后使用。</p>
+            </div>
+            <div class="arch-node output">
+              <h3>冻结分支</h3>
+              <ul><li>Dominant ≥ 50%</li><li>否则判 Mixed</li><li>Mixed 停止堆模型</li></ul>
+              <p style="margin-top:9px;">当前结果为 37.5% / 35.0% / 27.5%。</p>
+            </div>
+          </div>
+        </article>
+
+        <div class="grid-2" style="margin-top:12px;">
+          <article class="panel">
+            <h3>Fresh 条件主表</h3>
+            <table>
+              <thead><tr><th>条件</th><th>Return</th><th>Clean</th><th>Query</th><th>Conflict</th></tr></thead>
+              <tbody>
+                <tr><td data-label="条件">Source / disabled</td><td data-label="Return" class="num">0.36719</td><td data-label="Clean" class="num green">0.94844</td><td data-label="Query" class="num">0.92806</td><td data-label="Conflict" class="num">0.82617</td></tr>
+                <tr><td data-label="条件">Fixed archive</td><td data-label="Return" class="num">0.72656</td><td data-label="Clean" class="num red">0.30273</td><td data-label="Query" class="num">0.33952</td><td data-label="Conflict" class="num">0.52344</td></tr>
+                <tr><td data-label="条件">Soft diagnostic</td><td data-label="Return" class="num green">0.71094</td><td data-label="Clean" class="num">0.93320</td><td data-label="Query" class="num">0.92839</td><td data-label="Conflict" class="num green">0.90430</td></tr>
+                <tr><td data-label="条件"><strong>M1r hard</strong></td><td data-label="Return" class="num green"><strong>0.68750</strong></td><td data-label="Clean" class="num">0.94063</td><td data-label="Query" class="num green">0.93359</td><td data-label="Conflict" class="num">0.89844</td></tr>
+                <tr><td data-label="条件">Likelihood oracle</td><td data-label="Return" class="num green">0.79688</td><td data-label="Clean" class="num green">0.97109</td><td data-label="Query" class="num green">0.96484</td><td data-label="Conflict" class="num green">0.93359</td></tr>
+              </tbody>
+            </table>
+          </article>
+
+          <article class="panel">
+            <h3>80 个 Hard Errors：互斥分解</h3>
+            <table>
+              <thead><tr><th>错误桶</th><th>数量</th><th>Share</th><th>机制归属</th></tr></thead>
+              <tbody>
+                <tr><td data-label="错误桶">漏调 archive</td><td data-label="数量" class="num">16</td><td data-label="Share" class="num">20.0%</td><td data-label="机制">Router</td></tr>
+                <tr><td data-label="错误桶">误调 archive</td><td data-label="数量" class="num">14</td><td data-label="Share" class="num">17.5%</td><td data-label="机制">Router</td></tr>
+                <tr><td data-label="错误桶">两分支错 + wrong room</td><td data-label="数量" class="num">28</td><td data-label="Share" class="num">35.0%</td><td data-label="机制">Event identity</td></tr>
+                <tr><td data-label="错误桶">两分支错 + correct room</td><td data-label="数量" class="num">22</td><td data-label="Share" class="num">27.5%</td><td data-label="机制">Branch recall</td></tr>
+                <tr><td data-label="错误桶">未分类</td><td data-label="数量" class="num green">0</td><td data-label="Share" class="num green">0%</td><td data-label="机制">Partition exact</td></tr>
+              </tbody>
+            </table>
+          </article>
+        </div>
+
+        <div class="grid-2" style="margin-top:12px;">
+          <article class="panel">
+            <h3>Router：会调，但 Return 内偏过调</h3>
+            <ul>
+              <li>Exactly-one-branch-correct：132 probes；正确 route 0.77273。</li>
+              <li>Archive-only：112；call recall 0.85714。</li>
+              <li>Source-only：20；source retention 仅 0.30000。</li>
+              <li>Return preference BA / AUROC：0.52300 / 0.59502。</li>
+              <li>Return archive/source preference recall：0.89216 / 0.15385。</li>
+            </ul>
+          </article>
+          <article class="panel">
+            <h3>为什么现在停</h3>
+            <ul>
+              <li>Router 37.5% 虽最大，但不足以称 dominant。</li>
+              <li>单修 event identity 最多直接覆盖 35.0% 错误。</li>
+              <li>正确 room 下仍有 27.5% branch ceiling，证明下游也未封顶。</li>
+              <li>把三个修补一起加入会失去单机制归因，并重新扩大模型搜索空间。</li>
+            </ul>
+          </article>
+        </div>
+
+        <div class="no-slot">冻结结论：M1S_MIXED_NO_SINGLE_MECHANISM。分支为 STOP_MODEL_STACKING_AND_RETAIN_FORMAL_M1B；不创建 M1t，转入论文与正式 M1b 结果收口。</div>
       </section>
 
       <section id="m1r">
@@ -1893,7 +1988,8 @@
           <article class="stage done"><b>M1q Regret Audit</b><p>18,966 history tokens；source/archive regret 48,118/9,167，锁定信用失衡。</p></article>
           <article class="stage done"><b>M1r G0 + Training</b><p>G0 18/18，固定 step400 hard 0.7500 vs source 0.3438，training 9/9。</p></article>
           <article class="stage blocked"><b>M1r One-shot Blind</b><p>Hard 0.7344、gain +0.3281、clean drop 0.0031；6/7，absolute 少 2/128。</p></article>
-          <article class="stage active"><b>当前停点</b><p>M1r 冻结拒绝，不重跑、不扩 seed、不改阈值。正式 M1b 与 formal 封存状态不变。</p></article>
+          <article class="stage done"><b>M1s Fresh Error Audit</b><p>256 probes；router/event/downstream errors 为 30/28/22，task 6/6、implementation 10/10。</p></article>
+          <article class="stage active"><b>当前停点</b><p>M1s 判 Mixed，无机制达到 50% dominance；不创建 M1t，转入论文收口，正式 M1b 不变。</p></article>
           <article class="stage blocked"><b>Formal Protocol</b><p>normal K=8 仅 0.4010；达到 0.80 绝对门前不解锁。</p></article>
         </div>
       </section>
@@ -1906,6 +2002,9 @@
           </div>
         </div>
         <div class="artifact-list">
+          <a class="artifact" href="REMAP_FORMER_M1S_FRESH_ERROR_DECOMPOSITION_CN.md"><strong>最新：M1s Fresh 错误分解报告</strong><span>256 probes、四个互斥桶、router preference、dominance 决策与停止模型堆叠的依据</span></a>
+          <a class="artifact" href="REMAP_FORMER_M1S_FRESH_ERROR_DECOMPOSITION.json"><strong>M1s 完整机器结果</strong><span>五条件主表、16 个健康门、30/28/22 分类与全部 256 条逐 probe 记录</span></a>
+          <a class="artifact" href="m1s_fresh_error_decomposition_protocol.json"><strong>M1s 冻结协议</strong><span>Fresh seed、只读边界、四桶定义、50% dominance 门、分支映射与禁止项</span></a>
           <a class="artifact" href="REMAP_FORMER_M1Q_M1R_HARD_ROUTING_RESULT_CN.md"><strong>最新：M1q / M1r 硬调用完整结果</strong><span>单 HPC 架构、两种 objective、regret-mass 归因、固定训练、one-shot blind 与冻结结论</span></a>
           <a class="artifact" href="REMAP_FORMER_M1R_BLIND_SUMMARY.json"><strong>M1r 一次性 Blind 机器结果</strong><span>128 probes、五条件主表、7 个 gates、调用与正确 room 覆盖、冻结拒绝分支</span></a>
           <a class="artifact" href="REMAP_FORMER_M1R_TRAINING_SUMMARY.json"><strong>M1r 训练机器汇总</strong><span>固定 step400、9/9 unlock gates、frozen hash、checkpoint SHA 与 dense/original monitors</span></a>
@@ -2001,7 +2100,7 @@
           <a class="artifact" href="REMAP_FORMER_M1E_PAIRED_DEV2918_SUMMARY.json"><strong>最新：机器可读成对结果</strong><span>逐容量、总体指标、同 probe 胜负计数与冻结晋级决定</span></a>
           <a class="artifact" href="REMAP_FORMER_M1D_RECURRENT_CONTEXT_RESULT_CN.md"><strong>M1d 早期递归调用结果</strong><span>五个 train/dev 分支与旧边界分类 gate；请结合最新收口报告阅读</span></a>
           <a class="artifact" href="REMAP_FORMER_NOVEL_CAPACITY_BASELINES_20260713_CN.md"><strong>新容量 + 外部基线报告</strong><span>Transformer、Titans、容量曲线、失败归因与下一决策</span></a>
-          <a class="artifact" href="REMAP_FORMER_ICLR_DESIGN_CN.md"><strong>ICLR 实验设计 v18</strong><span>冻结接口、M1q regret 反证、M1r counterfactual preference 与 blind 决策</span></a>
+          <a class="artifact" href="REMAP_FORMER_ICLR_DESIGN_CN.md"><strong>ICLR 实验设计 v19</strong><span>M1p-q-r objective ablation、M1s mixed error audit 与模型线停止规则</span></a>
           <a class="artifact" href="REMAP_FORMER_M1B_COVARIANCE_RESULT_CN.md"><strong>M1b 结果报告</strong><span>诊断、ridge sweep、配对 validation 与微调审计</span></a>
           <a class="artifact" href="REMAP_FORMER_MATCHED_HIPPOFORMER_M1B_CN.md"><strong>预算匹配终审</strong><span>Hippoformer / M-delta / M1b 三 seed 同批 validation</span></a>
           <a class="artifact" href="REMAP_FORMER_8SEED_HEADLINE_TEST_CN.md"><strong>8-seed Test Headline</strong><span>预注册单次 test、逐 seed 指标、paired probes 与结论边界</span></a>
@@ -2017,7 +2116,7 @@
       </section>
     </main>
 
-    <footer>ReMAP-Former internal dashboard · 2026-07-16 · M1b 仍是正式模型；M1r fixed train 0.3438→0.7500、9/9 gates，one-shot blind 0.4063→0.7344、6/7 gates，少 2/128 未达 absolute 门；冻结拒绝，不重跑、不扩 seed，formal 未解锁</footer>
+    <footer>ReMAP-Former internal dashboard · 2026-07-16 · M1b 仍是正式模型；M1s fresh source→M1r 为 0.3672→0.6875，80 errors 按 router/event-identity/correct-room-downstream 分为 30/28/22，均未达 50% dominance；冻结 Mixed，不创建 M1t，模型线转入论文收口</footer>
   </div>
 </body>
 </html>
