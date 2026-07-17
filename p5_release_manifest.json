@@ -98,8 +98,8 @@
     },
     {
       "path": "reports/internal_store_dashboard.html",
-      "sha256": "31f8bf14dee2015294f6b6fb47c61fd5f84db6fdfeb8713636a4ce957d7be1f9",
-      "bytes": 179029
+      "sha256": "20423e562efed1e30ea2da194ec7419cf5df5705cefba13c3047e2a646bfad3b",
+      "bytes": 176817
     },
     {
       "path": "runs/remap_former/p5_paper_tables.json",
