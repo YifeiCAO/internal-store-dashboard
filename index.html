@@ -477,6 +477,7 @@
         <p>Transformer=PFC 主干，EC 供结构，covariance-corrected HPC 供外挂记忆</p>
       </div>
       <nav aria-label="看板分区">
+        <a href="#formal-p3-p4">P3/P4 正式证据</a>
         <a href="#m1s">M1s 最新</a>
         <a href="#m1r">M1r 硬调用</a>
         <a href="#m1p">M1p 概率路由</a>
@@ -632,6 +633,89 @@
         </div>
 
         <div class="no-slot">冻结结论：M1S_MIXED_NO_SINGLE_MECHANISM。分支为 STOP_MODEL_STACKING_AND_RETAIN_FORMAL_M1B；不创建 M1t，转入论文与正式 M1b 结果收口。</div>
+      </section>
+
+      <section id="formal-p3-p4">
+        <div class="section-head">
+          <div>
+            <h2>论文收口：P3 封存 Test-2 + P4 新奇内容容量</h2>
+            <p>这组结果不改变 M1s 的停止结论，也不创建新模型；它把正式 M1b、外部基线、strict free-rollout 与容量边界放进同一条可审计证据链。</p>
+          </div>
+          <div class="source">更新：2026-07-17 · P3 8 seed · P4 3 checkpoint clusters · 314 passed</div>
+        </div>
+
+        <div class="grid-2">
+          <article class="panel">
+            <h3>P3 封存 Test-2：真实泛化</h3>
+            <table>
+              <thead><tr><th>模型</th><th>Clean</th><th>Conflict</th><th>Return-conflict</th></tr></thead>
+              <tbody>
+                <tr><td data-label="模型">Hippoformer</td><td data-label="Clean" class="num">1.0000</td><td data-label="Conflict" class="num">0.7937</td><td data-label="Return-conflict" class="num">0.0000</td></tr>
+                <tr><td data-label="模型">Hippoformer HPC 分支</td><td data-label="Clean" class="num">0.9868</td><td data-label="Conflict" class="num">0.6854</td><td data-label="Return-conflict" class="num">0.0000</td></tr>
+                <tr><td data-label="模型">M-delta</td><td data-label="Clean" class="num">1.0000</td><td data-label="Conflict" class="num">0.7999</td><td data-label="Return-conflict" class="num">0.0000</td></tr>
+                <tr><td data-label="模型"><strong>ReMAP-Former M1b</strong></td><td data-label="Clean" class="num"><strong>0.9944</strong></td><td data-label="Conflict" class="num"><strong>0.9372</strong></td><td data-label="Return-conflict" class="num"><strong>0.8376</strong> [0.8221, 0.8527]</td></tr>
+                <tr><td data-label="模型">短窗 Transformer</td><td data-label="Clean" class="num">0.8953</td><td data-label="Conflict" class="num">0.8011</td><td data-label="Return-conflict" class="num">0.0134 [0.0098, 0.0176]</td></tr>
+                <tr><td data-label="模型">参数匹配 Transformer</td><td data-label="Clean" class="num">0.8954</td><td data-label="Conflict" class="num">0.8012</td><td data-label="Return-conflict" class="num">0.0122 [0.0089, 0.0159]</td></tr>
+                <tr><td data-label="模型">Titans-MAC 适配版</td><td data-label="Clean" class="num">0.9234</td><td data-label="Conflict" class="num">0.8001</td><td data-label="Return-conflict" class="num">0.0095 [0.0063, 0.0129]</td></tr>
+              </tbody>
+            </table>
+            <p style="margin:10px 0 0;color:var(--muted);font-size:12px;">M1b 对五类基线的 paired 优势 95% CI 下界均超过 +0.80。Titans-MAC 是论文机制对齐的导航适配版，不是作者官方 checkpoint；Hippoformer HPC 分支是机制消融，不冒充官方 mmTEM。</p>
+          </article>
+
+          <article class="panel">
+            <h3>P4：新奇事件容量边界</h3>
+            <table>
+              <thead><tr><th>条件</th><th>K1</th><th>K2</th><th>K4</th><th>K8</th><th>K12</th><th>AUC / K50</th></tr></thead>
+              <tbody>
+                <tr><td data-label="条件"><strong>M1b normal</strong></td><td data-label="K1" class="num">0.776</td><td data-label="K2" class="num"><strong>0.711</strong></td><td data-label="K4" class="num">0.375</td><td data-label="K8" class="num">0.193</td><td data-label="K12" class="num">0.099</td><td data-label="AUC / K50" class="num">0.462 / 4</td></tr>
+                <tr><td data-label="条件">No covariance</td><td data-label="K1" class="num">0.229</td><td data-label="K2" class="num">0.120</td><td data-label="K4" class="num">0.076</td><td data-label="K8" class="num">0.057</td><td data-label="K12" class="num">0.039</td><td data-label="AUC / K50" class="num">0.102 / 1</td></tr>
+                <tr><td data-label="条件">Correct context</td><td data-label="K1" class="num">0.982</td><td data-label="K2" class="num">0.948</td><td data-label="K4" class="num">0.672</td><td data-label="K8" class="num">0.388</td><td data-label="K12" class="num">0.206</td><td data-label="AUC / K50" class="num">0.691 / 8</td></tr>
+                <tr><td data-label="条件">Exact address, ridge .03</td><td data-label="K1" class="num">0.982</td><td data-label="K2" class="num">0.948</td><td data-label="K4" class="num">0.672</td><td data-label="K8" class="num">0.385</td><td data-label="K12" class="num">0.203</td><td data-label="AUC / K50" class="num">0.691 / 8</td></tr>
+                <tr><td data-label="条件">Exact address, ridge .001</td><td data-label="K1" class="num">0.987</td><td data-label="K2" class="num">0.971</td><td data-label="K4" class="num">0.836</td><td data-label="K8" class="num">0.737</td><td data-label="K12" class="num">0.477</td><td data-label="AUC / K50" class="num"><strong>0.844 / 12</strong></td></tr>
+                <tr><td data-label="条件">五类非 M1b 基线</td><td data-label="K1" class="num">0.008–0.021</td><td data-label="K2" class="num">0.008–0.013</td><td data-label="K4" class="num">0.008–0.029</td><td data-label="K8" class="num">0.010–0.021</td><td data-label="K12" class="num">0.016–0.023</td><td data-label="AUC / K50" class="num">≤0.019 / 1</td></tr>
+              </tbody>
+            </table>
+            <p style="margin:10px 0 0;color:var(--muted);font-size:12px;">3 个冻结 checkpoint × 全新 episode seeds，每 K 共 384 episodes。Correct-context 与 exact-address 是归因 oracle，不是可部署结果；ridge .001 显示内容容量仍有明确 headroom。</p>
+          </article>
+        </div>
+
+        <div class="grid-2" style="margin-top:12px;">
+          <article class="panel">
+            <h3>必须保留的负结果</h3>
+            <table>
+              <thead><tr><th>检查</th><th>结果</th><th>判断</th></tr></thead>
+              <tbody>
+                <tr><td data-label="检查">Strict free-rollout 全曲线</td><td data-label="结果" class="num">M1b−Hippo AUC −0.0970<br />CI [−0.1544, −0.0440]</td><td data-label="判断" class="red">FAIL</td></tr>
+                <tr><td data-label="检查">4096 步端点</td><td data-label="结果" class="num">+0.3688<br />CI [+0.2289, +0.4836]</td><td data-label="判断" class="green">端点优势</td></tr>
+                <tr><td data-label="检查">P4 normal K2 扩展门</td><td data-label="结果" class="num">0.7109 ≥ 0.50</td><td data-label="判断" class="green">PASS</td></tr>
+                <tr><td data-label="检查">自动创建 M1t</td><td data-label="结果" class="num">False</td><td data-label="判断" class="amber">协议禁止</td></tr>
+              </tbody>
+            </table>
+            <p style="margin:10px 0 0;color:var(--muted);font-size:12px;">4096 端点好，不等于整条 free-rollout 曲线赢；旧 4356 步闭合 distractor 结果也不是 free rollout。三者在论文中必须分开陈述。</p>
+          </article>
+
+          <article class="panel">
+            <h3>完整性与发布门</h3>
+            <table>
+              <tbody>
+                <tr><td data-label="审计">P3 Test-2 rows</td><td data-label="结果" class="num">28,672 / 28,672</td><td data-label="判断" class="green">精确</td></tr>
+                <tr><td data-label="审计">P3 访问账本</td><td data-label="结果" class="num">2 pass</td><td data-label="判断" class="amber">溢出修复后确定性重放，已披露</td></tr>
+                <tr><td data-label="审计">P4 metric / diagnostic rows</td><td data-label="结果" class="num">19,200 / 1,920</td><td data-label="判断" class="green">精确</td></tr>
+                <tr><td data-label="审计">慢权重 / task gates</td><td data-label="结果" class="num">unchanged / all green</td><td data-label="判断" class="green">PASS</td></tr>
+                <tr><td data-label="审计">根测试</td><td data-label="结果" class="num">314 passed</td><td data-label="判断" class="green">PASS</td></tr>
+                <tr><td data-label="审计">P0 canonical hash</td><td data-label="结果" class="num">pfc.py CRLF/LF mismatch</td><td data-label="判断" class="red">发布包唯一阻塞</td></tr>
+              </tbody>
+            </table>
+            <p style="margin:10px 0 0;color:var(--muted);font-size:12px;">首次 P3 forward 已全部完成，失败只发生在 pooled exact-sign p 的大整数后处理；没有更改 checkpoint、模型、超参或阈值。P0 行尾未经明确授权不改。</p>
+          </article>
+        </div>
+
+        <div class="grid-2" style="margin-top:12px;">
+          <article class="panel"><h3>P3 Test-2 对比图</h3><img class="result-figure" src="remap_former_p3_test2.png" alt="ReMAP-Former P3 封存 Test-2 七模型对比" /></article>
+          <article class="panel"><h3>P4 新奇内容容量图</h3><img class="result-figure" src="remap_former_p4_novel_capacity.png" alt="ReMAP-Former P4 K1 到 K12 容量曲线" /></article>
+        </div>
+
+        <div class="no-slot">P4 正式协议的 384 episodes/K 取代本页较早的 8-probe dev pilot，成为容量 headline；旧 pilot 仍保留为开发历史，不事后删除。科学证据已完成，但 P0 canonical 哈希未绿之前不宣称 release-ready。</div>
       </section>
 
       <section id="m1r">
@@ -2005,6 +2089,12 @@
           <a class="artifact" href="REMAP_FORMER_M1S_FRESH_ERROR_DECOMPOSITION_CN.md"><strong>最新：M1s Fresh 错误分解报告</strong><span>256 probes、四个互斥桶、router preference、dominance 决策与停止模型堆叠的依据</span></a>
           <a class="artifact" href="REMAP_FORMER_M1S_FRESH_ERROR_DECOMPOSITION.json"><strong>M1s 完整机器结果</strong><span>五条件主表、16 个健康门、30/28/22 分类与全部 256 条逐 probe 记录</span></a>
           <a class="artifact" href="m1s_fresh_error_decomposition_protocol.json"><strong>M1s 冻结协议</strong><span>Fresh seed、只读边界、四桶定义、50% dominance 门、分支映射与禁止项</span></a>
+          <a class="artifact" href="REMAP_FORMER_P0_P4_FINAL_EVIDENCE_CN.md"><strong>P0–P4 最终证据</strong><span>正式 M1b 架构、正负结果、统计表、容量边界与投稿级判断</span></a>
+          <a class="artifact" href="REMAP_FORMER_P3_TEST2_CN.md"><strong>P3 封存 Test-2</strong><span>七模型 Test-2、paired bootstrap、恢复账本与解释边界</span></a>
+          <a class="artifact" href="REMAP_FORMER_P3_TEST2_TRAINING_GATE_CN.md"><strong>P3 训练健康门</strong><span>三类外部基线 24 个 checkpoint 的训练与完整性审计</span></a>
+          <a class="artifact" href="REMAP_FORMER_P4_NOVEL_CAPACITY_CN.md"><strong>P4 正式新奇内容容量</strong><span>K=1–12、384 episodes/K、诊断 oracle、AUC 与 K50</span></a>
+          <a class="artifact" href="p5_paper_tables.json"><strong>P3/P4 精简论文表格</strong><span>Headline、paired comparison、消融和容量曲线的机器可读汇总</span></a>
+          <a class="artifact" href="p5_release_manifest.json"><strong>P5 发布 Manifest</strong><span>证据文件哈希、测试状态与唯一 P0 release blocker</span></a>
           <a class="artifact" href="REMAP_FORMER_M1Q_M1R_HARD_ROUTING_RESULT_CN.md"><strong>最新：M1q / M1r 硬调用完整结果</strong><span>单 HPC 架构、两种 objective、regret-mass 归因、固定训练、one-shot blind 与冻结结论</span></a>
           <a class="artifact" href="REMAP_FORMER_M1R_BLIND_SUMMARY.json"><strong>M1r 一次性 Blind 机器结果</strong><span>128 probes、五条件主表、7 个 gates、调用与正确 room 覆盖、冻结拒绝分支</span></a>
           <a class="artifact" href="REMAP_FORMER_M1R_TRAINING_SUMMARY.json"><strong>M1r 训练机器汇总</strong><span>固定 step400、9/9 unlock gates、frozen hash、checkpoint SHA 与 dense/original monitors</span></a>

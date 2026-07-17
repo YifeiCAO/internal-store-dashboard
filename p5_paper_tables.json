@@ -1,0 +1,440 @@
+{
+  "format": "remap_former.p5_paper_tables.v1",
+  "table_1": {
+    "title": "P3 sealed Test-2 baselines",
+    "rows": [
+      {
+        "condition": "hippoformer",
+        "label": "Hippoformer",
+        "parameters": 1494447,
+        "optimizer_steps": 600,
+        "clean_mean": 0.999951171875,
+        "conflict_mean": 0.793701171875,
+        "return_conflict": 0.0,
+        "return_conflict_ci95": [
+          0.0,
+          0.0
+        ]
+      },
+      {
+        "condition": "hippoformer_hpc_branch_mmtem_ablation",
+        "label": "Hippoformer HPC branch",
+        "parameters": 1494447,
+        "optimizer_steps": 600,
+        "clean_mean": 0.98681640625,
+        "conflict_mean": 0.685400390625,
+        "return_conflict": 0.0,
+        "return_conflict_ci95": [
+          0.0,
+          0.0
+        ]
+      },
+      {
+        "condition": "mdelta",
+        "label": "M-delta",
+        "parameters": 1388257,
+        "optimizer_steps": 600,
+        "clean_mean": 1.0,
+        "conflict_mean": 0.79990234375,
+        "return_conflict": 0.0,
+        "return_conflict_ci95": [
+          0.0,
+          0.0
+        ]
+      },
+      {
+        "condition": "m1b_covariance",
+        "label": "ReMAP-Former M1b",
+        "parameters": 1398289,
+        "optimizer_steps": 600,
+        "clean_mean": 0.994384765625,
+        "conflict_mean": 0.937158203125,
+        "return_conflict": 0.837646484375,
+        "return_conflict_ci95": [
+          0.8221405029296875,
+          0.8526611328125
+        ]
+      },
+      {
+        "condition": "short_window_transformer",
+        "label": "Window Transformer",
+        "parameters": 1280960,
+        "optimizer_steps": 1200,
+        "clean_mean": 0.895263671875,
+        "conflict_mean": 0.801123046875,
+        "return_conflict": 0.013427734375,
+        "return_conflict_ci95": [
+          0.009765625,
+          0.017578125
+        ]
+      },
+      {
+        "condition": "parameter_matched_transformer",
+        "label": "Parameter-matched Transformer",
+        "parameters": 1396096,
+        "optimizer_steps": 1200,
+        "clean_mean": 0.89541015625,
+        "conflict_mean": 0.801220703125,
+        "return_conflict": 0.01220703125,
+        "return_conflict_ci95": [
+          0.0089111328125,
+          0.015869140625
+        ]
+      },
+      {
+        "condition": "titans_mac_adaptation",
+        "label": "Titans-MAC adaptation",
+        "parameters": 1344260,
+        "optimizer_steps": 1200,
+        "clean_mean": 0.9234375,
+        "conflict_mean": 0.80009765625,
+        "return_conflict": 0.009521484375,
+        "return_conflict_ci95": [
+          0.00634765625,
+          0.012939453125
+        ]
+      }
+    ],
+    "note": "External Transformer/Titans rows use 1200-step best-effort training; frozen Hippoformer, M-delta and M1b use 600 steps."
+  },
+  "table_2": {
+    "title": "P2 M1b causal interventions",
+    "rows": [
+      {
+        "condition": "full",
+        "label": "Full M1b",
+        "return_conflict": 0.79443359375,
+        "ci95": [
+          0.7724609375,
+          0.8154296875
+        ]
+      },
+      {
+        "condition": "no_covariance",
+        "label": "No covariance",
+        "return_conflict": 0.267578125,
+        "ci95": [
+          0.24365234375,
+          0.294921875
+        ]
+      },
+      {
+        "condition": "fixed_context_all_steps",
+        "label": "Fixed context",
+        "return_conflict": 0.0,
+        "ci95": [
+          0.0,
+          0.0
+        ]
+      },
+      {
+        "condition": "shuffled_context_all_steps",
+        "label": "Shuffled context",
+        "return_conflict": 0.435546875,
+        "ci95": [
+          0.414794921875,
+          0.45654296875
+        ]
+      },
+      {
+        "condition": "hpc_read_zero",
+        "label": "HPC read = 0",
+        "return_conflict": 0.0234375,
+        "ci95": [
+          0.018798828125,
+          0.028076171875
+        ]
+      },
+      {
+        "condition": "wrong_return_context",
+        "label": "Wrong return context",
+        "return_conflict": 0.0009765625,
+        "ci95": [
+          0.0,
+          0.002685546875
+        ]
+      },
+      {
+        "condition": "correct_return_context",
+        "label": "Correct context oracle",
+        "return_conflict": 0.9423828125,
+        "ci95": [
+          0.924560546875,
+          0.95751953125
+        ]
+      }
+    ],
+    "all_five_necessity_controls": true
+  },
+  "table_3": {
+    "title": "Boundary experiments",
+    "strict_free_rollout": {
+      "m1b_minus_hippoformer_auc": {
+        "estimate": -0.09702367731727535,
+        "ci95_low": -0.15441227864117898,
+        "ci95_high": -0.0439977950576672,
+        "bootstrap_mean": -0.09726605988868312,
+        "bootstrap_sd": 0.02828292052801157,
+        "per_seed": {
+          "values": [
+            -0.20929065711085149,
+            -0.04287259880822236,
+            -0.06929629635304302,
+            -0.0757314201269711,
+            -0.1876160637607115,
+            -0.13040889456808202,
+            -0.012540483632562105,
+            -0.04843300417775975
+          ],
+          "mean": -0.09702367731727542,
+          "population_sd": 0.06668807864864139,
+          "minimum": -0.20929065711085149,
+          "maximum": -0.012540483632562105
+        },
+        "bootstrap_probability_gt_zero": 0.0,
+        "bootstrap_probability_ge_zero": 0.0,
+        "margin_probabilities": {
+          "ge_-0.0100": 0.0002
+        }
+      },
+      "m1b_minus_hippoformer_4096": {
+        "estimate": 0.36876173125759093,
+        "ci95_low": 0.2288781101077431,
+        "ci95_high": 0.48358378056684415,
+        "bootstrap_mean": 0.3682570570522086,
+        "bootstrap_sd": 0.06503728817252653,
+        "per_seed": {
+          "values": [
+            0.07033233962680807,
+            0.5039196201832836,
+            0.4302749254720105,
+            0.44937617312575906,
+            0.0420669095727062,
+            0.41647344595340624,
+            0.5265540465937949,
+            0.511096389532958
+          ],
+          "mean": 0.3687617312575908,
+          "population_sd": 0.18431420251455302,
+          "minimum": 0.0420669095727062,
+          "maximum": 0.5265540465937949
+        },
+        "bootstrap_probability_gt_zero": 1.0,
+        "bootstrap_probability_ge_zero": 1.0,
+        "margin_probabilities": {
+          "ge_-0.0200": 1.0
+        }
+      },
+      "decision": {
+        "auc_noninferiority_ci": false,
+        "horizon_4096_noninferiority_ci": true,
+        "horizon_4096_superiority_ci": true,
+        "hippoformer_task_health": false,
+        "m1b_short_health": false,
+        "h1_confirmed": false,
+        "interpretation": "endpoint-specific long-horizon advantage; full-curve H1 fails"
+      }
+    },
+    "novel_capacity": {
+      "levels": [
+        1,
+        2,
+        4,
+        8,
+        12
+      ],
+      "rows": [
+        {
+          "condition": "m1b_covariance",
+          "return_conflict_by_k": {
+            "1": {
+              "point": 0.7760416666666666,
+              "ci95": [
+                0.71875,
+                0.828125
+              ]
+            },
+            "2": {
+              "point": 0.7109375,
+              "ci95": [
+                0.6692708333333334,
+                0.7513020833333334
+              ]
+            },
+            "4": {
+              "point": 0.375,
+              "ci95": [
+                0.32421875,
+                0.4244791666666667
+              ]
+            },
+            "8": {
+              "point": 0.19270833333333334,
+              "ci95": [
+                0.15625,
+                0.23307291666666666
+              ]
+            },
+            "12": {
+              "point": 0.09895833333333333,
+              "ci95": [
+                0.07421875,
+                0.12760416666666666
+              ]
+            }
+          },
+          "capacity_auc": {
+            "point": 0.46182338895375386,
+            "ci_low": 0.4319403992222061,
+            "ci_high": 0.49180923707911367,
+            "k50": 4
+          }
+        },
+        {
+          "condition": "m1b_correct_context_oracle",
+          "return_conflict_by_k": {
+            "1": {
+              "point": 0.9817708333333334,
+              "ci95": [
+                0.9635416666666666,
+                0.9947916666666666
+              ]
+            },
+            "2": {
+              "point": 0.9479166666666666,
+              "ci95": [
+                0.92578125,
+                0.9661458333333334
+              ]
+            },
+            "4": {
+              "point": 0.671875,
+              "ci95": [
+                0.61328125,
+                0.7291666666666666
+              ]
+            },
+            "8": {
+              "point": 0.3880208333333333,
+              "ci95": [
+                0.3411458333333333,
+                0.4375
+              ]
+            },
+            "12": {
+              "point": 0.20572916666666666,
+              "ci95": [
+                0.171875,
+                0.24088541666666666
+              ]
+            }
+          },
+          "capacity_auc": {
+            "point": 0.6913177590848008,
+            "ci_low": 0.6641590741559125,
+            "ci_high": 0.7189152758275074,
+            "k50": 8
+          }
+        },
+        {
+          "condition": "m1b_exact_address_ridge0p03",
+          "return_conflict_by_k": {
+            "1": {
+              "point": 0.9817708333333334,
+              "ci95": [
+                0.9635416666666666,
+                0.9947916666666666
+              ]
+            },
+            "2": {
+              "point": 0.9479166666666666,
+              "ci95": [
+                0.92578125,
+                0.9661458333333334
+              ]
+            },
+            "4": {
+              "point": 0.671875,
+              "ci95": [
+                0.609375,
+                0.73046875
+              ]
+            },
+            "8": {
+              "point": 0.3854166666666667,
+              "ci95": [
+                0.3411458333333333,
+                0.43359375
+              ]
+            },
+            "12": {
+              "point": 0.203125,
+              "ci95": [
+                0.16927083333333334,
+                0.23828125
+              ]
+            }
+          },
+          "capacity_auc": {
+            "point": 0.6905296272205503,
+            "ci_low": 0.6633335160310392,
+            "ci_high": 0.7176507825950916,
+            "k50": 8
+          }
+        },
+        {
+          "condition": "m1b_exact_address_ridge0p001",
+          "return_conflict_by_k": {
+            "1": {
+              "point": 0.9869791666666666,
+              "ci95": [
+                0.97265625,
+                1.0
+              ]
+            },
+            "2": {
+              "point": 0.9713541666666666,
+              "ci95": [
+                0.9505208333333334,
+                0.98828125
+              ]
+            },
+            "4": {
+              "point": 0.8359375,
+              "ci95": [
+                0.78515625,
+                0.8815104166666666
+              ]
+            },
+            "8": {
+              "point": 0.7369791666666666,
+              "ci95": [
+                0.69140625,
+                0.7825520833333334
+              ]
+            },
+            "12": {
+              "point": 0.4765625,
+              "ci95": [
+                0.4283854166666667,
+                0.5221354166666666
+              ]
+            }
+          },
+          "capacity_auc": {
+            "point": 0.843581771568407,
+            "ci_low": 0.8234535919477335,
+            "ci_high": 0.8624720975403316,
+            "k50": 12
+          }
+        }
+      ],
+      "k2_future_scaling_gate": {
+        "m1b_k2_return_conflict": 0.7109375,
+        "future_scaling_threshold": 0.5,
+        "k2_future_scaling_gate_pass": true,
+        "auto_start_new_model": false
+      }
+    }
+  }
+}
