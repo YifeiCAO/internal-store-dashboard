@@ -510,17 +510,17 @@
       <div class="status-grid" aria-label="最新状态">
         <article class="status-card primary">
           <h2>当前主线</h2>
-          <strong>可变布局 world model 已跑通，但外挂 HPC 尚未通过大样本因果门</strong>
-          <p>Stage2 rollout 相对 teacher-only pooled 改善 69.26%。但旧 HPC 在独立 Val256 上比 PFC-only 差 1.43%；修正 context 读取 PFC hidden 后，Val64 的 +6.26% 在固定 Val256 反转为 -1.80%。新候选未进入 test。</p>
+          <strong>可变布局 world model 已跑通；三轮 HPC 修正均未通过独立 Val256</strong>
+          <p>Visual-corrected EC 把 address 近邻命中从 61.0% 提到 66.3%，并在 Val32 得到 +4.73%，但完全独立 Val256 反转为 -0.42%。这说明局部 loop closure 变好仍不足以建立稳定的长 rollout 记忆贡献。</p>
           <div class="badge-row">
             <span class="badge"><span class="dot blue"></span>真实 egocentric RGB</span>
             <span class="badge"><span class="dot blue"></span>4096 / 512 / 512</span>
             <span class="badge"><span class="dot teal"></span>无位置 / 朝向输入</span>
             <span class="badge"><span class="dot green"></span>跨 split layout overlap = 0</span>
             <span class="badge"><span class="dot green"></span>future leak = 0</span>
-            <span class="badge"><span class="dot green"></span>24 tests passed</span>
+            <span class="badge"><span class="dot green"></span>33 tests passed</span>
             <span class="badge"><span class="dot amber"></span>当前成绩主要来自 PFC</span>
-            <span class="badge"><span class="dot amber"></span>HPC 需重训</span>
+            <span class="badge"><span class="dot amber"></span>HPC 需双向重构</span>
           </div>
         </article>
         <article class="status-card pass">
@@ -529,72 +529,75 @@
           <p>Stage2 对 Stage1，paired Val64 pooled</p>
         </article>
         <article class="status-card fail">
-          <h2>旧 HPC · Val256</h2>
-          <strong>-1.43%</strong>
-          <p>full 相对 PFC-only，区间完全为负</p>
+          <h2>Visual EC · Val32</h2>
+          <strong>+4.73%</strong>
+          <p>发现集显著，但只作为候选</p>
         </article>
         <article class="status-card hold">
-          <h2>PFC-context · Val256</h2>
-          <strong>-1.80%</strong>
-          <p>Val64 +6.26% 未复现，不进 test</p>
+          <h2>Visual EC · Val256</h2>
+          <strong>-0.42%</strong>
+          <p>90% CI 跨 0，未复现，不进 test</p>
         </article>
       </div>
 
       <section>
         <div class="decision">
-          <strong>当前决策：停止调 cutoff/gain；下一版只做无标签 episode-context 稳定与分离目标</strong>
-          <p>context 读取 PFC hidden 是必要接口修复，但预测 loss 不足以让它形成稳定 remapping。下一版用同 episode 两段因果历史作正对、batch 内其他 episode 作负对；仍禁止 room id、位置、地图、place id 和 future RGB。只有 N256 full 对 PFC-only 的 pooled 与双 context 区间全部过门，才打开 test 和外部基线。</p>
+          <strong>当前决策：停止给单向 HPC 补 loss/gate；下一版实现 sensory↔grid 双向 neural fast weights</strong>
+          <p>本轮证明 context InfoNCE、factorized covariance 与视觉 loop closure 都不能稳定救回当前结构。根本缺口是现 HPC 只能 structural→sensory，不能像原始 mm-TEM 那样由 sensory 反向召回并校正 grid。下一版仍禁止 room id、位置、地图、place id 和 future RGB。</p>
         </div>
       </section>
 
       <section id="memorymaze3d">
         <div class="section-head">
           <div>
-            <h2>最新：MemoryMaze3D 可变布局 HPC 因果审计</h2>
-            <p>真实 MuJoCo 第一人称 RGB；4096/512/512 个 maze9-variable episodes；模型只看图像和动作，位置/朝向/布局均不进入模型。</p>
+            <h2>最新：MemoryMaze3D HPC Correction 全审计</h2>
+            <p>真实 MuJoCo 第一人称 RGB；4096/512/512 个 maze9-variable episodes；逐项检验 context、写入去相关与视觉校正 EC。模型始终只看图像和动作。</p>
           </div>
           <div class="source">2026-07-23 · VARIABLE LAYOUT · PAIRED VAL256 · TEST UNTOUCHED FOR NEW CANDIDATES</div>
         </div>
 
         <div class="decision">
-          <strong>核心结论：可变环境 world model 成立，但现阶段不能声称外挂 HPC 提高 Transformer</strong>
-          <p>Rollout stage2 对 teacher-only 有 69.26% pooled 改善；然而旧 HPC 在 Val256 显著伤害 1.43%。pfc_hidden context 修复在 Val64 表观提升 6.26%，固定 Val256 反转为 -1.80%。所有候选均保持 future ground-truth reads/writes 为 0，失败候选没有读取 test。</p>
+          <strong>核心结论：局部地址几何可以改善，但当前单向 HPC 的长 rollout 收益仍不可复制</strong>
+          <p>Visual EC 将 place/address 近邻命中提高到 77.1%/66.3%，prediction MSE 回到 2.686e-3；但 Val32 的 +4.73% 在独立 Val256 变成 -0.42%。所有候选 future ground-truth reads/writes 均为 0，test 未读取。</p>
         </div>
 
         <div class="grid-2" style="margin-top:12px;">
           <article class="panel">
-            <h3>三段证据链</h3>
+            <h3>本轮修正证据链</h3>
             <table>
               <thead><tr><th>检查</th><th>结果</th><th>裁决</th></tr></thead>
               <tbody>
-                <tr><td data-label="检查">Stage2 vs Stage1</td><td data-label="结果" class="num green">+69.26%</td><td data-label="裁决" class="green">rollout 训练有效</td></tr>
-                <tr><td data-label="检查">旧 HPC vs PFC-only · Val256</td><td data-label="结果" class="num red">-1.43%</td><td data-label="裁决" class="red">旧 HPC 失败</td></tr>
-                <tr><td data-label="检查">固定 gain 扫描</td><td data-label="结果" class="num">最佳 gain1 仅 +0.17%</td><td data-label="裁决">正式选 gain0</td></tr>
-                <tr><td data-label="检查">pfc_hidden · Val64</td><td data-label="结果" class="num green">+6.26%</td><td data-label="裁决">发现集候选</td></tr>
-                <tr><td data-label="检查">pfc_hidden · Val256</td><td data-label="结果" class="num red">-1.80%</td><td data-label="裁决" class="red">未复现，不进 test</td></tr>
+                <tr><td data-label="检查">Context InfoNCE</td><td data-label="结果" class="num red">margin 0.571→0.291</td><td data-label="裁决" class="red">表示退化</td></tr>
+                <tr><td data-label="检查">Fixed episode context</td><td data-label="结果" class="num red">-20.58%</td><td data-label="裁决" class="red">串扰加重</td></tr>
+                <tr><td data-label="检查">Factorized covariance · Val32</td><td data-label="结果" class="num red">-0.79%</td><td data-label="裁决" class="red">方向不一致</td></tr>
+                <tr><td data-label="检查">Visual EC · Val32</td><td data-label="结果" class="num green">+4.73%</td><td data-label="裁决">发现集候选</td></tr>
+                <tr><td data-label="检查">Visual EC · 独立 Val256</td><td data-label="结果" class="num red">-0.42%</td><td data-label="裁决" class="red">未复现，不进 test</td></tr>
               </tbody>
             </table>
           </article>
           <article class="panel">
-            <h3>可变布局 HPC 总审计</h3>
-            <img class="result-figure" src="figures/memorymaze3d_variable_hpc_audit.png" alt="MemoryMaze3D 可变布局中 rollout 训练、旧 HPC 因果消融与 pfc hidden 小样本反转的三联图" />
+            <h3>Context、地址几何与独立复现</h3>
+            <img class="result-figure" src="figures/memorymaze3d_hpc_correction_audit.png" alt="MemoryMaze3D context 目标退化、局部地址改善与小样本收益未复现的三联图" />
           </article>
         </div>
 
         <article class="panel" style="margin-top:12px;">
-          <h3>下一版：无标签因果 Context 对比目标</h3>
-          <div class="arch-flow" style="grid-template-columns:repeat(4,minmax(0,1fr));">
+          <h3>下一版：双向 sensory↔grid Neural HPC</h3>
+          <div class="arch-flow" style="grid-template-columns:repeat(5,minmax(0,1fr));">
             <div class="arch-node input"><h3>RGB + Action</h3><p>严格因果历史</p></div>
-            <div class="arch-node pfc"><h3>Transformer / PFC</h3><p>主干 hidden</p></div>
-            <div class="arch-node hpc"><h3>Episode Context</h3><p>同 episode 对齐，跨 episode 分离</p></div>
-            <div class="arch-node ec"><h3>EC + Place + HPC</h3><p>context-conditioned remapping</p></div>
+            <div class="arch-node pfc"><h3>Transformer / PFC</h3><p>短期主干</p></div>
+            <div class="arch-node ec"><h3>Action → Grid</h3><p>生成 g_gen</p></div>
+            <div class="arch-node hpc"><h3>双向 Fast Weights</h3><p>g→x 与 x→g</p></div>
+            <div class="arch-node output"><h3>HC→EC Correction</h3><p>g_gen 融合 g_hat</p></div>
           </div>
-          <p style="margin-top:10px;">正对只来自同一 episode 的两段已观测历史；负对来自 batch 内其他 episode。不增加 memory slots，不输入 room id、位置、地图、place id 或未来图像。先过 context geometry/collapse gates，再允许 rollout 训练。</p>
+          <p style="margin-top:10px;">先用 grid 预测 sensory；观察当前 sensory 后，再由反向 fast weight 召回 corrected grid，并把同一 observed pair 写入两个方向。没有 memory slots，不输入 room id、位置、地图、place id 或未来图像。</p>
         </article>
 
         <div class="artifact-grid" style="margin-top:12px;">
-          <a class="artifact" href="MEMORYMAZE3D_VARIABLE_HPC_AUDIT_CN.md"><strong>最新：可变布局 HPC 完整审计</strong><span>Open9 gate 收口、变量布局组件消融、两次独立复现、根因代码与下一版协议</span></a>
-          <a class="artifact" href="memorymaze3d_variable_hpc_audit_summary.json"><strong>机器可读总结果</strong><span>所有 headline、bootstrap 区间、停止决定、test 边界与下一实验 gate</span></a>
+          <a class="artifact" href="MEMORYMAZE3D_HPC_CORRECTION_AUDIT_CN.md"><strong>最新：HPC Correction 完整中文审计</strong><span>Context InfoNCE、factorized write、视觉 EC、Val32→Val256 反转与双向 HPC 下一版</span></a>
+          <a class="artifact" href="memorymaze3d_hpc_correction_audit_summary.json"><strong>最新机器可读结果</strong><span>三条失败分支、地址几何、bootstrap 区间、test 边界与冻结决策</span></a>
+          <a class="artifact" href="MEMORYMAZE3D_VARIABLE_HPC_AUDIT_CN.md"><strong>上一版：可变布局 HPC 基础审计</strong><span>Stage1/Stage2、旧 HPC、pfc_hidden context 与 gain sweep</span></a>
+          <a class="artifact" href="memorymaze3d_variable_hpc_audit_summary.json"><strong>上一版机器结果</strong><span>变量布局基础审计的全部 headline 与停止门</span></a>
         </div>
 
         <div class="section-head" style="margin-top:24px;">
@@ -2616,7 +2619,7 @@
       </section>
     </main>
 
-    <footer>ReMAP-Former internal dashboard · 2026-07-23 · 可变布局 world model 已跑通；旧 HPC 与 pfc_hidden 候选均未通过 Val256 因果门，新候选未读取 test。下一版聚焦无标签 episode-context 稳定与分离目标；Open9、G8/G7 与既有正负结果全部保留</footer>
+    <footer>ReMAP-Former internal dashboard · 2026-07-23 · 可变布局 world model 已跑通；Context InfoNCE、factorized write 与 visual-corrected EC 均未通过独立 Val256。test 未读取；下一版冻结为 sensory↔grid 双向 neural fast-weight HPC。</footer>
   </div>
 </body>
 </html>

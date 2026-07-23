@@ -1,0 +1,61 @@
+{
+  "format": "remap_former.memorymaze3d.hpc_correction_audit.v1",
+  "date": "2026-07-23",
+  "test_split_touched": false,
+  "headline_decision": "STOP_CURRENT_UNIDIRECTIONAL_HPC",
+  "context_infonce": {
+    "baseline_margin": 0.5714725255966187,
+    "trained_margin": 0.29073768854141235,
+    "baseline_effective_rank": 5.182507450193316,
+    "trained_effective_rank": 4.339137569342243,
+    "val64_hpc_effect_relative": 0.010572940576727544,
+    "decision": "STOP"
+  },
+  "fixed_episode_context": {
+    "val64_hpc_effect_relative": -0.20584535356674055,
+    "decision": "STOP"
+  },
+  "factorized_covariance": {
+    "synthetic_baseline_recall_mse": 0.375,
+    "synthetic_corrected_recall_mse": 0.0012,
+    "val32_hpc_effect_relative": -0.007885476842969813,
+    "decision": "STOP"
+  },
+  "baseline_place_geometry_val128": {
+    "integrated_distance_spearman": 0.35294246488913367,
+    "place_spearman": 0.16755041176888033,
+    "address_spearman": 0.015371463504858891,
+    "place_near_top1": 0.7223825226710635,
+    "address_near_top1": 0.6096455070074196
+  },
+  "visual_corrected_ec": {
+    "pretrain_updates": 300,
+    "finetune_updates": 100,
+    "finetuned_prediction_mse": 0.002685741172172129,
+    "finetuned_place_near_top1": 0.7706100577081616,
+    "finetuned_address_near_top1": 0.6628194558944766,
+    "discovery_val32_hpc_effect_relative": 0.04734465161477761,
+    "confirm_val256": {
+      "episode_range": [
+        128,
+        383
+      ],
+      "c20_hpc_effect_relative": -0.007697841818874486,
+      "c32_hpc_effect_relative": 0.0004618527263615001,
+      "pooled_full_mse_x1e3": 15.435750611459298,
+      "pooled_pfc_only_mse_x1e3": 15.370745926929885,
+      "pooled_hpc_effect_relative": -0.004229117105860369,
+      "pooled_gain_bootstrap_90pct_x1e3": [
+        -0.19004190313580693,
+        0.05248091163139172
+      ]
+    },
+    "decision": "STOP_NOT_REPLICATED"
+  },
+  "next_architecture": "BIDIRECTIONAL_SENSORY_STRUCTURAL_FAST_WEIGHTS",
+  "model_inputs": [
+    "egocentric_rgb_history",
+    "action_history"
+  ],
+  "oracle_inputs": []
+}
