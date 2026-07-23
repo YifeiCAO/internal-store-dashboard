@@ -66,7 +66,7 @@ M_t = M_{t-1} + g_write_t * DeltaM_t
 
 实际 gate 只读 PFC/HPC prediction 一致性、context 漂移、place/address 统计等 12 个内部量，不输入 age、K16 token、未来真值、pose 或 room/context 标签。原 M1b 全冻结，只训练 `833` 参数 gate；稳定配方使用 20-step context、44-step rollout、pixel loss 与预测可靠性排序。
 
-冻结选择的 hard gate 在完整 512-test 上得到 `27.174e-3`，相对 full-write 改善 `9.22%`，与 K16 的 `27.157e-3` 基本持平。它平均调用 `14.68/44` 次，h1–16 写入率 `86.96%`，h17–44 仅 `2.73%`。但 hard threshold 跨训练 seed 方差较大，soft gate 的 validation 收益也未迁移到 test，因此下一瓶颈是 calibration，而不是继续增加记忆结构。
+后续已加入 train256 无标签 gate-logit 标准化，并在三 seed validation 上冻结唯一共享阈值 `z=-0.35`。三份完整 512-test 为 `27.059 / 28.137 / 28.321e-3`，即 `27.839 ± 0.682e-3`；三个 seed 都优于 full-write，平均改善 `7.00%`，但仍比 K16 高 `2.51%`。因此 threshold 尺度漂移已经解决，下一瓶颈转为后半程的实例选择质量，而不是继续增加记忆结构。
 
 完整架构、训练、三 seed validation 与冻结 test 见 `MEMORYMAZE3D_M1B_NEURAL_WRITE_GATE_RESULT_CN.md`。
 

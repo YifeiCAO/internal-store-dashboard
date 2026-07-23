@@ -1,0 +1,122 @@
+{
+  "format": "remap_former.memorymaze3d.neural_write_gate_calibrated_3seed.v1",
+  "base_checkpoint": "runs/remap_former/memorymaze3d_paper_open9_m1b_seed1701/next_frame/checkpoint_final.pt",
+  "base_checkpoint_sha256": "d4c8c9857168d3190c4ec5cbcba85acd89f82d1f9cb923db61925e1b42b23291",
+  "data": "data/memorymaze3d_paper_open9_full_v1",
+  "context_steps": 20,
+  "rollout_steps": 44,
+  "precision": "fp32",
+  "calibration": {
+    "split": "train",
+    "episodes_per_seed": 256,
+    "target_or_label_reads": 0,
+    "method": "gate_logit_standardization",
+    "standardized_threshold_selected_on": "mean_val64_mse_across_three_seeds",
+    "frozen_standardized_threshold": -0.35,
+    "future_ground_truth_reads": 0,
+    "future_ground_truth_writes": 0,
+    "seeds": [
+      {
+        "seed": 1702,
+        "gate_checkpoint_sha256": "39ce973a2db491928ab90b2e9a9150aac038c9fe0b8a77289e5caac02af45e29",
+        "train_logit_mean": 0.730481743812561,
+        "train_logit_std": 0.08693737536668777,
+        "raw_probability_threshold": 0.6681996697132624
+      },
+      {
+        "seed": 1703,
+        "gate_checkpoint_sha256": "34692a7ae157f34c40157f639cd2aac54196aac9b0746541d9e39eb0dc514a0a",
+        "train_logit_mean": 0.7723678946495056,
+        "train_logit_std": 0.04738832637667656,
+        "raw_probability_threshold": 0.6804372563811734
+      },
+      {
+        "seed": 1704,
+        "gate_checkpoint_sha256": "55034ccd3a4d4b5b8b3f12c2d836e1172faf48becc05029ffcb4d638387c1ac0",
+        "train_logit_mean": 0.8079169988632202,
+        "train_logit_std": 0.02762494795024395,
+        "raw_probability_threshold": 0.6895996438262341
+      }
+    ]
+  },
+  "validation_64": {
+    "full_write_mse_x1e3": 31.079984,
+    "fixed_k16_mse_x1e3": 26.1674,
+    "calibrated_hard": [
+      {
+        "seed": 1702,
+        "mean_mse_x1e3": 25.440684595774986,
+        "expected_writes": 18.21875,
+        "h1_h16_write_rate": 0.9423828125,
+        "h17_h44_write_rate": 0.11216517857142858
+      },
+      {
+        "seed": 1703,
+        "mean_mse_x1e3": 28.4275642129201,
+        "expected_writes": 21.765625,
+        "h1_h16_write_rate": 0.958984375,
+        "h17_h44_write_rate": 0.22935267857142858
+      },
+      {
+        "seed": 1704,
+        "mean_mse_x1e3": 25.899842140047856,
+        "expected_writes": 17.25,
+        "h1_h16_write_rate": 0.9345703125,
+        "h17_h44_write_rate": 0.08203125
+      }
+    ],
+    "mean_mse_x1e3": 26.589363649581,
+    "sample_std_mse_x1e3": 1.608355,
+    "improvement_over_full": 0.144485,
+    "gap_to_fixed_k16": 0.016888
+  },
+  "test_512": {
+    "full_write_mse_x1e3": 29.93343,
+    "fixed_k16_mse_x1e3": 27.157328,
+    "calibrated_hard": [
+      {
+        "seed": 1702,
+        "mean_mse_x1e3": 27.05856446143364,
+        "early_h1_h16_mse_x1e3": 10.02679743464796,
+        "post_window_mse_x1e3": 43.64208157102649,
+        "h32_mse_x1e3": 39.35077629284933,
+        "h44_mse_x1e3": 44.71525450935587,
+        "expected_writes": 17.888671875,
+        "h1_h16_write_rate": 0.9364013671875,
+        "h17_h44_write_rate": 0.10379464285714286
+      },
+      {
+        "seed": 1703,
+        "mean_mse_x1e3": 28.13731587122509,
+        "early_h1_h16_mse_x1e3": 10.034413828861943,
+        "post_window_mse_x1e3": 46.820184905440186,
+        "h32_mse_x1e3": 39.906623074784875,
+        "h44_mse_x1e3": 49.713093088939786,
+        "expected_writes": 21.732421875,
+        "h1_h16_write_rate": 0.9542236328125,
+        "h17_h44_write_rate": 0.23088727678571427
+      },
+      {
+        "seed": 1704,
+        "mean_mse_x1e3": 28.3214058345865,
+        "early_h1_h16_mse_x1e3": 10.044581350257431,
+        "post_window_mse_x1e3": 46.460463925121495,
+        "h32_mse_x1e3": 40.726662205997854,
+        "h44_mse_x1e3": 48.38327772449702,
+        "expected_writes": 18.572265625,
+        "h1_h16_write_rate": 0.9578857421875,
+        "h17_h44_write_rate": 0.11593191964285714
+      }
+    ],
+    "mean_mse_x1e3": 27.8390953890817,
+    "sample_std_mse_x1e3": 0.682197680598526,
+    "improvement_over_full": 0.0699664091591995,
+    "gap_to_fixed_k16": 0.0251043618533364
+  },
+  "conclusion": {
+    "threshold_scale_drift_fixed": true,
+    "all_three_seeds_improve_over_full_on_test": true,
+    "three_seed_mean_beats_fixed_k16_on_test": false,
+    "next_bottleneck": "instance_selective_gate_quality"
+  }
+}

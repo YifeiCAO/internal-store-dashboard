@@ -81,4 +81,4 @@ powershell -NoProfile -ExecutionPolicy Bypass -File .\run_memorymaze3d_m1b_paper
 
 完整数字、边界和下一步 neural write gate 方案见 `MEMORYMAZE3D_M1B_WRITE_POLICY_RESULT_CN.md`。
 
-Neural write gate follow-up 已完成：冻结 M1b，仅训练 `833` 参数因果 gate。冻结选择的 hard gate 在完整 test512 上得到 `27.174e-3`，相对全程写入改善 `9.22%`，与固定 K16 的 `27.157e-3` 基本持平；future ground-truth reads/writes 均为 0。soft gate 的 validation 收益未迁移到 test，hard gate 跨 seed calibration 方差仍高，完整结果见 `MEMORYMAZE3D_M1B_NEURAL_WRITE_GATE_RESULT_CN.md`。
+Neural write gate follow-up 已完成：冻结 M1b，仅训练 `833` 参数因果 gate。每个训练 seed 先用 train256 的无标签 gate-logit 均值/标准差做尺度校准，再共享 validation 冻结的 `z=-0.35`。三份完整 test512 为 `27.059 / 28.137 / 28.321e-3`，平均 `27.839 ± 0.682e-3`；相对全程写入改善 `7.00%`，但比固定 K16 高 `2.51%`。future ground-truth reads/writes 均为 0。完整结果见 `MEMORYMAZE3D_M1B_NEURAL_WRITE_GATE_RESULT_CN.md`。

@@ -1,9 +1,9 @@
 {
   "format": "remap_former.internal_store_dashboard.package.v1",
-  "packaged_at": "2026-07-23T04:24:00.7573490-07:00",
+  "packaged_at": "2026-07-23T05:24:48.8671682-07:00",
   "source_html": "D:\\brain_inspired_transformer\\reports\\internal_store_dashboard.html",
-  "source_sha256": "f295ec0e4d5f70dd2a4a25ced6e95a76665e6a8b408c614cd5b7270cc7c685df",
-  "index_sha256": "a3a2e640d27b1ca3e51d7d1effbdbb7456044891896f98463bb792ce158c4f8a",
+  "source_sha256": "600e314b0885fea914afda806fd93a8eeef1d27fd09a52df17dc3a6cda8762d6",
+  "index_sha256": "adc04c2b855bc2a39684f0bd2fa309d61bcd1bf69a817ce541eff160655df971",
   "local_reference_count": 187,
   "files": [
     {
@@ -17,22 +17,22 @@
       "attribute": "href",
       "source_reference": "../MEMORYMAZE3D_M1B_NEURAL_WRITE_GATE_RESULT_CN.md",
       "target_reference": "MEMORYMAZE3D_M1B_NEURAL_WRITE_GATE_RESULT_CN.md",
-      "sha256": "9e04ed567b50352ec0014013c8bcf878b7a7f82041147e31ea6205559b76b604",
-      "bytes": 7856
+      "sha256": "90e17cd3f918c57d2470bf7e244f1ea0514af36d5cbd5dba4293ab259d0220ff",
+      "bytes": 9826
     },
     {
       "attribute": "href",
       "source_reference": "../MEMORYMAZE3D_M1B_PAPER_OPEN9_PROTOCOL_CN.md",
       "target_reference": "MEMORYMAZE3D_M1B_PAPER_OPEN9_PROTOCOL_CN.md",
-      "sha256": "4a853ccf9be0c4e394ae7197540f0b0097c0b2f4dc36f932d1743e2b49b4bc2d",
-      "bytes": 5108
+      "sha256": "20e195df1ce18e9db21587abf40d6857763310d5df3d2fd1b38c9c6507cbf1c5",
+      "bytes": 5151
     },
     {
       "attribute": "href",
       "source_reference": "../MEMORYMAZE3D_M1B_WRITE_POLICY_RESULT_CN.md",
       "target_reference": "MEMORYMAZE3D_M1B_WRITE_POLICY_RESULT_CN.md",
-      "sha256": "737a7d1561dbce69d857983820bcb651affd7da4049dd1ccaf2b8e1ba4fd8c40",
-      "bytes": 4905
+      "sha256": "8144e12c8cd0628afcf70bb6e06031b79b11feffb5fb82cbfce8dc7163310933",
+      "bytes": 4928
     },
     {
       "attribute": "href",
@@ -743,13 +743,6 @@
     },
     {
       "attribute": "href",
-      "source_reference": "../runs/remap_former/memorymaze3d_write_gate_pixel_rank005_init07_h44_b2_u20_lr3e3_seed1702/eval_test512_t067_fp32/write_gate_evaluation_summary.json",
-      "target_reference": "write_gate_evaluation_summary.json",
-      "sha256": "a7e84885390ec8ab199c1d89574f9b14b3861c4ab3a08cd41136736ced25cdeb",
-      "bytes": 12709
-    },
-    {
-      "attribute": "href",
       "source_reference": "../runs/remap_former/p5_paper_tables.json",
       "target_reference": "p5_paper_tables.json",
       "sha256": "8b7ef0e2bd2c1cf21c116b96361805b91ba09bd564515b3e69084347ffa84f97",
@@ -817,6 +810,13 @@
       "target_reference": "MEMORYMAZE3D_PILOT_RESULT_CN.md",
       "sha256": "59e341c61c8e742009784aac396580c024608d7091d7df668c7e97a71b75acf4",
       "bytes": 4225
+    },
+    {
+      "attribute": "href",
+      "source_reference": "memorymaze3d_write_gate_calibrated_3seed_summary.json",
+      "target_reference": "memorymaze3d_write_gate_calibrated_3seed_summary.json",
+      "sha256": "3270b27b13ae81bb1348ee7000c4738b229e3498564009642dcb5e5a85236b58",
+      "bytes": 4326
     },
     {
       "attribute": "href",
@@ -1254,13 +1254,6 @@
     },
     {
       "attribute": "src",
-      "source_reference": "../runs/remap_former/memorymaze3d_write_gate_pixel_rank005_init07_h44_b2_u20_lr3e3_seed1702/eval_test512_t067_fp32/write_gate_horizon_curves.png",
-      "target_reference": "write_gate_horizon_curves.png",
-      "sha256": "5a9e7b66c3e4f487a45dda99b8ec757bdc7e3131a70073854ceb90ba6b244f91",
-      "bytes": 155093
-    },
-    {
-      "attribute": "src",
       "source_reference": "figures/memorymaze3d_cutoff16_test512.png",
       "target_reference": "figures/memorymaze3d_cutoff16_test512.png",
       "sha256": "be10a15fd19406a10e13c6787b17f68dafba4c489fb9d79cfcd562ff57d2c610",
@@ -1272,6 +1265,13 @@
       "target_reference": "figures/memorymaze3d_future_write_cutoff_val64.png",
       "sha256": "65961dd1bd95c7d0b6d395ac8e62450074ef4222e248fbf4e280361262fd07b1",
       "bytes": 179746
+    },
+    {
+      "attribute": "src",
+      "source_reference": "figures/memorymaze3d_write_gate_calibrated_3seed.png",
+      "target_reference": "figures/memorymaze3d_write_gate_calibrated_3seed.png",
+      "sha256": "80a38cf880f98d7a80cc35ab4b0beb26f428c3cbf090cd021987db510ee06832",
+      "bytes": 213902
     },
     {
       "attribute": "src",

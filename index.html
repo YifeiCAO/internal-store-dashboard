@@ -510,17 +510,17 @@
       <div class="status-grid" aria-label="最新状态">
         <article class="status-card primary">
           <h2>当前主线</h2>
-          <strong>Neural HPC write gate 的冻结 512-test 已完成；hard gate 学出早写晚停并复现 K=16 收益</strong>
-          <p>冻结 20k-step M1b，只训练 833 参数 causal gate。严格 20→44 free rollout 中，选定 hard gate 得到 27.174e-3，对比全写 29.933e-3、固定 K16 27.157e-3；soft gate 29.691e-3，validation 收益未完全迁移。</p>
+          <strong>Neural HPC write gate 的三 seed 冻结 test512 已完成；共享无标签校准解决阈值尺度漂移</strong>
+          <p>冻结 20k-step M1b，只训练 833 参数 causal gate。严格 20→44 free rollout 中，三 seed hard gate 为 27.059 / 28.137 / 28.321e-3，平均 27.839 ± 0.682e-3；稳定优于全写 29.933e-3，但尚未追平固定 K16 的 27.157e-3。</p>
           <div class="badge-row">
             <span class="badge"><span class="dot blue"></span>真实 egocentric RGB</span>
             <span class="badge"><span class="dot blue"></span>4096 / 512 / 512</span>
             <span class="badge"><span class="dot teal"></span>无位置 / 朝向输入</span>
             <span class="badge"><span class="dot green"></span>512-test 已完成</span>
             <span class="badge"><span class="dot green"></span>future leak = 0</span>
-            <span class="badge"><span class="dot green"></span>hard gate 降低 9.22%</span>
-            <span class="badge"><span class="dot green"></span>14.68 / 44 次调用</span>
-            <span class="badge"><span class="dot amber"></span>hard calibration 高方差</span>
+            <span class="badge"><span class="dot green"></span>三 seed 均优于 full</span>
+            <span class="badge"><span class="dot green"></span>共享 z = -0.35</span>
+            <span class="badge"><span class="dot amber"></span>均值距 K16 2.51%</span>
           </div>
         </article>
         <article class="status-card pass">
@@ -529,21 +529,21 @@
           <p>512-test pixel MSE</p>
         </article>
         <article class="status-card pass">
-          <h2>Neural Hard</h2>
-          <strong>27.174e-3</strong>
-          <p>比原始全写低 9.22%</p>
+          <h2>Neural Hard ×3</h2>
+          <strong>27.839 ± 0.682</strong>
+          <p>三 seed test512，比全写低 7.00%</p>
         </article>
         <article class="status-card hold">
           <h2>固定 K=16</h2>
           <strong>27.157e-3</strong>
-          <p>Neural hard 仅高 0.061%</p>
+          <p>仍优于 neural 三 seed 均值 2.51%</p>
         </article>
       </div>
 
       <section>
         <div class="decision">
-          <strong>当前决策：保留单一 HPC 与 833 参数 gate；下一瓶颈是校准，不是增加记忆结构</strong>
-          <p>hard gate 已在 held-out test 复现 K16，但三训练 seed 的 validation 方差较高；soft gate 虽然 validation 稳定，test 只改善 0.81%。下一步应改善 score calibration 与跨 split 泛化，不加 memory slots 或第二套 fast weights。</p>
+          <strong>当前决策：保留单一 HPC 与 833 参数 gate；下一瓶颈是实例选择质量，不再是阈值尺度</strong>
+          <p>train256 无标签 logit 标准化让三个 seed 共用同一 z=-0.35，且 test512 全部优于 full-write。弱 seed 在 h17–44 仍误写过多，因此下一步应学习“这次写入是否真的降低未来误差”的反事实收益，不加 memory slots、第二套 fast weights 或 oracle 输入。</p>
         </div>
       </section>
 
@@ -557,8 +557,8 @@
         </div>
 
         <div class="decision">
-          <strong>核心发现：不输入 age/K/位置/room 的神经 gate，可以从内部一致性学出接近 K16 的早写晚停策略</strong>
-          <p>hard gate 在 test 平均调用 14.68/44 次：h1–16 写入率 86.96%，h17–44 仅 2.73%。其 27.174e-3 与 K16 的 27.157e-3 基本持平；但 hard 多 seed calibration 高方差，soft 的 validation 收益未迁移到 test。</p>
+          <strong>核心发现：不输入 age/K/位置/room 的神经 gate，可用一个共享标准化阈值稳定学出早写晚停</strong>
+          <p>三个 gate 的原始 logit std 相差超过三倍，但标准化后的 h16 分数几乎相同。冻结 z=-0.35 后，test 平均写入 19.40/44 次，h1–16 写入率 94.95%，h17–44 为 15.02%；三 seed 都改善 full-write，但平均仍落后 K16 2.51%。</p>
         </div>
 
         <div class="grid-2" style="margin-top:12px;">
@@ -570,13 +570,14 @@
                 <tr><td data-label="方法">Full-write</td><td data-label="均值" class="num">31.080</td><td data-label="std" class="num">0</td><td data-label="判断">冻结基线</td></tr>
                 <tr><td data-label="方法">固定 K16</td><td data-label="均值" class="num green">26.167</td><td data-label="std" class="num">0</td><td data-label="判断">强控制</td></tr>
                 <tr><td data-label="方法">Neural soft</td><td data-label="均值" class="num">28.070</td><td data-label="std" class="num green">0.043</td><td data-label="判断">验证稳定，test 迁移弱</td></tr>
-                <tr><td data-label="方法">Neural hard</td><td data-label="均值" class="num">26.958</td><td data-label="std" class="num amber">1.621</td><td data-label="判断">上限高，校准不稳</td></tr>
+                <tr><td data-label="方法">旧 hard：逐 seed 原始阈值</td><td data-label="均值" class="num">26.958</td><td data-label="std" class="num amber">1.621</td><td data-label="判断">尺度漂移</td></tr>
+                <tr><td data-label="方法"><strong>校准 hard：共享 z=-0.35</strong></td><td data-label="均值" class="num green"><strong>26.589</strong></td><td data-label="std" class="num">1.608</td><td data-label="判断" class="green"><strong>统一阈值</strong></td></tr>
               </tbody>
             </table>
           </article>
           <article class="panel">
-            <h3>冻结 Test512：误差与调用轨迹</h3>
-            <img class="result-figure" src="write_gate_horizon_curves.png" alt="MemoryMaze3D neural soft、hard、K16 与 full-write 的 test512 horizon 曲线和 hard gate 调用轨迹" />
+            <h3>共享阈值 Validation + 三 Seed Test512</h3>
+            <img class="result-figure" src="figures/memorymaze3d_write_gate_calibrated_3seed.png" alt="MemoryMaze3D neural write gate 三 seed 的标准化阈值 validation 曲线与冻结 test512 柱状对比" />
           </article>
         </div>
 
@@ -598,23 +599,24 @@
         </article>
 
         <article class="panel" style="margin-top:12px;">
-          <h3>512-episode Frozen Test</h3>
+          <h3>三训练 Seed × 512-episode Frozen Test</h3>
           <table>
-            <thead><tr><th>条件</th><th>44-step mean MSE ×1e-3</th><th>相对 Persistence</th><th>h32 ×1e-3</th><th>h44 ×1e-3</th><th>状态</th></tr></thead>
+            <thead><tr><th>条件</th><th>44-step mean MSE ×1e-3</th><th>Sample std</th><th>相对 Full</th><th>相对 K16</th><th>状态</th></tr></thead>
             <tbody>
-              <tr><td data-label="条件">Persistence</td><td data-label="Mean" class="num">32.186</td><td data-label="相对" class="num">0%</td><td data-label="h32" class="num">40.367</td><td data-label="h44" class="num">45.175</td><td data-label="状态">固定基线</td></tr>
-              <tr><td data-label="条件">原始 M1b：全程 predicted-write</td><td data-label="Mean" class="num">29.933</td><td data-label="相对" class="num green">+7.00%</td><td data-label="h32" class="num">42.082</td><td data-label="h44" class="num">57.267</td><td data-label="状态">正式默认</td></tr>
-              <tr><td data-label="条件"><strong>M1b：future-write K=16</strong></td><td data-label="Mean" class="num green"><strong>27.157</strong></td><td data-label="相对" class="num green"><strong>+15.62%</strong></td><td data-label="h32" class="num"><strong>39.816</strong></td><td data-label="h44" class="num"><strong>44.404</strong></td><td data-label="状态" class="green"><strong>Test 复现</strong></td></tr>
-              <tr><td data-label="条件">Neural soft</td><td data-label="Mean" class="num">29.691</td><td data-label="相对" class="num green">+7.75%</td><td data-label="h32" class="num">42.441</td><td data-label="h44" class="num">50.850</td><td data-label="状态" class="amber">迁移弱</td></tr>
-              <tr><td data-label="条件"><strong>Neural hard，threshold 0.67</strong></td><td data-label="Mean" class="num green"><strong>27.174</strong></td><td data-label="相对" class="num green"><strong>+15.57%</strong></td><td data-label="h32" class="num"><strong>39.678</strong></td><td data-label="h44" class="num"><strong>44.564</strong></td><td data-label="状态" class="green"><strong>Frozen test 通过</strong></td></tr>
+              <tr><td data-label="条件">原始 M1b：全程 predicted-write</td><td data-label="Mean" class="num">29.933</td><td data-label="Std" class="num">0</td><td data-label="相对 Full" class="num">基准</td><td data-label="相对 K16" class="num">+10.22%</td><td data-label="状态">冻结基线</td></tr>
+              <tr><td data-label="条件"><strong>M1b：future-write K=16</strong></td><td data-label="Mean" class="num green"><strong>27.157</strong></td><td data-label="Std" class="num">0</td><td data-label="相对 Full" class="num green"><strong>-9.27%</strong></td><td data-label="相对 K16" class="num">基准</td><td data-label="状态" class="green"><strong>强控制</strong></td></tr>
+              <tr><td data-label="条件">Hard seed1702</td><td data-label="Mean" class="num green">27.059</td><td data-label="Std" class="num">-</td><td data-label="相对 Full" class="num green">-9.60%</td><td data-label="相对 K16" class="num green">-0.36%</td><td data-label="状态">单 seed 超过 K16</td></tr>
+              <tr><td data-label="条件">Hard seed1703</td><td data-label="Mean" class="num">28.137</td><td data-label="Std" class="num">-</td><td data-label="相对 Full" class="num green">-6.00%</td><td data-label="相对 K16" class="num amber">+3.61%</td><td data-label="状态">后段误写偏多</td></tr>
+              <tr><td data-label="条件">Hard seed1704</td><td data-label="Mean" class="num">28.321</td><td data-label="Std" class="num">-</td><td data-label="相对 Full" class="num green">-5.38%</td><td data-label="相对 K16" class="num amber">+4.29%</td><td data-label="状态">后段选择不足</td></tr>
+              <tr><td data-label="条件"><strong>Calibrated hard 三 seed</strong></td><td data-label="Mean" class="num green"><strong>27.839</strong></td><td data-label="Std" class="num"><strong>0.682</strong></td><td data-label="相对 Full" class="num green"><strong>-7.00%</strong></td><td data-label="相对 K16" class="num amber"><strong>+2.51%</strong></td><td data-label="状态"><strong>稳定增益，未追平 K16</strong></td></tr>
             </tbody>
           </table>
-          <p style="margin-top:10px;">同一 checkpoint、同一 512-test、同一严格 free rollout；seed1702 与 hard threshold 0.67 均在 validation 冻结，test 不再调参。future ground-truth reads/writes 均为 0。hard 与 K16 平均差仅 0.017e-3，但多 seed validation 已显示 calibration 高方差，因此只主张复现收益，不主张稳定超过 K16。</p>
+          <p style="margin-top:10px;">同一 base checkpoint、同一 512-test、同一严格 free rollout。每个 gate 的 mean/std 只由 train256 无标签分数产生；唯一共享 z=-0.35 按三 seed val64 平均冻结，test 不再调参。future ground-truth reads/writes 均为 0。结论只主张稳定改善 full-write，不主张三 seed 平均超过 K16。</p>
         </article>
 
         <div class="artifact-grid" style="margin-top:12px;">
           <a class="artifact" href="MEMORYMAZE3D_M1B_NEURAL_WRITE_GATE_RESULT_CN.md"><strong>最新：Neural Write Gate 完整报告</strong><span>833 参数架构、因果边界、稳定训练、三 seed validation、冻结 test 与失败边界</span></a>
-          <a class="artifact" href="write_gate_evaluation_summary.json"><strong>Neural Gate Test512 机器结果</strong><span>full/K0/K16/soft/hard 同口径逐 horizon 曲线与 gate 调用率</span></a>
+          <a class="artifact" href="memorymaze3d_write_gate_calibrated_3seed_summary.json"><strong>Calibrated Gate 三 Seed 机器结果</strong><span>train 校准、共享 z、val64、三个 test512、写入率与冻结结论</span></a>
           <a class="artifact" href="MEMORYMAZE3D_M1B_WRITE_POLICY_RESULT_CN.md"><strong>最新：写入策略完整报告</strong><span>Validation 扫描、一次性 test、因果解释、审计边界与 neural gate 方案</span></a>
           <a class="artifact" href="MEMORYMAZE3D_M1B_PAPER_OPEN9_PROTOCOL_CN.md"><strong>Paper-aligned open9 协议</strong><span>原文对应项、M1b 架构、训练边界与正式结果</span></a>
           <a class="artifact" href="diagnostics_future_write_cutoff16_test512_cutoff_sweep_summary.json"><strong>K=16 Test 机器结果</strong><span>512 episode headline、逐 horizon 曲线与 persistence</span></a>
@@ -2570,7 +2572,7 @@
       </section>
     </main>
 
-    <footer>ReMAP-Former internal dashboard · 2026-07-23 · 3D neural HPC write gate 的三 seed validation 与 frozen test512 已完成；hard gate 复现 K16 收益，soft 迁移与 hard calibration 仍是明确边界。G8/G7 与既有负结果继续保留</footer>
+    <footer>ReMAP-Former internal dashboard · 2026-07-23 · 3D neural HPC write gate 已完成 train-only 无标签校准、共享 z validation 与三 seed frozen test512；稳定优于 full-write，但实例选择尚未追平 K16。G8/G7 与既有负结果继续保留</footer>
   </div>
 </body>
 </html>
