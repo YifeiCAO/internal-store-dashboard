@@ -1,0 +1,118 @@
+{
+  "format": "remap_former.context_need_null_first_g3_multicheckpoint_protocol.v1",
+  "date": "2026-07-17",
+  "status": "FROZEN_BEFORE_G3_RUN",
+  "purpose": "Confirm that the frozen null-first retrieval-contradiction controller and one shared calibration threshold transfer across all eight frozen M1b checkpoints.",
+  "disclosed_parent": {
+    "g2_result": "runs/remap_former/context_need_null_first_g2_seed2971701_2972201.json",
+    "g2_result_sha256": "6b420367bedc46045b4c2209d51666ab799f9574c677da187a0f34bc3aa8a17f",
+    "g2_status": "CONTEXT_NEED_NULL_FIRST_G2_PASS"
+  },
+  "checkpoints": [
+    {"seed": 712, "path": "runs/remap_former/m1b_covariance_ridge0p03_seed712_frozen/m1b_frozen.pt", "sha256": "4c16ea253abe1f277b09b3538e17e8b14d6cee11e6f6c08750c8af4ff79fbacf"},
+    {"seed": 713, "path": "runs/remap_former/m1b_covariance_ridge0p03_seed713_frozen/m1b_frozen.pt", "sha256": "cb33433bc291128607453c8c46a5d591f2f34c4ed41f6cba08afe137e36d698f"},
+    {"seed": 714, "path": "runs/remap_former/m1b_covariance_ridge0p03_seed714_frozen/m1b_frozen.pt", "sha256": "a915e10525008c1ba2435595ee30c019fad15e49ef98723a1df39ecf26b51df1"},
+    {"seed": 715, "path": "runs/remap_former/m1b_covariance_ridge0p03_seed715_frozen/m1b_frozen.pt", "sha256": "6dc9f352e67974352266f76e42dcd00d5ff820350134ef01cca12ace33ae62d9"},
+    {"seed": 716, "path": "runs/remap_former/m1b_covariance_ridge0p03_seed716_frozen/m1b_frozen.pt", "sha256": "d44d741faba5d27f3c30dd800e2c85836784a83235e182f3501be58b78c8c029"},
+    {"seed": 717, "path": "runs/remap_former/m1b_covariance_ridge0p03_seed717_frozen/m1b_frozen.pt", "sha256": "3e39d179b4e1f26d9d5574863b41e7c75585e37f1d9869c5ade284a8382e621a"},
+    {"seed": 718, "path": "runs/remap_former/m1b_covariance_ridge0p03_seed718_frozen/m1b_frozen.pt", "sha256": "e1e3434a3e6c350a2591ebf8568d29a9a640a0165fa86bc299adc1370df88be6"},
+    {"seed": 719, "path": "runs/remap_former/m1b_covariance_ridge0p03_seed719_frozen/m1b_frozen.pt", "sha256": "6a1fa01251ca14e389e21ceea1a25c9b6f38cd9e8836fc43d528cf69351a244f"}
+  ],
+  "score": {
+    "name": "null_prefix_retrieval_contradiction_cvar",
+    "prefix_length": 72,
+    "per_step_formula": "||v_t-r_t||^2 - ||v_t||^2",
+    "aggregation": "mean of the largest ceil(0.10 * prefix_length) per-step contradictions",
+    "upper_tail_fraction": 0.1,
+    "retrieval_timing": "read before writing current sensory value",
+    "address_mode_during_score": "fixed normalized null context",
+    "decision_direction": "score >= threshold invokes inferred dynamic context; otherwise retain null context",
+    "changed_from_g2": false
+  },
+  "calibration": {
+    "threshold_rule": "0.5 * (median of all checkpoint T1 calibration scores + median of all checkpoint T2 calibration scores)",
+    "one_shared_threshold_for_all_checkpoints": true,
+    "checkpoint_specific_thresholds_used_for_decisions": false,
+    "t1_episodes_per_checkpoint": 128,
+    "t1_generator_seed": 3071701,
+    "t2_episodes_per_checkpoint": 128,
+    "t2_generator_seed": 3071801,
+    "t2_split": "train",
+    "shared_trajectories_across_checkpoints": true,
+    "grid_size": 11,
+    "n_objects": 64
+  },
+  "heldout": {
+    "t1_episodes_per_checkpoint": 128,
+    "t1_generator_seed": 3071901,
+    "t2_episodes_per_checkpoint": 128,
+    "t2_generator_seed": 3072001,
+    "t2_split": "dev",
+    "shared_trajectories_across_checkpoints": true,
+    "threshold_refit": false
+  },
+  "implementation_audit": {
+    "generator_seed": 3071601,
+    "batch_size": 4,
+    "sequence_length": 72,
+    "required_max_absolute_error": 0.0,
+    "run_on_every_checkpoint": true
+  },
+  "end_to_end": {
+    "t1_strict": {
+      "generator_seed": 3072101,
+      "batch_size_per_checkpoint": 16,
+      "chunk_size": 8,
+      "context_length": 72,
+      "imagination_length": 4096,
+      "shared_trajectories_across_checkpoints": true,
+      "future_memory_writes": 0
+    },
+    "t2_observed": {
+      "generator_seed": 3072201,
+      "batch_size_per_checkpoint": 32,
+      "chunk_size": 16,
+      "split": "dev",
+      "shared_trajectories_across_checkpoints": true,
+      "score_only_return_conflict_after_prefix": true
+    }
+  },
+  "information_boundary": {
+    "forbidden_model_inputs": ["room_id", "task_id", "absolute_position", "place_id", "segment_id", "switch_mask", "query_mask", "return_mask", "conflict_mask", "future sensory or targets"],
+    "trainable_parameters": 0,
+    "parallel_persistent_hpc_states_per_episode": 1,
+    "new_memory_slots": 0,
+    "new_fast_weight_systems": 0
+  },
+  "acceptance_gates": {
+    "checkpoint_count_exactly": 8,
+    "all_checkpoint_calibration_t2_medians_above_t1": true,
+    "pooled_heldout_t1_null_selection_rate_at_least": 0.9,
+    "pooled_heldout_t2_dynamic_selection_rate_at_least": 0.9,
+    "pooled_heldout_balanced_accuracy_at_least": 0.925,
+    "pooled_heldout_auroc_at_least": 0.95,
+    "checkpoint_heldout_balanced_accuracy_at_least_0p90_count": 7,
+    "minimum_checkpoint_heldout_balanced_accuracy_at_least": 0.85,
+    "pooled_t1_strict_final_accuracy_4096_at_least": 0.95,
+    "checkpoint_t1_final_accuracy_at_least_0p90_count": 7,
+    "pooled_t2_return_conflict_accuracy_at_least": 0.75,
+    "checkpoint_t2_return_conflict_accuracy_at_least_0p65_count": 7,
+    "pooled_t2_clean_accuracy_at_least": 0.98,
+    "pooled_t1_mean_prefix_hpc_passes_at_most": 1.1,
+    "maximum_checkpoint_t1_mean_prefix_hpc_passes_at_most": 1.25,
+    "null_selected_episodes_replayed_exactly_zero": true,
+    "all_t2_return_conflicts_after_prefix": true,
+    "future_write_steps_exactly_zero": true,
+    "all_stateful_scans_exactly_match_formal_hpc": true,
+    "all_source_model_states_unchanged": true,
+    "one_selected_content_hpc_per_checkpoint": true
+  },
+  "post_result_rule": {
+    "all_gates_pass": "promote G2 from a single-checkpoint result to the frozen multi-checkpoint context-need result; next test OOD task families without changing the controller",
+    "any_gate_fails": "report the checkpoint-level failure and stop; do not tune prefix, tail fraction, score, global threshold rule, gates, or seeds on G3 data"
+  },
+  "formal_output": "runs/remap_former/context_need_null_first_g3_multicheckpoint_seed3071601_3072201.json",
+  "formal_report": "reports/REMAP_FORMER_CONTEXT_NEED_NULL_FIRST_G3_MULTICHECKPOINT_CN.md",
+  "smoke_output": "tmp/context_need_null_first_g3_multicheckpoint_smoke.json",
+  "overwrite_allowed": false
+}

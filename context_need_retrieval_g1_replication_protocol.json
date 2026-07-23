@@ -1,0 +1,126 @@
+{
+  "format": "remap_former.context_need_retrieval_g1_replication_protocol.v1",
+  "date": "2026-07-17",
+  "status": "FROZEN_BEFORE_FRESH_REPLICATION",
+  "purpose": "High-power fresh-seed replication of G0 with the score, prefix, midpoint threshold rule, endpoints, and acceptance thresholds unchanged.",
+  "disclosed_parent": {
+    "protocol": "runs/remap_former/context_need_retrieval_g0_protocol.json",
+    "protocol_sha256": "f2a5ffab1a2553adcfc1b4dac70c296dcf1f1d51162f5902ed3000d6ca679291",
+    "result": "runs/remap_former/context_need_retrieval_g0_seed2571701_2572201.json",
+    "result_status": "CONTEXT_NEED_RETRIEVAL_G0_FAIL",
+    "failed_gates": [
+      "heldout_t1_null_selection_rate: 0.890625 < 0.90",
+      "t1_strict_final_4096: 0.931329 < 0.95"
+    ],
+    "positive_evidence": [
+      "heldout AUROC: 0.996094",
+      "heldout balanced accuracy: 0.929688",
+      "T2 return-conflict: 0.859375",
+      "T2 clean: 1.0"
+    ]
+  },
+  "allowed_changes_from_g0": {
+    "fresh_generator_seeds": true,
+    "larger_sample_sizes": true,
+    "score_formula": false,
+    "prefix_length": false,
+    "threshold_rule": false,
+    "decision_direction": false,
+    "model_or_checkpoint": false,
+    "acceptance_thresholds": false
+  },
+  "source_checkpoint": "runs/remap_former/m1b_covariance_ridge0p03_seed712_frozen/m1b_frozen.pt",
+  "source_checkpoint_sha256": "4c16ea253abe1f277b09b3538e17e8b14d6cee11e6f6c08750c8af4ff79fbacf",
+  "source_checkpoint_seed": 712,
+  "score": {
+    "name": "dynamic_prefix_hpc_explained_energy",
+    "prefix_length": 64,
+    "formula_per_step": "||v_t||^2 - ||v_t - r_t||^2",
+    "aggregation": "arithmetic mean over all 64 observed prefix steps",
+    "retrieval_timing": "read before writing current sensory value",
+    "address_mode_during_score": "inferred dynamic context",
+    "decision_direction": "score >= threshold selects inferred dynamic context; otherwise null context",
+    "threshold_rule": "0.5 * (median calibration T1 score + median calibration T2 score)",
+    "threshold_search": false,
+    "alternative_score_search_after_heldout": false
+  },
+  "information_boundary": {
+    "allowed": [
+      "action history through the frozen M1b address pathway",
+      "past and current sensory observations within the first 64 observed steps",
+      "read-before-write retrieval from one transient dynamic prefix HPC"
+    ],
+    "forbidden_model_inputs": [
+      "room_id",
+      "task_id",
+      "absolute_position",
+      "place_id",
+      "segment_id",
+      "switch_mask",
+      "query_mask",
+      "return_mask",
+      "conflict_mask",
+      "future sensory or targets"
+    ],
+    "trainable_parameters": 0
+  },
+  "calibration": {
+    "t1_episodes": 256,
+    "t1_generator_seed": 2671701,
+    "t2_episodes": 256,
+    "t2_generator_seed": 2671801,
+    "t2_split": "train",
+    "grid_size": 11,
+    "n_objects": 64
+  },
+  "heldout": {
+    "t1_episodes": 256,
+    "t1_generator_seed": 2671901,
+    "t2_episodes": 256,
+    "t2_generator_seed": 2672001,
+    "t2_split": "dev",
+    "threshold_refit": false
+  },
+  "end_to_end": {
+    "replay_rule": "discard the dynamic scoring replay, expand the one per-episode decision across time, then replay from step zero and build exactly one selected episode-local HPC",
+    "parallel_persistent_hpc_states": 1,
+    "t1_strict": {
+      "generator_seed": 2672101,
+      "batch_size": 64,
+      "chunk_size": 8,
+      "chunk_seed_rule": "generator_seed + zero-based chunk index",
+      "context_length": 64,
+      "imagination_length": 4096,
+      "future_memory_writes": 0
+    },
+    "t2": {
+      "generator_seed": 2672201,
+      "batch_size": 128,
+      "chunk_size": 32,
+      "chunk_seed_rule": "generator_seed + zero-based chunk index",
+      "split": "dev",
+      "score_only_return_conflict_after_prefix": true
+    }
+  },
+  "acceptance_gates": {
+    "t2_calibration_median_above_t1": true,
+    "heldout_t1_null_selection_rate_at_least": 0.9,
+    "heldout_t2_dynamic_selection_rate_at_least": 0.9,
+    "heldout_balanced_accuracy_at_least": 0.9,
+    "heldout_auroc_at_least": 0.95,
+    "t1_strict_final_accuracy_4096_at_least": 0.95,
+    "t2_return_conflict_accuracy_at_least": 0.75,
+    "t2_clean_accuracy_at_least": 0.98,
+    "t2_all_scored_return_conflicts_after_prefix": true,
+    "future_write_steps_exactly_zero": true,
+    "source_model_state_unchanged": true,
+    "one_selected_content_hpc": true
+  },
+  "post_result_rule": {
+    "all_gates_pass": "treat retrieval consistency as replicated causal context-need evidence and unlock a separately frozen neuralization protocol",
+    "any_gate_fails": "stop this signal family; do not alter threshold, score, prefix, or seeds on G0/G1 evaluation data"
+  },
+  "formal_output": "runs/remap_former/context_need_retrieval_g1_seed2671701_2672201.json",
+  "formal_report": "reports/REMAP_FORMER_CONTEXT_NEED_RETRIEVAL_G1_REPLICATION_CN.md",
+  "overwrite_allowed": false
+}

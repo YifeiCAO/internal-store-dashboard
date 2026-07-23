@@ -1,0 +1,49 @@
+{
+  "format": "remap_former.m1o_smoke_result.v1",
+  "protocol_sha256": "9e69fd3da26b45a2b75a99382b41b18fbe8489815b616ef38ea74443835a3c64",
+  "device": "cuda",
+  "loss": 2.283912181854248,
+  "trainable_parameter_count": 6150,
+  "trainable_parameter_names": [
+    "residual_weight",
+    "residual_bias",
+    "event_feature_norm.weight",
+    "event_feature_norm.bias",
+    "event_query.weight",
+    "event_key.weight",
+    "call_head.0.weight",
+    "call_head.0.bias",
+    "call_head.2.weight",
+    "call_head.2.bias"
+  ],
+  "diagnostics": {
+    "disabled_context_max_abs_diff": 0.0,
+    "disabled_prediction_max_abs_diff": 0.0,
+    "prefix_context_max_abs_diff": 0.0,
+    "prefix_prediction_max_abs_diff": 1.9073486328125e-06,
+    "current_sensory_context_max_abs_diff": 0.0,
+    "current_sensory_prediction_max_abs_diff": 0.0,
+    "archival_context_max_abs_diff": 0.0,
+    "source_context_max_abs_diff": 5.960464477539063e-08
+  },
+  "gates": {
+    "g0_v4_passed": true,
+    "source_checkpoint_digest_matches": true,
+    "disabled_context_exact": true,
+    "disabled_prediction_exact": true,
+    "prefix_context_causal": true,
+    "prefix_prediction_causal": true,
+    "current_sensory_context_isolated": true,
+    "current_sensory_prediction_isolated": true,
+    "current_event_excluded": true,
+    "selection_rows_normalized": true,
+    "context_is_exact_source_or_archive": true,
+    "call_evidence_exposes_absolute_fixed_score": true,
+    "trainable_scope_exact": true,
+    "all_trainable_parameters_receive_gradients": true,
+    "frozen_parameters_receive_no_gradients": true,
+    "forward_accepts_no_task_metadata": true,
+    "loss_is_finite": true
+  },
+  "all_gates_pass": true
+}

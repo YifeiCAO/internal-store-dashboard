@@ -1,0 +1,334 @@
+{
+  "format": "remap_former.m1o_training_distribution_g0_v4_result.v1",
+  "protocol_sha256": "9e69fd3da26b45a2b75a99382b41b18fbe8489815b616ef38ea74443835a3c64",
+  "protocol": {
+    "format": "remap_former.m1o_evidence_coupled_dense_v4_pilot_protocol.v1",
+    "frozen_date": "2026-07-15",
+    "scope": "M1o v4 after three generator-only gates; no M1o optimization or M1o blind access has occurred",
+    "scientific_question": "can an evidence-coupled source-versus-archive call policy learned only from uniform sensory CE on repeated long-delay re-entries transfer to the untouched original jittered K8 task",
+    "parent_v3_protocol": "runs/remap_former/m1o_evidence_coupled_dense_v3_pilot_protocol.json",
+    "parent_v3_protocol_sha256": "5b658ef555fc89e10e462220d4ace1bcf27940dab4640cbd50d39210c193f9bb",
+    "parent_v3_g0_result": "runs/remap_former/m1o_training_distribution_g0_v3/summary.json",
+    "parent_v3_g0_result_file_sha256": "f6a7375f36211c3f477aee426f0d2f1c8474db3dd2b2cc6e5907ea6ad6df7915",
+    "parent_v3_g0_status": "INVALID_G0_DISTRIBUTION",
+    "parent_v3_boundary": "outer-plus-diagonal targets passed density, gain and correct-event gates but missed its frozen absolute hard floor; v4 changes the episode schedule instead of relaxing a seen threshold",
+    "source_checkpoint": "runs/remap_former/m1b_covariance_ridge0p03_seed712_frozen/m1b_frozen.pt",
+    "source_checkpoint_sha256": "4c16ea253abe1f277b09b3538e17e8b14d6cee11e6f6c08750c8af4ff79fbacf",
+    "content_hpc_covariance_ridge": 0.001,
+    "prior_m1n_checkpoint": "runs/remap_former/m1n_anchored_ranker_seed827151_s600_recovery/m1n_final.pt",
+    "prior_m1n_checkpoint_sha256": "bd823861b9266fb9d9ec579a90d3175d512228448493e337b1701f336378cc28",
+    "architecture": {
+      "name": "M1o evidence-coupled two-stage archival call ranker",
+      "event_detector": "rising edge of frozen causal balanced-action proposals",
+      "candidate_events": "strictly earlier event anchors only",
+      "event_feature": "frozen causal Transformer hidden + action-only state + base context + cyclic signature",
+      "rank_dim": 16,
+      "fixed_anchor_temperature": 0.05,
+      "residual_scale": 3.0,
+      "call_hidden_dim": 16,
+      "initial_call_bias": -1.0,
+      "call_evidence": [
+        "absolute fixed top-1 similarity",
+        "fixed top-1 minus top-2 margin",
+        "soft selected learned/context/state similarities",
+        "event max probability and entropy",
+        "source-to-archive context cosine"
+      ],
+      "selection": "straight-through hard earlier event then straight-through hard source-versus-archive call",
+      "forward_context": "exact frozen source or one strictly earlier frozen base-context value",
+      "new_memory_slots": 0,
+      "new_fast_weight_systems": 0
+    },
+    "causal_input_contract": {
+      "model_inputs": [
+        "actions through current token",
+        "sensory strictly before current token through causal Transformer"
+      ],
+      "forbidden": [
+        "room/context/position/place/segment/path/target/return ids",
+        "query/clean/conflict/return/switch/oracle masks",
+        "current sensory target",
+        "oracle context or event"
+      ]
+    },
+    "g0_training_distribution_gate": {
+      "seed": 1227151,
+      "split": "train",
+      "batch_size": 8,
+      "episodes_per_level": 32,
+      "original": {
+        "generator": "make_novel_distractor_capacity_batch",
+        "levels": [
+          1,
+          2,
+          4,
+          8
+        ],
+        "n_query_targets": 4,
+        "n_conflict_targets": 2,
+        "max_jitter_cycles": 4
+      },
+      "dense": {
+        "generator": "make_dense_reentry_capacity_batch",
+        "levels": [
+          8,
+          12
+        ],
+        "n_query_targets": 4,
+        "n_conflict_targets": 4,
+        "distractors_per_reentry": 4,
+        "max_jitter_cycles": 0
+      },
+      "thresholds": {
+        "dense_memory_required_token_density_ratio_at_least": 2.2,
+        "dense_fixed_hard_gain_vs_source_at_least": 0.18,
+        "dense_fixed_hard_return_conflict_acc_at_least": 0.8,
+        "dense_fixed_hard_correct_room_rate_at_least": 0.9,
+        "paired_observation_mismatch_count_must_equal": 0
+      },
+      "failure_branch": "STOP_WITHOUT_TRAINING_M1O"
+    },
+    "train_seed": 1237151,
+    "train_split": "train",
+    "training_generator": "make_dense_reentry_capacity_batch",
+    "capacity_curriculum": [
+      8,
+      12
+    ],
+    "n_query_targets": 4,
+    "n_conflict_targets": 4,
+    "distractors_per_reentry": 4,
+    "max_jitter_cycles": 0,
+    "steps": 800,
+    "batch_size": 4,
+    "grid_size": 11,
+    "learning_rate": 0.0003,
+    "weight_decay": 0.0001,
+    "gradient_clip": 1.0,
+    "eval_every": 100,
+    "dense_eval_batches_per_level": 2,
+    "transfer_eval_batches": 8,
+    "dev_monitor_seed": 1247151,
+    "dev_monitor_split": "validation",
+    "checkpoint_selection": "none; fixed final step 800 is the only candidate that may unlock blind",
+    "trainable_scope": "event feature norm, query/key, bounded residual coefficients, and evidence call MLP only; Transformer, state/context, EC, place, address, content HPC, fusion, decoder, and archive values frozen",
+    "loss": "one unweighted all-token sensory cross-entropy only",
+    "forbidden_losses": [
+      "metadata or oracle supervision",
+      "query/return/conflict/event/capacity weighting",
+      "ranking, contrastive, entropy, attention, call, confidence, or gate losses",
+      "oracle distillation"
+    ],
+    "monitor_original_k8": {
+      "generator": "make_novel_distractor_capacity_batch",
+      "capacity_level": 8,
+      "n_query_targets": 4,
+      "n_conflict_targets": 2,
+      "max_jitter_cycles": 4
+    },
+    "training_unlock_gates": {
+      "final_original_k8_return_conflict_acc_at_least": 0.65,
+      "final_original_k8_gain_vs_frozen_source_at_least": 0.1,
+      "final_original_k8_clean_drop_vs_frozen_source_at_most": 0.03,
+      "final_original_k8_return_archive_selected_rate_at_least": 0.35,
+      "final_original_k8_return_selected_correct_room_rate_at_least": 0.5,
+      "final_original_k8_distractor_null_selected_rate_at_least": 0.5,
+      "frozen_backbone_must_remain_bitwise_unchanged": true,
+      "all_metrics_must_be_finite": true
+    },
+    "blind_k8": {
+      "generator_seed": 1257151,
+      "split": "dev",
+      "capacity_level": 8,
+      "n_query_targets": 4,
+      "n_conflict_targets": 2,
+      "max_jitter_cycles": 4,
+      "batch_size": 4,
+      "batches": 16,
+      "episodes": 64,
+      "expected_return_conflict_probes": 128,
+      "conditions": [
+        "frozen_m1f_source",
+        "prior_m1n_frozen",
+        "m1o_evidence_coupled",
+        "m1o_ranker_disabled"
+      ],
+      "frozen_thresholds": {
+        "m1o_return_conflict_acc_at_least": 0.75,
+        "m1o_gain_vs_m1f_at_least": 0.2,
+        "m1o_gain_vs_prior_m1n_at_least": 0.15,
+        "m1o_gain_vs_disabled_at_least": 0.2,
+        "m1o_clean_drop_vs_m1f_at_most": 0.02,
+        "m1o_context_pair_accuracy_at_least": 0.9,
+        "m1o_selected_correct_segment_rate_at_least": 0.75,
+        "m1o_return_archive_selected_rate_at_least": 0.5
+      }
+    },
+    "implementation_gates": {
+      "checkpoint_digests_match": true,
+      "disabled_context_and_prediction_max_abs_diff_at_most": 1e-06,
+      "prefix_and_current_sensory_causality": true,
+      "current_event_excluded": true,
+      "event_and_call_rows_normalized": true,
+      "context_is_exact_source_or_archive": true,
+      "backbone_frozen": true,
+      "no_task_metadata_in_forward": true,
+      "blind_probe_count_exact": true
+    },
+    "frozen_branch_mapping": {
+      "INVALID_G0_DISTRIBUTION": "STOP_WITHOUT_TRAINING",
+      "INVALID_IMPLEMENTATION": "STOP_AND_FIX_WITHOUT_REUSING_BLIND",
+      "M1O_TRAINING_GATE_REJECTED": "STOP_WITHOUT_OPENING_BLIND_OR_TUNING_MONITOR",
+      "M1O_EVIDENCE_COUPLED_PASSED": "PRE_REGISTER_THREE_SEED_STABILITY_WITH_NEW_SEEDS",
+      "M1O_EVIDENCE_COUPLED_REJECTED": "STOP_M1O_WITHOUT_TUNING_AND_RETAIN_FORMAL_M1B"
+    },
+    "post_result_rule": "v4 G0 must pass before one fixed 800-step run; final unlock uses only untouched original K8 validation; blind seed 1257151 opens once only if all unlock gates pass; no post-blind tuning"
+  },
+  "device": "cuda",
+  "source_metadata": {
+    "format": "remap_former.m1.v2",
+    "model_kind": "m1b-covariance-context",
+    "step": 600,
+    "seed": -1
+  },
+  "original_distribution": {
+    "aggregate": {
+      "tokens": 44800,
+      "probes": 256,
+      "source_correct": 170,
+      "hard_correct": 200,
+      "hard_correct_segment": 234,
+      "hard_selected": 256,
+      "paired_observation_mismatch_count": 0,
+      "memory_required_token_density": 0.005714285714285714,
+      "source_return_conflict_acc": 0.6640625,
+      "fixed_hard_return_conflict_acc": 0.78125,
+      "fixed_hard_gain_vs_source": 0.1171875,
+      "fixed_hard_correct_segment_rate": 0.9140625
+    },
+    "levels": {
+      "1": {
+        "tokens": 6496,
+        "probes": 64,
+        "source_correct": 48,
+        "hard_correct": 50,
+        "hard_correct_segment": 54,
+        "hard_selected": 64,
+        "paired_observation_mismatch_count": 0,
+        "memory_required_token_density": 0.009852216748768473,
+        "source_return_conflict_acc": 0.75,
+        "fixed_hard_return_conflict_acc": 0.78125,
+        "fixed_hard_gain_vs_source": 0.03125,
+        "fixed_hard_correct_segment_rate": 0.84375
+      },
+      "2": {
+        "tokens": 8064,
+        "probes": 64,
+        "source_correct": 46,
+        "hard_correct": 54,
+        "hard_correct_segment": 60,
+        "hard_selected": 64,
+        "paired_observation_mismatch_count": 0,
+        "memory_required_token_density": 0.007936507936507936,
+        "source_return_conflict_acc": 0.71875,
+        "fixed_hard_return_conflict_acc": 0.84375,
+        "fixed_hard_gain_vs_source": 0.125,
+        "fixed_hard_correct_segment_rate": 0.9375
+      },
+      "4": {
+        "tokens": 11488,
+        "probes": 64,
+        "source_correct": 42,
+        "hard_correct": 60,
+        "hard_correct_segment": 62,
+        "hard_selected": 64,
+        "paired_observation_mismatch_count": 0,
+        "memory_required_token_density": 0.005571030640668524,
+        "source_return_conflict_acc": 0.65625,
+        "fixed_hard_return_conflict_acc": 0.9375,
+        "fixed_hard_gain_vs_source": 0.28125,
+        "fixed_hard_correct_segment_rate": 0.96875
+      },
+      "8": {
+        "tokens": 18752,
+        "probes": 64,
+        "source_correct": 34,
+        "hard_correct": 36,
+        "hard_correct_segment": 58,
+        "hard_selected": 64,
+        "paired_observation_mismatch_count": 0,
+        "memory_required_token_density": 0.0034129692832764505,
+        "source_return_conflict_acc": 0.53125,
+        "fixed_hard_return_conflict_acc": 0.5625,
+        "fixed_hard_gain_vs_source": 0.03125,
+        "fixed_hard_correct_segment_rate": 0.90625
+      }
+    },
+    "all_queries_have_strictly_earlier_candidates": true,
+    "only_actions_and_sensory_are_model_inputs": true
+  },
+  "dense_distribution": {
+    "aggregate": {
+      "tokens": 40832,
+      "probes": 640,
+      "source_correct": 434,
+      "hard_correct": 572,
+      "hard_correct_room": 606,
+      "hard_selected": 640,
+      "paired_observation_mismatch_count": 0,
+      "memory_required_token_density": 0.01567398119122257,
+      "source_return_conflict_acc": 0.678125,
+      "fixed_hard_return_conflict_acc": 0.89375,
+      "fixed_hard_gain_vs_source": 0.21562500000000007,
+      "fixed_hard_correct_room_rate": 0.946875
+    },
+    "levels": {
+      "8": {
+        "tokens": 16896,
+        "probes": 256,
+        "source_correct": 174,
+        "hard_correct": 216,
+        "hard_correct_room": 246,
+        "hard_selected": 256,
+        "paired_observation_mismatch_count": 0,
+        "memory_required_token_density": 0.015151515151515152,
+        "source_return_conflict_acc": 0.6796875,
+        "fixed_hard_return_conflict_acc": 0.84375,
+        "fixed_hard_gain_vs_source": 0.1640625,
+        "fixed_hard_correct_room_rate": 0.9609375
+      },
+      "12": {
+        "tokens": 23936,
+        "probes": 384,
+        "source_correct": 260,
+        "hard_correct": 356,
+        "hard_correct_room": 360,
+        "hard_selected": 384,
+        "paired_observation_mismatch_count": 0,
+        "memory_required_token_density": 0.016042780748663103,
+        "source_return_conflict_acc": 0.6770833333333334,
+        "fixed_hard_return_conflict_acc": 0.9270833333333334,
+        "fixed_hard_gain_vs_source": 0.25,
+        "fixed_hard_correct_room_rate": 0.9375
+      }
+    },
+    "all_queries_have_strictly_earlier_candidates": true,
+    "only_actions_and_sensory_are_model_inputs": true
+  },
+  "density_ratio": 2.7429467084639496,
+  "gates": {
+    "protocol_digest_matches": true,
+    "parent_v3_g0_is_frozen_rejection": true,
+    "checkpoint_digests_match": true,
+    "only_actions_and_sensory_are_model_inputs": true,
+    "all_queries_have_strictly_earlier_candidates": true,
+    "dense_memory_required_token_density": true,
+    "dense_fixed_hard_gain_vs_source": true,
+    "dense_fixed_hard_absolute": true,
+    "dense_fixed_hard_correct_room": true,
+    "gauge_pair_observations_identical": true
+  },
+  "all_gates_pass": true,
+  "status": "M1O_DENSE_DISTRIBUTION_G0_V4_PASSED",
+  "branch": "TRAIN_FIXED_ENDPOINT_M1O_V4"
+}

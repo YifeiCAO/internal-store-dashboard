@@ -1,0 +1,137 @@
+{
+  "format": "remap_former.m1g_least_squares_g0b_result.v1",
+  "protocol": {
+    "format": "remap_former.m1g_least_squares_g0b_protocol.v1",
+    "frozen_date": "2026-07-14",
+    "scope": "single-seed K=8 dev-only frozen follow-up after transpose G0 rejection; new episodes; no training, checkpoint selection, stress, formal validation, or test",
+    "model_seed": 712,
+    "generator_seed": 5925,
+    "capacity_level": 8,
+    "grid_size": 11,
+    "max_jitter_cycles": 4,
+    "batch_size": 4,
+    "batches": 16,
+    "episodes": 64,
+    "return_conflict_probes": 128,
+    "content_hpc_covariance_ridge": 0.001,
+    "inference_window": 12,
+    "least_squares_relative_ridge": 0.001,
+    "shuffled_value_seed_offset": 800000,
+    "conditions": [
+      "normal_m1f_context",
+      "least_squares_causal",
+      "least_squares_same_step_leaky",
+      "least_squares_shuffled_value"
+    ],
+    "causal_contract": "least_squares prior_context_t solves only equations from observations x_<t; x_t enters posterior_context_t and may first affect prediction at t+1",
+    "solver": "for each pre-write content memory and neural place, construct R_t such that value_hat=R_t context; over the most recent 12 revealed observations solve (sum R_t^T R_t + relative ridge) context = sum R_t^T value_t and normalize",
+    "ridge_scaling": "relative ridge times mean diagonal of the rolling Gram matrix plus the frozen HPC numerical epsilon",
+    "diagnostic_return_override": "replace normal M1f context only at audit return probes with the causal least-squares context to test address precision; metadata chooses probe positions only and this arm is not deployable",
+    "memory_state": "existing M1b content fast weights and covariance only; no context slots, candidate bank, second memory, cache, or learned parameters",
+    "frozen_thresholds": {
+      "causal_pair_accuracy_at_least": 0.8,
+      "causal_correct_cosine_at_least": 0.95,
+      "causal_correct_cosine_gain_vs_normal_at_least": 0.05,
+      "causal_cosine_margin_at_least": 0.15,
+      "causal_gain_vs_shuffled_pair_accuracy_at_least": 0.2,
+      "leaky_minus_causal_pair_accuracy_at_most": 0.1,
+      "diagnostic_return_fused_acc_at_least": 0.8,
+      "retrieval_replay_max_abs_error_at_most": 1e-05
+    },
+    "classification_rule": {
+      "LEAST_SQUARES_CONTEXT_SIGNAL_CONFIRMED": "all eight frozen gates pass",
+      "IDENTITY_BUT_NOT_ADDRESS_PRECISION": "causal pair identity passes but correct cosine, margin, or diagnostic fused accuracy fails",
+      "SIGNAL_TOO_LATE": "same-step leaky identity passes but causal identity fails",
+      "LEAST_SQUARES_CONTEXT_SIGNAL_INSUFFICIENT": "causal pair identity fails without a leaky-only recovery"
+    },
+    "training": "none",
+    "model_change": "none; diagnostic replay and return-probe intervention only",
+    "post_result_rule": "only LEAST_SQUARES_CONTEXT_SIGNAL_CONFIRMED may unlock a deployable zero-parameter M1g pilot on another new dev seed"
+  },
+  "device": "cuda",
+  "checkpoint_step": 600,
+  "metrics": {
+    "normal_m1f_context": {
+      "pair_accuracy_tie_adjusted": 0.90625,
+      "correct_preference_rate": 0.90625,
+      "wrong_preference_rate": 0.09375,
+      "tie_rate": 0.0,
+      "correct_reference_cosine": 0.867237851023674,
+      "wrong_reference_cosine": 0.6611564289778471,
+      "correct_minus_wrong_cosine": 0.2060814220458269,
+      "mean_evidence_strength": 1.0,
+      "return_conflict_queries": 128.0
+    },
+    "least_squares_causal": {
+      "pair_accuracy_tie_adjusted": 0.484375,
+      "correct_preference_rate": 0.484375,
+      "wrong_preference_rate": 0.515625,
+      "tie_rate": 0.0,
+      "correct_reference_cosine": 0.8722702041268349,
+      "wrong_reference_cosine": 0.8375910632312298,
+      "correct_minus_wrong_cosine": 0.03467914089560509,
+      "mean_evidence_strength": 55.319517374038696,
+      "return_conflict_queries": 128.0
+    },
+    "least_squares_same_step_leaky": {
+      "pair_accuracy_tie_adjusted": 0.640625,
+      "correct_preference_rate": 0.640625,
+      "wrong_preference_rate": 0.359375,
+      "tie_rate": 0.0,
+      "correct_reference_cosine": 0.9085485935211182,
+      "wrong_reference_cosine": 0.8074152730405331,
+      "correct_minus_wrong_cosine": 0.1011333204805851,
+      "mean_evidence_strength": 54.34697461128235,
+      "return_conflict_queries": 128.0
+    },
+    "least_squares_shuffled_value": {
+      "pair_accuracy_tie_adjusted": 0.5625,
+      "correct_preference_rate": 0.5625,
+      "wrong_preference_rate": 0.4375,
+      "tie_rate": 0.0,
+      "correct_reference_cosine": 0.48896509874612093,
+      "wrong_reference_cosine": 0.4345951331779361,
+      "correct_minus_wrong_cosine": 0.05436996556818485,
+      "mean_evidence_strength": 9.990313529968262,
+      "return_conflict_queries": 128.0
+    }
+  },
+  "diagnostic_return_override_metrics": {
+    "loss": 1.9473062172486473,
+    "query_acc": 0.9192708333333334,
+    "query_queries": 3072.0,
+    "clean_acc": 0.95546875,
+    "clean_queries": 2560.0,
+    "conflict_acc": 0.73828125,
+    "conflict_queries": 512.0,
+    "return_acc": 0.7578125,
+    "return_queries": 256.0,
+    "return_conflict_acc": 0.546875,
+    "return_conflict_queries": 128.0,
+    "other_room_target_rate": 0.4375,
+    "correct_target_probability": 0.42975971288979053,
+    "other_room_target_probability": 0.27461058204062283,
+    "target_probability_margin": 0.1551491308491677,
+    "tokens": 36592.0
+  },
+  "decision": {
+    "status": "LEAST_SQUARES_CONTEXT_SIGNAL_INSUFFICIENT",
+    "gates": {
+      "causal_pair_accuracy": false,
+      "causal_correct_cosine": false,
+      "causal_correct_cosine_gain": false,
+      "causal_cosine_margin": false,
+      "causal_gain_vs_shuffled": false,
+      "evidence_available_before_query": false,
+      "diagnostic_return_fused_accuracy": false,
+      "retrieval_replay_exact": true
+    },
+    "differences": {
+      "causal_correct_cosine_vs_normal": 0.005032353103160858,
+      "causal_vs_shuffled_pair_accuracy": -0.078125,
+      "leaky_vs_causal_pair_accuracy": 0.15625
+    },
+    "diagnostic_return_fused_acc": 0.546875,
+    "retrieval_replay_max_abs_error": 0.0
+  }
+}

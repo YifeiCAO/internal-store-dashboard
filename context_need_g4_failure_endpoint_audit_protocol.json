@@ -1,0 +1,52 @@
+{
+  "format": "remap_former.context_need_g4_failure_endpoint_audit_protocol.v1",
+  "date": "2026-07-17",
+  "status": "FROZEN_BEFORE_ENDPOINT_AUDIT",
+  "purpose": "Separate G4 controller false positives/negatives from downstream dynamic-context capacity failures using forced null and forced dynamic endpoints on the exact same trajectories.",
+  "parent": {
+    "g4_result": "runs/remap_former/context_need_null_first_g4_ood_seed3371601_3432001.json",
+    "g4_result_sha256": "6d511d02dab8070a1f5a5201815b4eaa0d88625b1a1149f4f416dae24043d7a0",
+    "g4_status": "CONTEXT_NEED_NULL_FIRST_G4_OOD_FAIL",
+    "g4_protocol": "runs/remap_former/context_need_null_first_g4_ood_protocol.json",
+    "g4_protocol_sha256": "d107faca60e1f6f4a2b4fc04f91507c0d3b827de9b49306be86cde79ab5102b6"
+  },
+  "frozen_failure_disclosure": {
+    "grid13": {"selected_t1_final": 0.7648, "selected_t1_prefix_passes": 1.6250, "hypothesis": "controller false-positive on lower revisit density"},
+    "query2": {"selected_dynamic_rate": 0.3281, "selected_t2_return": 0.2500, "hypothesis": "controller false-negative or temporal downstream shift"},
+    "sparse_conflict": {"selected_dynamic_rate": 0.0156, "selected_t2_return": 0.0000, "hypothesis": "controller evidence dilution"},
+    "dense_conflict": {"selected_dynamic_rate": 1.0000, "selected_t2_return": 0.5469, "hypothesis": "downstream context/HPC capacity"}
+  },
+  "variants": {
+    "fixed_null": {"threshold": "positive_infinity", "expected_dynamic_rate": 0.0},
+    "forced_dynamic": {"threshold": "negative_infinity", "expected_dynamic_rate": 1.0}
+  },
+  "t1_diagnostic": {
+    "family": "grid13",
+    "checkpoint_seed": 712,
+    "reuse_exact_g4_generator_seed_and_sample_count": true,
+    "future_memory_writes": 0
+  },
+  "t2_diagnostics": {
+    "families": ["query2", "sparse_conflict", "dense_conflict"],
+    "checkpoint_seeds": [712, 713, 714, 715, 716, 717, 718, 719],
+    "reuse_exact_g4_generator_seeds_and_sample_counts": true
+  },
+  "classification_rules": {
+    "grid13_controller_false_positive": "fixed-null T1 final >= 0.95 and fixed-null minus selected >= 0.15",
+    "t2_controller_false_negative": "forced-dynamic return >= 0.70 and forced-dynamic minus selected >= 0.20",
+    "t2_downstream_or_mixed": "forced-dynamic return < 0.70",
+    "dense_downstream_confirmed": "selected dynamic rate == 1.0 and forced-dynamic return exactly reproduces selected return below 0.70"
+  },
+  "implementation_gates": {
+    "fixed_null_dynamic_rate_exactly_zero": true,
+    "forced_dynamic_rate_exactly_one": true,
+    "grid13_future_write_steps_exactly_zero": true,
+    "dense_forced_dynamic_exactly_reproduces_selected": true,
+    "all_source_model_states_unchanged": true,
+    "one_selected_content_hpc_per_checkpoint": true
+  },
+  "post_result_rule": "This is a read-only attribution audit. Do not tune G4 threshold, score, prefix, tail, family list, checkpoint, or seeds from endpoint results.",
+  "formal_output": "runs/remap_former/context_need_g4_failure_endpoint_audit_seed3401901_3432001.json",
+  "formal_report": "reports/REMAP_FORMER_CONTEXT_NEED_G4_FAILURE_ENDPOINT_AUDIT_CN.md",
+  "overwrite_allowed": false
+}

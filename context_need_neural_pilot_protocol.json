@@ -1,0 +1,124 @@
+{
+  "format": "remap_former.context_need_neural_pilot_protocol.v1",
+  "date": "2026-07-17",
+  "status": "FROZEN_BEFORE_SINGLE_SEED_PILOT",
+  "purpose": "Distill the replicated causal retrieval-consistency teacher into a small neural context-need head that uses only the observed PFC prefix and does not run an HPC during inference-time decision.",
+  "teacher_parent": {
+    "protocol": "runs/remap_former/context_need_retrieval_g1_replication_protocol.json",
+    "protocol_sha256": "b1607fcc011e465dae27e55528a9d99a7f0bd9d8cb05e2d15a8da3e6f74f7574",
+    "result": "runs/remap_former/context_need_retrieval_g1_seed2671701_2672201.json",
+    "result_sha256": "4834dfd196c0bbf761e3ef86fa3daf98b0284ce7d4aa0ebbe457cd15cfd20e84",
+    "result_status": "CONTEXT_NEED_RETRIEVAL_G1_REPLICATION_PASS",
+    "teacher_threshold_raw": 0.600765466690063,
+    "teacher_calibration_mean": 0.598840113932965,
+    "teacher_calibration_sample_std": 0.128242249982292,
+    "teacher_threshold_z": 0.0150134043762021
+  },
+  "source_checkpoint": "runs/remap_former/m1b_covariance_ridge0p03_seed712_frozen/m1b_frozen.pt",
+  "source_checkpoint_sha256": "4c16ea253abe1f277b09b3538e17e8b14d6cee11e6f6c08750c8af4ff79fbacf",
+  "source_checkpoint_seed": 712,
+  "architecture": {
+    "name": "M1b-Neural-Context-Need",
+    "input": "frozen causal WindowTransformerPFC hidden states over the first 64 observed action-sensory steps",
+    "pooling": "learned token attention concatenated with mean and final-token pooling",
+    "attention_hidden": 32,
+    "readout_hidden": 32,
+    "trainable_parameter_count": 16770,
+    "decision": "predicted standardized score >= frozen teacher_threshold_z selects dynamic context; otherwise null context",
+    "frozen_m1b": true,
+    "inference_decision_hpc_calls": 0,
+    "new_memory_slots": 0,
+    "new_fast_weight_systems": 0,
+    "content_hpc_count_during_selected_replay": 1,
+    "room_id_input": false,
+    "task_id_input": false,
+    "position_or_place_id_input": false,
+    "segment_switch_query_return_conflict_input": false
+  },
+  "teacher": {
+    "score": "mean_t (||v_t||^2 - ||v_t-r_t||^2) from the frozen dynamic prefix HPC",
+    "prefix_length": 64,
+    "used_during_training": true,
+    "used_only_for_metrics_during_final_evaluation": true,
+    "used_during_inference_decision": false,
+    "room_or_task_supervision": false
+  },
+  "training": {
+    "steps": 600,
+    "t1_batch_size": 16,
+    "t2_batch_size": 16,
+    "total_batch_size": 32,
+    "grid_size": 11,
+    "n_objects": 64,
+    "prefix_length": 64,
+    "t2_split": "train",
+    "loss": "one SmoothL1 loss between predicted and teacher standardized retrieval-consistency score",
+    "sensory_cross_entropy": false,
+    "straight_through_estimator": false,
+    "auxiliary_gate_or_context_loss": false,
+    "optimizer": "AdamW",
+    "learning_rate": 0.0003,
+    "weight_decay": 0.0001,
+    "gradient_clip": 1.0,
+    "train_seed": 2871701,
+    "monitor_every": 100,
+    "checkpoint_selection": "none; fixed final step 600 is the only candidate"
+  },
+  "monitor": {
+    "t1_generator_seed": 2871801,
+    "t2_generator_seed": 2871802,
+    "t2_split": "dev",
+    "episodes_per_domain": 32,
+    "used_for_checkpoint_selection": false
+  },
+  "heldout": {
+    "t1_generator_seed": 2871901,
+    "t2_generator_seed": 2872001,
+    "t2_split": "dev",
+    "episodes_per_domain": 256,
+    "threshold_refit": false
+  },
+  "end_to_end": {
+    "decision": "neural head only; analytic teacher is not called",
+    "replay_rule": "after one neural prefix decision, replay from step zero and build exactly one selected episode-local HPC",
+    "t1_strict": {
+      "generator_seed": 2872101,
+      "batch_size": 64,
+      "chunk_size": 8,
+      "chunk_seed_rule": "generator_seed + zero-based chunk index",
+      "context_length": 64,
+      "imagination_length": 4096,
+      "future_memory_writes": 0
+    },
+    "t2": {
+      "generator_seed": 2872201,
+      "batch_size": 128,
+      "chunk_size": 32,
+      "chunk_seed_rule": "generator_seed + zero-based chunk index",
+      "split": "dev",
+      "score_only_return_conflict_after_prefix": true
+    }
+  },
+  "acceptance_gates": {
+    "heldout_teacher_decision_agreement_at_least": 0.9,
+    "heldout_t1_null_selection_rate_at_least": 0.9,
+    "heldout_t2_dynamic_selection_rate_at_least": 0.9,
+    "heldout_balanced_accuracy_at_least": 0.9,
+    "t1_strict_final_accuracy_4096_at_least": 0.95,
+    "t2_return_conflict_accuracy_at_least": 0.75,
+    "t2_clean_accuracy_at_least": 0.98,
+    "t2_all_scored_return_conflicts_after_prefix": true,
+    "inference_decision_hpc_calls_exactly_zero": true,
+    "future_write_steps_exactly_zero": true,
+    "source_model_state_unchanged": true,
+    "only_neural_head_trainable": true,
+    "one_selected_content_hpc": true
+  },
+  "post_result_rule": {
+    "all_gates_pass": "unlock a separately frozen three-seed neural-head confirmation",
+    "any_gate_fails": "stop and localize the single failure; do not retune on these training, monitor, held-out, or end-to-end seeds"
+  },
+  "output_dir": "runs/remap_former/context_need_neural_seed2871701_s600",
+  "smoke_output_dir": "tmp/context_need_neural_smoke",
+  "overwrite_allowed": false
+}

@@ -1,0 +1,135 @@
+{
+  "format": "remap_former.context_invocation_pilot_result.v1",
+  "status": "CONTEXT_INVOCATION_SINGLE_SEED_FAIL",
+  "smoke": false,
+  "protocol_path": "runs/remap_former/context_invocation_pilot_protocol.json",
+  "protocol_sha256": "7db2d3ef9a86d7452d82dfc10f20a28d63d6ccb7af1d2eb618e51b37042b48d0",
+  "source_sha256": {
+    "train_remap_context_invocation.py": "6fdbd245e108a8a14b0fdd85ee7f2ab8892875eb54ece7f053d15058b9604b0d",
+    "remap_former/context_invocation.py": "f3f3d11b20acc06c29c004bdd7eaf4682fffaa6ec80acbc535cd818e1cfc1c81",
+    "remap_former/context_invocation_rollout.py": "d92f02bf3a82bb26dec4d500717db478978f9bf35277d91c3fd364ab153b1230"
+  },
+  "source_checkpoint": "runs/remap_former/m1b_covariance_ridge0p03_seed712_frozen/m1b_frozen.pt",
+  "source_checkpoint_sha256": "4c16ea253abe1f277b09b3538e17e8b14d6cee11e6f6c08750c8af4ff79fbacf",
+  "device": "cuda",
+  "steps": 600,
+  "trainable_parameter_count": 345,
+  "trainable_parameter_names": [
+    "invocation_gate.state_norm.weight",
+    "invocation_gate.state_norm.bias",
+    "invocation_gate.summary_norm.weight",
+    "invocation_gate.summary_norm.bias",
+    "invocation_gate.network.0.weight",
+    "invocation_gate.network.0.bias",
+    "invocation_gate.network.2.weight",
+    "invocation_gate.network.2.bias"
+  ],
+  "base_state_sha256_before": "4cb677accf470af9dc6d07e8dde57cff99f62f79b4abc26247724bd461c9fee9",
+  "base_state_sha256_after": "4cb677accf470af9dc6d07e8dde57cff99f62f79b4abc26247724bd461c9fee9",
+  "base_state_unchanged": true,
+  "initial_monitor": {
+    "t2": {
+      "loss": 0.5846667723222212,
+      "hard_invocation_rate": 1.0,
+      "return_conflict_hard_invocation_rate": 1.0,
+      "approach_hard_invocation_rate": 1.0,
+      "episodes": 4,
+      "learned": {
+        "query_accuracy": 1.0,
+        "clean_accuracy": 1.0,
+        "conflict_accuracy": 1.0,
+        "return_accuracy": 1.0,
+        "return_conflict_accuracy": 1.0,
+        "query_queries": 80,
+        "clean_queries": 40,
+        "conflict_queries": 40,
+        "return_queries": 16,
+        "return_conflict_queries": 8
+      }
+    },
+    "t1_observed": {
+      "revisit_accuracy": 0.9282700421940928,
+      "revisit_queries": 237.0,
+      "hard_invocation_rate": 1.0,
+      "mean_invocation_probability": 0.949999988079071
+    }
+  },
+  "final": {
+    "t1_observed": {
+      "revisit_accuracy": 0.9374348279457768,
+      "revisit_queries": 959.0,
+      "hard_invocation_rate": 1.0,
+      "mean_invocation_probability": 0.9824442863464355
+    },
+    "t1_strict": {
+      "queries": 8726,
+      "final_accuracy": 0.6838184735273894,
+      "pfc_accuracy": 0.07712583085033234,
+      "hpc_accuracy": 0.7970433188173275,
+      "hard_invocation_rate": 1.0,
+      "context_hard_invocation_rate": 1.0,
+      "future_hard_invocation_rate": 1.0,
+      "mean_invocation_probability": 0.9856309294700623,
+      "context_write_steps": 64,
+      "future_write_steps": 0
+    },
+    "t2": {
+      "loss": 0.5581561056050387,
+      "hard_invocation_rate": 1.0,
+      "return_conflict_hard_invocation_rate": 1.0,
+      "approach_hard_invocation_rate": 1.0,
+      "episodes": 64,
+      "learned": {
+        "query_accuracy": 0.9765625,
+        "clean_accuracy": 1.0,
+        "conflict_accuracy": 0.953125,
+        "return_accuracy": 0.8984375,
+        "return_conflict_accuracy": 0.796875,
+        "query_queries": 1280,
+        "clean_queries": 640,
+        "conflict_queries": 640,
+        "return_queries": 256,
+        "return_conflict_queries": 128
+      },
+      "source_dynamic": {
+        "query_accuracy": 0.9765625,
+        "clean_accuracy": 1.0,
+        "conflict_accuracy": 0.953125,
+        "return_accuracy": 0.8984375,
+        "return_conflict_accuracy": 0.796875,
+        "query_queries": 1280,
+        "clean_queries": 640,
+        "conflict_queries": 640,
+        "return_queries": 256,
+        "return_conflict_queries": 128
+      },
+      "fixed_null": {
+        "query_accuracy": 0.9,
+        "clean_accuracy": 1.0,
+        "conflict_accuracy": 0.8,
+        "return_accuracy": 0.5,
+        "return_conflict_accuracy": 0.0,
+        "query_queries": 1280,
+        "clean_queries": 640,
+        "conflict_queries": 640,
+        "return_queries": 256,
+        "return_conflict_queries": 128
+      }
+    }
+  },
+  "gates": {
+    "t1_strict_final_4096": false,
+    "t2_return_conflict": true,
+    "t2_clean": true,
+    "t1_hard_invocation_rate": false,
+    "t2_return_conflict_hard_invocation_rate": true,
+    "source_base_state_hash_unchanged": true,
+    "future_write_steps_zero": true,
+    "only_invocation_gate_trainable": true
+  },
+  "all_gates_pass": false,
+  "checkpoint": "runs/remap_former/context_invocation_seed2471701_s600/context_invocation_final.pt",
+  "checkpoint_sha256": "884979b398a47e26aa31eeb437cdc195dcec6dea985d76ca6ac58302f8363a3b",
+  "metrics": "runs/remap_former/context_invocation_seed2471701_s600/metrics.jsonl",
+  "elapsed_seconds": 380.2091128000029
+}

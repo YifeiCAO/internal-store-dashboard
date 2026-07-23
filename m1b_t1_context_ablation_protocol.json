@@ -1,0 +1,61 @@
+{
+  "format": "remap_former.m1b_t1_context_ablation_protocol.v1",
+  "date": "2026-07-17",
+  "purpose": "Localize the strict T1 free-rollout deficit into inferred-context address fragmentation versus autoregressive sensory feedback, without changing frozen M1b weights.",
+  "status": "FROZEN_BEFORE_8SEED_RUN",
+  "pilot_disclosure": {
+    "checkpoint_seed": 712,
+    "generator_seed": 2071601,
+    "episodes": 8,
+    "observed_fixed_null_final_accuracy_4096": 0.999669,
+    "observed_inferred_autoregressive_final_accuracy_4096": 0.658717,
+    "observed_inferred_teacher_final_accuracy_4096": 0.741415
+  },
+  "p0_truth_manifest": "runs/remap_former/p0_truth_freeze_manifest.json",
+  "p0_truth_manifest_sha256": "e4cef9d39041c7d1f4e624f9ba9f1afedc368461bd5163cf63a1e015ae4aa3fa",
+  "strict_t1_reference": "runs/remap_former/m1b_t1_strict_rollout_seed2071601.json",
+  "checkpoint_seeds": [712, 713, 714, 715, 716, 717, 718, 719],
+  "generator_seed": 2071601,
+  "grid_size": 11,
+  "n_objects": 64,
+  "batch_size": 8,
+  "batches": 1,
+  "context_length": 64,
+  "imagination_lengths": [2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096],
+  "shared_trajectories_across_variants_and_checkpoints": true,
+  "variants": {
+    "inferred_autoregressive": {
+      "context_mode": "inferred",
+      "feedback_mode": "autoregressive",
+      "future_ground_truth_sensory_visible": false,
+      "interpretation": "Exact frozen M1b strict-rollout reference."
+    },
+    "fixed_null_autoregressive": {
+      "context_mode": "fixed_null",
+      "feedback_mode": "autoregressive",
+      "future_ground_truth_sensory_visible": false,
+      "interpretation": "Causal single-room intervention; replace inferred context with one normalized all-ones null code."
+    },
+    "inferred_teacher_feedback": {
+      "context_mode": "inferred",
+      "feedback_mode": "teacher",
+      "future_ground_truth_sensory_visible": true,
+      "interpretation": "Diagnostic exposure-bias ceiling only; not a strict rollout model result."
+    }
+  },
+  "future_ground_truth_targets_visible_to_model": false,
+  "future_ground_truth_positions_visible_to_model": false,
+  "future_memory_writes": false,
+  "selection_or_training_on_8seed_result": false,
+  "acceptance_gates": {
+    "fixed_null_mean_final_accuracy_4096_at_least": 0.98,
+    "fixed_null_mean_hpc_accuracy_4096_at_least": 0.995,
+    "fixed_null_minus_inferred_mean_final_accuracy_4096_at_least": 0.25,
+    "dynamic_reference_exactly_reproduced": true,
+    "future_write_steps_exactly_zero": true,
+    "model_state_hash_unchanged": true
+  },
+  "formal_output": "runs/remap_former/m1b_t1_context_ablation_seed2071601.json",
+  "formal_report": "reports/REMAP_FORMER_M1B_T1_CONTEXT_ABLATION_8SEED_CN.md",
+  "overwrite_allowed": false
+}

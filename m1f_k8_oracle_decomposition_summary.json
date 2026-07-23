@@ -1,0 +1,759 @@
+{
+  "format": "remap_former.m1f_k8_oracle_decomposition_result.v1",
+  "protocol": {
+    "format": "remap_former.m1f_k8_oracle_decomposition_protocol.v1",
+    "frozen_date": "2026-07-14",
+    "scope": "paired K=8 dev-only oracle decomposition; no training, checkpoint selection, stress, formal validation, or test",
+    "reuses_episode_protocol": "runs/remap_former/m1f_k8_timing_protocol.json",
+    "model_seeds": [
+      712,
+      713,
+      714
+    ],
+    "generator_seeds": [
+      3921,
+      3922,
+      3923
+    ],
+    "capacity_level": 8,
+    "grid_size": 11,
+    "max_jitter_cycles": 4,
+    "batch_size": 4,
+    "batches_per_seed": 16,
+    "episodes_per_seed": 64,
+    "return_conflict_probes_per_seed": 128,
+    "return_conflict_probes_total": 384,
+    "content_hpc_covariance_ridge": 0.001,
+    "conditions": [
+      "m1f_normal_fused",
+      "m1f_normal_raw_hpc",
+      "m1f_correct_historical_context",
+      "m1f_wrong_historical_context",
+      "m1f_exact_reference_address_fused",
+      "m1f_exact_reference_address_raw_hpc"
+    ],
+    "oracle_scope": "evaluation-only return probes; metadata is used only after a frozen normal M1f forward and is never exposed to PFC, EC, context inference, training, or checkpoint selection",
+    "historical_context_oracle": "at each return probe, replay the frozen M1f context emitted at the matching pass-1 query in the correct or wrong reference segment",
+    "exact_address_oracle": "at each return probe, replay the full frozen conjunctive address emitted at the matching pass-1 query in the correct reference segment; all other addresses remain normal",
+    "frozen_thresholds": {
+      "correct_context_acc_at_least": 0.8,
+      "correct_context_gain_vs_normal_at_least": 0.25,
+      "correct_vs_wrong_context_gap_at_least": 0.3,
+      "exact_address_raw_hpc_acc_at_least": 0.9,
+      "exact_address_fused_acc_at_least": 0.8
+    },
+    "classification_rule": {
+      "CONTEXT_IDENTITY_RETRIEVAL_DOMINANT": "correct-context absolute, gain, and directionality gates pass",
+      "CONTENT_HPC_CAPACITY_DOMINANT": "exact-address raw-HPC ceiling fails",
+      "PFC_HPC_FUSION_DOMINANT": "exact-address raw-HPC ceiling passes but fused ceiling fails",
+      "ADDRESS_RECONSTRUCTION_DOMINANT": "exact-address raw and fused ceilings pass, but correct-context recovery fails",
+      "MIXED_OR_UNRESOLVED": "none of the frozen exclusive diagnoses applies"
+    },
+    "training": "none",
+    "checkpoint_selection": "none",
+    "model_change": "none",
+    "post_result_rule": "do not change conditions, seeds, episodes, thresholds, or classification after reading results"
+  },
+  "device": "cuda",
+  "per_seed": [
+    {
+      "model_seed": 712,
+      "generator_seed": 3921,
+      "checkpoint_step": 600,
+      "metrics": {
+        "m1f_normal_fused": {
+          "loss": 1.949381648243724,
+          "query_acc": 0.9322916666666666,
+          "query_queries": 3072.0,
+          "clean_acc": 0.95,
+          "clean_queries": 2560.0,
+          "conflict_acc": 0.84375,
+          "conflict_queries": 512.0,
+          "return_acc": 0.4609375,
+          "return_queries": 256.0,
+          "return_conflict_acc": 0.421875,
+          "return_conflict_queries": 128.0,
+          "other_room_target_rate": 0.078125,
+          "correct_target_probability": 0.30782194435596466,
+          "other_room_target_probability": 0.06181147067400161,
+          "target_probability_margin": 0.24601047368196305,
+          "tokens": 36608.0
+        },
+        "m1f_normal_raw_hpc": {
+          "loss": 3.48574906462556,
+          "query_acc": 0.9296875,
+          "query_queries": 3072.0,
+          "clean_acc": 0.946875,
+          "clean_queries": 2560.0,
+          "conflict_acc": 0.84375,
+          "conflict_queries": 512.0,
+          "return_acc": 0.4609375,
+          "return_queries": 256.0,
+          "return_conflict_acc": 0.4375,
+          "return_conflict_queries": 128.0,
+          "other_room_target_rate": 0.0625,
+          "correct_target_probability": 0.026927913422696292,
+          "other_room_target_probability": 0.018463952525053173,
+          "target_probability_margin": 0.008463960897643119,
+          "tokens": 36608.0
+        },
+        "m1f_correct_historical_context": {
+          "loss": 1.945106332952326,
+          "query_acc": 0.9453125,
+          "query_queries": 3072.0,
+          "clean_acc": 0.9578125,
+          "clean_queries": 2560.0,
+          "conflict_acc": 0.8828125,
+          "conflict_queries": 512.0,
+          "return_acc": 0.9765625,
+          "return_queries": 256.0,
+          "return_conflict_acc": 0.984375,
+          "return_conflict_queries": 128.0,
+          "other_room_target_rate": 0.0,
+          "correct_target_probability": 0.7758441492915154,
+          "other_room_target_probability": 0.007533908508776221,
+          "target_probability_margin": 0.7683102407827391,
+          "tokens": 36608.0
+        },
+        "m1f_wrong_historical_context": {
+          "loss": 1.9662689395717807,
+          "query_acc": 0.900390625,
+          "query_queries": 3072.0,
+          "clean_acc": 0.95546875,
+          "clean_queries": 2560.0,
+          "conflict_acc": 0.625,
+          "conflict_queries": 512.0,
+          "return_acc": 0.5,
+          "return_queries": 256.0,
+          "return_conflict_acc": 0.0,
+          "return_conflict_queries": 128.0,
+          "other_room_target_rate": 1.0,
+          "correct_target_probability": 0.010589698853436857,
+          "other_room_target_probability": 0.7532012984156609,
+          "target_probability_margin": -0.742611599562224,
+          "tokens": 36608.0
+        },
+        "m1f_exact_reference_address_fused": {
+          "loss": 1.9451063462904283,
+          "query_acc": 0.9453125,
+          "query_queries": 3072.0,
+          "clean_acc": 0.9578125,
+          "clean_queries": 2560.0,
+          "conflict_acc": 0.8828125,
+          "conflict_queries": 512.0,
+          "return_acc": 0.9765625,
+          "return_queries": 256.0,
+          "return_conflict_acc": 0.984375,
+          "return_conflict_queries": 128.0,
+          "other_room_target_rate": 0.0,
+          "correct_target_probability": 0.7758442014455795,
+          "other_room_target_probability": 0.007533908807090484,
+          "target_probability_margin": 0.768310292638489,
+          "tokens": 36608.0
+        },
+        "m1f_exact_reference_address_raw_hpc": {
+          "loss": 3.486246389108938,
+          "query_acc": 0.9427083333333334,
+          "query_queries": 3072.0,
+          "clean_acc": 0.9546875,
+          "clean_queries": 2560.0,
+          "conflict_acc": 0.8828125,
+          "conflict_queries": 512.0,
+          "return_acc": 0.984375,
+          "return_queries": 256.0,
+          "return_conflict_acc": 1.0,
+          "return_conflict_queries": 128.0,
+          "other_room_target_rate": 0.0,
+          "correct_target_probability": 0.033755004056729376,
+          "other_room_target_probability": 0.015819841995835304,
+          "target_probability_margin": 0.017935162060894072,
+          "tokens": 36608.0
+        }
+      },
+      "paired": {
+        "m1f_correct_historical_context__vs__m1f_normal_fused": {
+          "both_correct": 54,
+          "left_only_correct": 72,
+          "right_only_correct": 0,
+          "both_wrong": 2,
+          "queries": 128
+        },
+        "m1f_correct_historical_context__vs__m1f_wrong_historical_context": {
+          "both_correct": 0,
+          "left_only_correct": 126,
+          "right_only_correct": 0,
+          "both_wrong": 2,
+          "queries": 128
+        },
+        "m1f_exact_reference_address_fused__vs__m1f_normal_fused": {
+          "both_correct": 54,
+          "left_only_correct": 72,
+          "right_only_correct": 0,
+          "both_wrong": 2,
+          "queries": 128
+        },
+        "m1f_exact_reference_address_raw_hpc__vs__m1f_normal_raw_hpc": {
+          "both_correct": 56,
+          "left_only_correct": 72,
+          "right_only_correct": 0,
+          "both_wrong": 0,
+          "queries": 128
+        },
+        "m1f_exact_reference_address_raw_hpc__vs__m1f_exact_reference_address_fused": {
+          "both_correct": 126,
+          "left_only_correct": 2,
+          "right_only_correct": 0,
+          "both_wrong": 0,
+          "queries": 128
+        }
+      },
+      "geometry": {
+        "context": {
+          "normal_to_correct_reference_cosine": 0.864397581666708,
+          "normal_to_wrong_reference_cosine": 0.6953003369271755,
+          "correct_minus_wrong_cosine": 0.16909724473953247,
+          "correct_preference_rate": 0.859375,
+          "wrong_preference_rate": 0.140625,
+          "tie_rate": 0.0,
+          "return_conflict_queries": 128.0
+        },
+        "address": {
+          "normal_to_correct_reference_cosine": 0.8643975853919983,
+          "normal_to_wrong_reference_cosine": 0.6953003443777561,
+          "correct_minus_wrong_cosine": 0.16909724101424217,
+          "correct_preference_rate": 0.859375,
+          "wrong_preference_rate": 0.140625,
+          "tie_rate": 0.0,
+          "return_conflict_queries": 128.0
+        }
+      }
+    },
+    {
+      "model_seed": 713,
+      "generator_seed": 3922,
+      "checkpoint_step": 550,
+      "metrics": {
+        "m1f_normal_fused": {
+          "loss": 1.9150054878474112,
+          "query_acc": 0.9290364583333334,
+          "query_queries": 3072.0,
+          "clean_acc": 0.94296875,
+          "clean_queries": 2560.0,
+          "conflict_acc": 0.859375,
+          "conflict_queries": 512.0,
+          "return_acc": 0.4609375,
+          "return_queries": 256.0,
+          "return_conflict_acc": 0.453125,
+          "return_conflict_queries": 128.0,
+          "other_room_target_rate": 0.0625,
+          "correct_target_probability": 0.3285393650876358,
+          "other_room_target_probability": 0.05994781634217361,
+          "target_probability_margin": 0.2685915487454622,
+          "tokens": 36736.0
+        },
+        "m1f_normal_raw_hpc": {
+          "loss": 3.487757945309948,
+          "query_acc": 0.9270833333333334,
+          "query_queries": 3072.0,
+          "clean_acc": 0.9421875,
+          "clean_queries": 2560.0,
+          "conflict_acc": 0.8515625,
+          "conflict_queries": 512.0,
+          "return_acc": 0.453125,
+          "return_queries": 256.0,
+          "return_conflict_acc": 0.421875,
+          "return_conflict_queries": 128.0,
+          "other_room_target_rate": 0.078125,
+          "correct_target_probability": 0.026151094236411154,
+          "other_room_target_probability": 0.01827042899094522,
+          "target_probability_margin": 0.007880665245465934,
+          "tokens": 36736.0
+        },
+        "m1f_correct_historical_context": {
+          "loss": 1.911068441145096,
+          "query_acc": 0.9381510416666666,
+          "query_queries": 3072.0,
+          "clean_acc": 0.95,
+          "clean_queries": 2560.0,
+          "conflict_acc": 0.87890625,
+          "conflict_queries": 512.0,
+          "return_acc": 0.9921875,
+          "return_queries": 256.0,
+          "return_conflict_acc": 1.0,
+          "return_conflict_queries": 128.0,
+          "other_room_target_rate": 0.0,
+          "correct_target_probability": 0.8230270631611347,
+          "other_room_target_probability": 0.004466760357900057,
+          "target_probability_margin": 0.8185603028032347,
+          "tokens": 36736.0
+        },
+        "m1f_wrong_historical_context": {
+          "loss": 1.931857836786463,
+          "query_acc": 0.8990885416666666,
+          "query_queries": 3072.0,
+          "clean_acc": 0.946875,
+          "clean_queries": 2560.0,
+          "conflict_acc": 0.66015625,
+          "conflict_queries": 512.0,
+          "return_acc": 0.5,
+          "return_queries": 256.0,
+          "return_conflict_acc": 0.0,
+          "return_conflict_queries": 128.0,
+          "other_room_target_rate": 1.0,
+          "correct_target_probability": 0.0072084593630279414,
+          "other_room_target_probability": 0.7898037359118462,
+          "target_probability_margin": -0.7825952765488182,
+          "tokens": 36736.0
+        },
+        "m1f_exact_reference_address_fused": {
+          "loss": 1.9110684943116085,
+          "query_acc": 0.9381510416666666,
+          "query_queries": 3072.0,
+          "clean_acc": 0.95,
+          "clean_queries": 2560.0,
+          "conflict_acc": 0.87890625,
+          "conflict_queries": 512.0,
+          "return_acc": 0.9921875,
+          "return_queries": 256.0,
+          "return_conflict_acc": 1.0,
+          "return_conflict_queries": 128.0,
+          "other_room_target_rate": 0.0,
+          "correct_target_probability": 0.8230270333588123,
+          "other_room_target_probability": 0.004466760772629641,
+          "target_probability_margin": 0.8185602725861827,
+          "tokens": 36736.0
+        },
+        "m1f_exact_reference_address_raw_hpc": {
+          "loss": 3.4882050490960843,
+          "query_acc": 0.9342447916666666,
+          "query_queries": 3072.0,
+          "clean_acc": 0.9453125,
+          "clean_queries": 2560.0,
+          "conflict_acc": 0.87890625,
+          "conflict_queries": 512.0,
+          "return_acc": 0.9921875,
+          "return_queries": 256.0,
+          "return_conflict_acc": 1.0,
+          "return_conflict_queries": 128.0,
+          "other_room_target_rate": 0.0,
+          "correct_target_probability": 0.03463917749468237,
+          "other_room_target_probability": 0.015413581801112741,
+          "target_probability_margin": 0.01922559569356963,
+          "tokens": 36736.0
+        }
+      },
+      "paired": {
+        "m1f_correct_historical_context__vs__m1f_normal_fused": {
+          "both_correct": 58,
+          "left_only_correct": 70,
+          "right_only_correct": 0,
+          "both_wrong": 0,
+          "queries": 128
+        },
+        "m1f_correct_historical_context__vs__m1f_wrong_historical_context": {
+          "both_correct": 0,
+          "left_only_correct": 128,
+          "right_only_correct": 0,
+          "both_wrong": 0,
+          "queries": 128
+        },
+        "m1f_exact_reference_address_fused__vs__m1f_normal_fused": {
+          "both_correct": 58,
+          "left_only_correct": 70,
+          "right_only_correct": 0,
+          "both_wrong": 0,
+          "queries": 128
+        },
+        "m1f_exact_reference_address_raw_hpc__vs__m1f_normal_raw_hpc": {
+          "both_correct": 54,
+          "left_only_correct": 74,
+          "right_only_correct": 0,
+          "both_wrong": 0,
+          "queries": 128
+        },
+        "m1f_exact_reference_address_raw_hpc__vs__m1f_exact_reference_address_fused": {
+          "both_correct": 128,
+          "left_only_correct": 0,
+          "right_only_correct": 0,
+          "both_wrong": 0,
+          "queries": 128
+        }
+      },
+      "geometry": {
+        "context": {
+          "normal_to_correct_reference_cosine": 0.8381927870213985,
+          "normal_to_wrong_reference_cosine": 0.6429048720747232,
+          "correct_minus_wrong_cosine": 0.1952879149466753,
+          "correct_preference_rate": 0.703125,
+          "wrong_preference_rate": 0.296875,
+          "tie_rate": 0.0,
+          "return_conflict_queries": 128.0
+        },
+        "address": {
+          "normal_to_correct_reference_cosine": 0.8381927870213985,
+          "normal_to_wrong_reference_cosine": 0.6429048851132393,
+          "correct_minus_wrong_cosine": 0.19528790190815926,
+          "correct_preference_rate": 0.703125,
+          "wrong_preference_rate": 0.296875,
+          "tie_rate": 0.0,
+          "return_conflict_queries": 128.0
+        }
+      }
+    },
+    {
+      "model_seed": 714,
+      "generator_seed": 3923,
+      "checkpoint_step": 600,
+      "metrics": {
+        "m1f_normal_fused": {
+          "loss": 1.925396796450871,
+          "query_acc": 0.92578125,
+          "query_queries": 3072.0,
+          "clean_acc": 0.94609375,
+          "clean_queries": 2560.0,
+          "conflict_acc": 0.82421875,
+          "conflict_queries": 512.0,
+          "return_acc": 0.3828125,
+          "return_queries": 256.0,
+          "return_conflict_acc": 0.328125,
+          "return_conflict_queries": 128.0,
+          "other_room_target_rate": 0.015625,
+          "correct_target_probability": 0.28483986482024193,
+          "other_room_target_probability": 0.031138568493588537,
+          "target_probability_margin": 0.2537012963266534,
+          "tokens": 36656.0
+        },
+        "m1f_normal_raw_hpc": {
+          "loss": 3.481333898696666,
+          "query_acc": 0.9244791666666666,
+          "query_queries": 3072.0,
+          "clean_acc": 0.94609375,
+          "clean_queries": 2560.0,
+          "conflict_acc": 0.81640625,
+          "conflict_queries": 512.0,
+          "return_acc": 0.375,
+          "return_queries": 256.0,
+          "return_conflict_acc": 0.3125,
+          "return_conflict_queries": 128.0,
+          "other_room_target_rate": 0.015625,
+          "correct_target_probability": 0.027335290797054768,
+          "other_room_target_probability": 0.017486040596850216,
+          "target_probability_margin": 0.009849250200204551,
+          "tokens": 36656.0
+        },
+        "m1f_correct_historical_context": {
+          "loss": 1.9202703028878287,
+          "query_acc": 0.9388020833333334,
+          "query_queries": 3072.0,
+          "clean_acc": 0.95234375,
+          "clean_queries": 2560.0,
+          "conflict_acc": 0.87109375,
+          "conflict_queries": 512.0,
+          "return_acc": 0.9609375,
+          "return_queries": 256.0,
+          "return_conflict_acc": 0.96875,
+          "return_conflict_queries": 128.0,
+          "other_room_target_rate": 0.0,
+          "correct_target_probability": 0.7463506832718849,
+          "other_room_target_probability": 0.005035944552219007,
+          "target_probability_margin": 0.7413147387196659,
+          "tokens": 36656.0
+        },
+        "m1f_wrong_historical_context": {
+          "loss": 1.940857080120751,
+          "query_acc": 0.892578125,
+          "query_queries": 3072.0,
+          "clean_acc": 0.946875,
+          "clean_queries": 2560.0,
+          "conflict_acc": 0.62109375,
+          "conflict_queries": 512.0,
+          "return_acc": 0.4921875,
+          "return_queries": 256.0,
+          "return_conflict_acc": 0.0,
+          "return_conflict_queries": 128.0,
+          "other_room_target_rate": 1.0,
+          "correct_target_probability": 0.008042638495680876,
+          "other_room_target_probability": 0.8090347461402416,
+          "target_probability_margin": -0.8009921076445607,
+          "tokens": 36656.0
+        },
+        "m1f_exact_reference_address_fused": {
+          "loss": 1.9202702762465558,
+          "query_acc": 0.9388020833333334,
+          "query_queries": 3072.0,
+          "clean_acc": 0.95234375,
+          "clean_queries": 2560.0,
+          "conflict_acc": 0.87109375,
+          "conflict_queries": 512.0,
+          "return_acc": 0.9609375,
+          "return_queries": 256.0,
+          "return_conflict_acc": 0.96875,
+          "return_conflict_queries": 128.0,
+          "other_room_target_rate": 0.0,
+          "correct_target_probability": 0.7463507279753685,
+          "other_room_target_probability": 0.00503594512338168,
+          "target_probability_margin": 0.7413147828519868,
+          "tokens": 36656.0
+        },
+        "m1f_exact_reference_address_raw_hpc": {
+          "loss": 3.4818185966954593,
+          "query_acc": 0.9348958333333334,
+          "query_queries": 3072.0,
+          "clean_acc": 0.9515625,
+          "clean_queries": 2560.0,
+          "conflict_acc": 0.8515625,
+          "conflict_queries": 512.0,
+          "return_acc": 0.9609375,
+          "return_queries": 256.0,
+          "return_conflict_acc": 0.96875,
+          "return_conflict_queries": 128.0,
+          "other_room_target_rate": 0.0,
+          "correct_target_probability": 0.033244812744669616,
+          "other_room_target_probability": 0.015497087151743472,
+          "target_probability_margin": 0.017747725592926145,
+          "tokens": 36656.0
+        }
+      },
+      "paired": {
+        "m1f_correct_historical_context__vs__m1f_normal_fused": {
+          "both_correct": 40,
+          "left_only_correct": 84,
+          "right_only_correct": 2,
+          "both_wrong": 2,
+          "queries": 128
+        },
+        "m1f_correct_historical_context__vs__m1f_wrong_historical_context": {
+          "both_correct": 0,
+          "left_only_correct": 124,
+          "right_only_correct": 0,
+          "both_wrong": 4,
+          "queries": 128
+        },
+        "m1f_exact_reference_address_fused__vs__m1f_normal_fused": {
+          "both_correct": 40,
+          "left_only_correct": 84,
+          "right_only_correct": 2,
+          "both_wrong": 2,
+          "queries": 128
+        },
+        "m1f_exact_reference_address_raw_hpc__vs__m1f_normal_raw_hpc": {
+          "both_correct": 36,
+          "left_only_correct": 88,
+          "right_only_correct": 4,
+          "both_wrong": 0,
+          "queries": 128
+        },
+        "m1f_exact_reference_address_raw_hpc__vs__m1f_exact_reference_address_fused": {
+          "both_correct": 122,
+          "left_only_correct": 2,
+          "right_only_correct": 2,
+          "both_wrong": 2,
+          "queries": 128
+        }
+      },
+      "geometry": {
+        "context": {
+          "normal_to_correct_reference_cosine": 0.8534380793571472,
+          "normal_to_wrong_reference_cosine": 0.6818267330527306,
+          "correct_minus_wrong_cosine": 0.17161134630441666,
+          "correct_preference_rate": 0.671875,
+          "wrong_preference_rate": 0.328125,
+          "tie_rate": 0.0,
+          "return_conflict_queries": 128.0
+        },
+        "address": {
+          "normal_to_correct_reference_cosine": 0.8534380942583084,
+          "normal_to_wrong_reference_cosine": 0.681826738640666,
+          "correct_minus_wrong_cosine": 0.1716113556176424,
+          "correct_preference_rate": 0.671875,
+          "wrong_preference_rate": 0.328125,
+          "tie_rate": 0.0,
+          "return_conflict_queries": 128.0
+        }
+      }
+    }
+  ],
+  "aggregate": {
+    "m1f_normal_fused": {
+      "loss": 1.9299086359197444,
+      "query_acc": 0.9290364583333334,
+      "query_queries": 9216.0,
+      "clean_acc": 0.9463541666666667,
+      "clean_queries": 7680.0,
+      "conflict_acc": 0.8424479166666666,
+      "conflict_queries": 1536.0,
+      "return_acc": 0.4348958333333333,
+      "return_queries": 768.0,
+      "return_conflict_acc": 0.4010416666666667,
+      "return_conflict_queries": 384.0,
+      "other_room_target_rate": 0.052083333333333336,
+      "correct_target_probability": 0.3070670580879475,
+      "other_room_target_probability": 0.05096595183658792,
+      "target_probability_margin": 0.25610110625135957,
+      "tokens": 110000.0
+    },
+    "m1f_normal_raw_hpc": {
+      "loss": 3.484948663884943,
+      "query_acc": 0.9270833333333334,
+      "query_queries": 9216.0,
+      "clean_acc": 0.9450520833333333,
+      "clean_queries": 7680.0,
+      "conflict_acc": 0.8372395833333334,
+      "conflict_queries": 1536.0,
+      "return_acc": 0.4296875,
+      "return_queries": 768.0,
+      "return_conflict_acc": 0.390625,
+      "return_conflict_queries": 384.0,
+      "other_room_target_rate": 0.052083333333333336,
+      "correct_target_probability": 0.02680476615205407,
+      "other_room_target_probability": 0.018073474037616204,
+      "target_probability_margin": 0.008731292114437867,
+      "tokens": 110000.0
+    },
+    "m1f_correct_historical_context": {
+      "loss": 1.925462646484375,
+      "query_acc": 0.9407552083333334,
+      "query_queries": 9216.0,
+      "clean_acc": 0.9533854166666667,
+      "clean_queries": 7680.0,
+      "conflict_acc": 0.8776041666666666,
+      "conflict_queries": 1536.0,
+      "return_acc": 0.9765625,
+      "return_queries": 768.0,
+      "return_conflict_acc": 0.984375,
+      "return_conflict_queries": 384.0,
+      "other_room_target_rate": 0.0,
+      "correct_target_probability": 0.7817406319081783,
+      "other_room_target_probability": 0.005678871139631762,
+      "target_probability_margin": 0.7760617607685466,
+      "tokens": 110000.0
+    },
+    "m1f_wrong_historical_context": {
+      "loss": 1.9463087269176136,
+      "query_acc": 0.8973524305555556,
+      "query_queries": 9216.0,
+      "clean_acc": 0.9497395833333333,
+      "clean_queries": 7680.0,
+      "conflict_acc": 0.6354166666666666,
+      "conflict_queries": 1536.0,
+      "return_acc": 0.4973958333333333,
+      "return_queries": 768.0,
+      "return_conflict_acc": 0.0,
+      "return_conflict_queries": 384.0,
+      "other_room_target_rate": 1.0,
+      "correct_target_probability": 0.008613598904048558,
+      "other_room_target_probability": 0.7840132601559162,
+      "target_probability_margin": -0.7753996612518677,
+      "tokens": 110000.0
+    },
+    "m1f_exact_reference_address_fused": {
+      "loss": 1.9254626598011364,
+      "query_acc": 0.9407552083333334,
+      "query_queries": 9216.0,
+      "clean_acc": 0.9533854166666667,
+      "clean_queries": 7680.0,
+      "conflict_acc": 0.8776041666666666,
+      "conflict_queries": 1536.0,
+      "return_acc": 0.9765625,
+      "return_queries": 768.0,
+      "return_conflict_acc": 0.984375,
+      "return_conflict_queries": 384.0,
+      "other_room_target_rate": 0.0,
+      "correct_target_probability": 0.7817406542599201,
+      "other_room_target_probability": 0.005678871567700601,
+      "target_probability_margin": 0.7760617826922195,
+      "tokens": 110000.0
+    },
+    "m1f_exact_reference_address_raw_hpc": {
+      "loss": 3.485425008877841,
+      "query_acc": 0.9372829861111112,
+      "query_queries": 9216.0,
+      "clean_acc": 0.9505208333333334,
+      "clean_queries": 7680.0,
+      "conflict_acc": 0.87109375,
+      "conflict_queries": 1536.0,
+      "return_acc": 0.9791666666666666,
+      "return_queries": 768.0,
+      "return_conflict_acc": 0.9895833333333334,
+      "return_conflict_queries": 384.0,
+      "other_room_target_rate": 0.0,
+      "correct_target_probability": 0.03387966476536045,
+      "other_room_target_probability": 0.015576836982897172,
+      "target_probability_margin": 0.018302827782463282,
+      "tokens": 110000.0
+    }
+  },
+  "aggregate_paired": {
+    "m1f_correct_historical_context__vs__m1f_normal_fused": {
+      "both_correct": 152,
+      "left_only_correct": 226,
+      "right_only_correct": 2,
+      "both_wrong": 4,
+      "queries": 384
+    },
+    "m1f_correct_historical_context__vs__m1f_wrong_historical_context": {
+      "both_correct": 0,
+      "left_only_correct": 378,
+      "right_only_correct": 0,
+      "both_wrong": 6,
+      "queries": 384
+    },
+    "m1f_exact_reference_address_fused__vs__m1f_normal_fused": {
+      "both_correct": 152,
+      "left_only_correct": 226,
+      "right_only_correct": 2,
+      "both_wrong": 4,
+      "queries": 384
+    },
+    "m1f_exact_reference_address_raw_hpc__vs__m1f_normal_raw_hpc": {
+      "both_correct": 146,
+      "left_only_correct": 234,
+      "right_only_correct": 4,
+      "both_wrong": 0,
+      "queries": 384
+    },
+    "m1f_exact_reference_address_raw_hpc__vs__m1f_exact_reference_address_fused": {
+      "both_correct": 376,
+      "left_only_correct": 4,
+      "right_only_correct": 2,
+      "both_wrong": 2,
+      "queries": 384
+    }
+  },
+  "geometry": {
+    "context": {
+      "normal_to_correct_reference_cosine": 0.8520094826817513,
+      "normal_to_wrong_reference_cosine": 0.6733439806848764,
+      "correct_minus_wrong_cosine": 0.1786655019968748,
+      "correct_preference_rate": 0.7447916666666666,
+      "wrong_preference_rate": 0.2552083333333333,
+      "tie_rate": 0.0,
+      "return_conflict_queries": 384.0
+    },
+    "address": {
+      "normal_to_correct_reference_cosine": 0.8520094888905684,
+      "normal_to_wrong_reference_cosine": 0.6733439893772205,
+      "correct_minus_wrong_cosine": 0.17866549951334787,
+      "correct_preference_rate": 0.7447916666666666,
+      "wrong_preference_rate": 0.2552083333333333,
+      "tie_rate": 0.0,
+      "return_conflict_queries": 384.0
+    }
+  },
+  "decision": {
+    "status": "CONTEXT_IDENTITY_RETRIEVAL_DOMINANT",
+    "gates": {
+      "correct_context_absolute": true,
+      "correct_context_gain": true,
+      "context_directionality": true,
+      "exact_address_raw_hpc_ceiling": true,
+      "exact_address_fused_ceiling": true
+    },
+    "differences": {
+      "correct_context_vs_normal": 0.5833333333333333,
+      "correct_context_vs_wrong": 0.984375,
+      "exact_address_fused_vs_normal": 0.5833333333333333,
+      "exact_address_raw_vs_fused": 0.00520833333333337
+    }
+  }
+}

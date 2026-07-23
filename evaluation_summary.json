@@ -1,0 +1,40 @@
+{
+  "format": "remap_former.memorymaze3d.evaluation.v1",
+  "model": "m1b",
+  "memory_call_gain": 4.0,
+  "split": "test",
+  "episodes": 512,
+  "total_steps": 64,
+  "context_steps": 20,
+  "rollout_steps": 44,
+  "teacher_forced_pixel_mse": 0.0016100765273983075,
+  "teacher_visible_pixel_mse": 0.0017012682991239488,
+  "teacher_nonvisible_pixel_mse": 0.0013595285946516463,
+  "teacher_visible_count": 24024,
+  "teacher_nonvisible_count": 8744,
+  "free_rollout_pixel_mse": 0.02993338598939165,
+  "free_rollout_pixel_mse_x1e3": 29.93338598939165,
+  "visible_pixel_mse": 0.02966130600829456,
+  "nonvisible_pixel_mse": 0.03001141840985709,
+  "visible_count": 5021,
+  "nonvisible_count": 17507,
+  "persistence_pixel_mse": 0.03218573046035166,
+  "improvement_over_persistence": 0.06997959775169896,
+  "counterfactual_future_action_pixel_mse": 0.049627600783730165,
+  "actual_action_advantage": 0.019694214794338517,
+  "counterfactual_prediction_mean_abs_delta": 0.11948050774434839,
+  "future_ground_truth_reads": 0,
+  "future_ground_truth_writes": 0,
+  "future_observation_perturbation_max_delta": 0.0,
+  "leakage_gate_pass": true,
+  "model_inputs": [
+    "egocentric_rgb",
+    "action"
+  ],
+  "evaluation_only": [
+    "agent_pos",
+    "agent_dir",
+    "9x9x12_visibility_bin"
+  ],
+  "elapsed_seconds": 4286.380181799992
+}

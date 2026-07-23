@@ -1,0 +1,381 @@
+{
+  "format": "remap_former.paper_evidence_g8_tables.v1",
+  "date": "2026-07-18",
+  "formal_model": {
+    "name": "ReMAP-Former M1b covariance",
+    "trainable_parameters": 1398289,
+    "pfc": "one-layer causal Window Transformer, d=128, 8 heads, W=32",
+    "context": "16-d action-history state -> 16-d latent context",
+    "ec_place": "64-d neural grid EC -> 256-unit sparse place",
+    "address": "place x context -> 4096-d multiplicative key",
+    "hpc": "one episode-local covariance-corrected fast-weight matrix",
+    "memory_initialization": "zero per episode; read-before-write",
+    "forbidden_or_absent": [
+      "room/context/position/place ID inputs",
+      "slot bank",
+      "second fast-weight system",
+      "learned write gate",
+      "iterative HPC reread"
+    ]
+  },
+  "table_1_unified_baselines": {
+    "title": "Unified frozen baseline table",
+    "rows": [
+      {
+        "condition": "hippoformer",
+        "label": "Hippoformer",
+        "parameters": 1494447,
+        "optimizer_steps": 600,
+        "provenance": "task-matched implementation",
+        "t1_strict_4096": {
+          "estimate": 0.3048608810864525,
+          "ci95": [
+            0.18744213844695146,
+            0.4439013851950438
+          ]
+        },
+        "t2_clean": 0.999951171875,
+        "t2_conflict": 0.793701171875,
+        "t2_return_conflict": {
+          "estimate": 0.0,
+          "ci95": [
+            0.0,
+            0.0
+          ]
+        }
+      },
+      {
+        "condition": "hippoformer_hpc_branch_mmtem_ablation",
+        "label": "Hippoformer HPC branch",
+        "parameters": 1494447,
+        "optimizer_steps": 600,
+        "provenance": "mechanism ablation; not official mmTEM",
+        "t1_strict_4096": null,
+        "t2_clean": 0.98681640625,
+        "t2_conflict": 0.685400390625,
+        "t2_return_conflict": {
+          "estimate": 0.0,
+          "ci95": [
+            0.0,
+            0.0
+          ]
+        }
+      },
+      {
+        "condition": "mdelta",
+        "label": "M-delta",
+        "parameters": 1388257,
+        "optimizer_steps": 600,
+        "provenance": "task-matched no-context baseline",
+        "t1_strict_4096": {
+          "estimate": 0.9924919951418794,
+          "ci95": [
+            0.9879909178887325,
+            0.9964148017207074
+          ]
+        },
+        "t2_clean": 1.0,
+        "t2_conflict": 0.79990234375,
+        "t2_return_conflict": {
+          "estimate": 0.0,
+          "ci95": [
+            0.0,
+            0.0
+          ]
+        }
+      },
+      {
+        "condition": "short_window_transformer",
+        "label": "Window Transformer",
+        "parameters": 1280960,
+        "optimizer_steps": 1200,
+        "provenance": "best-effort external baseline",
+        "t1_strict_4096": null,
+        "t2_clean": 0.895263671875,
+        "t2_conflict": 0.801123046875,
+        "t2_return_conflict": {
+          "estimate": 0.013427734375,
+          "ci95": [
+            0.009765625,
+            0.017578125
+          ]
+        }
+      },
+      {
+        "condition": "parameter_matched_transformer",
+        "label": "Parameter-matched Transformer",
+        "parameters": 1396096,
+        "optimizer_steps": 1200,
+        "provenance": "best-effort external baseline",
+        "t1_strict_4096": null,
+        "t2_clean": 0.89541015625,
+        "t2_conflict": 0.801220703125,
+        "t2_return_conflict": {
+          "estimate": 0.01220703125,
+          "ci95": [
+            0.0089111328125,
+            0.015869140625
+          ]
+        }
+      },
+      {
+        "condition": "titans_mac_adaptation",
+        "label": "Titans-MAC adaptation",
+        "parameters": 1344260,
+        "optimizer_steps": 1200,
+        "provenance": "mechanism-aligned adaptation; not official checkpoint",
+        "t1_strict_4096": null,
+        "t2_clean": 0.9234375,
+        "t2_conflict": 0.80009765625,
+        "t2_return_conflict": {
+          "estimate": 0.009521484375,
+          "ci95": [
+            0.00634765625,
+            0.012939453125
+          ]
+        }
+      },
+      {
+        "condition": "m1b_covariance",
+        "label": "ReMAP-Former M1b",
+        "parameters": 1398289,
+        "optimizer_steps": 600,
+        "provenance": "formal frozen model",
+        "t1_strict_4096": {
+          "estimate": 0.6736226123440434,
+          "ci95": [
+            0.6461371339273574,
+            0.7023704565947406
+          ]
+        },
+        "t2_clean": 0.994384765625,
+        "t2_conflict": 0.937158203125,
+        "t2_return_conflict": {
+          "estimate": 0.837646484375,
+          "ci95": [
+            0.8221405029296875,
+            0.8526611328125
+          ]
+        }
+      }
+    ],
+    "disclosures": [
+      "T1 strict 4096 was run only for Hippoformer, M-delta, and M1b; other rows are N/A.",
+      "Transformer and Titans rows use 1200-step best-effort training; the three original baselines use 600 steps.",
+      "Titans-MAC is a task adaptation, not an official author checkpoint.",
+      "Hippoformer HPC branch is a mechanism ablation, not an official mmTEM reproduction."
+    ]
+  },
+  "table_2_hidden_cutoff_controller": {
+    "title": "G7 paired curve and G8 randomized hidden-cutoff confirmation",
+    "cutoff_values": [
+      32,
+      48,
+      60,
+      72
+    ],
+    "g7_by_horizon": [
+      {
+        "cutoff": 32,
+        "dynamic_coverage": 0.0,
+        "return_conflict": 0.0,
+        "t1_strict_4096": 0.997839029137329,
+        "t2_clean": 1.0,
+        "online_prefix_passes": 1.0,
+        "fixed_prefix_passes": 1.0
+      },
+      {
+        "cutoff": 48,
+        "dynamic_coverage": 0.16666666666666666,
+        "return_conflict": 0.09375,
+        "t1_strict_4096": 0.9972130813673051,
+        "t2_clean": 1.0,
+        "online_prefix_passes": 1.1510416666666667,
+        "fixed_prefix_passes": 1.1666666666666667
+      },
+      {
+        "cutoff": 60,
+        "dynamic_coverage": 0.6666666666666666,
+        "return_conflict": 0.4947916666666667,
+        "t1_strict_4096": 0.9947481454388581,
+        "t2_clean": 0.99921875,
+        "online_prefix_passes": 1.595833381017049,
+        "fixed_prefix_passes": 1.6666666666666667
+      },
+      {
+        "cutoff": 72,
+        "dynamic_coverage": 1.0,
+        "return_conflict": 0.765625,
+        "t1_strict_4096": 0.9918717792243016,
+        "t2_clean": 0.9979166666666667,
+        "online_prefix_passes": 1.7986111243565877,
+        "fixed_prefix_passes": 2.0
+      }
+    ],
+    "g8_by_cutoff": [
+      {
+        "cutoff": 32,
+        "dynamic_coverage": 0.0,
+        "return_conflict": 0.0,
+        "t1_strict_4096": 0.9980171474851286,
+        "t2_clean": 1.0,
+        "online_prefix_passes": 1.0,
+        "fixed_prefix_passes": 1.0
+      },
+      {
+        "cutoff": 48,
+        "dynamic_coverage": 0.16666666666666666,
+        "return_conflict": 0.06076388888888889,
+        "t1_strict_4096": 0.9989533459525666,
+        "t2_clean": 1.0,
+        "online_prefix_passes": 1.1510416666666667,
+        "fixed_prefix_passes": 1.1666666666666667
+      },
+      {
+        "cutoff": 60,
+        "dynamic_coverage": 0.6875,
+        "return_conflict": 0.6319444444444444,
+        "t1_strict_4096": 0.9957417556187821,
+        "t2_clean": 0.9966145833333333,
+        "online_prefix_passes": 1.6159723003705342,
+        "fixed_prefix_passes": 1.6875
+      },
+      {
+        "cutoff": 72,
+        "dynamic_coverage": 1.0,
+        "return_conflict": 0.8611111111111112,
+        "t1_strict_4096": 0.9986207552553981,
+        "t2_clean": 0.99609375,
+        "online_prefix_passes": 1.8020833730697632,
+        "fixed_prefix_passes": 2.0
+      }
+    ],
+    "g7_preregistered_uniform_mixture": {
+      "dynamic_coverage": 0.4583333333333333,
+      "return_conflict": 0.3385416666666667,
+      "online_prefix_passes": 1.3863715430100758,
+      "t1_strict_4096": 0.9954180087919485,
+      "t2_clean": 0.9992838541666667
+    },
+    "g8_realized_hidden_mixture": {
+      "dynamic_coverage": 0.4635416666666667,
+      "return_conflict": 0.3884548611111111,
+      "online_prefix_passes": 1.392274335026741,
+      "fixed_prefix_passes": 1.4635416666666667,
+      "t1_strict_4096": 0.99781809654413,
+      "t2_clean": 0.9981770833333333
+    },
+    "absolute_error": {
+      "dynamic_coverage": 0.00520833333333337,
+      "return_conflict": 0.04991319444444442,
+      "online_prefix_passes": 0.005902792016665215
+    },
+    "audits": {
+      "g7_gates": 148,
+      "g8_gates": 59,
+      "g8_shadow_batches_passed": 54,
+      "g8_shadow_batches_total": 54,
+      "g8_future_crossings_censored": 826,
+      "minimum_decision_agreement": 1.0,
+      "maximum_state_logit_error": 5.245208740234375e-06,
+      "coverage_spearman": 1.0,
+      "return_spearman": 1.0
+    }
+  },
+  "table_3_claim_boundaries": {
+    "strict_rollout_full_curve_h1_confirmed": false,
+    "m1b_minus_hippoformer_log_horizon_auc": {
+      "estimate": -0.09702367731727535,
+      "ci95": [
+        -0.15441227864117898,
+        -0.0439977950576672
+      ]
+    },
+    "m1b_minus_hippoformer_4096": {
+      "estimate": 0.36876173125759093,
+      "ci95": [
+        0.2288781101077431,
+        0.48358378056684415
+      ]
+    },
+    "legacy_p5_status": "EVIDENCE_COMPLETE_RELEASE_BLOCKED",
+    "legacy_p5_scientific_evidence_complete": true,
+    "legacy_p5_canonical_p0_hashes_match": false,
+    "legacy_p5_release_ready": false,
+    "legacy_p0_mismatch_paths": [
+      "remap_former/pfc.py"
+    ]
+  },
+  "frozen_inputs": [
+    {
+      "path": "runs/remap_former/p2_m1b_t1_hierarchical_bootstrap_seed2171601.json",
+      "bytes": 33920,
+      "sha256": "5dbf74af66b22815c21aa5a3f5b3af376aa29d1554951221d6d92eb2c22b625b"
+    },
+    {
+      "path": "runs/remap_former/p3_test2_seed2471601.json",
+      "bytes": 12596538,
+      "sha256": "3bc282f225bc1445f4cef4b80c5e7c7c30f1fda8928477931c8d58f94ca2a065"
+    },
+    {
+      "path": "runs/remap_former/context_need_online_g7_variable_horizon_protocol.json",
+      "bytes": 10953,
+      "sha256": "c24a489cda3f5c6b449d6e0dc9732ae99872a0f15892c787f1e637d08a9be255"
+    },
+    {
+      "path": "runs/remap_former/context_need_online_g7_variable_horizon_seed4871701_4922001.json",
+      "bytes": 1241107,
+      "sha256": "daee4912e3e6a62d9daf019a7a7fa78d51327824b24745fff73adaa8d9209871"
+    },
+    {
+      "path": "runs/remap_former/context_need_online_g8_hidden_cutoff_protocol.json",
+      "bytes": 10138,
+      "sha256": "fe3dccbb8fb5b6718714f5ff71e8b23c5c4dfd22385b9571cdc88b280c210b5d"
+    },
+    {
+      "path": "runs/remap_former/context_need_online_g8_hidden_cutoff_seed5471701_5522001.json",
+      "bytes": 760308,
+      "sha256": "9ea58a909cd3e9b3976f1a93b7adc541bfeee8fe897e7b30c73e184c77bdf41e"
+    },
+    {
+      "path": "runs/remap_former/p0_truth_freeze_manifest.json",
+      "bytes": 17800,
+      "sha256": "e4cef9d39041c7d1f4e624f9ba9f1afedc368461bd5163cf63a1e015ae4aa3fa"
+    },
+    {
+      "path": "runs/remap_former/p5_release_manifest.json",
+      "bytes": 5074,
+      "sha256": "cc78b634e970d0ec0614cef23b15bdf797c392c348d946e27e8abecbc60ce30d"
+    },
+    {
+      "path": "reports/REMAP_FORMER_M1B_CANONICAL_ARCHITECTURE_CN.md",
+      "bytes": 3725,
+      "sha256": "8cf0c75706c5c2a9f19558831ec2bc4a80f33f547d8891022014393d20b6e08f"
+    },
+    {
+      "path": "evaluate_remap_context_need_online_g7_variable_horizon.py",
+      "bytes": 55757,
+      "sha256": "17f51af46a29ddab494ee7d83f262b3949fd9eb622e08c1295614c5be526fd2b"
+    },
+    {
+      "path": "evaluate_remap_context_need_online_g8_hidden_cutoff.py",
+      "bytes": 48496,
+      "sha256": "67815034cf125fbd09cb309d79f3323265c5c71f29ea214e6eadc42195949f20"
+    },
+    {
+      "path": "remap_former/m1.py",
+      "bytes": 7438,
+      "sha256": "8f1466a9c332a056b0cf24af832cea998179d18499a7186dc464a8422de0348b"
+    },
+    {
+      "path": "remap_former/memory.py",
+      "bytes": 7003,
+      "sha256": "0f1a74a6cd12f2ee901293ebccfeea7252fefae44bf08c0ac6a5cdab7d032b44"
+    },
+    {
+      "path": "remap_former/pfc.py",
+      "bytes": 4381,
+      "sha256": "091a8d9b645c7bba2e186fad25ccd9c151930dce597357d809101d7b96751dc4"
+    }
+  ]
+}

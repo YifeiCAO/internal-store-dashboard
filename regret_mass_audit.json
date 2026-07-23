@@ -1,0 +1,52 @@
+{
+  "format": "remap_former.m1q_regret_mass_audit.v1",
+  "protocol_sha256": "2871a950201fe26976de380e25fff72d57d3e1c04d1ae76064e0a302ad304c2d",
+  "checkpoint": "runs\\remap_former\\m1q_binary_concrete_seed1537151_s400\\m1q_final.pt",
+  "checkpoint_sha256": "2a93334f177d82a06d3b84a97ae810ea511188cfd4fa329f6ab392b5be3a4c3b",
+  "checkpoint_step": 400,
+  "device": "cuda",
+  "g0_seed": 1527151,
+  "levels": [
+    8,
+    12
+  ],
+  "subgroups": {
+    "history": {
+      "tokens": 18966.0,
+      "archive_better_tokens": 5186.0,
+      "source_better_tokens": 13772.0,
+      "tie_tokens": 8.0,
+      "archive_regret_mass": 9167.055786132812,
+      "source_regret_mass": 48118.40625,
+      "source_to_archive_regret_mass_ratio": 5.24905786248074,
+      "mean_archive_minus_source_nll": 2.0537462082641307,
+      "final_router_logit_mean": -5.966590862843377,
+      "final_router_logit_max": -1.4223428964614868
+    },
+    "return": {
+      "tokens": 320.0,
+      "archive_better_tokens": 198.0,
+      "source_better_tokens": 122.0,
+      "tie_tokens": 0.0,
+      "archive_regret_mass": 370.7025947570801,
+      "source_regret_mass": 100.80284218490124,
+      "source_to_archive_regret_mass_ratio": 0.2719237567003191,
+      "mean_archive_minus_source_nll": -0.8434367150068283,
+      "final_router_logit_mean": -5.817869186401367,
+      "final_router_logit_max": -4.159968852996826
+    },
+    "distractor": {
+      "tokens": 14080.0,
+      "archive_better_tokens": 3150.0,
+      "source_better_tokens": 10926.0,
+      "tie_tokens": 4.0,
+      "archive_regret_mass": 6630.925537109375,
+      "source_regret_mass": 44587.1435546875,
+      "source_to_archive_regret_mass_ratio": 6.724120683479189,
+      "mean_archive_minus_source_nll": 2.6957541032270953,
+      "final_router_logit_mean": -6.082520779696378,
+      "final_router_logit_max": -1.4223428964614868
+    }
+  },
+  "status": "M1Q_SOURCE_REGRET_DOMINATES"
+}

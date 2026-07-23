@@ -1,0 +1,180 @@
+{
+  "format": "remap_former.context_need_g3_pathway_hash_audit.v1",
+  "protocol_path": "runs/remap_former/context_need_null_first_g3_multicheckpoint_protocol.json",
+  "protocol_sha256": "a5efb35bd1ac4091495d809c29a6aa78a636b63207baa88097c53e11ad36d7ff",
+  "result_path": "runs/remap_former/context_need_null_first_g3_multicheckpoint_seed3071601_3072201.json",
+  "result_sha256": "a225688c918f64d3d256b3e68ac530f20eab16a06fe05c021d5fc064db03f6b0",
+  "checkpoint_count": 8,
+  "controller_facing_modules": [
+    "ec",
+    "place",
+    "address",
+    "hpc"
+  ],
+  "dynamic_context_modules": [
+    "state_token",
+    "context_head"
+  ],
+  "unique_hash_count_by_module": {
+    "pfc": 1,
+    "state_token": 8,
+    "context_head": 8,
+    "ec": 1,
+    "place": 1,
+    "address": 1,
+    "hpc": 1,
+    "memory_projection": 1,
+    "refinement_norm": 1,
+    "refinement": 1,
+    "decoder": 1
+  },
+  "unique_controller_facing_joint_hash_count": 1,
+  "unique_full_state_hash_count": 8,
+  "unique_calibration_score_vector_count": 1,
+  "unique_heldout_score_vector_count": 1,
+  "t2_return_conflict_minimum": 0.78125,
+  "t2_return_conflict_maximum": 0.84375,
+  "per_checkpoint": [
+    {
+      "checkpoint_seed": 712,
+      "full_state_sha256": "1e0c07b11b19fbf3991763977d33ce2d86397616803fe95da944efeba3718b07",
+      "module_sha256": {
+        "pfc": "d5e074b02141607a0793d117c7427ac61733c5ebdcb667b4492cd977d909bdf1",
+        "state_token": "aed8973ee4b8e1a5ad5b812d7c62ee5845c90863afba844606a79031f394078c",
+        "context_head": "39f1fe6260f925483569a4f20502261040cd227625fbc2c9e610437946dc7682",
+        "ec": "63472015b33b9c3196cb2f8a7300e90f6a9976446dd092d197b316d996cb193c",
+        "place": "96f7161507311258ee77058ffa2ebf6b006f22812b54ddb8eefb4e1895b5b4d0",
+        "address": "c759c712568ab1f2550be2459c27ff9f99098b44a1faa20753772179b8a0b122",
+        "hpc": "56f45f092b0af3936b6e8e8888f20336b342334a01b6696af84fc217e155b686",
+        "memory_projection": "229a5abbc839d05a3b119187b15773767cd4c64672b219bb46a368fdb532878a",
+        "refinement_norm": "cc92fe675932ee4153ff5c39a40d69b9f0a68a52c6b6edf0b22479529b384e9a",
+        "refinement": "b06f26fd0a885c83b037cdd48256e154343f25072e5d208606d4bc2640bbf062",
+        "decoder": "3acbcfc9a07d038f9ca6cc947cd8b1c51a7a88ea1f22e9ee905840257d3a64ff"
+      }
+    },
+    {
+      "checkpoint_seed": 713,
+      "full_state_sha256": "e3e1bbe64fe1cc3689aa55480bb33576782eec88d892eaf35e064fda1bf6a25b",
+      "module_sha256": {
+        "pfc": "d5e074b02141607a0793d117c7427ac61733c5ebdcb667b4492cd977d909bdf1",
+        "state_token": "7e330bbf1ceee2d59e6547f250a5c2e36c961e3d481f96a48ac40c265f492cfe",
+        "context_head": "4a87b7c0169473d43b08e800a9097343b5574f87f6011fd91085bb7e6e281859",
+        "ec": "63472015b33b9c3196cb2f8a7300e90f6a9976446dd092d197b316d996cb193c",
+        "place": "96f7161507311258ee77058ffa2ebf6b006f22812b54ddb8eefb4e1895b5b4d0",
+        "address": "c759c712568ab1f2550be2459c27ff9f99098b44a1faa20753772179b8a0b122",
+        "hpc": "56f45f092b0af3936b6e8e8888f20336b342334a01b6696af84fc217e155b686",
+        "memory_projection": "229a5abbc839d05a3b119187b15773767cd4c64672b219bb46a368fdb532878a",
+        "refinement_norm": "cc92fe675932ee4153ff5c39a40d69b9f0a68a52c6b6edf0b22479529b384e9a",
+        "refinement": "b06f26fd0a885c83b037cdd48256e154343f25072e5d208606d4bc2640bbf062",
+        "decoder": "3acbcfc9a07d038f9ca6cc947cd8b1c51a7a88ea1f22e9ee905840257d3a64ff"
+      }
+    },
+    {
+      "checkpoint_seed": 714,
+      "full_state_sha256": "9ee89c53c605b56676ff286047204889d5c024564aed11357a57651128f1fe70",
+      "module_sha256": {
+        "pfc": "d5e074b02141607a0793d117c7427ac61733c5ebdcb667b4492cd977d909bdf1",
+        "state_token": "1766a599910258fbce1620fd2c8757ece64e93d858bd3be7ddb4024e55da6e67",
+        "context_head": "fcb7c6f0047bd103072af24bd194ebae11cdec367195ed33834ef547d4ffe206",
+        "ec": "63472015b33b9c3196cb2f8a7300e90f6a9976446dd092d197b316d996cb193c",
+        "place": "96f7161507311258ee77058ffa2ebf6b006f22812b54ddb8eefb4e1895b5b4d0",
+        "address": "c759c712568ab1f2550be2459c27ff9f99098b44a1faa20753772179b8a0b122",
+        "hpc": "56f45f092b0af3936b6e8e8888f20336b342334a01b6696af84fc217e155b686",
+        "memory_projection": "229a5abbc839d05a3b119187b15773767cd4c64672b219bb46a368fdb532878a",
+        "refinement_norm": "cc92fe675932ee4153ff5c39a40d69b9f0a68a52c6b6edf0b22479529b384e9a",
+        "refinement": "b06f26fd0a885c83b037cdd48256e154343f25072e5d208606d4bc2640bbf062",
+        "decoder": "3acbcfc9a07d038f9ca6cc947cd8b1c51a7a88ea1f22e9ee905840257d3a64ff"
+      }
+    },
+    {
+      "checkpoint_seed": 715,
+      "full_state_sha256": "fcdd372ee835170e51dc0f497a80096895979f2d48053208e1a1ddfb40c757a6",
+      "module_sha256": {
+        "pfc": "d5e074b02141607a0793d117c7427ac61733c5ebdcb667b4492cd977d909bdf1",
+        "state_token": "876eb0c00b9daf6d3520d55568819146e78014f072b3d3a45f2c854623e02571",
+        "context_head": "67f5bf92b3e7e08041a8d11abd4ca7297bc8164f27f5a8b59e3ed3376036aacc",
+        "ec": "63472015b33b9c3196cb2f8a7300e90f6a9976446dd092d197b316d996cb193c",
+        "place": "96f7161507311258ee77058ffa2ebf6b006f22812b54ddb8eefb4e1895b5b4d0",
+        "address": "c759c712568ab1f2550be2459c27ff9f99098b44a1faa20753772179b8a0b122",
+        "hpc": "56f45f092b0af3936b6e8e8888f20336b342334a01b6696af84fc217e155b686",
+        "memory_projection": "229a5abbc839d05a3b119187b15773767cd4c64672b219bb46a368fdb532878a",
+        "refinement_norm": "cc92fe675932ee4153ff5c39a40d69b9f0a68a52c6b6edf0b22479529b384e9a",
+        "refinement": "b06f26fd0a885c83b037cdd48256e154343f25072e5d208606d4bc2640bbf062",
+        "decoder": "3acbcfc9a07d038f9ca6cc947cd8b1c51a7a88ea1f22e9ee905840257d3a64ff"
+      }
+    },
+    {
+      "checkpoint_seed": 716,
+      "full_state_sha256": "88e6df0e1d375aed3f43b8cf56d0c42d4a958ba60b92c4471aa51540a841a0ec",
+      "module_sha256": {
+        "pfc": "d5e074b02141607a0793d117c7427ac61733c5ebdcb667b4492cd977d909bdf1",
+        "state_token": "2a1845e6d05828d53e79c1a36afc063dd87af1cf18fadf92c25c64bb207f08ca",
+        "context_head": "298353443292acbf576cdf4ca792db46ff2a99d4d979d6ebd4d6670e5cb5557a",
+        "ec": "63472015b33b9c3196cb2f8a7300e90f6a9976446dd092d197b316d996cb193c",
+        "place": "96f7161507311258ee77058ffa2ebf6b006f22812b54ddb8eefb4e1895b5b4d0",
+        "address": "c759c712568ab1f2550be2459c27ff9f99098b44a1faa20753772179b8a0b122",
+        "hpc": "56f45f092b0af3936b6e8e8888f20336b342334a01b6696af84fc217e155b686",
+        "memory_projection": "229a5abbc839d05a3b119187b15773767cd4c64672b219bb46a368fdb532878a",
+        "refinement_norm": "cc92fe675932ee4153ff5c39a40d69b9f0a68a52c6b6edf0b22479529b384e9a",
+        "refinement": "b06f26fd0a885c83b037cdd48256e154343f25072e5d208606d4bc2640bbf062",
+        "decoder": "3acbcfc9a07d038f9ca6cc947cd8b1c51a7a88ea1f22e9ee905840257d3a64ff"
+      }
+    },
+    {
+      "checkpoint_seed": 717,
+      "full_state_sha256": "593e43e12b69abc507de23abfde80a18a3782a01b54f09c665687ff30d6ad015",
+      "module_sha256": {
+        "pfc": "d5e074b02141607a0793d117c7427ac61733c5ebdcb667b4492cd977d909bdf1",
+        "state_token": "64246763745883a4c12ea4c5fdaf1ab36117bf56c71eea41f17f08f377fa0bb4",
+        "context_head": "8c3308b387dfd00e123ca973607217288be3150ccb91d93e4219cb73fb6c9a5d",
+        "ec": "63472015b33b9c3196cb2f8a7300e90f6a9976446dd092d197b316d996cb193c",
+        "place": "96f7161507311258ee77058ffa2ebf6b006f22812b54ddb8eefb4e1895b5b4d0",
+        "address": "c759c712568ab1f2550be2459c27ff9f99098b44a1faa20753772179b8a0b122",
+        "hpc": "56f45f092b0af3936b6e8e8888f20336b342334a01b6696af84fc217e155b686",
+        "memory_projection": "229a5abbc839d05a3b119187b15773767cd4c64672b219bb46a368fdb532878a",
+        "refinement_norm": "cc92fe675932ee4153ff5c39a40d69b9f0a68a52c6b6edf0b22479529b384e9a",
+        "refinement": "b06f26fd0a885c83b037cdd48256e154343f25072e5d208606d4bc2640bbf062",
+        "decoder": "3acbcfc9a07d038f9ca6cc947cd8b1c51a7a88ea1f22e9ee905840257d3a64ff"
+      }
+    },
+    {
+      "checkpoint_seed": 718,
+      "full_state_sha256": "e9c9d04cf8e808754acbe8f684aeecd8215bad5b2e2a8c9eab92474c662cf062",
+      "module_sha256": {
+        "pfc": "d5e074b02141607a0793d117c7427ac61733c5ebdcb667b4492cd977d909bdf1",
+        "state_token": "e2e67162c2d21ac00e103844d222eeff715879ab15846c11b687f2a918deecc1",
+        "context_head": "89bfb444361ba702852d456b68439132d7fe655fd691cb3bfd63d976eef591d9",
+        "ec": "63472015b33b9c3196cb2f8a7300e90f6a9976446dd092d197b316d996cb193c",
+        "place": "96f7161507311258ee77058ffa2ebf6b006f22812b54ddb8eefb4e1895b5b4d0",
+        "address": "c759c712568ab1f2550be2459c27ff9f99098b44a1faa20753772179b8a0b122",
+        "hpc": "56f45f092b0af3936b6e8e8888f20336b342334a01b6696af84fc217e155b686",
+        "memory_projection": "229a5abbc839d05a3b119187b15773767cd4c64672b219bb46a368fdb532878a",
+        "refinement_norm": "cc92fe675932ee4153ff5c39a40d69b9f0a68a52c6b6edf0b22479529b384e9a",
+        "refinement": "b06f26fd0a885c83b037cdd48256e154343f25072e5d208606d4bc2640bbf062",
+        "decoder": "3acbcfc9a07d038f9ca6cc947cd8b1c51a7a88ea1f22e9ee905840257d3a64ff"
+      }
+    },
+    {
+      "checkpoint_seed": 719,
+      "full_state_sha256": "35508ded0f19a083d887542cee75ef5848fe89587c112120edcd6f3139e5358a",
+      "module_sha256": {
+        "pfc": "d5e074b02141607a0793d117c7427ac61733c5ebdcb667b4492cd977d909bdf1",
+        "state_token": "8b16578b853f12ee8652b85654756aee220422ac11718c5d7dc2f1ac6463ea58",
+        "context_head": "3ab4b615e5a17554f8e0a06b07216786bc903eab398fe0b1916fe56e11ccbb78",
+        "ec": "63472015b33b9c3196cb2f8a7300e90f6a9976446dd092d197b316d996cb193c",
+        "place": "96f7161507311258ee77058ffa2ebf6b006f22812b54ddb8eefb4e1895b5b4d0",
+        "address": "c759c712568ab1f2550be2459c27ff9f99098b44a1faa20753772179b8a0b122",
+        "hpc": "56f45f092b0af3936b6e8e8888f20336b342334a01b6696af84fc217e155b686",
+        "memory_projection": "229a5abbc839d05a3b119187b15773767cd4c64672b219bb46a368fdb532878a",
+        "refinement_norm": "cc92fe675932ee4153ff5c39a40d69b9f0a68a52c6b6edf0b22479529b384e9a",
+        "refinement": "b06f26fd0a885c83b037cdd48256e154343f25072e5d208606d4bc2640bbf062",
+        "decoder": "3acbcfc9a07d038f9ca6cc947cd8b1c51a7a88ea1f22e9ee905840257d3a64ff"
+      }
+    }
+  ],
+  "interpretation": {
+    "supported": "The shared null-first controller remains useful across eight distinct dynamic-context state_token/context_head checkpoints.",
+    "not_supported": "This is not eight independent replications of the controller-facing EC/place/null-address/HPC score because those module hashes and score vectors are identical.",
+    "next_valid_test": "Use fresh OOD task distributions or independently varied controller-facing pathways without changing the frozen G2 score rule."
+  }
+}

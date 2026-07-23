@@ -477,6 +477,11 @@
         <p>Transformer=PFC 主干，EC 供结构，covariance-corrected HPC 供外挂记忆</p>
       </div>
       <nav aria-label="看板分区">
+        <a href="#memorymaze3d">视觉 3D 正式结果</a>
+        <a href="#paper-package">论文证据包</a>
+        <a href="#context-need">Context-Need 最新</a>
+        <a href="#t1-context">T1 Context 因果</a>
+        <a href="#ci-pilot">Context 调用 Pilot</a>
         <a href="#formal-p3-p4">P3/P4 正式证据</a>
         <a href="#m1s">M1s 最新</a>
         <a href="#m1r">M1r 硬调用</a>
@@ -505,38 +510,295 @@
       <div class="status-grid" aria-label="最新状态">
         <article class="status-card primary">
           <h2>当前主线</h2>
-          <strong>M1s 定位完成：M1r 剩余错误分散在 router、event identity 与正确 room 下游，停止继续堆模型</strong>
-          <p>全新 seed1727151 的 256 个 return-conflict probes 上，M1r hard 从 source 0.3672 提高到 0.6875；80 个错误按预注册互斥分解为 router 30、wrong archive room 28、correct-room branch ceiling 22，没有一项达到 50% dominance。</p>
+          <strong>Paper-aligned open9 3D 正式训练与 512-test 完成；长期瓶颈定位为晚期 imagined-state 写入污染</strong>
+          <p>冻结 M1b 只用 next-frame 目标训练 20k update。严格 20→44 free rollout 中，validation 选出的 future-write K=16 在一次性 test 上将 MSE 从 29.933e-3 降到 27.157e-3；下一步只加 source-aware neural write gate。</p>
           <div class="badge-row">
-            <span class="badge"><span class="dot blue"></span>无 room / 位置输入</span>
-            <span class="badge"><span class="dot teal"></span>单一 episode-local HPC</span>
-            <span class="badge"><span class="dot green"></span>Task 6 / 6 · Implementation 10 / 10</span>
-            <span class="badge"><span class="dot teal"></span>Read-only · 258 passed</span>
-            <span class="badge"><span class="dot green"></span>正式 M1b 不变</span>
-            <span class="badge"><span class="dot red"></span>Mixed · 不创建 M1t</span>
+            <span class="badge"><span class="dot blue"></span>真实 egocentric RGB</span>
+            <span class="badge"><span class="dot blue"></span>4096 / 512 / 512</span>
+            <span class="badge"><span class="dot teal"></span>无位置 / 朝向输入</span>
+            <span class="badge"><span class="dot green"></span>512-test 已完成</span>
+            <span class="badge"><span class="dot green"></span>future leak = 0</span>
+            <span class="badge"><span class="dot green"></span>K=16 降低 9.28%</span>
+            <span class="badge"><span class="dot amber"></span>learned gate 待训</span>
           </div>
         </article>
         <article class="status-card pass">
-          <h2>Fresh Source → M1r</h2>
-          <strong>0.3672 → 0.6875</strong>
-          <p>仍有 +32.03 pp 增益；oracle 0.7969</p>
+          <h2>一步预测</h2>
+          <strong>1.610e-3</strong>
+          <p>512-test pixel MSE</p>
         </article>
-        <article class="status-card fail">
-          <h2>Error Split</h2>
-          <strong>30 / 28 / 22</strong>
-          <p>Router / wrong event room / correct-room branch ceiling</p>
+        <article class="status-card pass">
+          <h2>K=16 Rollout</h2>
+          <strong>27.157e-3</strong>
+          <p>比原始全写低 9.28%</p>
         </article>
         <article class="status-card hold">
-          <h2>Exact Route / Retain</h2>
-          <strong>0.773 / 0.300</strong>
-          <p>Exactly-one-correct route accuracy / source-only retention</p>
+          <h2>Persistence</h2>
+          <strong>32.186e-3</strong>
+          <p>K=16 相对提升 15.62%</p>
         </article>
       </div>
 
       <section>
         <div class="decision">
-          <strong>当前决策：M1S_MIXED_NO_SINGLE_MECHANISM，停止模型堆叠</strong>
-          <p>最大单项 router 只解释 37.5% 错误，未达 50% dominance；不创建 M1t，也不把三个局部补丁一起塞进新模型。课题转入正式 M1b headline、M1p-q-r objective ablation 与诚实停止证据的论文收口。</p>
+          <strong>当前决策：保留单一 HPC，不加记忆槽；把固定 K=16 升级成不看真值的 neural consolidation gate</strong>
+          <p>因果扫描已证明早期 imagined write 有益、晚期写入有害。下一阶段冻结视觉主干与现有 PFC/EC/place/HPC，只训练一个标量 write gate，并要求跨 context 长度与 rollout horizon 泛化。</p>
+        </div>
+      </section>
+
+      <section id="memorymaze3d">
+        <div class="section-head">
+          <div>
+            <h2>最新：MemoryMaze3D paper-aligned open9 正式结果</h2>
+            <p>真实 MuJoCo 第一人称 RGB；20 步真实 context 后严格 44 步 free rollout。模型只看图像和动作，位置/朝向只用于评测分桶。</p>
+          </div>
+          <div class="source">2026-07-22 · 4096 train / 512 val / 512 test · FORMAL + CAUSAL DIAGNOSTIC</div>
+        </div>
+
+        <div class="decision">
+          <strong>核心发现：海马写入不是越久越好；第 16 个 imagined state 后停止固化，完整 test 平均误差下降 9.28%</strong>
+          <p>validation 上全写与不写从 h29 起持续反转，K=16 最优。冻结 K=16 后只跑一次 test：27.157e-3，对比原始全写 29.933e-3、persistence 32.186e-3。结果定位的是 predicted-write pollution，不是关闭 HPC。</p>
+        </div>
+
+        <div class="grid-2" style="margin-top:12px;">
+          <article class="panel">
+            <h3>Validation：future-write cutoff 因果扫描</h3>
+            <img class="result-figure" src="figures/memorymaze3d_future_write_cutoff_val64.png" alt="MemoryMaze3D validation future-write cutoff 扫描曲线" />
+          </article>
+          <article class="panel">
+            <h3>一次性 Test：K=16 与 persistence</h3>
+            <img class="result-figure" src="figures/memorymaze3d_cutoff16_test512.png" alt="MemoryMaze3D 完整 test 上 K=16 与 persistence 的 horizon 曲线" />
+          </article>
+        </div>
+
+        <article class="panel" style="margin-top:12px;">
+          <h3>512-episode Frozen Test</h3>
+          <table>
+            <thead><tr><th>条件</th><th>44-step mean MSE ×1e-3</th><th>相对 Persistence</th><th>h32 ×1e-3</th><th>h44 ×1e-3</th><th>状态</th></tr></thead>
+            <tbody>
+              <tr><td data-label="条件">Persistence</td><td data-label="Mean" class="num">32.186</td><td data-label="相对" class="num">0%</td><td data-label="h32" class="num">40.367</td><td data-label="h44" class="num">45.175</td><td data-label="状态">固定基线</td></tr>
+              <tr><td data-label="条件">原始 M1b：全程 predicted-write</td><td data-label="Mean" class="num">29.933</td><td data-label="相对" class="num green">+7.00%</td><td data-label="h32" class="num">N/A</td><td data-label="h44" class="num">N/A</td><td data-label="状态">正式默认</td></tr>
+              <tr><td data-label="条件"><strong>M1b：future-write K=16</strong></td><td data-label="Mean" class="num green"><strong>27.157</strong></td><td data-label="相对" class="num green"><strong>+15.62%</strong></td><td data-label="h32" class="num"><strong>39.816</strong></td><td data-label="h44" class="num"><strong>44.404</strong></td><td data-label="状态" class="green"><strong>Test 复现</strong></td></tr>
+            </tbody>
+          </table>
+          <p style="margin-top:10px;">同一 checkpoint、同一 512-test、同一严格 free rollout；K=16 由 validation 预选，test 不再调参。新旧 persistence 精确一致，future ground-truth reads 为 0。原始正式评测未保存逐 horizon 曲线，因此其 h32/h44 明确标 N/A，不补猜测值。</p>
+        </article>
+
+        <div class="artifact-grid" style="margin-top:12px;">
+          <a class="artifact" href="MEMORYMAZE3D_M1B_WRITE_POLICY_RESULT_CN.md"><strong>最新：写入策略完整报告</strong><span>Validation 扫描、一次性 test、因果解释、审计边界与 neural gate 方案</span></a>
+          <a class="artifact" href="MEMORYMAZE3D_M1B_PAPER_OPEN9_PROTOCOL_CN.md"><strong>Paper-aligned open9 协议</strong><span>原文对应项、M1b 架构、训练边界与正式结果</span></a>
+          <a class="artifact" href="diagnostics_future_write_cutoff16_test512_cutoff_sweep_summary.json"><strong>K=16 Test 机器结果</strong><span>512 episode headline、逐 horizon 曲线与 persistence</span></a>
+          <a class="artifact" href="diagnostics_future_write_cutoff_val64_cutoff_sweep_summary.json"><strong>Validation Cutoff 扫描</strong><span>K=0/4/8/16/24/32/44 与 h29 持续反转</span></a>
+          <a class="artifact" href="evaluation_summary.json"><strong>原始正式 M1b Test</strong><span>一步、全程写入 rollout、动作反事实与 leakage gate</span></a>
+          <a class="artifact" href="MEMORYMAZE3D_PILOT_RESULT_CN.md"><strong>历史：五模型 3D Pilot</strong><span>只保留管线 provenance，不再作为当前 headline</span></a>
+        </div>
+      </section>
+
+      <section id="paper-package">
+        <div class="section-head">
+          <div>
+            <h2>最新：G8 论文证据包</h2>
+            <p>只整理冻结证据，不改模型、不重跑挑数，也不覆盖旧 P0/P5 发布阻断。</p>
+          </div>
+          <div class="source">2026-07-18 · PACKAGE 7/7 · manifest 92f2fec37913a8fe…</div>
+        </div>
+
+        <div class="grid-2">
+          <article class="panel">
+            <h3>Figure 1：正式 M1b 架构</h3>
+            <p>Window Transformer/PFC 接收合法历史；neural EC/place 与 action-history context 形成乘性地址；单一 episode-local covariance HPC 执行 read-before-write。</p>
+            <img class="result-figure" src="figures/remap_former_m1b_architecture_g8.png" alt="ReMAP-Former M1b 正式架构图" />
+          </article>
+          <article class="panel">
+            <h3>Figure 2：G7 预测 G8 隐藏流</h3>
+            <p>H32/48 的合法证据截断区明确保留；G8 realized coverage / return / passes 与 G7 预注册均匀混合预测误差为 0.0052 / 0.0499 / 0.0059。</p>
+            <img class="result-figure" src="figures/remap_former_g7_g8_hidden_cutoff.png" alt="G7 paired horizon 与 G8 hidden-cutoff 对比图" />
+          </article>
+        </div>
+
+        <article class="panel" style="margin-top:12px;">
+          <h3>Table 1：统一冻结基线</h3>
+          <table>
+            <thead><tr><th>模型</th><th>参数</th><th>训练 steps</th><th>T1 strict 4096</th><th>T2 clean</th><th>T2 return</th></tr></thead>
+            <tbody>
+              <tr><td data-label="模型">Hippoformer</td><td data-label="参数" class="num">1,494,447</td><td data-label="steps" class="num">600</td><td data-label="T1" class="num">0.3049</td><td data-label="clean" class="num green">1.0000</td><td data-label="return" class="num red">0.0000</td></tr>
+              <tr><td data-label="模型">Hippoformer HPC branch*</td><td data-label="参数" class="num">1,494,447</td><td data-label="steps" class="num">600</td><td data-label="T1" class="num">N/A</td><td data-label="clean" class="num">0.9868</td><td data-label="return" class="num red">0.0000</td></tr>
+              <tr><td data-label="模型">M-delta</td><td data-label="参数" class="num">1,388,257</td><td data-label="steps" class="num">600</td><td data-label="T1" class="num green">0.9925</td><td data-label="clean" class="num green">1.0000</td><td data-label="return" class="num red">0.0000</td></tr>
+              <tr><td data-label="模型">Window Transformer</td><td data-label="参数" class="num">1,280,960</td><td data-label="steps" class="num">1,200</td><td data-label="T1" class="num">N/A</td><td data-label="clean" class="num">0.8953</td><td data-label="return" class="num red">0.0134</td></tr>
+              <tr><td data-label="模型">Parameter-matched Transformer</td><td data-label="参数" class="num">1,396,096</td><td data-label="steps" class="num">1,200</td><td data-label="T1" class="num">N/A</td><td data-label="clean" class="num">0.8954</td><td data-label="return" class="num red">0.0122</td></tr>
+              <tr><td data-label="模型">Titans-MAC adaptation*</td><td data-label="参数" class="num">1,344,260</td><td data-label="steps" class="num">1,200</td><td data-label="T1" class="num">N/A</td><td data-label="clean" class="num">0.9234</td><td data-label="return" class="num red">0.0095</td></tr>
+              <tr><td data-label="模型"><strong>ReMAP-Former M1b</strong></td><td data-label="参数" class="num"><strong>1,398,289</strong></td><td data-label="steps" class="num">600</td><td data-label="T1" class="num">0.6736</td><td data-label="clean" class="num green">0.9944</td><td data-label="return" class="num green"><strong>0.8376</strong></td></tr>
+            </tbody>
+          </table>
+          <p style="margin-top:10px;">T1 仅评测 Hippoformer、M-delta 与 M1b，其他行严格标为 N/A。Transformer/Titans 为 1,200-step best-effort；Titans-MAC 不是官方 checkpoint，Hippoformer HPC branch 是机制消融。95% CI 与 provenance 见机器表。</p>
+        </article>
+
+        <div class="decision" style="margin-top:12px;">
+          <strong>必须同时报告的边界：T2 return 很强，不等于完整 free-rollout 曲线已经胜出</strong>
+          <p>M1b 对 Hippoformer 的 4096-step endpoint 为 +0.3688，但 log-horizon AUC 为 -0.0970，strict rollout full-curve H1=False。旧 P5 仍是 EVIDENCE_COMPLETE_RELEASE_BLOCKED；唯一 canonical mismatch 仍为 remap_former/pfc.py。</p>
+        </div>
+      </section>
+
+      <section id="context-need">
+        <div class="section-head">
+          <div>
+            <h2>最新：Context-Need G0 → G1 → Neural → G2 → G3 → G4 → G5 → G6 → G6b → G7 → G8</h2>
+            <p>从 HPC retrieval evidence 出发，经 OOD 反例、recurrence 修正、因果在线触发、sparse 稳定性、variable-horizon 曲线与 hidden-cutoff 确认，得到默认 null、只在熟悉地址矛盾首次越阈值时调用 dynamic 的单状态控制器。</p>
+          </div>
+          <div class="source">更新：2026-07-18 · G8 59/59 PASS · G7 148/148 PASS · G6 92/93 FAIL 保留</div>
+        </div>
+
+        <div class="task-flow">
+          <div class="flow-node ref0"><strong>默认 null 在线运行</strong><span>外部 cutoff H 不作为 token<br />只使用当前与过去观测</span></div>
+          <div class="flow-node distractor"><strong>首次熟悉地址矛盾</strong><span>place cosine ≥ 0.99999<br />冻结 score 首次越阈值</span></div>
+          <div class="flow-node return"><strong>只重放已观察前缀</strong><span>dynamic replay 0..t<br />从 t+1 开始生效</span></div>
+          <div class="flow-node ref1"><strong>到 cutoff H 停止判断</strong><span>未触发则保持 null；触发后不可逆<br />无 slot / 第二套 fast weights</span></div>
+        </div>
+
+        <div class="grid-2" style="margin-top:12px;">
+          <article class="panel">
+            <h3>冻结结果</h3>
+            <table>
+              <thead><tr><th>阶段</th><th>Held-out</th><th>T1 strict 4096</th><th>T2 return</th><th>结论</th></tr></thead>
+              <tbody>
+                <tr><td data-label="阶段">G0，64+64</td><td data-label="Held-out" class="num">BAcc 0.9297</td><td data-label="T1 strict" class="num red">0.9313</td><td data-label="T2 return" class="num green">0.8594</td><td data-label="结论" class="red">11/13，FAIL</td></tr>
+                <tr><td data-label="阶段">G1，256+256 fresh</td><td data-label="Held-out" class="num green">BAcc 0.9648 · AUC 0.9946</td><td data-label="T1 strict" class="num green">0.9721</td><td data-label="T2 return" class="num green">0.8125</td><td data-label="结论" class="green">13/13，PASS</td></tr>
+                <tr><td data-label="阶段">Neural，16,770 params</td><td data-label="Held-out" class="num red">BAcc 0.8320</td><td data-label="T1 strict" class="num red">0.9159</td><td data-label="T2 return" class="num green">0.7578</td><td data-label="结论" class="red">9/14，FAIL</td></tr>
+                <tr><td data-label="阶段"><strong>G2，null-first fresh</strong></td><td data-label="Held-out" class="num green"><strong>BAcc 0.9805 · AUC 1.0000</strong></td><td data-label="T1 strict" class="num green"><strong>0.9743</strong></td><td data-label="T2 return" class="num green"><strong>0.8594</strong></td><td data-label="结论" class="green"><strong>15/15，PASS</strong></td></tr>
+                <tr><td data-label="阶段"><strong>G3，8 context checkpoints</strong></td><td data-label="Held-out" class="num green"><strong>BAcc 0.9883 · AUC 1.0000</strong></td><td data-label="T1 strict" class="num green"><strong>0.9985</strong></td><td data-label="T2 return" class="num green"><strong>0.8242</strong></td><td data-label="结论" class="green"><strong>21/21，PASS</strong></td></tr>
+                <tr><td data-label="阶段"><strong>G4，fixed-score OOD</strong></td><td data-label="Held-out" class="num red"><strong>BAcc 0.8231 · AUC 0.9351</strong></td><td data-label="T1 strict" class="num red"><strong>0.9514</strong></td><td data-label="T2 return" class="num red"><strong>0.6317</strong></td><td data-label="结论" class="red"><strong>55/73，FAIL</strong></td></tr>
+                <tr><td data-label="阶段"><strong>G5，recurrence OOD</strong></td><td data-label="Held-out" class="num green"><strong>BAcc 0.9941 · AUC 1.0000</strong></td><td data-label="T1 strict" class="num green"><strong>0.9935</strong></td><td data-label="T2 return" class="num green"><strong>0.8080</strong></td><td data-label="结论" class="green"><strong>61/61，PASS</strong></td></tr>
+                <tr><td data-label="阶段"><strong>G6，causal online</strong></td><td data-label="Held-out" class="num green"><strong>BAcc 0.9941 · AUC 1.0000</strong></td><td data-label="T1 strict" class="num green"><strong>0.9972</strong></td><td data-label="T2 return" class="num green"><strong>0.8420</strong></td><td data-label="结论" class="red"><strong>92/93，FAIL</strong></td></tr>
+                <tr><td data-label="阶段"><strong>G6b，sparse stability</strong></td><td data-label="Held-out" class="num green"><strong>828/1024 · CI [0.7834, 0.8315]</strong></td><td data-label="T1 strict" class="num">未重跑</td><td data-label="T2 return" class="num green"><strong>0.8086</strong></td><td data-label="结论" class="green"><strong>29/29，STABLE*</strong></td></tr>
+                <tr><td data-label="阶段"><strong>G7，variable horizon</strong></td><td data-label="Held-out" class="num green"><strong>H72 BAcc 0.9948 · AUC 0.9987</strong></td><td data-label="T1 strict" class="num green"><strong>0.9919</strong></td><td data-label="T2 return" class="num green"><strong>0.7656</strong></td><td data-label="结论" class="green"><strong>148/148，PASS</strong></td></tr>
+                <tr><td data-label="阶段"><strong>G8，hidden cutoff</strong></td><td data-label="Held-out" class="num green"><strong>coverage 0.4635 · rho 1.0000</strong></td><td data-label="T1 strict" class="num green"><strong>0.9978</strong></td><td data-label="T2 return" class="num green"><strong>0.3885</strong></td><td data-label="结论" class="green"><strong>59/59，PASS</strong></td></tr>
+              </tbody>
+            </table>
+          </article>
+          <article class="panel">
+            <h3>机制边界</h3>
+            <table>
+              <thead><tr><th>审计</th><th>结果</th><th>含义</th></tr></thead>
+              <tbody>
+                <tr><td data-label="审计">G1 fresh separation</td><td data-label="结果" class="num green">AUC 0.9946</td><td data-label="含义">retrieval evidence 可复现</td></tr>
+                <tr><td data-label="审计">G2 fresh separation</td><td data-label="结果" class="num green">AUC 1.0000</td><td data-label="含义">null contradiction 可判调用</td></tr>
+                <tr><td data-label="审计">G2 T1 prefix work</td><td data-label="结果" class="num green">1.0469 passes</td><td data-label="含义">61/64 首遍状态直接复用</td></tr>
+                <tr><td data-label="审计">G3 context module hashes</td><td data-label="结果" class="num green">8 / 8 unique</td><td data-label="含义">dynamic 下游确实不同</td></tr>
+                <tr><td data-label="审计">G3 controller path hashes</td><td data-label="结果" class="num red">1 / 8 unique</td><td data-label="含义">不能声称八次 controller 复现</td></tr>
+                <tr><td data-label="审计">G4 grid13</td><td data-label="结果" class="num red">null gain +0.2145</td><td data-label="含义">旧 score 假阳性</td></tr>
+                <tr><td data-label="审计">G4 query2 / sparse</td><td data-label="结果" class="num red">dynamic gain +0.5000 / +0.8281</td><td data-label="含义">旧 score 假阴性</td></tr>
+                <tr><td data-label="审计">G4 dense</td><td data-label="结果" class="num red">forced dynamic 0.5469</td><td data-label="含义">控制器之外的下游上限</td></tr>
+                <tr><td data-label="审计">G5 fresh banks</td><td data-label="结果" class="num green">train overlap = 0</td><td data-label="含义">不是在 G4 上追阈值</td></tr>
+                <tr><td data-label="审计">G5 recurrent address</td><td data-label="结果" class="num green">cosine ≥ 0.99999</td><td data-label="含义">新地址不再制造调用噪声</td></tr>
+                <tr><td data-label="审计">G6 online / fixed decision</td><td data-label="结果" class="num green">agreement = 1.0000</td><td data-label="含义">因果首次触发复现冻结决策</td></tr>
+                <tr><td data-label="审计">G6 online compute</td><td data-label="结果" class="num green">2.0000 → 1.7963 passes</td><td data-label="含义">平均节省 10.19% 前缀计算</td></tr>
+                <tr><td data-label="审计">G6 equivalence error</td><td data-label="结果" class="num green">max 5.72e-6</td><td data-label="含义">状态、memory 与 logits 数值一致</td></tr>
+                <tr><td data-label="审计">G6 sparse single bank</td><td data-label="结果" class="num red">86/128 = 0.6719</td><td data-label="含义">唯一正式失败门，少 4/128</td></tr>
+                <tr><td data-label="审计">G6b four fresh banks</td><td data-label="结果" class="num green">4/4 ≥ 0.70；0.8086 pooled</td><td data-label="含义">支持单 bank sampling-tail 归因</td></tr>
+                <tr><td data-label="审计">G7 paired cutoffs</td><td data-label="结果" class="num green">H = 32/48/60/72</td><td data-label="含义">同 trajectory 只改变可见历史</td></tr>
+                <tr><td data-label="审计">G7 coverage / return</td><td data-label="结果" class="num green">range 1.0000 · rho 1.0000</td><td data-label="含义">evidence 出现后单调恢复</td></tr>
+                <tr><td data-label="审计">G7 online / fixed</td><td data-label="结果" class="num green">agreement 1 · error 4.77e-6</td><td data-label="含义">四个窗口 endpoint 数值等价</td></tr>
+                <tr><td data-label="审计">G7 H32/H48 AUC</td><td data-label="结果" class="num red">0.3436 / 0.3295</td><td data-label="含义">证据出现前不可预知未来 conflict</td></tr>
+                <tr><td data-label="审计">G8 expected / realized</td><td data-label="结果" class="num green">误差 0.0052 / 0.0499 / 0.0059</td><td data-label="含义">G7 曲线预测 hidden mixture</td></tr>
+                <tr><td data-label="审计">G8 deployment / shadow</td><td data-label="结果" class="num green">54/54 · censored 826</td><td data-label="含义">H 后 crossing 未进入部署预测</td></tr>
+                <tr><td data-label="审计">G8 online / fixed</td><td data-label="结果" class="num green">agreement 1 · error 5.25e-6</td><td data-label="含义">逐 episode 同 cutoff endpoint 等价</td></tr>
+                <tr><td data-label="审计">Neural teacher agreement</td><td data-label="结果" class="num red">0.8047</td><td data-label="含义">PFC-only 信息不足</td></tr>
+                <tr><td data-label="审计">Neural score Pearson</td><td data-label="结果" class="num red">0.6355</td><td data-label="含义">teacher score 压缩失败</td></tr>
+                <tr><td data-label="审计">Decision-time HPC calls</td><td data-label="结果" class="num green">Neural = 0</td><td data-label="含义">负结果不是偷看 teacher</td></tr>
+                <tr><td data-label="审计">Persistent content HPC</td><td data-label="结果" class="num green">1</td><td data-label="含义">无 slot / 第二套 fast weights</td></tr>
+                <tr><td data-label="审计">正式 M1b hash</td><td data-label="结果" class="num green">Unchanged</td><td data-label="含义">新结果不追改 headline</td></tr>
+              </tbody>
+            </table>
+            <p style="margin:10px 0 0;color:var(--muted);font-size:12px;">* G8 只确认冻结的四点均匀 hidden-cutoff 分布，不代表任意 cutoff policy；G7/G8 都不能覆盖 G6 FAIL。H32/H48 的低 selection AUC 与低 return 必须和 H60/H72 的恢复曲线一起报告。G4 反例和 dense-conflict forced-dynamic 0.5469 的容量瓶颈继续保留。</p>
+          </article>
+        </div>
+      </section>
+
+      <section id="t1-context">
+        <div class="section-head">
+          <div>
+            <h2>最新：T1 Context 因果消融</h2>
+            <p>严格 free rollout 中只改地址 context；模型权重、轨迹、HPC 写入次数和 PFC 反馈规则全部保持不变。</p>
+          </div>
+          <div class="source">更新：2026-07-17 · seeds 712–719 · 64 episodes · protocol hash f17c79dc…</div>
+        </div>
+
+        <div class="task-flow">
+          <div class="flow-node ref0"><strong>动态 inferred context</strong><span>同一 place 随 action-history state 漂移<br />4096 final = 0.6736</span></div>
+          <div class="flow-node distractor"><strong>地址碎片化</strong><span>write: place × c_i<br />read: place × c_j<br />同位置不再是同一 key</span></div>
+          <div class="flow-node return"><strong>固定 null context</strong><span>同一 place 始终命中同一 key<br />4096 HPC = 1.0000</span></div>
+          <div class="flow-node ref1"><strong>双向约束</strong><span>T1 要 null；T2 要 inferred<br />真正缺口是条件调用</span></div>
+        </div>
+
+        <div class="grid-2" style="margin-top:12px;">
+          <article class="panel">
+            <h3>Strict Free Rollout 曲线</h3>
+            <table>
+              <thead><tr><th>Horizon</th><th>动态 final</th><th>动态 HPC</th><th>固定 final</th><th>Teacher*</th></tr></thead>
+              <tbody>
+                <tr><td data-label="Horizon" class="num">2</td><td data-label="动态 final" class="num">0.9167</td><td data-label="动态 HPC" class="num">0.9167</td><td data-label="固定 final" class="num green">1.0000</td><td data-label="Teacher" class="num">0.9167</td></tr>
+                <tr><td data-label="Horizon" class="num">32</td><td data-label="动态 final" class="num">0.8084</td><td data-label="动态 HPC" class="num">0.8484</td><td data-label="固定 final" class="num green">1.0000</td><td data-label="Teacher" class="num">0.8227</td></tr>
+                <tr><td data-label="Horizon" class="num">64</td><td data-label="动态 final" class="num">0.7288</td><td data-label="动态 HPC" class="num">0.7997</td><td data-label="固定 final" class="num green">1.0000</td><td data-label="Teacher" class="num">0.7790</td></tr>
+                <tr><td data-label="Horizon" class="num">256</td><td data-label="动态 final" class="num">0.6842</td><td data-label="动态 HPC" class="num">0.7865</td><td data-label="固定 final" class="num green">1.0000</td><td data-label="Teacher" class="num">0.7640</td></tr>
+                <tr><td data-label="Horizon" class="num">1024</td><td data-label="动态 final" class="num">0.6708</td><td data-label="动态 HPC" class="num">0.7782</td><td data-label="固定 final" class="num green">0.9987</td><td data-label="Teacher" class="num">0.7564</td></tr>
+                <tr><td data-label="Horizon" class="num">4096</td><td data-label="动态 final" class="num red">0.6736</td><td data-label="动态 HPC" class="num">0.7790</td><td data-label="固定 final" class="num green">0.9997</td><td data-label="Teacher" class="num">0.7597</td></tr>
+              </tbody>
+            </table>
+            <p style="margin:10px 0 0;color:var(--muted);font-size:12px;">* Teacher 看到了未来真实 sensory，只是 exposure-bias 诊断，不是合法模型成绩。</p>
+          </article>
+
+          <article class="panel">
+            <h3>因果判断</h3>
+            <table>
+              <thead><tr><th>证据</th><th>数值</th><th>解释</th></tr></thead>
+              <tbody>
+                <tr><td data-label="证据">固定 context 增益</td><td data-label="数值" class="num green">+0.3260</td><td data-label="解释">主因：地址碎片化</td></tr>
+                <tr><td data-label="证据">Teacher 增益</td><td data-label="数值" class="num">+0.0861</td><td data-label="解释">次因：feedback drift</td></tr>
+                <tr><td data-label="证据">动态 HPC - final</td><td data-label="数值" class="num">+0.1054</td><td data-label="解释">次因：无条件融合</td></tr>
+                <tr><td data-label="证据">动态旧结果复现</td><td data-label="数值" class="num green">Exact</td><td data-label="解释">评估器没有换协议</td></tr>
+                <tr><td data-label="证据">未来写入</td><td data-label="数值" class="num green">0</td><td data-label="解释">不是靠 rollout 偷写</td></tr>
+                <tr><td data-label="证据">模型状态哈希</td><td data-label="数值" class="num green">Unchanged</td><td data-label="解释">冻结权重只读干预</td></tr>
+              </tbody>
+            </table>
+          </article>
+        </div>
+      </section>
+
+      <section id="ci-pilot">
+        <div class="section-head">
+          <div>
+            <h2>最小 Context Invocation Pilot：拒绝</h2>
+            <p>真正的硬 0/1 调用开关；只读 action-history state，不输入 room/task/position/switch，base 全冻结，仍只有一套 content HPC。</p>
+          </div>
+          <div class="source">更新：2026-07-17 · fixed step600 · 345 trainable params · one sensory CE</div>
+        </div>
+        <div class="grid-2">
+          <article class="panel">
+            <h3>固定终点</h3>
+            <table>
+              <thead><tr><th>指标</th><th>初始</th><th>Step 600</th><th>Gate</th></tr></thead>
+              <tbody>
+                <tr><td data-label="指标">T1 strict 4096</td><td data-label="初始">M1b 等价</td><td data-label="Step 600" class="num red">0.6838</td><td data-label="Gate" class="red">失败</td></tr>
+                <tr><td data-label="指标">T1 hard invocation</td><td data-label="初始" class="num">1.0000</td><td data-label="Step 600" class="num red">1.0000</td><td data-label="Gate" class="red">失败</td></tr>
+                <tr><td data-label="指标">T2 return-conflict</td><td data-label="初始" class="num">source</td><td data-label="Step 600" class="num green">0.7969</td><td data-label="Gate" class="green">通过</td></tr>
+                <tr><td data-label="指标">T2 clean</td><td data-label="初始" class="num">source</td><td data-label="Step 600" class="num green">1.0000</td><td data-label="Gate" class="green">通过</td></tr>
+                <tr><td data-label="指标">Base hash / future writes</td><td data-label="初始">冻结 / 0</td><td data-label="Step 600" class="green">冻结 / 0</td><td data-label="Gate" class="green">通过</td></tr>
+              </tbody>
+            </table>
+          </article>
+          <article class="panel">
+            <h3>为什么 all-token CE 不够</h3>
+            <table>
+              <thead><tr><th>审计</th><th>结果</th><th>判读</th></tr></thead>
+              <tbody>
+                <tr><td data-label="审计">T1 fixed CE 更优</td><td data-label="结果" class="num green">8 / 8</td><td data-label="判读">端点信号存在</td></tr>
+                <tr><td data-label="审计">T1 ST 梯度反向</td><td data-label="结果" class="num red">8 / 8</td><td data-label="判读">局部代理方向错误</td></tr>
+                <tr><td data-label="审计">T2 dynamic 全局 CE 更优</td><td data-label="结果" class="num red">4 / 8</td><td data-label="判读">关键 return 信号被全 token 稀释</td></tr>
+                <tr><td data-label="审计">模型状态哈希</td><td data-label="结果" class="num green">Unchanged</td><td data-label="判读">只读归因有效</td></tr>
+              </tbody>
+            </table>
+            <p style="margin:10px 0 0;color:var(--muted);font-size:12px;">冻结状态：`CONTEXT_INVOCATION_ST_SURROGATE_MISMATCH_NOT_CONFIRMED`。三门过、一门红，依法不解锁 objective v2。</p>
+          </article>
         </div>
       </section>
 
@@ -711,8 +973,8 @@
         </div>
 
         <div class="grid-2" style="margin-top:12px;">
-          <article class="panel"><h3>P3 Test-2 对比图</h3><img class="result-figure" src="remap_former_p3_test2.png" alt="ReMAP-Former P3 封存 Test-2 七模型对比" /></article>
-          <article class="panel"><h3>P4 新奇内容容量图</h3><img class="result-figure" src="remap_former_p4_novel_capacity.png" alt="ReMAP-Former P4 K1 到 K12 容量曲线" /></article>
+          <article class="panel"><h3>P3 Test-2 对比图</h3><img class="result-figure" src="figures/remap_former_p3_test2.png" alt="ReMAP-Former P3 封存 Test-2 七模型对比" /></article>
+          <article class="panel"><h3>P4 新奇内容容量图</h3><img class="result-figure" src="figures/remap_former_p4_novel_capacity.png" alt="ReMAP-Former P4 K1 到 K12 容量曲线" /></article>
         </div>
 
         <div class="no-slot">P4 正式协议的 384 episodes/K 取代本页较早的 8-probe dev pilot，成为容量 headline；旧 pilot 仍保留为开发历史，不事后删除。科学证据已完成，但 P0 canonical 哈希未绿之前不宣称 release-ready。</div>
@@ -1858,7 +2120,7 @@
 
         <article class="panel" style="margin-top:12px;">
           <h3>冻结模型对比图</h3>
-          <img class="result-figure" src="remap_novel_capacity_pilot_dev.png" alt="ReMAP-Former 新奇干扰容量 dev pilot 曲线" />
+          <img class="result-figure" src="figures/remap_novel_capacity_pilot_dev.png" alt="ReMAP-Former 新奇干扰容量 dev pilot 曲线" />
         </article>
       </section>
 
@@ -2073,7 +2335,25 @@
           <article class="stage done"><b>M1r G0 + Training</b><p>G0 18/18，固定 step400 hard 0.7500 vs source 0.3438，training 9/9。</p></article>
           <article class="stage blocked"><b>M1r One-shot Blind</b><p>Hard 0.7344、gain +0.3281、clean drop 0.0031；6/7，absolute 少 2/128。</p></article>
           <article class="stage done"><b>M1s Fresh Error Audit</b><p>256 probes；router/event/downstream errors 为 30/28/22，task 6/6、implementation 10/10。</p></article>
-          <article class="stage active"><b>当前停点</b><p>M1s 判 Mixed，无机制达到 50% dominance；不创建 M1t，转入论文收口，正式 M1b 不变。</p></article>
+          <article class="stage blocked"><b>T1 Strict Rollout</b><p>动态 M1b log-AUC 未过门；4096 为 0.6736，正式 H1 失败。</p></article>
+          <article class="stage done"><b>T1 Context 因果</b><p>8-seed fixed-null 4096 为 0.9997，配对 +32.60 pp；地址碎片化确认。</p></article>
+          <article class="stage blocked"><b>Context Invocation Pilot</b><p>345 参数 gate 学成 all-on；T1 0.6838、T2 0.7969；6/8 gates。</p></article>
+          <article class="stage blocked"><b>Invocation Credit Audit</b><p>T1 端点/ST 错位 8/8；T2 all-token dynamic preference 4/8；3/4 gates，不解锁 v2。</p></article>
+          <article class="stage blocked"><b>Context-Need G0</b><p>方向强但小样本尾部未过：BAcc 0.9297、T1 0.9313；11/13 gates。</p></article>
+          <article class="stage done"><b>Context-Need G1</b><p>同规则 fresh 大样本复现：BAcc 0.9648、T1 0.9721、T2 0.8125；13/13。</p></article>
+          <article class="stage blocked"><b>PFC-only Neural Distill</b><p>16,770 参数、固定 step600；BAcc 0.8320、T1 0.9159；9/14，不扩 seed。</p></article>
+          <article class="stage done"><b>Null-first G2</b><p>BAcc 0.9805、T1 0.9743、T2 0.8594；T1 1.0469 passes，15/15。</p></article>
+          <article class="stage done"><b>Context-downstream G3</b><p>共享阈值 BAcc 0.9883、T1 0.9985、T2 0.8242；21/21。</p></article>
+          <article class="stage done"><b>G3 Pathway Hash Audit</b><p>8 套 context、1 套 controller-facing 通路；收紧独立复现口径。</p></article>
+          <article class="stage blocked"><b>G4 Fixed-score OOD</b><p>55/73 gates；grid13 假阳性、query2/sparse 假阴性、dense 下游受限，正式 FAIL 保留。</p></article>
+          <article class="stage done"><b>G4 Endpoint Audit</b><p>四类失败逐一强制 null/dynamic，分离 controller 错误与 downstream ceiling。</p></article>
+          <article class="stage done"><b>G5 Recurrence Gate</b><p>Fresh OOD BAcc 0.9941、T1 0.9935、T2 0.8080；61/61 gates。</p></article>
+          <article class="stage blocked"><b>G6 Causal Online</b><p>决策一致率 1.0000、T1/T2 0.9972/0.8420、计算降至 1.7963 passes；sparse 单 bank 0.6719，正式 92/93 FAIL。</p></article>
+          <article class="stage done"><b>G6b Sparse Stability</b><p>四个预冻结 fresh banks：828/1024 = 0.8086、4/4 ≥ 0.70、29/29 gates；只归因，不覆盖 G6。</p></article>
+          <article class="stage done"><b>G7 Variable Horizon</b><p>Paired H32/48/60/72：coverage 0→1、return 0→0.7656、Spearman 1.0；148/148 PASS。</p></article>
+          <article class="stage done"><b>G8 Hidden Cutoff</b><p>逐 episode 隐藏平衡 cutoff：coverage 0.4635、return 0.3885、54/54 shadow audits；59/59 PASS。</p></article>
+          <article class="stage done"><b>论文证据包 v1</b><p>G7/G8 主图、正式架构图、统一基线表与增量 SHA256 manifest 已完成，7/7 gates。</p></article>
+          <article class="stage active"><b>当前停点：LaTeX 与复现包</b><p>接入主文；补环境、wall-clock、逐 seed/episode 索引和一键复现说明，不改冻结结果。</p></article>
           <article class="stage blocked"><b>Formal Protocol</b><p>normal K=8 仅 0.4010；达到 0.80 绝对门前不解锁。</p></article>
         </div>
       </section>
@@ -2086,8 +2366,62 @@
           </div>
         </div>
         <div class="artifact-list">
+          <a class="artifact" href="REMAP_FORMER_PAPER_EVIDENCE_G8_CN.md"><strong>最新：G8 论文证据包报告</strong><span>正式架构、G7/G8 主图、七模型统一表、负结果与发布边界</span></a>
+          <a class="artifact" href="paper_evidence_g8_tables.json"><strong>论文统一机器表</strong><span>正式模型事实、统一基线、hidden-cutoff controller 与 claim boundaries</span></a>
+          <a class="artifact" href="paper_evidence_g8_manifest.json"><strong>增量 Truth Manifest</strong><span>15 个冻结输入、全部产物哈希、7/7 package gates 与旧 P5 阻断披露</span></a>
+          <a class="artifact" href="figures/remap_former_m1b_architecture_g8.png"><strong>正式 M1b 架构图</strong><span>PNG；同时提供同目录 PDF</span></a>
+          <a class="artifact" href="figures/remap_former_g7_g8_hidden_cutoff.png"><strong>G7/G8 Hidden-cutoff 主图</strong><span>PNG；同时提供同目录 PDF</span></a>
+          <a class="artifact" href="build_remap_former_g8_paper_package.py"><strong>证据包构建与验证脚本</strong><span>拒绝覆盖、冻结哈希复核、机器表/图/报告/manifest 自动生成</span></a>
+          <a class="artifact" href="REMAP_FORMER_CONTEXT_NEED_SERIES_CN.md"><strong>最新：Context-Need 完整证据链</strong><span>G0–G8、neural 失败、OOD 反例、online timing、variable horizon 与 hidden-cutoff 确认</span></a>
+          <a class="artifact" href="REMAP_FORMER_CONTEXT_NEED_ONLINE_G8_HIDDEN_CUTOFF_CN.md"><strong>最新：G8 Hidden Cutoff 正式报告</strong><span>逐 episode 隐藏平衡 cutoff、G7 expected-vs-realized、shadow 审计与 59/59 PASS</span></a>
+          <a class="artifact" href="context_need_online_g8_hidden_cutoff_seed5471701_5522001.json"><strong>G8 机器结果</strong><span>六个 fresh families、八 checkpoints、四 cutoff strata、54 项 shadow batches 与 59 项 gates</span></a>
+          <a class="artifact" href="context_need_online_g8_hidden_cutoff_protocol.json"><strong>G8 冻结协议</strong><span>平衡随机分配、hidden environment boundary、G7 mixture 预注册预测与停止规则</span></a>
+          <a class="artifact" href="context_need_online_g8_hidden_cutoff_smoke.json"><strong>G8 Smoke</strong><span>20/20 implementation gates；cutoff assignment、causality、shadow、equivalence 与状态完整性</span></a>
+          <a class="artifact" href="REMAP_FORMER_CONTEXT_NEED_ONLINE_G7_VARIABLE_HORIZON_CN.md"><strong>最新：G7 Variable Horizon 正式报告</strong><span>四个 paired cutoffs、censoring/coverage/return 曲线、148/148 PASS 与短窗不可辨识边界</span></a>
+          <a class="artifact" href="context_need_online_g7_variable_horizon_seed4871701_4922001.json"><strong>G7 机器结果</strong><span>六个 fresh families、八 checkpoints、四窗口逐 episode trigger、T1/T2、148 项 gates 与哈希</span></a>
+          <a class="artifact" href="context_need_online_g7_variable_horizon_protocol.json"><strong>G7 冻结协议</strong><span>H32/48/60/72、paired trajectories、trend gates、smoke 浮点修正披露与不可覆盖边界</span></a>
+          <a class="artifact" href="context_need_online_g7_variable_horizon_smoke.json"><strong>G7 初始 Smoke FAIL</strong><span>22/24；保留 H32/H48 bitwise-zero 地址门和 5.07e-7 数值差</span></a>
+          <a class="artifact" href="context_need_online_g7_variable_horizon_smoke_v2.json"><strong>G7 修正后 Smoke</strong><span>显式 1e-6 地址容差；24/24 implementation gates</span></a>
+          <a class="artifact" href="REMAP_FORMER_CONTEXT_NEED_ONLINE_G6_CN.md"><strong>最新：G6 Causal Online 正式报告</strong><span>首次越阈值触发、因果 replay、online/fixed 等价性、92/93 FAIL 与唯一 sparse 红门</span></a>
+          <a class="artifact" href="context_need_online_g6_seed4171701_4222001.json"><strong>G6 机器结果</strong><span>六类 fresh families、逐 checkpoint trigger、T1/T2、计算成本、93 项 gate 与完整性审计</span></a>
+          <a class="artifact" href="context_need_online_g6_protocol.json"><strong>G6 冻结协议</strong><span>G5 score/threshold/horizon 冻结、read-before-write、因果重放、停止与失败保留规则</span></a>
+          <a class="artifact" href="REMAP_FORMER_CONTEXT_NEED_ONLINE_G6B_SPARSE_STABILITY_CN.md"><strong>最新：G6b Sparse Stability 报告</strong><span>四个预冻结 fresh path banks、828/1024、Wilson 区间、29/29 与不覆盖 G6 的边界</span></a>
+          <a class="artifact" href="context_need_online_g6b_sparse_stability_seed4271701_4672001.json"><strong>G6b 机器结果</strong><span>1024 return-conflict probes、逐 bank/逐 checkpoint 指标、等价性与全部稳定性 gates</span></a>
+          <a class="artifact" href="context_need_online_g6b_sparse_stability_protocol.json"><strong>G6b 冻结协议</strong><span>G6 失败披露、四个零重叠 path banks、控制器全冻结与预设归因规则</span></a>
+          <a class="artifact" href="REMAP_FORMER_CONTEXT_NEED_RECURRENCE_G5_CN.md"><strong>G5 Recurrence-gated 正式报告</strong><span>Fresh calibration/test banks、固定 recurrent-address score、六类 OOD 与 61/61 gates</span></a>
+          <a class="artifact" href="context_need_recurrence_g5_seed3871701_4022001.json"><strong>G5 机器结果</strong><span>原始 score、冻结 threshold、逐 family selection、T1/T2、完整性审计与哈希</span></a>
+          <a class="artifact" href="context_need_recurrence_g5_protocol.json"><strong>G5 冻结协议</strong><span>recurrent cosine 0.99999、fresh path banks、61 项验收门与停止规则</span></a>
+          <a class="artifact" href="REMAP_FORMER_CONTEXT_NEED_G4_FAILURE_ENDPOINT_AUDIT_CN.md"><strong>G4 失败端点归因</strong><span>grid13 假阳性、query2/sparse 假阴性、dense downstream ceiling</span></a>
+          <a class="artifact" href="context_need_g4_failure_endpoint_audit_seed3401901_3432001.json"><strong>G4 Endpoint 机器结果</strong><span>selected、forced-null、forced-dynamic 三端点与四类冻结归因</span></a>
+          <a class="artifact" href="context_need_g4_failure_endpoint_audit_protocol.json"><strong>G4 Endpoint 冻结协议</strong><span>只读失败定位、固定 family/seeds、实现门与禁止调参边界</span></a>
+          <a class="artifact" href="REMAP_FORMER_CONTEXT_NEED_NULL_FIRST_G4_OOD_CN.md"><strong>G4 Fixed-score OOD 正式失败</strong><span>七类 task distribution、73 gates、18 项失败与原始反例</span></a>
+          <a class="artifact" href="context_need_null_first_g4_ood_seed3371601_3432001.json"><strong>G4 OOD 机器结果</strong><span>逐 family raw score、selection、T1/T2、55/73 与完整性审计</span></a>
+          <a class="artifact" href="context_need_null_first_g4_ood_protocol.json"><strong>G4 OOD 冻结协议</strong><span>七个 OOD family、G3 固定 threshold、禁止结果后重调</span></a>
+          <a class="artifact" href="REMAP_FORMER_CONTEXT_NEED_NULL_FIRST_G3_MULTICHECKPOINT_CN.md"><strong>最新：G3 八 Context-Checkpoint 报告</strong><span>共享阈值、逐 checkpoint 端到端、21/21 gates 与 post-result 独立性审计</span></a>
+          <a class="artifact" href="context_need_null_first_g3_multicheckpoint_seed3071601_3072201.json"><strong>G3 机器结果</strong><span>8 checkpoint raw scores、共享阈值、逐模型 T1/T2、聚合与 21 项 gate</span></a>
+          <a class="artifact" href="context_need_null_first_g3_multicheckpoint_protocol.json"><strong>G3 冻结协议</strong><span>fresh paired trajectories、单一 pooled threshold、跨 checkpoint 门槛与停止规则</span></a>
+          <a class="artifact" href="REMAP_FORMER_CONTEXT_NEED_G3_PATHWAY_HASH_AUDIT.json"><strong>G3 Pathway Hash 审计</strong><span>8 个完整 state、8 套 context 模块、1 套 controller-facing EC/place/HPC</span></a>
+          <a class="artifact" href="REMAP_FORMER_CONTEXT_NEED_NULL_FIRST_G2_CN.md"><strong>最新：Null-first G2 正式报告</strong><span>fresh 256+256、64 个 T1 4096、128 个 T2、效率审计与 15/15 gates</span></a>
+          <a class="artifact" href="context_need_null_first_g2_seed2971701_2972201.json"><strong>Null-first G2 机器结果</strong><span>raw scores、hard selection、prefix passes、state reuse/replay、端到端结果与哈希</span></a>
+          <a class="artifact" href="context_need_null_first_g2_protocol.json"><strong>Null-first G2 冻结协议</strong><span>72-step null prefix、top-10% contradiction、fresh seeds、15 项验收门与停止规则</span></a>
+          <a class="artifact" href="REMAP_FORMER_CONTEXT_NEED_RETRIEVAL_G1_REPLICATION_CN.md"><strong>Context-Need G1 正式报告</strong><span>同规则 256+256 held-out、64 个 T1 4096、128 个 T2、13/13 gates</span></a>
+          <a class="artifact" href="context_need_retrieval_g1_seed2671701_2672201.json"><strong>Context-Need G1 机器结果</strong><span>全部 raw scores、selection、end-to-end、哈希、单 HPC 与 future-write audit</span></a>
+          <a class="artifact" href="context_need_retrieval_g1_replication_protocol.json"><strong>Context-Need G1 冻结协议</strong><span>G0 披露、唯一允许变更、全新 seeds、固定 midpoint rule 与停止规则</span></a>
+          <a class="artifact" href="REMAP_FORMER_CONTEXT_NEED_RETRIEVAL_G0_CN.md"><strong>Context-Need G0 冻结失败</strong><span>AUROC 0.9961 但 T1 两门未过；保留小样本尾部失败，不据此调阈值</span></a>
+          <a class="artifact" href="context_need_retrieval_g0_seed2571701_2572201.json"><strong>Context-Need G0 机器结果</strong><span>64+64 calibration/held-out、T1/T2 end-to-end、13 gates 与完整 raw score</span></a>
+          <a class="artifact" href="report.md"><strong>Neural Context-Need Pilot 报告</strong><span>16,770 参数、单一 SmoothL1、固定 step600、决策期 HPC=0 与 9/14 gates</span></a>
+          <a class="artifact" href="context_need_neural_seed2871701_s600_summary.json"><strong>Neural Context-Need 机器结果</strong><span>训练终点、teacher agreement、PFC-only decision、T1/T2 end-to-end 与冻结哈希</span></a>
+          <a class="artifact" href="context_need_neural_pilot_protocol.json"><strong>Neural Context-Need 冻结协议</strong><span>teacher normalization、唯一回归 loss、无 ST/CE、固定终点与禁止同 seed 重调</span></a>
+          <a class="artifact" href="REMAP_FORMER_CONTEXT_INVOCATION_PILOT_CN.md"><strong>最新：Context Invocation Pilot + Credit Audit</strong><span>345 参数硬调用、固定 600 步、T1/T2 双任务结果、8-seed ST 信用错位与停止规则</span></a>
+          <a class="artifact" href="context_invocation_seed2471701_s600_summary.json"><strong>Context Invocation Pilot 机器结果</strong><span>初末 monitor、T1 4096 strict、T2 三分支、八个 gates、冻结哈希与 checkpoint</span></a>
+          <a class="artifact" href="credit_audit_seed2472102_2472109.json"><strong>Invocation Credit 8-Seed 审计</strong><span>离散端点 CE、T1/T2 gate gradients、cosine、四个预设门与未确认结论</span></a>
+          <a class="artifact" href="context_invocation_pilot_protocol.json"><strong>Context Invocation 冻结训练协议</strong><span>单 HPC、无 oracle 输入、mixed T1/T2、唯一 CE、固定 step600 与禁止同 seed 重调</span></a>
+          <a class="artifact" href="REMAP_FORMER_M1B_T1_CONTEXT_ABLATION_8SEED_CN.md"><strong>最新：T1 Context 8-Seed 因果消融</strong><span>动态、fixed-null 与 teacher-feedback 三条件；4096 恢复 0.9997；八个完整性和因果门全绿</span></a>
+          <a class="artifact" href="m1b_t1_context_ablation_seed2071601.json"><strong>T1 Context 完整机器结果</strong><span>逐 seed、逐 horizon、PFC/HPC/final 三分支、逐 episode rows、哈希与 write audit</span></a>
+          <a class="artifact" href="m1b_t1_context_ablation_protocol.json"><strong>T1 Context 冻结协议</strong><span>pilot disclosure、712–719 checkpoints、三条件定义、阈值、禁止未来写入与不可覆盖路径</span></a>
+          <a class="artifact" href="REMAP_FORMER_M1B_T1_STRICT_FREE_ROLLOUT_CN.md"><strong>T1 Strict Free Rollout 正式结果</strong><span>Hippoformer、M-delta、M1b 的 2–4096 配对曲线与失败门</span></a>
           <a class="artifact" href="REMAP_FORMER_M1S_FRESH_ERROR_DECOMPOSITION_CN.md"><strong>最新：M1s Fresh 错误分解报告</strong><span>256 probes、四个互斥桶、router preference、dominance 决策与停止模型堆叠的依据</span></a>
-          <a class="artifact" href="REMAP_FORMER_M1S_FRESH_ERROR_DECOMPOSITION.json"><strong>M1s 完整机器结果</strong><span>五条件主表、16 个健康门、30/28/22 分类与全部 256 条逐 probe 记录</span></a>
+          <a class="artifact" href="m1s_fresh_error_decomposition.json"><strong>M1s 完整机器结果</strong><span>五条件主表、16 个健康门、30/28/22 分类与全部 256 条逐 probe 记录</span></a>
           <a class="artifact" href="m1s_fresh_error_decomposition_protocol.json"><strong>M1s 冻结协议</strong><span>Fresh seed、只读边界、四桶定义、50% dominance 门、分支映射与禁止项</span></a>
           <a class="artifact" href="REMAP_FORMER_P0_P4_FINAL_EVIDENCE_CN.md"><strong>P0–P4 最终证据</strong><span>正式 M1b 架构、正负结果、统计表、容量边界与投稿级判断</span></a>
           <a class="artifact" href="REMAP_FORMER_P3_TEST2_CN.md"><strong>P3 封存 Test-2</strong><span>七模型 Test-2、paired bootstrap、恢复账本与解释边界</span></a>
@@ -2096,98 +2430,98 @@
           <a class="artifact" href="p5_paper_tables.json"><strong>P3/P4 精简论文表格</strong><span>Headline、paired comparison、消融和容量曲线的机器可读汇总</span></a>
           <a class="artifact" href="p5_release_manifest.json"><strong>P5 发布 Manifest</strong><span>证据文件哈希、测试状态与唯一 P0 release blocker</span></a>
           <a class="artifact" href="REMAP_FORMER_M1Q_M1R_HARD_ROUTING_RESULT_CN.md"><strong>最新：M1q / M1r 硬调用完整结果</strong><span>单 HPC 架构、两种 objective、regret-mass 归因、固定训练、one-shot blind 与冻结结论</span></a>
-          <a class="artifact" href="REMAP_FORMER_M1R_BLIND_SUMMARY.json"><strong>M1r 一次性 Blind 机器结果</strong><span>128 probes、五条件主表、7 个 gates、调用与正确 room 覆盖、冻结拒绝分支</span></a>
-          <a class="artifact" href="REMAP_FORMER_M1R_TRAINING_SUMMARY.json"><strong>M1r 训练机器汇总</strong><span>固定 step400、9/9 unlock gates、frozen hash、checkpoint SHA 与 dense/original monitors</span></a>
-          <a class="artifact" href="REMAP_FORMER_M1R_TRAINING_METRICS.jsonl"><strong>M1r 完整训练轨迹</strong><span>step0→400 的 preference loss、hard/source/soft、call、correct-room 与 distractor-source</span></a>
-          <a class="artifact" href="REMAP_FORMER_M1R_G0_SUMMARY.json"><strong>M1r G0 机器结果</strong><span>18/18 gates、source/archive/oracle、preference class fraction 与 NLL-gap geometry</span></a>
-          <a class="artifact" href="REMAP_FORMER_M1R_SMOKE.json"><strong>M1r CUDA Smoke</strong><span>24/24 implementation gates、detached NLL、1:1 class means、梯度符号与输入边界</span></a>
+          <a class="artifact" href="blind_seed1657151.json"><strong>M1r 一次性 Blind 机器结果</strong><span>128 probes、五条件主表、7 个 gates、调用与正确 room 覆盖、冻结拒绝分支</span></a>
+          <a class="artifact" href="m1r_counterfactual_seed1637151_s400_summary.json"><strong>M1r 训练机器汇总</strong><span>固定 step400、9/9 unlock gates、frozen hash、checkpoint SHA 与 dense/original monitors</span></a>
+          <a class="artifact" href="m1r_counterfactual_seed1637151_s400_metrics.jsonl"><strong>M1r 完整训练轨迹</strong><span>step0→400 的 preference loss、hard/source/soft、call、correct-room 与 distractor-source</span></a>
+          <a class="artifact" href="m1r_counterfactual_g0_summary.json"><strong>M1r G0 机器结果</strong><span>18/18 gates、source/archive/oracle、preference class fraction 与 NLL-gap geometry</span></a>
+          <a class="artifact" href="m1r_counterfactual_smoke.json"><strong>M1r CUDA Smoke</strong><span>24/24 implementation gates、detached NLL、1:1 class means、梯度符号与输入边界</span></a>
           <a class="artifact" href="m1r_counterfactual_preference_router_pilot_protocol.json"><strong>M1r 冻结协议</strong><span>单一 counterfactual preference BCE、fresh seeds、固定终点、blind 门与禁止项</span></a>
-          <a class="artifact" href="REMAP_FORMER_M1Q_REGRET_MASS_AUDIT.json"><strong>M1q Regret-mass 审计</strong><span>History/return/distractor 的 preference 数量、累计 regret、5.249x source 支配与最终 logits</span></a>
-          <a class="artifact" href="REMAP_FORMER_M1Q_TRAINING_SUMMARY.json"><strong>M1q 训练机器汇总</strong><span>Binary-Concrete 固定 step400、5/9 gates、全 source collapse 与 checkpoint/frozen hashes</span></a>
-          <a class="artifact" href="REMAP_FORMER_M1Q_TRAINING_METRICS.jsonl"><strong>M1q 完整训练轨迹</strong><span>温度 1.0→0.1、sampled call 18.8%→0.5% 与 hard/source/soft 轨迹</span></a>
-          <a class="artifact" href="REMAP_FORMER_M1Q_G0_SUMMARY.json"><strong>M1q G0 机器结果</strong><span>16/16 gates、source 0.7125、fixed archive 0.9500 与 utility alignment</span></a>
-          <a class="artifact" href="REMAP_FORMER_M1Q_SMOKE.json"><strong>M1q CUDA Smoke</strong><span>24/24 implementation gates、binary forward、ST gradient、温度端点与单 HPC 边界</span></a>
+          <a class="artifact" href="regret_mass_audit.json"><strong>M1q Regret-mass 审计</strong><span>History/return/distractor 的 preference 数量、累计 regret、5.249x source 支配与最终 logits</span></a>
+          <a class="artifact" href="m1q_binary_concrete_seed1537151_s400_summary.json"><strong>M1q 训练机器汇总</strong><span>Binary-Concrete 固定 step400、5/9 gates、全 source collapse 与 checkpoint/frozen hashes</span></a>
+          <a class="artifact" href="m1q_binary_concrete_seed1537151_s400_metrics.jsonl"><strong>M1q 完整训练轨迹</strong><span>温度 1.0→0.1、sampled call 18.8%→0.5% 与 hard/source/soft 轨迹</span></a>
+          <a class="artifact" href="m1q_binary_concrete_g0_summary.json"><strong>M1q G0 机器结果</strong><span>16/16 gates、source 0.7125、fixed archive 0.9500 与 utility alignment</span></a>
+          <a class="artifact" href="m1q_binary_concrete_smoke.json"><strong>M1q CUDA Smoke</strong><span>24/24 implementation gates、binary forward、ST gradient、温度端点与单 HPC 边界</span></a>
           <a class="artifact" href="m1q_binary_concrete_router_pilot_protocol.json"><strong>M1q 冻结协议</strong><span>Straight-through Binary-Concrete、fresh seeds、400 步与 sealed blind1557151</span></a>
           <a class="artifact" href="REMAP_FORMER_M1P_LIKELIHOOD_ROUTER_RESULT_CN.md"><strong>最新：M1p Likelihood Router 完整结果</strong><span>单 HPC 架构、G0 v1/v2、固定训练轨迹、9 个 unlock gates 与 hard/soft 机制结论</span></a>
-          <a class="artifact" href="REMAP_FORMER_M1P_TRAINING_SUMMARY.json"><strong>M1p 训练机器汇总</strong><span>固定 step400、五种 readout、调用与正确 room 覆盖、冻结 hash、checkpoint SHA 和拒绝分支</span></a>
-          <a class="artifact" href="REMAP_FORMER_M1P_TRAINING_METRICS.jsonl"><strong>M1p 完整训练轨迹</strong><span>step0→400 的 source、soft/hard、archive call、correct-room 与 distractor-source</span></a>
-          <a class="artifact" href="REMAP_FORMER_M1P_G0_V2_SUMMARY.json"><strong>M1p G0 v2 机器结果</strong><span>16/16 utility-conditioned gates、benefit fractions、likelihood alignment 与 canonical digest</span></a>
+          <a class="artifact" href="m1p_likelihood_router_v2_seed1437151_s400_summary.json"><strong>M1p 训练机器汇总</strong><span>固定 step400、五种 readout、调用与正确 room 覆盖、冻结 hash、checkpoint SHA 和拒绝分支</span></a>
+          <a class="artifact" href="m1p_likelihood_router_v2_seed1437151_s400_metrics.jsonl"><strong>M1p 完整训练轨迹</strong><span>step0→400 的 source、soft/hard、archive call、correct-room 与 distractor-source</span></a>
+          <a class="artifact" href="m1p_likelihood_g0_v2_summary.json"><strong>M1p G0 v2 机器结果</strong><span>16/16 utility-conditioned gates、benefit fractions、likelihood alignment 与 canonical digest</span></a>
           <a class="artifact" href="m1p_likelihood_marginal_router_v2_pilot_protocol.json"><strong>M1p v2 冻结协议</strong><span>单一 source-written HPC、marginal NLL、hard 部署、fresh seeds、解锁门与禁止项</span></a>
-          <a class="artifact" href="REMAP_FORMER_M1P_V2_SMOKE.json"><strong>M1p CUDA Smoke</strong><span>19/19 implementation gates、双 read 同状态、单次写入、frozen source 等价与梯度边界</span></a>
-          <a class="artifact" href="REMAP_FORMER_M1P_G0_V1_SUMMARY.json"><strong>M1p G0 v1 拒绝记录</strong><span>11/12 gates；冻结判断 INVALID_G0_LIKELIHOOD_GEOMETRY，未启动训练</span></a>
+          <a class="artifact" href="m1p_likelihood_router_v2_smoke.json"><strong>M1p CUDA Smoke</strong><span>19/19 implementation gates、双 read 同状态、单次写入、frozen source 等价与梯度边界</span></a>
+          <a class="artifact" href="m1p_likelihood_g0_summary.json"><strong>M1p G0 v1 拒绝记录</strong><span>11/12 gates；冻结判断 INVALID_G0_LIKELIHOOD_GEOMETRY，未启动训练</span></a>
           <a class="artifact" href="m1p_likelihood_marginal_router_pilot_protocol.json"><strong>M1p v1 原始冻结协议</strong><span>保留被 gate 拦截的原始定义与 canonical digest，避免事后覆盖</span></a>
           <a class="artifact" href="REMAP_FORMER_M1O_EVIDENCE_COUPLED_V4_RESULT_CN.md"><strong>最新：M1o 证据耦合调用完整结果</strong><span>两阶段架构、四轮 G0、固定训练轨迹、八个 training gates、机制解释与下一条合法路线</span></a>
-          <a class="artifact" href="REMAP_FORMER_M1O_TRAINING_SUMMARY.json"><strong>M1o 训练机器汇总</strong><span>固定 step800、original/dense monitors、调用覆盖、冻结 hash、checkpoint SHA 与拒绝分支</span></a>
-          <a class="artifact" href="REMAP_FORMER_M1O_TRAINING_METRICS.jsonl"><strong>M1o 完整训练轨迹</strong><span>step0→800 的 source、candidate、soft/hard call、correct-room coverage 与 distractor null</span></a>
+          <a class="artifact" href="m1o_evidence_coupled_v4_seed1237151_s800_summary.json"><strong>M1o 训练机器汇总</strong><span>固定 step800、original/dense monitors、调用覆盖、冻结 hash、checkpoint SHA 与拒绝分支</span></a>
+          <a class="artifact" href="m1o_evidence_coupled_v4_seed1237151_s800_metrics.jsonl"><strong>M1o 完整训练轨迹</strong><span>step0→800 的 source、candidate、soft/hard call、correct-room coverage 与 distractor null</span></a>
           <a class="artifact" href="REMAP_FORMER_M1O_TRAINING_DISTRIBUTION_G0_V4_CN.md"><strong>M1o Dense G0 v4</strong><span>K8/K12 long-delay repeated re-entry、2.743x 密度、10/10 gates 与训练解锁依据</span></a>
-          <a class="artifact" href="REMAP_FORMER_M1O_G0_V4_SUMMARY.json"><strong>M1o G0 v4 机器结果</strong><span>source/hard/gain、正确 room、密度倍率、实现门与 canonical protocol digest</span></a>
+          <a class="artifact" href="m1o_training_distribution_g0_v4_summary.json"><strong>M1o G0 v4 机器结果</strong><span>source/hard/gain、正确 room、密度倍率、实现门与 canonical protocol digest</span></a>
           <a class="artifact" href="m1o_evidence_coupled_dense_v4_pilot_protocol.json"><strong>M1o v4 冻结协议</strong><span>输入边界、两阶段 caller、K8/K12 curriculum、固定终点、blind 解锁门与禁止项</span></a>
-          <a class="artifact" href="REMAP_FORMER_M1O_SMOKE.json"><strong>M1o Smoke 机器结果</strong><span>17/17 implementation gates、合法候选边界、disabled 等价与冻结模块验证</span></a>
+          <a class="artifact" href="m1o_evidence_coupled_v4_smoke.json"><strong>M1o Smoke 机器结果</strong><span>17/17 implementation gates、合法候选边界、disabled 等价与冻结模块验证</span></a>
           <a class="artifact" href="REMAP_FORMER_M1O_RESEARCH_RESET_PLAN_CN.md"><strong>M1o Research Reset 计划与执行记录</strong><span>为什么独立重置、预注册分支、G0 v1→v4 修正链和最终训练裁决</span></a>
           <a class="artifact" href="REMAP_FORMER_M1M_M1N_KEY_RANKING_RESULT_CN.md"><strong>最新：M1m→M1n 完整收口</strong><span>模型架构、G0/G1 因果链、训练轨迹、fresh blind 六门与机制结论</span></a>
           <a class="artifact" href="REMAP_FORMER_M1N_ANCHORED_RESIDUAL_RANKER_PILOT_CN.md"><strong>M1n 自动 Blind 报告</strong><span>Mermaid 架构、三条件主表、14 个实现门、六个科学门与低覆盖 abstention 归因</span></a>
-          <a class="artifact" href="REMAP_FORMER_M1N_ANCHORED_RANKER_PILOT_SUMMARY.json"><strong>M1n Blind 机器结果</strong><span>128 probes、context geometry、ranker dynamics、checkpoint hash、冻结状态与分支</span></a>
-          <a class="artifact" href="REMAP_FORMER_M1N_TRAINING_SUMMARY.json"><strong>M1n 训练汇总</strong><span>6,166 参数、K=1/2/4/8 step0→600 轨迹、冻结 backbone hash 与固定 final monitor</span></a>
+          <a class="artifact" href="m1n_anchored_ranker_pilot_summary.json"><strong>M1n Blind 机器结果</strong><span>128 probes、context geometry、ranker dynamics、checkpoint hash、冻结状态与分支</span></a>
+          <a class="artifact" href="m1n_anchored_ranker_seed827151_s600_recovery_summary.json"><strong>M1n 训练汇总</strong><span>6,166 参数、K=1/2/4/8 step0→600 轨迹、冻结 backbone hash 与固定 final monitor</span></a>
           <a class="artifact" href="m1n_anchored_residual_ranker_pilot_protocol.json"><strong>M1n 冻结协议</strong><span>因果输入边界、固定 anchor、有界 residual、唯一 sensory CE、fresh blind 与禁止调参规则</span></a>
           <a class="artifact" href="REMAP_FORMER_M1M_CONTEXT_BASIN_G1_CN.md"><strong>M1m G1 Context Basin</strong><span>三 seed 零参数 nearest-neighbor、signature/shuffled/oracle 对照、置信度与停止结论</span></a>
-          <a class="artifact" href="REMAP_FORMER_M1M_CONTEXT_BASIN_G1_SUMMARY.json"><strong>G1 机器结果</strong><span>384 probes、context geometry、correct-segment top-1、AUROC 与 22 个实现门</span></a>
+          <a class="artifact" href="m1m_context_basin_g1_summary.json"><strong>G1 机器结果</strong><span>384 probes、context geometry、correct-segment top-1、AUROC 与 22 个实现门</span></a>
           <a class="artifact" href="m1m_context_basin_g1_protocol.json"><strong>G1 冻结协议</strong><span>全新 seeds、候选边界、nearest-neighbor 定义、阈值和分支映射</span></a>
           <a class="artifact" href="REMAP_FORMER_M1M_PRECISION_CHAIN_G0_CN.md"><strong>M1m G0 精度链</strong><span>Soft/hard/oracle-best/exact context、首个失败层与 key-ranking 分类</span></a>
-          <a class="artifact" href="REMAP_FORMER_M1M_PRECISION_CHAIN_G0_SUMMARY.json"><strong>G0 机器结果</strong><span>384 probes、六条件、context/address/retrieval/decoder 链路与 22 个实现门</span></a>
+          <a class="artifact" href="m1m_precision_chain_g0_summary.json"><strong>G0 机器结果</strong><span>384 probes、六条件、context/address/retrieval/decoder 链路与 22 个实现门</span></a>
           <a class="artifact" href="m1m_precision_chain_g0_protocol.json"><strong>G0 冻结协议</strong><span>三全新 seeds、精度链干预、分类优先级与禁止训练边界</span></a>
           <a class="artifact" href="REMAP_FORMER_M1L_ANCHORED_RETRIEVAL_STAGE0_CN.md"><strong>最新：M1l 固定锚点 Stage 0</strong><span>零训练架构、K=1/4/8 容量曲线、七个冻结门、因果对照与停止结论</span></a>
-          <a class="artifact" href="REMAP_FORMER_M1L_ANCHORED_RETRIEVAL_STAGE0_SUMMARY.json"><strong>M1l Stage 0 机器结果</strong><span>384 probes、source/candidate/shuffled、context geometry、置信度 AUROC 与冻结状态</span></a>
+          <a class="artifact" href="m1l_anchored_retrieval_stage0_summary.json"><strong>M1l Stage 0 机器结果</strong><span>384 probes、source/candidate/shuffled、context geometry、置信度 AUROC 与冻结状态</span></a>
           <a class="artifact" href="m1l_anchored_retrieval_stage0_protocol.json"><strong>M1l 冻结协议</strong><span>canonical digest、事件锚点、候选边界、七门、run-once seed 与禁止调参规则</span></a>
           <a class="artifact" href="REMAP_FORMER_M1K_QUERY_CONTEXT_PILOT_CN.md"><strong>最新：M1k Query Context Pilot</strong><span>17,464 参数架构、固定训练、K=8 三条件 blind、五门与 attention/gate 失败归因</span></a>
-          <a class="artifact" href="REMAP_FORMER_M1K_QUERY_CONTEXT_PILOT_SUMMARY.json"><strong>M1k Blind 机器结果</strong><span>128 probes、三条件指标、context geometry、readout dynamics、实现门与冻结状态</span></a>
-          <a class="artifact" href="REMAP_FORMER_M1K_TRAINING_SUMMARY.json"><strong>M1k 训练汇总</strong><span>step0→600 monitor、gate/attention 轨迹、冻结 backbone hash 与固定 final checkpoint</span></a>
+          <a class="artifact" href="m1k_query_context_pilot_summary.json"><strong>M1k Blind 机器结果</strong><span>128 probes、三条件指标、context geometry、readout dynamics、实现门与冻结状态</span></a>
+          <a class="artifact" href="m1k_query_context_seed27151_s600_summary.json"><strong>M1k 训练汇总</strong><span>step0→600 monitor、gate/attention 轨迹、冻结 backbone hash 与固定 final checkpoint</span></a>
           <a class="artifact" href="m1k_query_context_readout_pilot_protocol.json"><strong>M1k 冻结协议</strong><span>canonical digest、因果输入边界、唯一 sensory CE、fresh seeds、blind 五门和 run-once 规则</span></a>
           <a class="artifact" href="REMAP_FORMER_M1J_SHARED_TRANSPORT_GEOMETRY_G5_CN.md"><strong>最新：M1j G5 几何分解</strong><span>同 episode 梯度配对、query-isolated context oracle、40 个 reject 五桶与冻结停止结论</span></a>
-          <a class="artifact" href="REMAP_FORMER_M1J_SHARED_TRANSPORT_GEOMETRY_G5_SUMMARY.json"><strong>G5 机器结果</strong><span>128 probe、64 pair、oracle、互斥分类、实现哈希和 frozen branch</span></a>
+          <a class="artifact" href="m1j_shared_transport_geometry_g5_summary.json"><strong>G5 机器结果</strong><span>128 probe、64 pair、oracle、互斥分类、实现哈希和 frozen branch</span></a>
           <a class="artifact" href="m1j_shared_transport_geometry_g5_protocol.json"><strong>G5 冻结协议</strong><span>seed19184、query isolation、共享冲突门、类别优先级和主导阈值</span></a>
           <a class="artifact" href="REMAP_FORMER_M1J_PROBE_CREDIT_AUDIT_G4_CN.md"><strong>M1j G4 Probe 信用审计</strong><span>112/16 局部方向、六特征留 batch 验证和 event-balanced 停止门</span></a>
-          <a class="artifact" href="REMAP_FORMER_M1J_PROBE_CREDIT_AUDIT_G4_SUMMARY.json"><strong>G4 机器结果</strong><span>逐 probe 9 维梯度、causal features、subgroups、CV probe 和冻结分类</span></a>
+          <a class="artifact" href="m1j_probe_credit_audit_g4_summary.json"><strong>G4 机器结果</strong><span>逐 probe 9 维梯度、causal features、subgroups、CV probe 和冻结分类</span></a>
           <a class="artifact" href="m1j_probe_credit_audit_g4_protocol.json"><strong>G4 冻结协议</strong><span>seed18182、batched VJP、六特征输入边界、分支门与禁止项</span></a>
           <a class="artifact" href="REMAP_FORMER_M1J_GRADIENT_CREDIT_AUDIT_G3_CN.md"><strong>M1j G3 梯度信用审计</strong><span>三种 CE 的 9 维首次更新、事件方向、逐 batch 稳定门与冻结 MIXED 分类</span></a>
-          <a class="artifact" href="REMAP_FORMER_M1J_GRADIENT_CREDIT_AUDIT_G3_SUMMARY.json"><strong>G3 机器结果</strong><span>16 batch 梯度向量、cosine、3718 个事件方向、实现哈希与冻结判读</span></a>
+          <a class="artifact" href="m1j_gradient_credit_audit_g3_summary.json"><strong>G3 机器结果</strong><span>16 batch 梯度向量、cosine、3718 个事件方向、实现哈希与冻结判读</span></a>
           <a class="artifact" href="m1j_gradient_credit_audit_g3_protocol.json"><strong>G3 冻结协议</strong><span>seed17181、只读边界、三种 loss mask、阈值、状态顺序与 post-result rule</span></a>
           <a class="artifact" href="REMAP_FORMER_M1J_CONFIDENCE_TRANSPORT_RESULT_CN.md"><strong>M1j 完整结果</strong><span>77 参数架构、固定训练、blind 拒绝与 G3-G5 全链路归因</span></a>
-          <a class="artifact" href="REMAP_FORMER_M1J_PILOT_SUMMARY.json"><strong>M1j Blind 机器结果</strong><span>四条件指标、context geometry、transport dynamics、disabled 精确等价与冻结七门</span></a>
-          <a class="artifact" href="REMAP_FORMER_M1J_TRAIN_SUMMARY.json"><strong>M1j 训练汇总</strong><span>step0→600 CE、K8 return、strength/shift 轨迹、77 参数范围与耗时</span></a>
+          <a class="artifact" href="m1j_confidence_transport_pilot_summary.json"><strong>M1j Blind 机器结果</strong><span>四条件指标、context geometry、transport dynamics、disabled 精确等价与冻结七门</span></a>
+          <a class="artifact" href="m1j_confidence_transport_seed31415_s600_summary.json"><strong>M1j 训练汇总</strong><span>step0→600 CE、K8 return、strength/shift 轨迹、77 参数范围与耗时</span></a>
           <a class="artifact" href="m1j_confidence_transport_pilot_protocol.json"><strong>M1j 冻结协议</strong><span>digest、fresh seeds、±3 transport、唯一 sensory CE、固定 final 与 post-result rule</span></a>
           <a class="artifact" href="REMAP_FORMER_M1J_CONFIDENCE_TRANSPORT_PILOT_CN.md"><strong>M1j 自动 Blind 报告</strong><span>source/M1j/disabled 主表、七门 PASS/FAIL 与 transport 动态</span></a>
           <a class="artifact" href="REMAP_FORMER_M1I_FAILURE_AUDIT_G2_CN.md"><strong>M1i G2 错误分解</strong><span>fresh seed、query-only oracle、68 个互斥错误桶与冻结下一分支</span></a>
-          <a class="artifact" href="REMAP_FORMER_M1I_FAILURE_AUDIT_G2_SUMMARY.json"><strong>M1i G2 机器结果</strong><span>逐 probe 分类、attention mass、archival geometry 与 raw pfc_hidden 对照</span></a>
+          <a class="artifact" href="m1i_failure_audit_g2_summary.json"><strong>M1i G2 机器结果</strong><span>逐 probe 分类、attention mass、archival geometry 与 raw pfc_hidden 对照</span></a>
           <a class="artifact" href="m1i_failure_audit_g2_protocol.json"><strong>M1i G2 冻结协议</strong><span>seed10932、category priority、query isolation、阈值和 post-result rule</span></a>
           <a class="artifact" href="REMAP_FORMER_M1I_RELIABLE_HISTORY_RESULT_CN.md"><strong>M1i + G2 完整结果</strong><span>架构、冻结训练、K=8 四条件盲测、G2 互斥错误分解与下一协议</span></a>
-          <a class="artifact" href="REMAP_FORMER_M1I_PILOT_SUMMARY.json"><strong>M1i 盲测 JSON</strong><span>128 probes、四条件、context geometry、choice dynamics 与冻结五门</span></a>
+          <a class="artifact" href="m1i_reliable_history_pilot_summary.json"><strong>M1i 盲测 JSON</strong><span>128 probes、四条件、context geometry、choice dynamics 与冻结五门</span></a>
           <a class="artifact" href="m1i_reliable_history_pilot_protocol.json"><strong>M1i 冻结协议</strong><span>digest 锁、2,479 参数范围、唯一 sensory CE、固定 step 600 与 run-once seed9931</span></a>
-          <a class="artifact" href="REMAP_FORMER_M1I_TRAIN_SUMMARY.json"><strong>M1i 训练汇总</strong><span>K=1/2/4/8 curriculum、固定 final checkpoint、训练轨迹与耗时</span></a>
+          <a class="artifact" href="m1i_reliable_history_seed1813_s600_summary.json"><strong>M1i 训练汇总</strong><span>K=1/2/4/8 curriculum、固定 final checkpoint、训练轨迹与耗时</span></a>
           <a class="artifact" href="REMAP_FORMER_M1I_RELIABLE_HISTORY_PILOT_CN.md"><strong>M1i 自动盲测报告</strong><span>四条件主表、五门 PASS/FAIL 与 learned caller dynamics</span></a>
           <a class="artifact" href="REMAP_FORMER_M1H_HISTORY_ATTENTION_RESULT_CN.md"><strong>最新：M1h 完整结果</strong><span>架构、hard 上界、600 步训练、K=8 盲测、失败归因与下一合法协议</span></a>
-          <a class="artifact" href="REMAP_FORMER_M1H_NEURAL_PILOT_SUMMARY.json"><strong>M1h Neural 盲测 JSON</strong><span>M1f/neural/no-call 三条件、context probe、choice dynamics 与冻结五门</span></a>
-          <a class="artifact" href="REMAP_FORMER_M1H_FAILURE_AUDIT_SUMMARY.json"><strong>M1h 失败审计 JSON</strong><span>exact key 可用性、Q/K top-1、attention confidence、call refusal 与 value 污染</span></a>
+          <a class="artifact" href="m1h_neural_attention_pilot_summary.json"><strong>M1h Neural 盲测 JSON</strong><span>M1f/neural/no-call 三条件、context probe、choice dynamics 与冻结五门</span></a>
+          <a class="artifact" href="m1h_neural_attention_failure_audit_summary.json"><strong>M1h 失败审计 JSON</strong><span>exact key 可用性、Q/K top-1、attention confidence、call refusal 与 value 污染</span></a>
           <a class="artifact" href="m1h_neural_attention_pilot_protocol.json"><strong>M1h 冻结训练与盲测协议</strong><span>3,467 参数范围、唯一 sensory CE、固定 step 600、新 seed K=8 五门</span></a>
-          <a class="artifact" href="REMAP_FORMER_M1H_NEURAL_TRAIN_SUMMARY.json"><strong>M1h 训练轨迹汇总</strong><span>固定 600 步首尾 dev、训练参数范围、耗时与唯一 final checkpoint</span></a>
+          <a class="artifact" href="m1h_neural_attention_seed1712_s600_summary.json"><strong>M1h 训练轨迹汇总</strong><span>固定 600 步首尾 dev、训练参数范围、耗时与唯一 final checkpoint</span></a>
           <a class="artifact" href="REMAP_FORMER_M1H_NEURAL_ATTENTION_PILOT_CN.md"><strong>M1h Neural 单独结果</strong><span>三条件主表、五门 PASS/FAIL 与 learned choice dynamics</span></a>
           <a class="artifact" href="REMAP_FORMER_M1H_NEURAL_FAILURE_AUDIT_CN.md"><strong>M1h 失败定位</strong><span>只读 post-hoc 审计；明确不得据 seed8928 调参或选模型</span></a>
           <a class="artifact" href="REMAP_FORMER_M1H_HISTORY_CALL_G1B_CN.md"><strong>M1h G1b Hard 上界</strong><span>32-step PFC-window persistence、shuffled control、六门确认</span></a>
           <a class="artifact" href="REMAP_FORMER_M1G_BIDIRECTIONAL_CONTEXT_RESULT_CN.md"><strong>最新：M1g 双向 HPC 冻结结论</strong><span>Transpose 与 rolling LS 两个新 seed gate、因果/泄漏/shuffled 对照和下一决策</span></a>
-          <a class="artifact" href="REMAP_FORMER_M1G_LEAST_SQUARES_G0B_SUMMARY.json"><strong>最新：LS G0b 机器可读结果</strong><span>四条件 context geometry、下游 return 干预、八个 gates 与 exact replay</span></a>
+          <a class="artifact" href="m1g_least_squares_g0b_summary.json"><strong>最新：LS G0b 机器可读结果</strong><span>四条件 context geometry、下游 return 干预、八个 gates 与 exact replay</span></a>
           <a class="artifact" href="m1g_least_squares_g0b_protocol.json"><strong>LS G0b 冻结协议</strong><span>全新 episodes、12 步 causal solver、relative ridge、阈值和 post-result rule</span></a>
-          <a class="artifact" href="REMAP_FORMER_M1G_REVERSE_G0_SUMMARY.json"><strong>Transpose G0 机器可读结果</strong><span>Covariance/raw/leaky/shuffled 五条件与冻结 signal gate</span></a>
+          <a class="artifact" href="m1g_reverse_context_g0_summary.json"><strong>Transpose G0 机器可读结果</strong><span>Covariance/raw/leaky/shuffled 五条件与冻结 signal gate</span></a>
           <a class="artifact" href="m1g_reverse_context_g0_protocol.json"><strong>Transpose G0 冻结协议</strong><span>新 seed K=8、禁止项、因果时序和晋级门</span></a>
           <a class="artifact" href="REMAP_FORMER_M1F_K8_ORACLE_DECOMPOSITION_CN.md"><strong>最新：M1f K=8 Oracle 归因</strong><span>384-probe 正确/错误历史 context、精确地址、Raw HPC 与冻结瓶颈分类</span></a>
-          <a class="artifact" href="REMAP_FORMER_M1F_K8_ORACLE_SUMMARY.json"><strong>最新：Oracle 机器可读结果</strong><span>逐 seed 六条件指标、paired counts、context/address geometry 与五个 gates</span></a>
-          <a class="artifact" href="REMAP_FORMER_M1F_K8_ORACLE_PROTOCOL.json"><strong>Oracle 看结果前冻结协议</strong><span>同 K=8 episodes、诊断条件、绝对阈值、互斥归因规则与禁止项</span></a>
+          <a class="artifact" href="m1f_k8_oracle_decomposition_summary.json"><strong>最新：Oracle 机器可读结果</strong><span>逐 seed 六条件指标、paired counts、context/address geometry 与五个 gates</span></a>
+          <a class="artifact" href="m1f_k8_oracle_decomposition_protocol.json"><strong>Oracle 看结果前冻结协议</strong><span>同 K=8 episodes、诊断条件、绝对阈值、互斥归因规则与禁止项</span></a>
           <a class="artifact" href="REMAP_FORMER_M1F_K8_TIMING_CONFIRMATION_CN.md"><strong>最新：M1f K=8 独立确认</strong><span>384-probe 复查、等次数 random、delay+6、同 probe 方向性与冻结机制判读</span></a>
-          <a class="artifact" href="REMAP_FORMER_M1F_K8_TIMING_SUMMARY.json"><strong>最新：K=8 机器可读结果</strong><span>逐 seed 五条件指标、schedule 数量、paired counts 与 specificity gates</span></a>
-          <a class="artifact" href="REMAP_FORMER_M1F_K8_TIMING_PROTOCOL.json"><strong>K=8 看结果前冻结协议</strong><span>全新 seeds、4 倍样本、random/delay controls 和三分支分类规则</span></a>
+          <a class="artifact" href="m1f_k8_timing_confirmation_summary.json"><strong>最新：K=8 机器可读结果</strong><span>逐 seed 五条件指标、schedule 数量、paired counts 与 specificity gates</span></a>
+          <a class="artifact" href="m1f_k8_timing_protocol.json"><strong>K=8 看结果前冻结协议</strong><span>全新 seeds、4 倍样本、random/delay controls 和三分支分类规则</span></a>
           <a class="artifact" href="REMAP_FORMER_M1F_3SEED_DEV_RESULT_CN.md"><strong>最新：M1f 三 Seed Dev 结果</strong><span>零参数架构、480-probe 配对结果、五个 gates、K=8 风险与结论边界</span></a>
-          <a class="artifact" href="REMAP_FORMER_M1F_3SEED_DEV_SUMMARY.json"><strong>最新：M1f 机器可读结果</strong><span>逐 seed、逐容量、同 probe 胜负、proposal 密度与冻结决定</span></a>
-          <a class="artifact" href="REMAP_FORMER_M1F_3SEED_DEV_PROTOCOL.json"><strong>M1f 看结果前冻结协议</strong><span>seeds、样本量、五个晋级门、禁止输入与 post-result rule</span></a>
+          <a class="artifact" href="m1f_three_seed_dev_summary.json"><strong>最新：M1f 机器可读结果</strong><span>逐 seed、逐容量、同 probe 胜负、proposal 密度与冻结决定</span></a>
+          <a class="artifact" href="m1f_three_seed_dev_protocol.json"><strong>M1f 看结果前冻结协议</strong><span>seeds、样本量、五个晋级门、禁止输入与 post-result rule</span></a>
           <a class="artifact" href="REMAP_FORMER_M1D_M1E_TIMING_IDENTITY_RESULT_CN.md"><strong>最新：M1d/M1e 收口报告</strong><span>160-probe timing/identity 因果分解、M1e 两种写入、no-recall 消融与下一决策</span></a>
-          <a class="artifact" href="REMAP_FORMER_M1E_PAIRED_DEV2918_SUMMARY.json"><strong>最新：机器可读成对结果</strong><span>逐容量、总体指标、同 probe 胜负计数与冻结晋级决定</span></a>
+          <a class="artifact" href="m1e_paired_dev2918_summary.json"><strong>最新：机器可读成对结果</strong><span>逐容量、总体指标、同 probe 胜负计数与冻结晋级决定</span></a>
           <a class="artifact" href="REMAP_FORMER_M1D_RECURRENT_CONTEXT_RESULT_CN.md"><strong>M1d 早期递归调用结果</strong><span>五个 train/dev 分支与旧边界分类 gate；请结合最新收口报告阅读</span></a>
           <a class="artifact" href="REMAP_FORMER_NOVEL_CAPACITY_BASELINES_20260713_CN.md"><strong>新容量 + 外部基线报告</strong><span>Transformer、Titans、容量曲线、失败归因与下一决策</span></a>
           <a class="artifact" href="REMAP_FORMER_ICLR_DESIGN_CN.md"><strong>ICLR 实验设计 v19</strong><span>M1p-q-r objective ablation、M1s mixed error audit 与模型线停止规则</span></a>
@@ -2206,7 +2540,7 @@
       </section>
     </main>
 
-    <footer>ReMAP-Former internal dashboard · 2026-07-16 · M1b 仍是正式模型；M1s fresh source→M1r 为 0.3672→0.6875，80 errors 按 router/event-identity/correct-room-downstream 分为 30/28/22，均未达 50% dominance；冻结 Mixed，不创建 M1t，模型线转入论文收口</footer>
+    <footer>ReMAP-Former internal dashboard · 2026-07-22 · 3D paper-aligned open9 正式 M1b 与 K=16 frozen-test 已完成；下一步为 source-aware neural HPC write gate。G8/G7 与既有负结果边界继续保留，不被 3D 结果覆盖</footer>
   </div>
 </body>
 </html>

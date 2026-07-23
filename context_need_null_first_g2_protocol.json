@@ -1,0 +1,129 @@
+{
+  "format": "remap_former.context_need_null_first_g2_protocol.v1",
+  "date": "2026-07-17",
+  "status": "FROZEN_BEFORE_G2_RUN",
+  "purpose": "Test a null-first hippocampal metacontroller that reuses a healthy null-context prefix HPC and invokes dynamic context only when causal retrieval contradiction is high.",
+  "disclosed_parents": {
+    "retrieval_g1_result": "runs/remap_former/context_need_retrieval_g1_seed2671701_2672201.json",
+    "retrieval_g1_result_sha256": "4834dfd196c0bbf761e3ef86fa3daf98b0284ce7d4aa0ebbe457cd15cfd20e84",
+    "retrieval_g1_status": "CONTEXT_NEED_RETRIEVAL_G1_REPLICATION_PASS",
+    "pfc_only_neural_result": "runs/remap_former/context_need_neural_seed2871701_s600/summary.json",
+    "pfc_only_neural_result_sha256": "ce4164dde0b86d1e822b15cdb846f12e037290027e80a227614aff18c28b83c6",
+    "pfc_only_neural_status": "CONTEXT_NEED_NEURAL_SINGLE_SEED_FAIL"
+  },
+  "source_checkpoint": "runs/remap_former/m1b_covariance_ridge0p03_seed712_frozen/m1b_frozen.pt",
+  "source_checkpoint_sha256": "4c16ea253abe1f277b09b3538e17e8b14d6cee11e6f6c08750c8af4ff79fbacf",
+  "source_checkpoint_seed": 712,
+  "score": {
+    "name": "null_prefix_retrieval_contradiction_cvar",
+    "prefix_length": 72,
+    "per_step_formula": "||v_t-r_t||^2 - ||v_t||^2",
+    "interpretation": "positive means the null-context HPC retrieval is worse than making no retrieval claim",
+    "aggregation": "mean of the largest ceil(0.10 * prefix_length) per-step contradictions",
+    "upper_tail_fraction": 0.1,
+    "retrieval_timing": "read before writing current sensory value",
+    "address_mode_during_score": "fixed normalized null context",
+    "decision_direction": "score >= threshold invokes inferred dynamic context; otherwise retain null context",
+    "threshold_rule": "0.5 * (median calibration T1 score + median calibration T2 score)",
+    "threshold_search": false,
+    "alternative_score_search_after_heldout": false,
+    "choice_rationale": "sparse wrong retrievals must not be diluted by all-token averaging; CVaR is frozen before observing any null-first score"
+  },
+  "state_machine": {
+    "initial_prefix_state": "one null-context covariance-corrected episode-local HPC",
+    "null_decision": "retain the exact prefix HPC state and continue without replay",
+    "dynamic_decision": "discard the null prefix state, replay the observed prefix once with inferred dynamic context, then retain only that selected HPC state",
+    "parallel_persistent_hpc_states_per_episode": 1,
+    "new_memory_slots": 0,
+    "new_fast_weight_systems": 0,
+    "stateful_covariance_continuation": true
+  },
+  "information_boundary": {
+    "allowed": [
+      "action history through frozen EC/place/context pathways",
+      "past and current sensory observations inside the 72-step observed prefix",
+      "read-before-write retrieval and value energy from the single transient null-prefix HPC"
+    ],
+    "forbidden_model_inputs": [
+      "room_id",
+      "task_id",
+      "absolute_position",
+      "place_id",
+      "segment_id",
+      "switch_mask",
+      "query_mask",
+      "return_mask",
+      "conflict_mask",
+      "future sensory or targets"
+    ],
+    "trainable_parameters": 0
+  },
+  "calibration": {
+    "t1_episodes": 256,
+    "t1_generator_seed": 2971701,
+    "t2_episodes": 256,
+    "t2_generator_seed": 2971801,
+    "t2_split": "train",
+    "grid_size": 11,
+    "n_objects": 64
+  },
+  "heldout": {
+    "t1_episodes": 256,
+    "t1_generator_seed": 2971901,
+    "t2_episodes": 256,
+    "t2_generator_seed": 2972001,
+    "t2_split": "dev",
+    "threshold_refit": false
+  },
+  "implementation_audit": {
+    "generator_seed": 2971601,
+    "batch_size": 4,
+    "sequence_length": 72,
+    "required_max_absolute_error": 0.0
+  },
+  "end_to_end": {
+    "t1_strict": {
+      "generator_seed": 2972101,
+      "batch_size": 64,
+      "chunk_size": 8,
+      "chunk_seed_rule": "generator_seed + zero-based chunk index",
+      "context_length": 72,
+      "imagination_length": 4096,
+      "future_memory_writes": 0
+    },
+    "t2_observed": {
+      "generator_seed": 2972201,
+      "batch_size": 128,
+      "chunk_size": 32,
+      "chunk_seed_rule": "generator_seed + zero-based chunk index",
+      "split": "dev",
+      "score_only_return_conflict_after_prefix": true
+    }
+  },
+  "acceptance_gates": {
+    "t2_calibration_median_above_t1": true,
+    "heldout_t1_null_selection_rate_at_least": 0.9,
+    "heldout_t2_dynamic_selection_rate_at_least": 0.9,
+    "heldout_balanced_accuracy_at_least": 0.925,
+    "heldout_auroc_at_least": 0.95,
+    "t1_strict_final_accuracy_4096_at_least": 0.95,
+    "t2_return_conflict_accuracy_at_least": 0.75,
+    "t2_clean_accuracy_at_least": 0.98,
+    "t1_mean_prefix_hpc_passes_at_most": 1.1,
+    "null_selected_episodes_replayed_exactly_zero": true,
+    "t2_all_scored_return_conflicts_after_prefix": true,
+    "future_write_steps_exactly_zero": true,
+    "stateful_scan_exactly_matches_formal_hpc": true,
+    "source_model_state_unchanged": true,
+    "one_selected_content_hpc": true
+  },
+  "post_result_rule": {
+    "all_gates_pass": "replace G1 as the preferred context-need controller and freeze a multi-checkpoint confirmation",
+    "any_signal_gate_fails": "stop null-first score family; do not tune prefix, CVaR fraction, threshold, formula, or seeds on G2 data",
+    "signal_passes_but_efficiency_fails": "retain G1 scientific result; localize state-reuse implementation without changing the score"
+  },
+  "formal_output": "runs/remap_former/context_need_null_first_g2_seed2971701_2972201.json",
+  "formal_report": "reports/REMAP_FORMER_CONTEXT_NEED_NULL_FIRST_G2_CN.md",
+  "smoke_output": "tmp/context_need_null_first_g2_smoke.json",
+  "overwrite_allowed": false
+}

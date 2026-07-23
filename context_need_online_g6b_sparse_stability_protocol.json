@@ -1,0 +1,91 @@
+{
+  "format": "remap_former.context_need_online_g6b_sparse_stability_protocol.v1",
+  "date": "2026-07-18",
+  "status": "FROZEN_AFTER_G6_FAILURE_BEFORE_G6B_RUN",
+  "purpose": "Classify whether the single failed G6 sparse-conflict endpoint gate is a one-bank tail event or a stable path-bank fragility, without changing the online controller.",
+  "disclosed_parent": {
+    "g6_protocol": "runs/remap_former/context_need_online_g6_protocol.json",
+    "g6_protocol_sha256": "ce7df2158b8e078e1be04813f5a28f1f245f63048abae30480f64b5e05126abc",
+    "g6_result": "runs/remap_former/context_need_online_g6_seed4171701_4222001.json",
+    "g6_result_sha256": "38269077e7435d9e2fe12357e817e648edd124c51f3b7849b82488231b61f63e",
+    "g6_status": "CONTEXT_NEED_ONLINE_G6_FAIL",
+    "g6_passed_gates": 92,
+    "g6_total_gates": 93,
+    "failed_gate": "sparse_conflict.t2_return",
+    "failed_value": 0.671875,
+    "failed_threshold": 0.7,
+    "g5_sparse_reference_value": 0.796875,
+    "g6_evaluator_sha256": "69fa3aeb6f6d4025543e8fe7ac2fee0d5752bad7481f7aa6f9c5f0158a3995ec",
+    "online_core_sha256": "1e8981af5999068aa2b9edea8491a41d86437647b327e1f05c4ee9dd9a961875"
+  },
+  "frozen_controller": {
+    "observation_horizon": 72,
+    "recurrence_similarity_threshold": 0.99999,
+    "numeric_threshold": 0.07688456773757935,
+    "trigger_rule": "first causal recurrent-address contradiction crossing",
+    "trainable_parameters": 0,
+    "metadata_inputs": 0,
+    "formula_or_threshold_change": false
+  },
+  "checkpoints": [
+    {"seed": 712, "path": "runs/remap_former/m1b_covariance_ridge0p03_seed712_frozen/m1b_frozen.pt", "sha256": "4c16ea253abe1f277b09b3538e17e8b14d6cee11e6f6c08750c8af4ff79fbacf"},
+    {"seed": 713, "path": "runs/remap_former/m1b_covariance_ridge0p03_seed713_frozen/m1b_frozen.pt", "sha256": "cb33433bc291128607453c8c46a5d591f2f34c4ed41f6cba08afe137e36d698f"},
+    {"seed": 714, "path": "runs/remap_former/m1b_covariance_ridge0p03_seed714_frozen/m1b_frozen.pt", "sha256": "a915e10525008c1ba2435595ee30c019fad15e49ef98723a1df39ecf26b51df1"},
+    {"seed": 715, "path": "runs/remap_former/m1b_covariance_ridge0p03_seed715_frozen/m1b_frozen.pt", "sha256": "6dc9f352e67974352266f76e42dcd00d5ff820350134ef01cca12ace33ae62d9"},
+    {"seed": 716, "path": "runs/remap_former/m1b_covariance_ridge0p03_seed716_frozen/m1b_frozen.pt", "sha256": "d44d741faba5d27f3c30dd800e2c85836784a83235e182f3501be58b78c8c029"},
+    {"seed": 717, "path": "runs/remap_former/m1b_covariance_ridge0p03_seed717_frozen/m1b_frozen.pt", "sha256": "3e39d179b4e1f26d9d5574863b41e7c75585e37f1d9869c5ade284a8382e621a"},
+    {"seed": 718, "path": "runs/remap_former/m1b_covariance_ridge0p03_seed718_frozen/m1b_frozen.pt", "sha256": "e1e3434a3e6c350a2591ebf8568d29a9a640a0165fa86bc299adc1370df88be6"},
+    {"seed": 719, "path": "runs/remap_former/m1b_covariance_ridge0p03_seed719_frozen/m1b_frozen.pt", "sha256": "6a1fa01251ca14e389e21ceea1a25c9b6f38cd9e8836fc43d528cf69351a244f"}
+  ],
+  "fresh_sparse_banks": [
+    {"name": "sparse_bank_1", "grid_size": 11, "t2_split": "test", "approach_length": 12, "n_query_targets": 4, "n_conflict_targets": 1, "family_seed": 4271701, "sequence_length": 176, "generator_seed_base": 4272001},
+    {"name": "sparse_bank_2", "grid_size": 11, "t2_split": "test", "approach_length": 12, "n_query_targets": 4, "n_conflict_targets": 1, "family_seed": 4371701, "sequence_length": 176, "generator_seed_base": 4372001},
+    {"name": "sparse_bank_3", "grid_size": 11, "t2_split": "test", "approach_length": 12, "n_query_targets": 4, "n_conflict_targets": 1, "family_seed": 4471701, "sequence_length": 176, "generator_seed_base": 4472001},
+    {"name": "sparse_bank_4", "grid_size": 11, "t2_split": "test", "approach_length": 12, "n_query_targets": 4, "n_conflict_targets": 1, "family_seed": 4671701, "sequence_length": 176, "generator_seed_base": 4672001}
+  ],
+  "generator_preflight": {
+    "audit_generator_seed": 4271801,
+    "each_path_family_count": 32,
+    "all_pairwise_new_bank_overlap": 0,
+    "all_overlap_with_g5_calibration_train": 0,
+    "all_overlap_with_g5_heldout_test": 0,
+    "all_overlap_with_g6_test": 0,
+    "all_overlap_with_original_train": 0,
+    "all_gauge_pair_actions_and_sensory_exact": true,
+    "all_prefix_conflict_evidence_rate": 1.0,
+    "all_return_conflicts_after_horizon": true,
+    "rejected_candidate": {"family_seed": 4571701, "reason": "two canonical paths overlapped G5 calibration train; rejected before model scoring"}
+  },
+  "samples": {
+    "selection_episodes_per_bank": 64,
+    "selection_chunk_size": 16,
+    "selection_seed_offset": 100,
+    "observed_episodes_per_checkpoint_bank": 32,
+    "observed_chunk_size": 16,
+    "observed_seed_offset": 400,
+    "n_objects": 64,
+    "total_return_conflict_probes": 1024
+  },
+  "classification_gates": {
+    "each_generator_bank_healthy": true,
+    "each_bank_selection_dynamic_rate_at_least": 0.95,
+    "online_fixed_decision_agreement_exactly": 1.0,
+    "online_fixed_state_and_logits_max_abs_at_most": 0.00001,
+    "each_bank_mean_online_prefix_passes_at_most": 1.95,
+    "pooled_return_conflict_accuracy_at_least": 0.7,
+    "median_bank_return_conflict_accuracy_at_least": 0.7,
+    "banks_at_or_above_0p7_at_least": 3,
+    "pooled_clean_accuracy_at_least": 0.98,
+    "all_source_states_unchanged": true,
+    "one_selected_content_hpc_per_checkpoint": true
+  },
+  "classification_rule": {
+    "all_stability_gates_pass": "SPARSE_STABLE_ACROSS_FRESH_BANKS; G6 formal FAIL remains immutable, but the failed bank is classified as a tail event",
+    "any_stability_gate_fails": "SPARSE_PATH_BANK_FRAGILE; retain G6 formal FAIL and stop broad sparse-endpoint claims",
+    "g6_result_can_be_overwritten": false
+  },
+  "formal_output": "runs/remap_former/context_need_online_g6b_sparse_stability_seed4271701_4672001.json",
+  "formal_report": "reports/REMAP_FORMER_CONTEXT_NEED_ONLINE_G6B_SPARSE_STABILITY_CN.md",
+  "smoke_output": "tmp/context_need_online_g6b_sparse_stability_smoke.json",
+  "overwrite_allowed": false
+}

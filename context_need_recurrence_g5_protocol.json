@@ -1,0 +1,117 @@
+{
+  "format": "remap_former.context_need_recurrence_g5_protocol.v1",
+  "date": "2026-07-17",
+  "status": "FROZEN_BEFORE_G5_RUN",
+  "purpose": "Test an address-familiarity-gated retrieval contradiction that suppresses novel-address noise and preserves single sparse conflict evidence.",
+  "disclosed_failures": {
+    "g4_result": "runs/remap_former/context_need_null_first_g4_ood_seed3371601_3432001.json",
+    "g4_result_sha256": "6d511d02dab8070a1f5a5201815b4eaa0d88625b1a1149f4f416dae24043d7a0",
+    "g4_status": "CONTEXT_NEED_NULL_FIRST_G4_OOD_FAIL",
+    "g4_endpoint_audit": "runs/remap_former/context_need_g4_failure_endpoint_audit_seed3401901_3432001.json",
+    "g4_endpoint_audit_sha256": "5c8dc37a489f3eef7f32a5952e0d1bfc0918a12a8a68174516ef11370f4cbfab",
+    "failure_summary": "grid13 controller false-positive; query2 and sparse controller false-negatives; dense downstream capacity failure"
+  },
+  "checkpoints": [
+    {"seed": 712, "path": "runs/remap_former/m1b_covariance_ridge0p03_seed712_frozen/m1b_frozen.pt", "sha256": "4c16ea253abe1f277b09b3538e17e8b14d6cee11e6f6c08750c8af4ff79fbacf"},
+    {"seed": 713, "path": "runs/remap_former/m1b_covariance_ridge0p03_seed713_frozen/m1b_frozen.pt", "sha256": "cb33433bc291128607453c8c46a5d591f2f34c4ed41f6cba08afe137e36d698f"},
+    {"seed": 714, "path": "runs/remap_former/m1b_covariance_ridge0p03_seed714_frozen/m1b_frozen.pt", "sha256": "a915e10525008c1ba2435595ee30c019fad15e49ef98723a1df39ecf26b51df1"},
+    {"seed": 715, "path": "runs/remap_former/m1b_covariance_ridge0p03_seed715_frozen/m1b_frozen.pt", "sha256": "6dc9f352e67974352266f76e42dcd00d5ff820350134ef01cca12ace33ae62d9"},
+    {"seed": 716, "path": "runs/remap_former/m1b_covariance_ridge0p03_seed716_frozen/m1b_frozen.pt", "sha256": "d44d741faba5d27f3c30dd800e2c85836784a83235e182f3501be58b78c8c029"},
+    {"seed": 717, "path": "runs/remap_former/m1b_covariance_ridge0p03_seed717_frozen/m1b_frozen.pt", "sha256": "3e39d179b4e1f26d9d5574863b41e7c75585e37f1d9869c5ade284a8382e621a"},
+    {"seed": 718, "path": "runs/remap_former/m1b_covariance_ridge0p03_seed718_frozen/m1b_frozen.pt", "sha256": "e1e3434a3e6c350a2591ebf8568d29a9a640a0165fa86bc299adc1370df88be6"},
+    {"seed": 719, "path": "runs/remap_former/m1b_covariance_ridge0p03_seed719_frozen/m1b_frozen.pt", "sha256": "6a1fa01251ca14e389e21ceea1a25c9b6f38cd9e8836fc43d528cf69351a244f"}
+  ],
+  "score": {
+    "name": "exact_recurrence_gated_max_contradiction",
+    "prefix_length": 72,
+    "per_step_contradiction": "||v_t-r_t||^2 - ||v_t||^2",
+    "familiarity": "maximum cosine similarity between current neural place code and strictly earlier place codes",
+    "recurrent_step_rule": "familiarity >= 0.99999",
+    "recurrence_similarity_threshold": 0.99999,
+    "aggregation": "maximum contradiction over recurrent steps only",
+    "no_recurrent_step_score": 0.0,
+    "decision_direction": "score >= calibration midpoint invokes inferred dynamic context",
+    "metadata_inputs": 0,
+    "trainable_parameters": 0
+  },
+  "calibration": {
+    "threshold_rule": "0.5 * (median of pooled T1 calibration scores + median of pooled T2 calibration scores)",
+    "t1_components": [
+      {"grid_size": 9, "episodes": 64, "generator_seed": 3871701},
+      {"grid_size": 11, "episodes": 64, "generator_seed": 3871801},
+      {"grid_size": 13, "episodes": 64, "generator_seed": 3871901},
+      {"grid_size": 15, "episodes": 64, "generator_seed": 3872001}
+    ],
+    "t2_components": [
+      {"name": "default", "grid_size": 11, "episodes": 64, "generator_seed": 3872101, "split": "train", "approach_length": 12, "n_query_targets": 4, "n_conflict_targets": 2, "family_seed": 3571701},
+      {"name": "grid13", "grid_size": 13, "episodes": 64, "generator_seed": 3872201, "split": "train", "approach_length": 12, "n_query_targets": 4, "n_conflict_targets": 2, "family_seed": 3571701},
+      {"name": "query2", "grid_size": 11, "episodes": 64, "generator_seed": 3872301, "split": "train", "approach_length": 12, "n_query_targets": 2, "n_conflict_targets": 1, "family_seed": 3571701},
+      {"name": "sparse", "grid_size": 11, "episodes": 64, "generator_seed": 3872401, "split": "train", "approach_length": 12, "n_query_targets": 4, "n_conflict_targets": 1, "family_seed": 3571701}
+    ],
+    "threshold_search": false
+  },
+  "heldout_generator_audit": {
+    "batch_size": 16,
+    "generator_seed": 3771601,
+    "heldout_test_path_overlap_with_calibration_train": 0,
+    "heldout_test_path_overlap_with_original_train": 0,
+    "all_prefix_conflict_evidence_rate": 1.0,
+    "all_return_conflicts_after_prefix": true
+  },
+  "heldout_families": [
+    {"name": "grid7", "grid_size": 7, "t2_split": "test", "approach_length": 12, "n_query_targets": 4, "n_conflict_targets": 2, "family_seed": 3671701, "sequence_length": 176, "endpoint": true, "generator_seed_base": 3971601},
+    {"name": "grid15", "grid_size": 15, "t2_split": "test", "approach_length": 12, "n_query_targets": 4, "n_conflict_targets": 2, "family_seed": 3671701, "sequence_length": 176, "endpoint": true, "generator_seed_base": 3981601},
+    {"name": "query3", "grid_size": 11, "t2_split": "test", "approach_length": 12, "n_query_targets": 3, "n_conflict_targets": 1, "family_seed": 3671701, "sequence_length": 144, "endpoint": true, "generator_seed_base": 3991601},
+    {"name": "query2", "grid_size": 11, "t2_split": "test", "approach_length": 12, "n_query_targets": 2, "n_conflict_targets": 1, "family_seed": 3671701, "sequence_length": 112, "endpoint": true, "generator_seed_base": 4001601},
+    {"name": "sparse_conflict", "grid_size": 11, "t2_split": "test", "approach_length": 12, "n_query_targets": 4, "n_conflict_targets": 1, "family_seed": 3671701, "sequence_length": 176, "endpoint": true, "generator_seed_base": 4011601},
+    {"name": "dense_selection_only", "grid_size": 11, "t2_split": "test", "approach_length": 12, "n_query_targets": 4, "n_conflict_targets": 4, "family_seed": 3671701, "sequence_length": 176, "endpoint": false, "generator_seed_base": 4021601}
+  ],
+  "per_heldout_family_samples": {
+    "selection_t1_episodes": 128,
+    "selection_t2_episodes": 128,
+    "selection_seed_offsets": {"t1": 100, "t2": 200},
+    "t1_strict_episodes": 16,
+    "t1_strict_chunk_size": 8,
+    "t1_strict_seed_offset": 300,
+    "t1_imagination_length": 4096,
+    "t2_observed_episodes_per_checkpoint": 16,
+    "t2_observed_chunk_size": 16,
+    "t2_observed_seed_offset": 400,
+    "n_objects": 64
+  },
+  "acceptance_gates": {
+    "calibration_t2_median_above_t1": true,
+    "each_family_t1_null_selection_rate_at_least": 0.9,
+    "each_family_t2_dynamic_selection_rate_at_least": 0.9,
+    "each_family_balanced_accuracy_at_least": 0.925,
+    "each_family_auroc_at_least": 0.95,
+    "each_endpoint_family_t1_final_accuracy_4096_at_least": 0.9,
+    "each_endpoint_family_t1_mean_prefix_passes_at_most": 1.15,
+    "each_endpoint_family_t2_return_conflict_accuracy_at_least": 0.7,
+    "each_endpoint_family_t2_clean_accuracy_at_least": 0.95,
+    "pooled_balanced_accuracy_at_least": 0.95,
+    "pooled_auroc_at_least": 0.98,
+    "pooled_t1_final_accuracy_4096_at_least": 0.95,
+    "pooled_t1_mean_prefix_passes_at_most": 1.1,
+    "pooled_t2_return_conflict_accuracy_at_least": 0.75,
+    "pooled_t2_clean_accuracy_at_least": 0.98,
+    "null_selected_episodes_replayed_exactly_zero": true,
+    "future_write_steps_exactly_zero": true,
+    "all_source_model_states_unchanged": true,
+    "one_selected_content_hpc_per_checkpoint": true
+  },
+  "information_boundary": {
+    "forbidden_model_inputs": ["room_id", "task_id", "absolute_position", "place_id", "segment_id", "switch_mask", "query_mask", "return_mask", "conflict_mask", "path_family_id", "future sensory or targets"],
+    "only_causal_prefix_actions_sensory_addresses_and_retrievals": true,
+    "new_memory_slots": 0,
+    "new_fast_weight_systems": 0
+  },
+  "post_result_rule": {
+    "all_gates_pass": "freeze recurrence-gated controller and next test online decision timing",
+    "any_gate_fails": "stop this score family; do not tune recurrence threshold, aggregation, calibration rule, prefix, task list, checkpoint, or seeds on G5 data"
+  },
+  "formal_output": "runs/remap_former/context_need_recurrence_g5_seed3871701_4022001.json",
+  "formal_report": "reports/REMAP_FORMER_CONTEXT_NEED_RECURRENCE_G5_CN.md",
+  "smoke_output": "tmp/context_need_recurrence_g5_smoke.json",
+  "overwrite_allowed": false
+}

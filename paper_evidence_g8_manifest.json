@@ -1,0 +1,159 @@
+{
+  "format": "remap_former.paper_evidence_g8_manifest.v1",
+  "date": "2026-07-18",
+  "scope": "Additive G8 paper evidence package; does not replace legacy P0/P5.",
+  "builder": {
+    "path": "build_remap_former_g8_paper_package.py",
+    "bytes": 36489,
+    "sha256": "4b6a3ff3b2cdf80481f661738ca9956b6626d0eba8bb3dea443b448af47dc61f"
+  },
+  "frozen_inputs": [
+    {
+      "path": "runs/remap_former/p2_m1b_t1_hierarchical_bootstrap_seed2171601.json",
+      "bytes": 33920,
+      "sha256": "5dbf74af66b22815c21aa5a3f5b3af376aa29d1554951221d6d92eb2c22b625b"
+    },
+    {
+      "path": "runs/remap_former/p3_test2_seed2471601.json",
+      "bytes": 12596538,
+      "sha256": "3bc282f225bc1445f4cef4b80c5e7c7c30f1fda8928477931c8d58f94ca2a065"
+    },
+    {
+      "path": "runs/remap_former/context_need_online_g7_variable_horizon_protocol.json",
+      "bytes": 10953,
+      "sha256": "c24a489cda3f5c6b449d6e0dc9732ae99872a0f15892c787f1e637d08a9be255"
+    },
+    {
+      "path": "runs/remap_former/context_need_online_g7_variable_horizon_seed4871701_4922001.json",
+      "bytes": 1241107,
+      "sha256": "daee4912e3e6a62d9daf019a7a7fa78d51327824b24745fff73adaa8d9209871"
+    },
+    {
+      "path": "runs/remap_former/context_need_online_g8_hidden_cutoff_protocol.json",
+      "bytes": 10138,
+      "sha256": "fe3dccbb8fb5b6718714f5ff71e8b23c5c4dfd22385b9571cdc88b280c210b5d"
+    },
+    {
+      "path": "runs/remap_former/context_need_online_g8_hidden_cutoff_seed5471701_5522001.json",
+      "bytes": 760308,
+      "sha256": "9ea58a909cd3e9b3976f1a93b7adc541bfeee8fe897e7b30c73e184c77bdf41e"
+    },
+    {
+      "path": "runs/remap_former/p0_truth_freeze_manifest.json",
+      "bytes": 17800,
+      "sha256": "e4cef9d39041c7d1f4e624f9ba9f1afedc368461bd5163cf63a1e015ae4aa3fa"
+    },
+    {
+      "path": "runs/remap_former/p5_release_manifest.json",
+      "bytes": 5074,
+      "sha256": "cc78b634e970d0ec0614cef23b15bdf797c392c348d946e27e8abecbc60ce30d"
+    },
+    {
+      "path": "reports/REMAP_FORMER_M1B_CANONICAL_ARCHITECTURE_CN.md",
+      "bytes": 3725,
+      "sha256": "8cf0c75706c5c2a9f19558831ec2bc4a80f33f547d8891022014393d20b6e08f"
+    },
+    {
+      "path": "evaluate_remap_context_need_online_g7_variable_horizon.py",
+      "bytes": 55757,
+      "sha256": "17f51af46a29ddab494ee7d83f262b3949fd9eb622e08c1295614c5be526fd2b"
+    },
+    {
+      "path": "evaluate_remap_context_need_online_g8_hidden_cutoff.py",
+      "bytes": 48496,
+      "sha256": "67815034cf125fbd09cb309d79f3323265c5c71f29ea214e6eadc42195949f20"
+    },
+    {
+      "path": "remap_former/m1.py",
+      "bytes": 7438,
+      "sha256": "8f1466a9c332a056b0cf24af832cea998179d18499a7186dc464a8422de0348b"
+    },
+    {
+      "path": "remap_former/memory.py",
+      "bytes": 7003,
+      "sha256": "0f1a74a6cd12f2ee901293ebccfeea7252fefae44bf08c0ac6a5cdab7d032b44"
+    },
+    {
+      "path": "remap_former/pfc.py",
+      "bytes": 4381,
+      "sha256": "091a8d9b645c7bba2e186fad25ccd9c151930dce597357d809101d7b96751dc4"
+    }
+  ],
+  "generated_outputs": [
+    {
+      "path": "runs/remap_former/paper_evidence_g8_tables.json",
+      "bytes": 12442,
+      "sha256": "f44d2062ef6576d9217642ca6b96cda547e82caa288d6deb8b83d61b1703ab92"
+    },
+    {
+      "path": "reports/REMAP_FORMER_PAPER_EVIDENCE_G8_CN.md",
+      "bytes": 3988,
+      "sha256": "ee157b2b06aaac418ed29465b1224f4acca8084b3bb5390a054071f0e99e9e01"
+    },
+    {
+      "path": "reports/figures/remap_former_m1b_architecture_g8.png",
+      "bytes": 232858,
+      "sha256": "c767b395d8a9c6e648da638fb6c3427e3254df480b0e4bb28a0247d94e4d1aec"
+    },
+    {
+      "path": "reports/figures/remap_former_m1b_architecture_g8.pdf",
+      "bytes": 38855,
+      "sha256": "381c03b5c6acaad88780a04a7f55e46a96c4096521b1bbda0267de6347889dfc"
+    },
+    {
+      "path": "reports/figures/remap_former_g7_g8_hidden_cutoff.png",
+      "bytes": 175385,
+      "sha256": "dbc0a9611f89b167b2127ac1a84eb31e604f3e32b85f3d830431c04f8a4860af"
+    },
+    {
+      "path": "reports/figures/remap_former_g7_g8_hidden_cutoff.pdf",
+      "bytes": 31089,
+      "sha256": "28af01e1bb10ea1cfe4e932180bd3706e45c4dc86c2a2c1e032776cbfdf8e805"
+    }
+  ],
+  "audits": {
+    "frozen_input_hash_count": 14,
+    "g7_status": "CONTEXT_NEED_ONLINE_G7_VARIABLE_HORIZON_PASS",
+    "g8_status": "CONTEXT_NEED_ONLINE_G8_HIDDEN_CUTOFF_PASS",
+    "g7_gate_count": 148,
+    "g8_gate_count": 59,
+    "g8_shadow_batches": [
+      54,
+      54
+    ],
+    "architecture_png": {
+      "width": 2438,
+      "height": 995,
+      "pixel_std": 0.18450139772278007,
+      "nonwhite_fraction": 0.28026061398048485,
+      "nonblank": true
+    },
+    "hidden_cutoff_png": {
+      "width": 2191,
+      "height": 920,
+      "pixel_std": 0.17796295243111396,
+      "nonwhite_fraction": 0.07413678487091462,
+      "nonblank": true
+    },
+    "pdf_bytes": {
+      "remap_former_m1b_architecture_g8.pdf": 38855,
+      "remap_former_g7_g8_hidden_cutoff.pdf": 31089
+    },
+    "legacy_p5_status": "EVIDENCE_COMPLETE_RELEASE_BLOCKED",
+    "legacy_p5_release_ready": false,
+    "legacy_p0_mismatch_paths": [
+      "remap_former/pfc.py"
+    ],
+    "legacy_manifest_preserved": true
+  },
+  "gates": {
+    "all_frozen_inputs_match": true,
+    "g7_g8_formal_results_pass": true,
+    "g8_shadow_audit_complete": true,
+    "figures_nonblank": true,
+    "pdfs_nontrivial": true,
+    "legacy_p0_block_disclosed": true,
+    "legacy_p5_not_overwritten": true
+  },
+  "status": "PAPER_EVIDENCE_G8_READY_LEGACY_P0_BLOCK_DISCLOSED"
+}

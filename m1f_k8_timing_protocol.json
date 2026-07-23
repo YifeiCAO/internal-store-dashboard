@@ -1,0 +1,42 @@
+{
+  "format": "remap_former.m1f_k8_timing_protocol.v1",
+  "frozen_date": "2026-07-13",
+  "scope": "independent K=8 dev-only confirmation and timing-specificity diagnostic; no stress, formal validation, or test",
+  "model_seeds": [712, 713, 714],
+  "generator_seeds": [3921, 3922, 3923],
+  "capacity_level": 8,
+  "grid_size": 11,
+  "max_jitter_cycles": 4,
+  "batch_size": 4,
+  "batches_per_seed": 16,
+  "episodes_per_seed": 64,
+  "return_conflict_probes_per_seed": 128,
+  "return_conflict_probes_total": 384,
+  "content_hpc_covariance_ridge": 0.001,
+  "conditions": [
+    "m1b_ridge0p001",
+    "m1f_balanced_refresh",
+    "m1f_no_refresh",
+    "m1f_delay6_refresh",
+    "m1f_rate_matched_random_refresh"
+  ],
+  "delay_steps": 6,
+  "random_schedule": "within each episode, permute balanced proposal indicators over positions t>=window-1 with a fixed diagnostic RNG; preserves proposal count exactly but is a diagnostic negative control, not a causal model",
+  "frozen_thresholds": {
+    "k8_balanced_vs_m1b_noninferiority": 0.0,
+    "positive_model_seed_count_at_least": 2,
+    "balanced_vs_no_refresh_at_least": 0.10,
+    "maximum_clean_drop_at_most": 0.02,
+    "structure_specific_gain_vs_random_at_least": 0.05,
+    "structure_specific_gain_vs_delay6_at_least": 0.05
+  },
+  "classification_rule": {
+    "K8_CONFIRMED_STRUCTURE_SPECIFIC": "all six frozen thresholds pass",
+    "K8_CONFIRMED_GENERIC_HOLD_REFRESH": "K8 noninferiority, positive-seed, causal, and clean gates pass but either timing-specificity gate fails",
+    "K8_WEAKNESS_CONFIRMED": "K8 noninferiority, positive-seed, causal, or clean gate fails"
+  },
+  "training": "none",
+  "checkpoint_selection": "none",
+  "model_change_after_previous_result": "none; only a strictly validated diagnostic schedule override was added",
+  "post_result_rule": "do not change M1f, seeds, sample count, schedules, or thresholds after reading results"
+}

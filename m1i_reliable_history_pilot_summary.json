@@ -1,0 +1,270 @@
+{
+  "format": "remap_former.m1i_reliable_history_pilot_result.v1",
+  "protocol": {
+    "format": "remap_former.m1i_reliable_history_pilot_protocol.v1",
+    "frozen_date": "2026-07-14",
+    "scope": "single training seed and one new K=8 dev pilot after the M1h neural caller was rejected; no stress, formal validation, test, or multi-seed expansion",
+    "source_model_seed": 712,
+    "source_checkpoint": "runs/remap_former/m1b_covariance_ridge0p03_seed712_frozen/m1b_frozen.pt",
+    "content_hpc_covariance_ridge": 0.001,
+    "architecture": {
+      "attention_temperature": 0.05,
+      "evidence_temperature": 0.02,
+      "null_decision_temperature": 0.05,
+      "null_similarity_min": 0.75,
+      "null_similarity_max": 0.99,
+      "initial_null_similarity": 0.9,
+      "controller_hidden_dim": 32,
+      "key": "fixed normalized causal cyclic relation signature; no learned Q/K in Stage A",
+      "history_value": "immutable base_context at prior proposal tokens j<t; active recalled context is never written back into history values",
+      "choices": [
+        "hold_current",
+        "refresh_from_base",
+        "call_archival_history"
+      ],
+      "call_rule": "continuous soft structural evidence competes with a learned bounded null similarity; no exact equality, hard threshold, top-k, index lookup, or persistence counter",
+      "initial_hold_refresh_bias": [
+        0.0,
+        2.0
+      ]
+    },
+    "train_seed": 1813,
+    "train_split": "train",
+    "training_generator": "make_novel_distractor_capacity_batch",
+    "capacity_curriculum": [
+      1,
+      2,
+      4,
+      8
+    ],
+    "curriculum_schedule": "deterministic equal-frequency cycle over K=1,2,4,8",
+    "max_jitter_cycles": 4,
+    "steps": 600,
+    "batch_size": 4,
+    "grid_size": 11,
+    "learning_rate": 0.001,
+    "weight_decay": 0.0001,
+    "gradient_clip": 1.0,
+    "eval_every": 100,
+    "eval_batches_per_level": 2,
+    "dev_monitor_seed": 22713,
+    "checkpoint_selection": "none; fixed final step 600 is the only K=8 candidate",
+    "trainable_scope": "bounded null similarity plus hold/refresh LayerNorm and MLP only; fixed structural keys and all pretrained PFC, EC, place, context head, content HPC, fusion, and decoder parameters are frozen",
+    "loss": "one unweighted all-token sensory cross-entropy only",
+    "forbidden_losses": [
+      "room or context classification",
+      "history matching or contrastive loss",
+      "hard-caller distillation",
+      "attention entropy or confidence loss",
+      "return or query reweighting"
+    ],
+    "forbidden_state": [
+      "context slots",
+      "second fast-weight matrix",
+      "recursive write-back of recalled context into archival values",
+      "room, segment, path-family, return-reference, position, or place metadata"
+    ],
+    "causal_contract": "prediction t reads actions through t, sensory only through t-1, and archival PFC proposal tokens j<t; x_t is revealed only after prediction and then enters the existing content-HPC write",
+    "k8_pilot": {
+      "generator_seed": 9931,
+      "capacity_level": 8,
+      "max_jitter_cycles": 4,
+      "batch_size": 4,
+      "batches": 16,
+      "episodes": 64,
+      "return_conflict_probes": 128,
+      "conditions": [
+        "frozen_m1f",
+        "m1i_reliable_history",
+        "m1i_no_history_call",
+        "m1i_force_history_call"
+      ],
+      "frozen_thresholds": {
+        "reliable_return_conflict_acc_at_least": 0.75,
+        "reliable_gain_vs_m1f_at_least": 0.2,
+        "history_call_gain_vs_no_call_at_least": 0.15,
+        "reliable_clean_drop_vs_m1f_at_most": 0.02,
+        "reliable_context_pair_accuracy_at_least": 0.8
+      },
+      "force_history_call_role": "diagnostic only; it cannot change the five frozen progression gates"
+    },
+    "post_result_rule": "all five K=8 gates must pass before any three-seed training; otherwise stop and report without tuning on generator seed 9931"
+  },
+  "device": "cuda",
+  "baseline_checkpoint_step": 600,
+  "reliable_checkpoint": "runs\\remap_former\\m1i_reliable_history_seed1813_s600\\m1i_final.pt",
+  "reliable_checkpoint_step": 600,
+  "metrics": {
+    "frozen_m1f": {
+      "loss": 1.930750996213364,
+      "query_acc": 0.9401041666666666,
+      "query_queries": 3072.0,
+      "clean_acc": 0.959375,
+      "clean_queries": 2560.0,
+      "conflict_acc": 0.84375,
+      "conflict_queries": 512.0,
+      "return_acc": 0.453125,
+      "return_queries": 256.0,
+      "return_conflict_acc": 0.390625,
+      "return_conflict_queries": 128.0,
+      "other_room_target_rate": 0.046875,
+      "correct_target_probability": 0.28802914335392416,
+      "other_room_target_probability": 0.0519566169459722,
+      "target_probability_margin": 0.23607252640795195,
+      "tokens": 36576.0
+    },
+    "m1i_reliable_history": {
+      "loss": 1.7237459785147706,
+      "query_acc": 0.9641927083333334,
+      "query_queries": 3072.0,
+      "clean_acc": 0.975,
+      "clean_queries": 2560.0,
+      "conflict_acc": 0.91015625,
+      "conflict_queries": 512.0,
+      "return_acc": 0.625,
+      "return_queries": 256.0,
+      "return_conflict_acc": 0.640625,
+      "return_conflict_queries": 128.0,
+      "other_room_target_rate": 0.0,
+      "correct_target_probability": 0.40441915299743414,
+      "other_room_target_probability": 0.012264977995073423,
+      "target_probability_margin": 0.3921541750023607,
+      "tokens": 36576.0
+    },
+    "m1i_no_history_call": {
+      "loss": 1.6179111777745312,
+      "query_acc": 0.9440104166666666,
+      "query_queries": 3072.0,
+      "clean_acc": 0.96875,
+      "clean_queries": 2560.0,
+      "conflict_acc": 0.8203125,
+      "conflict_queries": 512.0,
+      "return_acc": 0.3515625,
+      "return_queries": 256.0,
+      "return_conflict_acc": 0.28125,
+      "return_conflict_queries": 128.0,
+      "other_room_target_rate": 0.03125,
+      "correct_target_probability": 0.22078265856544022,
+      "other_room_target_probability": 0.027660832805850077,
+      "target_probability_margin": 0.19312182575959014,
+      "tokens": 36576.0
+    },
+    "m1i_force_history_call": {
+      "loss": 2.2116543093169874,
+      "query_acc": 0.8756510416666666,
+      "query_queries": 3072.0,
+      "clean_acc": 0.89140625,
+      "clean_queries": 2560.0,
+      "conflict_acc": 0.796875,
+      "conflict_queries": 512.0,
+      "return_acc": 0.3125,
+      "return_queries": 256.0,
+      "return_conflict_acc": 0.3125,
+      "return_conflict_queries": 128.0,
+      "other_room_target_rate": 0.0625,
+      "correct_target_probability": 0.2624313575404358,
+      "other_room_target_probability": 0.0659931958539346,
+      "target_probability_margin": 0.1964381616865012,
+      "tokens": 36576.0
+    }
+  },
+  "context_metrics": {
+    "frozen_m1f": {
+      "pair_accuracy_tie_adjusted": 0.90625,
+      "correct_preference_rate": 0.90625,
+      "wrong_preference_rate": 0.09375,
+      "tie_rate": 0.0,
+      "correct_reference_cosine": 0.8533222824335098,
+      "wrong_reference_cosine": 0.6502010058611631,
+      "correct_minus_wrong_cosine": 0.2031212765723467,
+      "mean_evidence_strength": 1.0,
+      "return_conflict_queries": 128.0
+    },
+    "m1i_reliable_history": {
+      "pair_accuracy_tie_adjusted": 0.875,
+      "correct_preference_rate": 0.875,
+      "wrong_preference_rate": 0.125,
+      "tie_rate": 0.0,
+      "correct_reference_cosine": 0.923471238464117,
+      "wrong_reference_cosine": 0.7377323284745216,
+      "correct_minus_wrong_cosine": 0.1857389099895954,
+      "mean_evidence_strength": 1.0,
+      "return_conflict_queries": 128.0
+    },
+    "m1i_no_history_call": {
+      "pair_accuracy_tie_adjusted": 0.78125,
+      "correct_preference_rate": 0.78125,
+      "wrong_preference_rate": 0.21875,
+      "tie_rate": 0.0,
+      "correct_reference_cosine": 0.8459974378347397,
+      "wrong_reference_cosine": 0.7396514769643545,
+      "correct_minus_wrong_cosine": 0.10634596087038517,
+      "mean_evidence_strength": 1.0,
+      "return_conflict_queries": 128.0
+    },
+    "m1i_force_history_call": {
+      "pair_accuracy_tie_adjusted": 0.953125,
+      "correct_preference_rate": 0.953125,
+      "wrong_preference_rate": 0.046875,
+      "tie_rate": 0.0,
+      "correct_reference_cosine": 0.9506548345088959,
+      "wrong_reference_cosine": 0.6844089515507221,
+      "correct_minus_wrong_cosine": 0.26624588295817375,
+      "mean_evidence_strength": 1.0,
+      "return_conflict_queries": 128.0
+    }
+  },
+  "choice_dynamics": {
+    "m1i_reliable_history": {
+      "choice_hold_mean": 0.4198972660562266,
+      "choice_refresh_mean": 0.15714910101290425,
+      "choice_call_mean": 0.42295364056899293,
+      "choice_call_argmax_rate": 0.5520594965675057,
+      "history_attention_max_mean": 0.4062846901811364,
+      "history_attention_entropy_mean": 0.5008702500438913,
+      "history_evidence_mean": 0.8842078144455845,
+      "null_similarity_mean": 0.9273880667341895,
+      "proposal_choices": 3496.0,
+      "history_available_choices": 3432.0
+    },
+    "m1i_no_history_call": {
+      "choice_hold_mean": 0.586836230018319,
+      "choice_refresh_mean": 0.41316378089328654,
+      "choice_call_mean": 0.0,
+      "choice_call_argmax_rate": 0.0,
+      "history_attention_max_mean": 0.4062846901811364,
+      "history_attention_entropy_mean": 0.5008702500438913,
+      "history_evidence_mean": 0.8842078144455845,
+      "null_similarity_mean": 0.9273880667341895,
+      "proposal_choices": 3496.0,
+      "history_available_choices": 3432.0
+    },
+    "m1i_force_history_call": {
+      "choice_hold_mean": 0.0005698501413743475,
+      "choice_refresh_mean": 0.017736785676441148,
+      "choice_call_mean": 0.9816933638443935,
+      "choice_call_argmax_rate": 0.9816933638443935,
+      "history_attention_max_mean": 0.4062846901811364,
+      "history_attention_entropy_mean": 0.5008702500438913,
+      "history_evidence_mean": 0.8842078144455845,
+      "null_similarity_mean": 0.9273880667341895,
+      "proposal_choices": 3496.0,
+      "history_available_choices": 3432.0
+    }
+  },
+  "decision": {
+    "status": "M1I_RELIABLE_HISTORY_PILOT_REJECTED",
+    "gates": {
+      "reliable_return_absolute": false,
+      "reliable_gain_vs_m1f": true,
+      "history_call_necessary": true,
+      "reliable_clean_preserved": true,
+      "reliable_context_identity": true
+    },
+    "differences": {
+      "reliable_return_gain_vs_m1f": 0.25,
+      "history_call_return_gain_vs_no_call": 0.359375,
+      "reliable_clean_drop_vs_m1f": 0.0
+    }
+  }
+}

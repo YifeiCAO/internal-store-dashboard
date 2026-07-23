@@ -1,0 +1,118 @@
+{
+  "format": "remap_former.context_need_null_first_g4_ood_protocol.v1",
+  "date": "2026-07-17",
+  "status": "FROZEN_BEFORE_G4_RUN",
+  "purpose": "Test the frozen G3 null-first controller and numeric threshold on seven predeclared OOD task families without recalibration.",
+  "disclosed_parents": {
+    "g3_result": "runs/remap_former/context_need_null_first_g3_multicheckpoint_seed3071601_3072201.json",
+    "g3_result_sha256": "a225688c918f64d3d256b3e68ac530f20eab16a06fe05c021d5fc064db03f6b0",
+    "g3_status": "CONTEXT_NEED_NULL_FIRST_G3_MULTICHECKPOINT_PASS",
+    "g3_pathway_audit": "reports/REMAP_FORMER_CONTEXT_NEED_G3_PATHWAY_HASH_AUDIT.json",
+    "g3_pathway_audit_sha256": "d30feea00eee02268c1b6a0306e47f01bbc3530c9fcf7847516e699c3d65f8c4",
+    "controller_facing_unique_path_count": 1,
+    "dynamic_context_unique_path_count": 8
+  },
+  "checkpoints": [
+    {"seed": 712, "path": "runs/remap_former/m1b_covariance_ridge0p03_seed712_frozen/m1b_frozen.pt", "sha256": "4c16ea253abe1f277b09b3538e17e8b14d6cee11e6f6c08750c8af4ff79fbacf"},
+    {"seed": 713, "path": "runs/remap_former/m1b_covariance_ridge0p03_seed713_frozen/m1b_frozen.pt", "sha256": "cb33433bc291128607453c8c46a5d591f2f34c4ed41f6cba08afe137e36d698f"},
+    {"seed": 714, "path": "runs/remap_former/m1b_covariance_ridge0p03_seed714_frozen/m1b_frozen.pt", "sha256": "a915e10525008c1ba2435595ee30c019fad15e49ef98723a1df39ecf26b51df1"},
+    {"seed": 715, "path": "runs/remap_former/m1b_covariance_ridge0p03_seed715_frozen/m1b_frozen.pt", "sha256": "6dc9f352e67974352266f76e42dcd00d5ff820350134ef01cca12ace33ae62d9"},
+    {"seed": 716, "path": "runs/remap_former/m1b_covariance_ridge0p03_seed716_frozen/m1b_frozen.pt", "sha256": "d44d741faba5d27f3c30dd800e2c85836784a83235e182f3501be58b78c8c029"},
+    {"seed": 717, "path": "runs/remap_former/m1b_covariance_ridge0p03_seed717_frozen/m1b_frozen.pt", "sha256": "3e39d179b4e1f26d9d5574863b41e7c75585e37f1d9869c5ade284a8382e621a"},
+    {"seed": 718, "path": "runs/remap_former/m1b_covariance_ridge0p03_seed718_frozen/m1b_frozen.pt", "sha256": "e1e3434a3e6c350a2591ebf8568d29a9a640a0165fa86bc299adc1370df88be6"},
+    {"seed": 719, "path": "runs/remap_former/m1b_covariance_ridge0p03_seed719_frozen/m1b_frozen.pt", "sha256": "6a1fa01251ca14e389e21ceea1a25c9b6f38cd9e8836fc43d528cf69351a244f"}
+  ],
+  "controller": {
+    "score_name": "null_prefix_retrieval_contradiction_cvar",
+    "prefix_length": 72,
+    "per_step_formula": "||v_t-r_t||^2 - ||v_t||^2",
+    "upper_tail_fraction": 0.1,
+    "fixed_numeric_threshold_from_g3": 0.189235240221024,
+    "recalibration_on_g4": false,
+    "threshold_search": false,
+    "changed_from_g3": false
+  },
+  "excluded_candidate_disclosure": {
+    "family": "approach_length_8",
+    "reason": "build_path_family_bank(8) generated only 96 of the required 128 hash/transition-disjoint families",
+    "excluded_before_any_model_score": true
+  },
+  "generator_preflight_disclosure": {
+    "batch_size": 16,
+    "generator_seed": 3271601,
+    "all_retained_families_gauge_actions_exact": true,
+    "all_retained_families_gauge_sensory_exact": true,
+    "all_retained_families_prefix_conflict_evidence_rate": 1.0,
+    "all_retained_families_return_conflicts_after_step_72": true,
+    "new_bank_test_overlap_with_default_train": 0
+  },
+  "families": [
+    {"name": "test_paths", "grid_size": 11, "t2_split": "test", "approach_length": 12, "n_query_targets": 4, "n_conflict_targets": 2, "family_seed": 20260711, "sequence_length": 176, "clean_gate_applicable": true, "generator_seed_base": 3371601},
+    {"name": "new_path_bank", "grid_size": 11, "t2_split": "test", "approach_length": 12, "n_query_targets": 4, "n_conflict_targets": 2, "family_seed": 3271701, "sequence_length": 176, "clean_gate_applicable": true, "generator_seed_base": 3381601},
+    {"name": "grid9", "grid_size": 9, "t2_split": "test", "approach_length": 12, "n_query_targets": 4, "n_conflict_targets": 2, "family_seed": 20260711, "sequence_length": 176, "clean_gate_applicable": true, "generator_seed_base": 3391601},
+    {"name": "grid13", "grid_size": 13, "t2_split": "test", "approach_length": 12, "n_query_targets": 4, "n_conflict_targets": 2, "family_seed": 20260711, "sequence_length": 176, "clean_gate_applicable": true, "generator_seed_base": 3401601},
+    {"name": "query2", "grid_size": 11, "t2_split": "test", "approach_length": 12, "n_query_targets": 2, "n_conflict_targets": 1, "family_seed": 20260711, "sequence_length": 112, "clean_gate_applicable": true, "generator_seed_base": 3411601},
+    {"name": "sparse_conflict", "grid_size": 11, "t2_split": "test", "approach_length": 12, "n_query_targets": 4, "n_conflict_targets": 1, "family_seed": 20260711, "sequence_length": 176, "clean_gate_applicable": true, "generator_seed_base": 3421601},
+    {"name": "dense_conflict", "grid_size": 11, "t2_split": "test", "approach_length": 12, "n_query_targets": 4, "n_conflict_targets": 4, "family_seed": 20260711, "sequence_length": 176, "clean_gate_applicable": false, "generator_seed_base": 3431601}
+  ],
+  "per_family_samples": {
+    "selection_t1_episodes": 128,
+    "selection_t2_episodes": 128,
+    "selection_seed_offsets": {"t1": 100, "t2": 200},
+    "t1_strict_episodes": 16,
+    "t1_strict_chunk_size": 8,
+    "t1_strict_seed_offset": 300,
+    "t1_imagination_length": 4096,
+    "t2_observed_episodes_per_checkpoint": 16,
+    "t2_observed_chunk_size": 16,
+    "t2_observed_seed_offset": 400,
+    "generator_audit_seed_offset": 0,
+    "n_objects": 64
+  },
+  "generator_gates_per_family": {
+    "gauge_pair_actions_exact": true,
+    "gauge_pair_sensory_exact": true,
+    "distinct_room_path_families": true,
+    "prefix_conflict_evidence_rate_exactly": 1.0,
+    "all_return_conflicts_after_prefix": true,
+    "positive_return_conflict_count": true,
+    "path_hash_overlap_with_default_train_exactly": 0,
+    "sequence_length_matches_protocol": true
+  },
+  "acceptance_gates_per_family": {
+    "t1_null_selection_rate_at_least": 0.85,
+    "t2_dynamic_selection_rate_at_least": 0.9,
+    "balanced_accuracy_at_least": 0.9,
+    "auroc_at_least": 0.95,
+    "t1_strict_final_accuracy_4096_at_least": 0.9,
+    "t1_mean_prefix_hpc_passes_at_most": 1.2,
+    "t2_return_conflict_accuracy_at_least": 0.7,
+    "t2_clean_accuracy_at_least_when_applicable": 0.95
+  },
+  "pooled_acceptance_gates": {
+    "balanced_accuracy_at_least": 0.925,
+    "auroc_at_least": 0.95,
+    "t1_strict_final_accuracy_4096_at_least": 0.95,
+    "t1_mean_prefix_hpc_passes_at_most": 1.1,
+    "t2_return_conflict_accuracy_at_least": 0.75,
+    "t2_clean_accuracy_at_least": 0.98,
+    "null_selected_episodes_replayed_exactly_zero": true,
+    "future_write_steps_exactly_zero": true,
+    "all_source_model_states_unchanged": true,
+    "one_selected_content_hpc_per_checkpoint": true
+  },
+  "information_boundary": {
+    "forbidden_model_inputs": ["room_id", "task_id", "absolute_position", "place_id", "segment_id", "switch_mask", "query_mask", "return_mask", "conflict_mask", "path_family_id", "future sensory or targets"],
+    "trainable_parameters": 0,
+    "new_memory_slots": 0,
+    "new_fast_weight_systems": 0
+  },
+  "post_result_rule": {
+    "all_gates_pass": "freeze the OOD result and next test online decision timing without changing the score family",
+    "any_family_gate_fails": "report the named family failure and stop; do not remove families or tune threshold, prefix, tail, score, checkpoint, or seeds on G4 data"
+  },
+  "formal_output": "runs/remap_former/context_need_null_first_g4_ood_seed3371601_3432001.json",
+  "formal_report": "reports/REMAP_FORMER_CONTEXT_NEED_NULL_FIRST_G4_OOD_CN.md",
+  "smoke_output": "tmp/context_need_null_first_g4_ood_smoke.json",
+  "overwrite_allowed": false
+}
