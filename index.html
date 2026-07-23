@@ -510,55 +510,99 @@
       <div class="status-grid" aria-label="最新状态">
         <article class="status-card primary">
           <h2>当前主线</h2>
-          <strong>Neural HPC write gate 的三 seed 冻结 test512 已完成；共享无标签校准解决阈值尺度漂移</strong>
-          <p>冻结 20k-step M1b，只训练 833 参数 causal gate。严格 20→44 free rollout 中，三 seed hard gate 为 27.059 / 28.137 / 28.321e-3，平均 27.839 ± 0.682e-3；稳定优于全写 29.933e-3，但尚未追平固定 K16 的 27.157e-3。</p>
+          <strong>可变布局 world model 已跑通，但外挂 HPC 尚未通过大样本因果门</strong>
+          <p>Stage2 rollout 相对 teacher-only pooled 改善 69.26%。但旧 HPC 在独立 Val256 上比 PFC-only 差 1.43%；修正 context 读取 PFC hidden 后，Val64 的 +6.26% 在固定 Val256 反转为 -1.80%。新候选未进入 test。</p>
           <div class="badge-row">
             <span class="badge"><span class="dot blue"></span>真实 egocentric RGB</span>
             <span class="badge"><span class="dot blue"></span>4096 / 512 / 512</span>
             <span class="badge"><span class="dot teal"></span>无位置 / 朝向输入</span>
-            <span class="badge"><span class="dot green"></span>512-test 已完成</span>
+            <span class="badge"><span class="dot green"></span>跨 split layout overlap = 0</span>
             <span class="badge"><span class="dot green"></span>future leak = 0</span>
-            <span class="badge"><span class="dot green"></span>三 seed 均优于 full</span>
-            <span class="badge"><span class="dot green"></span>共享 z = -0.35</span>
-            <span class="badge"><span class="dot amber"></span>均值距 K16 2.51%</span>
+            <span class="badge"><span class="dot green"></span>24 tests passed</span>
+            <span class="badge"><span class="dot amber"></span>当前成绩主要来自 PFC</span>
+            <span class="badge"><span class="dot amber"></span>HPC 需重训</span>
           </div>
         </article>
         <article class="status-card pass">
-          <h2>一步预测</h2>
-          <strong>1.610e-3</strong>
-          <p>512-test pixel MSE</p>
+          <h2>Rollout 训练</h2>
+          <strong>+69.26%</strong>
+          <p>Stage2 对 Stage1，paired Val64 pooled</p>
         </article>
-        <article class="status-card pass">
-          <h2>Neural Hard ×3</h2>
-          <strong>27.839 ± 0.682</strong>
-          <p>三 seed test512，比全写低 7.00%</p>
+        <article class="status-card fail">
+          <h2>旧 HPC · Val256</h2>
+          <strong>-1.43%</strong>
+          <p>full 相对 PFC-only，区间完全为负</p>
         </article>
         <article class="status-card hold">
-          <h2>固定 K=16</h2>
-          <strong>27.157e-3</strong>
-          <p>仍优于 neural 三 seed 均值 2.51%</p>
+          <h2>PFC-context · Val256</h2>
+          <strong>-1.80%</strong>
+          <p>Val64 +6.26% 未复现，不进 test</p>
         </article>
       </div>
 
       <section>
         <div class="decision">
-          <strong>当前决策：保留单一 HPC 与 833 参数 gate；下一瓶颈是实例选择质量，不再是阈值尺度</strong>
-          <p>train256 无标签 logit 标准化让三个 seed 共用同一 z=-0.35，且 test512 全部优于 full-write。弱 seed 在 h17–44 仍误写过多，因此下一步应学习“这次写入是否真的降低未来误差”的反事实收益，不加 memory slots、第二套 fast weights 或 oracle 输入。</p>
+          <strong>当前决策：停止调 cutoff/gain；下一版只做无标签 episode-context 稳定与分离目标</strong>
+          <p>context 读取 PFC hidden 是必要接口修复，但预测 loss 不足以让它形成稳定 remapping。下一版用同 episode 两段因果历史作正对、batch 内其他 episode 作负对；仍禁止 room id、位置、地图、place id 和 future RGB。只有 N256 full 对 PFC-only 的 pooled 与双 context 区间全部过门，才打开 test 和外部基线。</p>
         </div>
       </section>
 
       <section id="memorymaze3d">
         <div class="section-head">
           <div>
-            <h2>最新：MemoryMaze3D Neural HPC Write Gate</h2>
-            <p>真实 MuJoCo 第一人称 RGB；20 步真实 context 后严格 44 步 free rollout。模型只看图像和动作，位置/朝向只用于评测分桶。</p>
+            <h2>最新：MemoryMaze3D 可变布局 HPC 因果审计</h2>
+            <p>真实 MuJoCo 第一人称 RGB；4096/512/512 个 maze9-variable episodes；模型只看图像和动作，位置/朝向/布局均不进入模型。</p>
           </div>
-          <div class="source">2026-07-23 · 3 GATE SEEDS + FROZEN 512-TEST · STRICT CAUSAL ROLLOUT</div>
+          <div class="source">2026-07-23 · VARIABLE LAYOUT · PAIRED VAL256 · TEST UNTOUCHED FOR NEW CANDIDATES</div>
         </div>
 
         <div class="decision">
-          <strong>核心发现：不输入 age/K/位置/room 的神经 gate，可用一个共享标准化阈值稳定学出早写晚停</strong>
-          <p>三个 gate 的原始 logit std 相差超过三倍，但标准化后的 h16 分数几乎相同。冻结 z=-0.35 后，test 平均写入 19.40/44 次，h1–16 写入率 94.95%，h17–44 为 15.02%；三 seed 都改善 full-write，但平均仍落后 K16 2.51%。</p>
+          <strong>核心结论：可变环境 world model 成立，但现阶段不能声称外挂 HPC 提高 Transformer</strong>
+          <p>Rollout stage2 对 teacher-only 有 69.26% pooled 改善；然而旧 HPC 在 Val256 显著伤害 1.43%。pfc_hidden context 修复在 Val64 表观提升 6.26%，固定 Val256 反转为 -1.80%。所有候选均保持 future ground-truth reads/writes 为 0，失败候选没有读取 test。</p>
+        </div>
+
+        <div class="grid-2" style="margin-top:12px;">
+          <article class="panel">
+            <h3>三段证据链</h3>
+            <table>
+              <thead><tr><th>检查</th><th>结果</th><th>裁决</th></tr></thead>
+              <tbody>
+                <tr><td data-label="检查">Stage2 vs Stage1</td><td data-label="结果" class="num green">+69.26%</td><td data-label="裁决" class="green">rollout 训练有效</td></tr>
+                <tr><td data-label="检查">旧 HPC vs PFC-only · Val256</td><td data-label="结果" class="num red">-1.43%</td><td data-label="裁决" class="red">旧 HPC 失败</td></tr>
+                <tr><td data-label="检查">固定 gain 扫描</td><td data-label="结果" class="num">最佳 gain1 仅 +0.17%</td><td data-label="裁决">正式选 gain0</td></tr>
+                <tr><td data-label="检查">pfc_hidden · Val64</td><td data-label="结果" class="num green">+6.26%</td><td data-label="裁决">发现集候选</td></tr>
+                <tr><td data-label="检查">pfc_hidden · Val256</td><td data-label="结果" class="num red">-1.80%</td><td data-label="裁决" class="red">未复现，不进 test</td></tr>
+              </tbody>
+            </table>
+          </article>
+          <article class="panel">
+            <h3>可变布局 HPC 总审计</h3>
+            <img class="result-figure" src="figures/memorymaze3d_variable_hpc_audit.png" alt="MemoryMaze3D 可变布局中 rollout 训练、旧 HPC 因果消融与 pfc hidden 小样本反转的三联图" />
+          </article>
+        </div>
+
+        <article class="panel" style="margin-top:12px;">
+          <h3>下一版：无标签因果 Context 对比目标</h3>
+          <div class="arch-flow" style="grid-template-columns:repeat(4,minmax(0,1fr));">
+            <div class="arch-node input"><h3>RGB + Action</h3><p>严格因果历史</p></div>
+            <div class="arch-node pfc"><h3>Transformer / PFC</h3><p>主干 hidden</p></div>
+            <div class="arch-node hpc"><h3>Episode Context</h3><p>同 episode 对齐，跨 episode 分离</p></div>
+            <div class="arch-node ec"><h3>EC + Place + HPC</h3><p>context-conditioned remapping</p></div>
+          </div>
+          <p style="margin-top:10px;">正对只来自同一 episode 的两段已观测历史；负对来自 batch 内其他 episode。不增加 memory slots，不输入 room id、位置、地图、place id 或未来图像。先过 context geometry/collapse gates，再允许 rollout 训练。</p>
+        </article>
+
+        <div class="artifact-grid" style="margin-top:12px;">
+          <a class="artifact" href="MEMORYMAZE3D_VARIABLE_HPC_AUDIT_CN.md"><strong>最新：可变布局 HPC 完整审计</strong><span>Open9 gate 收口、变量布局组件消融、两次独立复现、根因代码与下一版协议</span></a>
+          <a class="artifact" href="memorymaze3d_variable_hpc_audit_summary.json"><strong>机器可读总结果</strong><span>所有 headline、bootstrap 区间、停止决定、test 边界与下一实验 gate</span></a>
+        </div>
+
+        <div class="section-head" style="margin-top:24px;">
+          <div>
+            <h2>历史：Open9 Neural HPC Write Gate</h2>
+            <p>固定空平面上的三 seed frozen test512 结果继续保留，但不再代表可变环境主线。</p>
+          </div>
+          <div class="source">ARCHIVED POSITIVE CONTROL · SHARED Z=-0.35 · STRICT C20-H44</div>
         </div>
 
         <div class="grid-2" style="margin-top:12px;">
@@ -2572,7 +2616,7 @@
       </section>
     </main>
 
-    <footer>ReMAP-Former internal dashboard · 2026-07-23 · 3D neural HPC write gate 已完成 train-only 无标签校准、共享 z validation 与三 seed frozen test512；稳定优于 full-write，但实例选择尚未追平 K16。G8/G7 与既有负结果继续保留</footer>
+    <footer>ReMAP-Former internal dashboard · 2026-07-23 · 可变布局 world model 已跑通；旧 HPC 与 pfc_hidden 候选均未通过 Val256 因果门，新候选未读取 test。下一版聚焦无标签 episode-context 稳定与分离目标；Open9、G8/G7 与既有正负结果全部保留</footer>
   </div>
 </body>
 </html>

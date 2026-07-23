@@ -1,0 +1,106 @@
+{
+  "format": "remap_former.memorymaze3d.variable_hpc_audit.v1",
+  "date": "2026-07-23",
+  "headline_decision": "VARIABLE_WORLD_MODEL_VALID_HPC_NOT_YET_VALIDATED",
+  "data": {
+    "root": "data/memorymaze3d_variable_full_v1",
+    "profile": "maze9-variable",
+    "train_episodes": 4096,
+    "val_episodes": 512,
+    "test_episodes": 512,
+    "layout_hash_overlap": 0,
+    "oracle_inputs": []
+  },
+  "checkpoint_selection_val64": {
+    "stage1_pooled_mse_x1e3": 48.24357832694659,
+    "stage2_pooled_mse_x1e3": 14.829200335952919,
+    "stage2_improvement_relative": 0.6926181504312249,
+    "selected": "stage2"
+  },
+  "open9_cutoff_router": {
+    "oracle_gain_relative": 0.1376637398424086,
+    "best_legal_router": "action_plan",
+    "global_mse_x1e3": 21.731909684604034,
+    "router_mse_x1e3": 22.44216710096225,
+    "shuffle_one_sided_p": 0.6435643564356436,
+    "decision": "STOP_CONTEXT_ROUTER_NOT_PREDICTIVE"
+  },
+  "stable_retrieval_replication": {
+    "full_pooled_mse_x1e3": 12.659719335715636,
+    "stable_retrieval_pooled_mse_x1e3": 12.886123841781227,
+    "improvement_relative": -0.01788384876960571,
+    "bootstrap_90pct_gain_x1e3": [
+      -0.6453694954871025,
+      0.15542096120952922
+    ],
+    "decision": "STOP_NOT_REPLICATED"
+  },
+  "old_hpc_confirm_val256": {
+    "full_pooled_mse_x1e3": 15.590975015584263,
+    "pfc_only_pooled_mse_x1e3": 15.370744903066225,
+    "hpc_improvement_relative": -0.0143278750579034,
+    "bootstrap_90pct_gain_x1e3": [
+      -0.3291800614078966,
+      -0.11082592526463485
+    ],
+    "decision": "OLD_HPC_SIGNIFICANTLY_HARMS"
+  },
+  "memory_gain_calibration": {
+    "validation_best_effective_gain": 1.0,
+    "selected_effective_gain": 0.0,
+    "best_improvement_relative": 0.0017180608714600807,
+    "bootstrap_90pct_gain_x1e3": [
+      -0.010446854514611914,
+      0.05337928608923904
+    ],
+    "decision": "SELECT_ZERO_RETRAIN_HPC"
+  },
+  "pfc_hidden_context": {
+    "implemented": true,
+    "backward_compatible": true,
+    "causal_test": "PASS",
+    "trainable_parameters": 543137,
+    "teacher_updates_completed": 750,
+    "rollout_updates": 100,
+    "discovery_val64": {
+      "full_pooled_mse_x1e3": 14.158760624013667,
+      "pfc_only_pooled_mse_x1e3": 15.104074826922442,
+      "hpc_improvement_relative": 0.06258670019455868,
+      "bootstrap_90pct_gain_x1e3": [
+        0.12440012387742173,
+        1.948534388566259
+      ]
+    },
+    "confirm_val256": {
+      "full_pooled_mse_x1e3": 15.647999723000794,
+      "pfc_only_pooled_mse_x1e3": 15.370744903066225,
+      "hpc_improvement_relative": -0.018037825862249605,
+      "bootstrap_90pct_gain_x1e3": [
+        -0.61100826971483,
+        0.06366345816104513
+      ],
+      "decision": "STOP_HPC_CONTRIBUTION_NOT_REPLICATED"
+    }
+  },
+  "test_policy": {
+    "new_candidates_evaluated_on_test": false,
+    "reason": "mechanism validation gates failed"
+  },
+  "next_experiment": {
+    "name": "causal_episode_context_contrastive_objective",
+    "positive_pair": "two observed causal history segments from the same episode",
+    "negative_pair": "other episodes in the training batch",
+    "forbidden_inputs": [
+      "room_id",
+      "absolute_position",
+      "agent_direction",
+      "maze_layout",
+      "place_id",
+      "future_rgb"
+    ],
+    "promotion_gate": "N256 full beats PFC-only by >=1% with positive pooled and per-context 90% paired-bootstrap lower bounds"
+  },
+  "tests": {
+    "pytest_test_memorymaze3d": "24 passed"
+  }
+}
