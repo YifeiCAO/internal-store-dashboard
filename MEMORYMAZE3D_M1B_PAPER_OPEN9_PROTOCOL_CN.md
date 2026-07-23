@@ -80,3 +80,5 @@ powershell -NoProfile -ExecutionPolicy Bypass -File .\run_memorymaze3d_m1b_paper
 随后在 validation 上只干预 imagined latent 的 HPC 写入时长，`K=16` 最优；冻结该选择后，完整 test 的 MSE 为 `27.157e-3`，相对原始全程写入下降 `9.28%`，相对 persistence 提升 `15.62%`。这说明早期 predicted write 有益，但晚期继续写会把 rollout 误差固化进 fast weights。
 
 完整数字、边界和下一步 neural write gate 方案见 `MEMORYMAZE3D_M1B_WRITE_POLICY_RESULT_CN.md`。
+
+Neural write gate follow-up 已完成：冻结 M1b，仅训练 `833` 参数因果 gate。冻结选择的 hard gate 在完整 test512 上得到 `27.174e-3`，相对全程写入改善 `9.22%`，与固定 K16 的 `27.157e-3` 基本持平；future ground-truth reads/writes 均为 0。soft gate 的 validation 收益未迁移到 test，hard gate 跨 seed calibration 方差仍高，完整结果见 `MEMORYMAZE3D_M1B_NEURAL_WRITE_GATE_RESULT_CN.md`。

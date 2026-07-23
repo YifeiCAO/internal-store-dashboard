@@ -1,10 +1,10 @@
 {
   "format": "remap_former.internal_store_dashboard.package.v1",
-  "packaged_at": "2026-07-22T21:24:43.3854438-07:00",
+  "packaged_at": "2026-07-23T04:24:00.7573490-07:00",
   "source_html": "D:\\brain_inspired_transformer\\reports\\internal_store_dashboard.html",
-  "source_sha256": "2ed72379b5ee337593b0cc505059be838ba2160d4718c29e63f32ff94f16d9a2",
-  "index_sha256": "5c8526bc0692637dff30260c09c97c3a4a3b017f938add98e262079dde3ee1ac",
-  "local_reference_count": 184,
+  "source_sha256": "f295ec0e4d5f70dd2a4a25ced6e95a76665e6a8b408c614cd5b7270cc7c685df",
+  "index_sha256": "a3a2e640d27b1ca3e51d7d1effbdbb7456044891896f98463bb792ce158c4f8a",
+  "local_reference_count": 187,
   "files": [
     {
       "attribute": "href",
@@ -15,17 +15,24 @@
     },
     {
       "attribute": "href",
+      "source_reference": "../MEMORYMAZE3D_M1B_NEURAL_WRITE_GATE_RESULT_CN.md",
+      "target_reference": "MEMORYMAZE3D_M1B_NEURAL_WRITE_GATE_RESULT_CN.md",
+      "sha256": "9e04ed567b50352ec0014013c8bcf878b7a7f82041147e31ea6205559b76b604",
+      "bytes": 7856
+    },
+    {
+      "attribute": "href",
       "source_reference": "../MEMORYMAZE3D_M1B_PAPER_OPEN9_PROTOCOL_CN.md",
       "target_reference": "MEMORYMAZE3D_M1B_PAPER_OPEN9_PROTOCOL_CN.md",
-      "sha256": "d0d5988bfb99fb66166e43d18f62eb36035b2a18fcc70389022ded005c3ac9b2",
-      "bytes": 4660
+      "sha256": "4a853ccf9be0c4e394ae7197540f0b0097c0b2f4dc36f932d1743e2b49b4bc2d",
+      "bytes": 5108
     },
     {
       "attribute": "href",
       "source_reference": "../MEMORYMAZE3D_M1B_WRITE_POLICY_RESULT_CN.md",
       "target_reference": "MEMORYMAZE3D_M1B_WRITE_POLICY_RESULT_CN.md",
-      "sha256": "f24eda33056ff791559ebfb145b25bd3ff656f9f330d0a6881e886ad08c3760a",
-      "bytes": 4670
+      "sha256": "737a7d1561dbce69d857983820bcb651affd7da4049dd1ccaf2b8e1ba4fd8c40",
+      "bytes": 4905
     },
     {
       "attribute": "href",
@@ -736,6 +743,13 @@
     },
     {
       "attribute": "href",
+      "source_reference": "../runs/remap_former/memorymaze3d_write_gate_pixel_rank005_init07_h44_b2_u20_lr3e3_seed1702/eval_test512_t067_fp32/write_gate_evaluation_summary.json",
+      "target_reference": "write_gate_evaluation_summary.json",
+      "sha256": "a7e84885390ec8ab199c1d89574f9b14b3861c4ab3a08cd41136736ced25cdeb",
+      "bytes": 12709
+    },
+    {
+      "attribute": "href",
       "source_reference": "../runs/remap_former/p5_paper_tables.json",
       "target_reference": "p5_paper_tables.json",
       "sha256": "8b7ef0e2bd2c1cf21c116b96361805b91ba09bd564515b3e69084347ffa84f97",
@@ -1237,6 +1251,13 @@
       "target_reference": "REMAP_FORMER_PAPER_EVIDENCE_G8_CN.md",
       "sha256": "ee157b2b06aaac418ed29465b1224f4acca8084b3bb5390a054071f0e99e9e01",
       "bytes": 3988
+    },
+    {
+      "attribute": "src",
+      "source_reference": "../runs/remap_former/memorymaze3d_write_gate_pixel_rank005_init07_h44_b2_u20_lr3e3_seed1702/eval_test512_t067_fp32/write_gate_horizon_curves.png",
+      "target_reference": "write_gate_horizon_curves.png",
+      "sha256": "5a9e7b66c3e4f487a45dda99b8ec757bdc7e3131a70073854ceb90ba6b244f91",
+      "bytes": 155093
     },
     {
       "attribute": "src",
