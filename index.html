@@ -572,6 +572,12 @@
         </div>
 
         <article class="panel" style="margin-top:12px;">
+          <h3>固定 Test Episode 0：同轨迹视觉对照</h3>
+          <img class="result-figure" src="figures/memorymaze3d_write_policy_episode0.png" alt="同一 MemoryMaze3D test 轨迹的 ground truth、全程写入与 K=16 预测对照" />
+          <p style="margin-top:10px;">该样本按固定顺序取 test episode 0，不是事后挑最好样本。平均 MSE 由 19.31e-3 降到 9.21e-3，h44 由 66.13e-3 降到 31.90e-3；K=16 避免了后段蓝黑塌缩，但预测仍明显模糊，不能解读为像素级重建已经解决。总体结论仍以完整 512-test 的 9.28% 改善为准。</p>
+        </article>
+
+        <article class="panel" style="margin-top:12px;">
           <h3>512-episode Frozen Test</h3>
           <table>
             <thead><tr><th>条件</th><th>44-step mean MSE ×1e-3</th><th>相对 Persistence</th><th>h32 ×1e-3</th><th>h44 ×1e-3</th><th>状态</th></tr></thead>

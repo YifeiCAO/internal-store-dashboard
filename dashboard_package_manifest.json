@@ -1,10 +1,10 @@
 {
   "format": "remap_former.internal_store_dashboard.package.v1",
-  "packaged_at": "2026-07-22T19:10:39.9197285-07:00",
+  "packaged_at": "2026-07-22T21:24:43.3854438-07:00",
   "source_html": "D:\\brain_inspired_transformer\\reports\\internal_store_dashboard.html",
-  "source_sha256": "081753125d2f0da98b8c425082feb98a11539b9b419ee7bb39c63e2ed0c13369",
-  "index_sha256": "b9d5ca8272e4fac99a45e1624e18a5269cfe2ac23aeb5e1ed68cd4125088e6f5",
-  "local_reference_count": 183,
+  "source_sha256": "2ed72379b5ee337593b0cc505059be838ba2160d4718c29e63f32ff94f16d9a2",
+  "index_sha256": "5c8526bc0692637dff30260c09c97c3a4a3b017f938add98e262079dde3ee1ac",
+  "local_reference_count": 184,
   "files": [
     {
       "attribute": "href",
@@ -1251,6 +1251,13 @@
       "target_reference": "figures/memorymaze3d_future_write_cutoff_val64.png",
       "sha256": "65961dd1bd95c7d0b6d395ac8e62450074ef4222e248fbf4e280361262fd07b1",
       "bytes": 179746
+    },
+    {
+      "attribute": "src",
+      "source_reference": "figures/memorymaze3d_write_policy_episode0.png",
+      "target_reference": "figures/memorymaze3d_write_policy_episode0.png",
+      "sha256": "ab70584ec740a60a2dbc8854eaa4d0cfe6f051154bb94c322fb2a5f80272a20e",
+      "bytes": 146945
     },
     {
       "attribute": "src",
