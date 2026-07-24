@@ -89,3 +89,71 @@ trainable_scope = m1b_bidirectional_hpc
 - teacher-forced MSE 不变差。
 - C20→H44 free-rollout MSE 明显下降。
 - HPC-on 相对 PFC-only 不被全模型微调抹掉或反转。
+
+## 后续 Pilot 结果
+
+按照上述方案运行了一个低学习率全模型 pilot：
+
+- warm-start：`memorymaze3d_bidirectional_phaseprop_rollout80_seed2085`
+- seed：2088
+- updates：50
+- learning rate：`1e-5`
+- trainable scope：`all`
+- curriculum：`2,4,8,16,32`
+- 独立门控：固定 `Val200-215`，C20→H44
+
+| 模型 | AE MSE x1e3 | Teacher MSE x1e3 | Rollout MSE x1e3 |
+|---|---:|---:|---:|
+| 原 checkpoint | 1.510 | 3.025 | 25.414 |
+| Update 40（训到 H16） | 1.520（+0.62%） | 3.023（-0.09%） | 25.713（+1.18%） |
+| Update 50（训到 H32） | 1.522（+0.80%） | 3.012（-0.45%） | 26.225（+3.19%） |
+
+结论：
+
+- 一步预测只有极小改善。
+- AE 重建轻微退化。
+- H44 rollout 在 update 40 和 update 50 均退化。
+- 最后 H32 阶段进一步放大退化，但不是失败的唯一来源。
+- 该 pilot 不晋级，当前最佳 checkpoint 保持不变。
+
+下一步不继续盲加 update。应先诊断 predicted latent 是否在闭环过程中逐步离开视觉 encoder 的 latent manifold，再决定使用 latent projection、denoising dynamics 或多 horizon 稳定性目标。
+
+## Latent-Manifold 因果门
+
+在新的固定 `Val216-231` 上执行无需训练的 causal projection：
+
+```text
+predicted latent
+→ pixel decoder
+→ visual encoder
+→ projected latent
+→ 只作为下一步 feedback
+```
+
+该操作不读取未来 RGB、位置、方向、房间 ID 或地图。
+
+### Cycle 距离
+
+| Latent 来源 | Decode→encode cycle MSE | Cycle cosine |
+|---|---:|---:|
+| 真实 target latent | 0.00273 | 0.9981 |
+| Teacher-forced prediction | 0.01301 | 0.9910 |
+| Strict rollout prediction | 0.01744 | 0.9889 |
+
+预测 latent 的确比真实 latent 更偏离视觉 autoencoder manifold，并且 strict rollout 比 teacher-forced 更严重。
+
+### 硬投影结果
+
+| Feedback | C20→H44 pixel MSE x1e3 |
+|---|---:|
+| 原 strict feedback | 12.591 |
+| Decode→encode projected feedback | 16.305 |
+
+相对变化：`-29.5%`，即投影后明显变差。分 horizon 只有 H8 小幅改善 `5.1%`，H32 恶化 `41.9%`。
+
+结论：
+
+- off-manifold 漂移是真实存在的诊断信号。
+- 推理时硬投影不是解法，因为当前模型依赖一些 AE round-trip 不能无损保留的预测 latent 坐标。
+- 不采用 hard projection。
+- 下一候选是训练期的 soft cycle consistency 或 latent denoising，使动力学逐步学会留在稳定区域，而不是推理时强制替换状态。

@@ -214,6 +214,14 @@
       <strong>当前视觉结论：</strong>
       模糊的最大增量发生在闭环 rollout。AE 重建 MSE×1000 为 1.61，teacher-forced 为 3.26，严格 C20→H44 free rollout 上升到 17.54。按这个 MSE 阶梯计算，约 81.4% 的最终误差增长发生在 teacher-forced 到 free rollout 之间。
     </div>
+    <div class="decision">
+      <strong>全模型微调门控：</strong>
+      独立 Val200–215 上，旧 checkpoint 的 H44 MSE×1000 为 25.41；全模型 update 40 为 25.71（+1.18%），update 50 为 26.23（+3.19%）。一步预测只有不足 0.5% 的改善，无法抵消闭环退化，因此 pilot 不晋级，当前 checkpoint 保持不变。
+    </div>
+    <div class="decision">
+      <strong>Latent-manifold 因果门：</strong>
+      独立 Val216–231 显示 rollout latent 的 decode→encode cycle MSE 为 0.01744，真实 latent 仅 0.00273；但把投影结果硬喂回下一步会使 pixel MSE 从 12.59 恶化到 16.30（-29.5%）。因此 off-manifold 漂移存在，但 hard projection 被否决。
+    </div>
 
     <div class="scores" aria-label="视觉模糊来源">
       <article class="score positive">
@@ -248,6 +256,17 @@
       <figure>
         <img src="visuals/visual_quality_aggregate_val168_199.png" alt="固定 Val168 到 Val199 的 autoencoder、teacher-forced 与 free rollout 视觉质量统计" />
         <figcaption>右图是梯度能量，不是感知质量。AE 的 105% 包含反卷积产生的伪高频，不能解释成比 GT 更清晰；左图的 MSE 阶梯更直接地说明闭环 rollout 是主要误差来源。</figcaption>
+      </figure>
+    </section>
+
+    <section>
+      <div class="section-head">
+        <h2>Latent-manifold：存在漂移，硬投影失败</h2>
+        <div class="effect bad">projected feedback -29.5%</div>
+      </div>
+      <figure>
+        <img src="visuals/latent_manifold_val216_231.png" alt="固定 Val216 到 Val231 的 latent manifold cycle 距离与 causal projection 对比" />
+        <figcaption>右图证明预测 latent 比真实 latent 更难经过 visual decoder→encoder 往返；左图证明直接把 round-trip latent 喂回下一步会放大长期误差。下一候选应是训练期 soft cycle 或 denoising，而不是推理时硬投影。</figcaption>
       </figure>
     </section>
 
@@ -332,6 +351,7 @@
     </section>
 
     <a class="data-link" href="visuals/visual_quality_summary.json">视觉模糊审计 JSON</a>
+    <a class="data-link" href="visuals/latent_manifold_summary.json">Latent-manifold 门 JSON</a>
     <a class="data-link" href="MEMORYMAZE3D_VISUAL_BLUR_AUDIT_CN.md">完整中文报告</a>
     <a class="data-link" href="visuals/summary.json">HPC/PFC 视觉消融 JSON</a>
   </main>

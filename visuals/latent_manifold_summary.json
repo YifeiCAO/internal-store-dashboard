@@ -1,0 +1,84 @@
+{
+  "format": "remap_former.memorymaze3d.latent_manifold.v1",
+  "checkpoint": "runs\\remap_former\\memorymaze3d_bidirectional_phaseprop_rollout80_seed2085\\checkpoint_final.pt",
+  "data": "data\\memorymaze3d_variable_full_v1",
+  "split": "val",
+  "audit_selection": "fixed_consecutive_indices",
+  "audit_start": 216,
+  "audit_count": 16,
+  "context_steps": 20,
+  "rollout_steps": 44,
+  "strict_pixel_mse_x1e3": 12.59093638509512,
+  "projected_feedback_pixel_mse_x1e3": 16.3046233355999,
+  "projected_feedback_relative_improvement": -0.29494922672319773,
+  "cycle_metrics": {
+    "target": {
+      "mse": 0.002725260565057397,
+      "cosine": 0.9981086850166321,
+      "norm_ratio": 0.9995113611221313
+    },
+    "teacher": {
+      "mse": 0.013014516793191433,
+      "cosine": 0.9909858703613281,
+      "norm_ratio": 1.015089511871338
+    },
+    "rollout": {
+      "mse": 0.01743832789361477,
+      "cosine": 0.9889420866966248,
+      "norm_ratio": 1.0555006265640259
+    }
+  },
+  "selected_horizons": {
+    "1": {
+      "strict_pixel_mse_x1e3": 2.9168345499783754,
+      "projected_pixel_mse_x1e3": 2.9168345499783754,
+      "relative_improvement": 0.0,
+      "target_cycle_mse": 0.0021225078962743282,
+      "teacher_cycle_mse": 0.012635746970772743,
+      "rollout_cycle_mse": 0.012635770253837109
+    },
+    "4": {
+      "strict_pixel_mse_x1e3": 11.746523901820183,
+      "projected_pixel_mse_x1e3": 13.535038568079472,
+      "relative_improvement": -0.15225905818675,
+      "target_cycle_mse": 0.0031283816788345575,
+      "teacher_cycle_mse": 0.011980682611465454,
+      "rollout_cycle_mse": 0.01318242959678173
+    },
+    "8": {
+      "strict_pixel_mse_x1e3": 8.394591510295868,
+      "projected_pixel_mse_x1e3": 7.966078817844391,
+      "relative_improvement": 0.051046282826973925,
+      "target_cycle_mse": 0.0020016557537019253,
+      "teacher_cycle_mse": 0.01131896860897541,
+      "rollout_cycle_mse": 0.013367768377065659
+    },
+    "16": {
+      "strict_pixel_mse_x1e3": 13.54971807450056,
+      "projected_pixel_mse_x1e3": 15.340140089392662,
+      "relative_improvement": -0.1321372153315519,
+      "target_cycle_mse": 0.00401116069406271,
+      "teacher_cycle_mse": 0.01769477128982544,
+      "rollout_cycle_mse": 0.0163417998701334
+    },
+    "32": {
+      "strict_pixel_mse_x1e3": 16.54374599456787,
+      "projected_pixel_mse_x1e3": 23.48088100552559,
+      "relative_improvement": -0.41932069153113943,
+      "target_cycle_mse": 0.0028385757468640804,
+      "teacher_cycle_mse": 0.013005554676055908,
+      "rollout_cycle_mse": 0.020694181323051453
+    },
+    "44": {
+      "strict_pixel_mse_x1e3": 13.825887814164162,
+      "projected_pixel_mse_x1e3": 14.421137049794197,
+      "relative_improvement": -0.043053237783415424,
+      "target_cycle_mse": 0.001818138756789267,
+      "teacher_cycle_mse": 0.013330650515854359,
+      "rollout_cycle_mse": 0.020670903846621513
+    }
+  },
+  "future_ground_truth_reads": 0,
+  "future_ground_truth_writes": 0,
+  "chart": "latent_manifold_val216_231.png"
+}
