@@ -1,0 +1,151 @@
+{
+  "format": "remap_former.memorymaze3d.baseline_rollout_catchup_addendum.v1",
+  "status": "frozen_before_rollout_results",
+  "created_date": "2026-07-24",
+  "parent_protocol": "protocols/memorymaze3d_baseline_catchup_v1.json",
+  "teacher_health_result": "reports/memorymaze3d_baseline_catchup_stage_h/summary.json",
+  "mmtem_rescue_result": "reports/memorymaze3d_mmtem_stability_rescue_v2/summary.json",
+  "data": {
+    "root": "data/memorymaze3d_variable_full_v1",
+    "development_split": "val",
+    "development_split_status": "adaptive_dev_burned",
+    "test_access": "forbidden"
+  },
+  "inputs": {
+    "model_inputs": [
+      "egocentric_rgb",
+      "action"
+    ],
+    "forbidden_inputs": [
+      "agent_position",
+      "agent_direction",
+      "room_id",
+      "maze_layout",
+      "place_id",
+      "future_rgb"
+    ],
+    "evaluation_only_fields": [
+      "agent_position_for_visibility_scoring",
+      "agent_direction_for_visibility_scoring"
+    ]
+  },
+  "shared_visual_shell": {
+    "tensor_sha256": "2625367f0ebcb3c86ffe25fe0253059158e27cf7dfbf72ce54fe75a315bbb8a8",
+    "frozen_during_training": true
+  },
+  "eligible_models": [
+    {
+      "model": "transformer",
+      "checkpoint": "runs/remap_former/baseline_catchup_h_transformer_lr5e4_seed2110/checkpoint_final.pt",
+      "teacher_dev_prediction_mse": 0.004708621650934219,
+      "selected_learning_rate": 0.0005
+    },
+    {
+      "model": "titans",
+      "checkpoint": "runs/remap_former/baseline_catchup_h_titans_lr5e4_seed2110/checkpoint_final.pt",
+      "teacher_dev_prediction_mse": 0.004682595143094659,
+      "selected_learning_rate": 0.0005
+    },
+    {
+      "model": "hippoformer",
+      "checkpoint": "runs/remap_former/baseline_catchup_h_hippoformer_lr2e4_seed2110/checkpoint_final.pt",
+      "teacher_dev_prediction_mse": 0.004315775178838521,
+      "selected_learning_rate": 0.0002
+    }
+  ],
+  "excluded_models": [
+    {
+      "model": "mmtem",
+      "reason": "The low-LR rescue was finite but missed the frozen teacher-health gate.",
+      "best_dev_prediction_mse": 0.01472391514107585,
+      "maximum_allowed": 0.012
+    }
+  ],
+  "reference_only": [
+    {
+      "model": "m1b",
+      "checkpoint": "runs/remap_former/memorymaze3d_bidirectional_phaseprop_rollout80_seed2085/checkpoint_final.pt",
+      "selection_role": "Current project reference only; its cumulative ancestry budget is not matched to the baseline catch-up runs."
+    }
+  ],
+  "stage_r0": {
+    "name": "strict_rollout_starting_point",
+    "episodes": 32,
+    "total_steps": 64,
+    "context_steps": 20,
+    "rollout_horizon": 44,
+    "required_metrics": [
+      "teacher_forced_pixel_mse",
+      "free_rollout_pixel_mse",
+      "persistence_pixel_mse",
+      "improvement_over_persistence",
+      "actual_action_advantage",
+      "counterfactual_prediction_mean_abs_delta",
+      "future_observation_perturbation_max_delta"
+    ]
+  },
+  "stage_r1": {
+    "name": "bounded_rollout_training_grid",
+    "seed": 2111,
+    "updates": 1200,
+    "batch_size": 4,
+    "sequence_steps": 64,
+    "initialization": "Each run loads its selected Stage H checkpoint with resume-mode=warmstart, resets optimizer state, and retains the frozen shared visual shell.",
+    "learning_rates": [
+      0.00005,
+      0.0001
+    ],
+    "rollout_weights": [
+      0.5,
+      1.0
+    ],
+    "rollout_context": 20,
+    "rollout_curriculum": [
+      2,
+      4,
+      8,
+      16
+    ],
+    "optimizer": "adamw",
+    "weight_decay": 0.0001,
+    "grad_clip": 1.0,
+    "warmup_updates": 100,
+    "step_lr_size": 400,
+    "step_lr_gamma": 0.85,
+    "teacher_weight": 0.5,
+    "teacher_prediction_weight": 1.0,
+    "teacher_latent_weight": 0.05,
+    "rollout_latent_weight": 0.05,
+    "reconstruction_weight": 0.0,
+    "auxiliary_weight": 0.02,
+    "trainable_scope": "backbone",
+    "precision": "fp32",
+    "selection_metric": "stage_r2.free_rollout_pixel_mse",
+    "tie_breaks": [
+      "higher_actual_action_advantage",
+      "lower_learning_rate",
+      "lower_rollout_weight"
+    ]
+  },
+  "stage_r2": {
+    "name": "strict_rollout_selection",
+    "episodes": 32,
+    "total_steps": 64,
+    "context_steps": 20,
+    "future_ground_truth_reads": 0,
+    "future_ground_truth_writes": 0,
+    "required_gates": {
+      "finite_training": true,
+      "descent_gate": true,
+      "shared_visual_unchanged": true,
+      "future_observation_perturbation_max_delta": 0.0,
+      "oracle_inputs": []
+    }
+  },
+  "stop_rules": [
+    "Do not replace the excluded MM-TEM row with Hippoformer's internal MM-TEM branch.",
+    "Do not access test data during R0-R2.",
+    "Do not add a fifth hyperparameter combination after seeing rollout results.",
+    "Do not claim budget-matched superiority over M1b; M1b is reference-only in this addendum."
+  ]
+}

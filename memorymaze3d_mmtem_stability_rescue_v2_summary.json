@@ -1,0 +1,107 @@
+{
+  "format": "remap_former.memorymaze3d.mmtem_stability_rescue.v2",
+  "protocol": "protocols\\memorymaze3d_mmtem_stability_rescue_v2.json",
+  "protocol_status": "frozen_before_results",
+  "test_access": "forbidden",
+  "source_visual_tensor_sha256": "2625367f0ebcb3c86ffe25fe0253059158e27cf7dfbf72ce54fe75a315bbb8a8",
+  "s0_terminal_runs": 2,
+  "s0_runs": [
+    {
+      "learning_rate": 2e-05,
+      "run": "runs\\remap_former\\baseline_catchup_v2_mmtem_s0_lr2e5_seed2110",
+      "status": "complete",
+      "validation_prediction_mse": 0.024946880992501974,
+      "first_train_loss": 0.08528554439544678,
+      "final_train_loss": 0.08316956460475922,
+      "elapsed_seconds": 571.7788023001049,
+      "visual_tensor_sha256": "2625367f0ebcb3c86ffe25fe0253059158e27cf7dfbf72ce54fe75a315bbb8a8",
+      "checks": {
+        "model": true,
+        "seed": true,
+        "updates": true,
+        "learning_rate": true,
+        "trainable_scope": true,
+        "finite_gate": true,
+        "descent_gate": true,
+        "prediction_mse_gate": true,
+        "oracle_inputs": true,
+        "shared_visual_unchanged": true,
+        "warmstart_visual": true
+      },
+      "health_gate_pass": true
+    },
+    {
+      "learning_rate": 5e-05,
+      "run": "runs\\remap_former\\baseline_catchup_v2_mmtem_s0_lr5e5_seed2110",
+      "status": "complete",
+      "validation_prediction_mse": 0.018768934067338705,
+      "first_train_loss": 0.08528554439544678,
+      "final_train_loss": 0.07252403348684311,
+      "elapsed_seconds": 567.9284939999925,
+      "visual_tensor_sha256": "2625367f0ebcb3c86ffe25fe0253059158e27cf7dfbf72ce54fe75a315bbb8a8",
+      "checks": {
+        "model": true,
+        "seed": true,
+        "updates": true,
+        "learning_rate": true,
+        "trainable_scope": true,
+        "finite_gate": true,
+        "descent_gate": true,
+        "prediction_mse_gate": true,
+        "oracle_inputs": true,
+        "shared_visual_unchanged": true,
+        "warmstart_visual": true
+      },
+      "health_gate_pass": true
+    }
+  ],
+  "selected_s0": {
+    "learning_rate": 5e-05,
+    "run": "runs\\remap_former\\baseline_catchup_v2_mmtem_s0_lr5e5_seed2110",
+    "status": "complete",
+    "validation_prediction_mse": 0.018768934067338705,
+    "first_train_loss": 0.08528554439544678,
+    "final_train_loss": 0.07252403348684311,
+    "elapsed_seconds": 567.9284939999925,
+    "visual_tensor_sha256": "2625367f0ebcb3c86ffe25fe0253059158e27cf7dfbf72ce54fe75a315bbb8a8",
+    "checks": {
+      "model": true,
+      "seed": true,
+      "updates": true,
+      "learning_rate": true,
+      "trainable_scope": true,
+      "finite_gate": true,
+      "descent_gate": true,
+      "prediction_mse_gate": true,
+      "oracle_inputs": true,
+      "shared_visual_unchanged": true,
+      "warmstart_visual": true
+    },
+    "health_gate_pass": true
+  },
+  "s1_run": {
+    "learning_rate": 5e-05,
+    "run": "runs\\remap_former\\baseline_catchup_v2_mmtem_s1_lr5e5_seed2110",
+    "status": "complete",
+    "validation_prediction_mse": 0.01472391514107585,
+    "first_train_loss": 0.06297031790018082,
+    "final_train_loss": 0.022009465843439102,
+    "elapsed_seconds": 1703.751405899995,
+    "visual_tensor_sha256": "2625367f0ebcb3c86ffe25fe0253059158e27cf7dfbf72ce54fe75a315bbb8a8",
+    "checks": {
+      "model": true,
+      "seed": true,
+      "updates": true,
+      "learning_rate": true,
+      "trainable_scope": true,
+      "finite_gate": true,
+      "descent_gate": true,
+      "prediction_mse_gate": false,
+      "oracle_inputs": true,
+      "shared_visual_unchanged": true,
+      "resume": true,
+      "resume_mode": true
+    },
+    "health_gate_pass": false
+  }
+}

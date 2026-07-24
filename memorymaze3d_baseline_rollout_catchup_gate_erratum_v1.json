@@ -1,0 +1,25 @@
+{
+  "format": "remap_former.memorymaze3d.baseline_rollout_gate_erratum.v1",
+  "status": "frozen_after_transformer_r1_before_titans_and_hippoformer_r1",
+  "created_date": "2026-07-24",
+  "parent_protocol": "protocols/memorymaze3d_baseline_rollout_catchup_v1_addendum.json",
+  "affected_field": "stage_r2.required_gates.descent_gate",
+  "problem": "The legacy implementation compared update 1 at rollout horizon 2 with the final tail at rollout horizon 16. Those losses measure different tasks and are not a valid descent comparison.",
+  "replacement": {
+    "method": "final_horizon_early_vs_late_mean_v2",
+    "final_rollout_horizon": 16,
+    "comparable_updates": 300,
+    "window_fraction": 0.2,
+    "window_updates": 60,
+    "required": [
+      "late_total_mean < early_total_mean",
+      "late_rollout_pixel_mse < early_rollout_pixel_mse"
+    ]
+  },
+  "scope": [
+    "The replacement is applied uniformly to every Stage R1 candidate.",
+    "It changes only audit metadata and does not alter data, model weights, optimization, losses, or Stage R2 selection.",
+    "The legacy cross-curriculum result remains reported for provenance."
+  ],
+  "test_access": "forbidden"
+}
