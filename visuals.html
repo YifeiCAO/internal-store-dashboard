@@ -145,7 +145,7 @@
     }
     .legend {
       display: grid;
-      grid-template-columns: repeat(5, minmax(0, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
       gap: 1px;
       margin: 30px 0 0;
       border: 1px solid var(--line);
@@ -202,7 +202,7 @@
 
   <main>
     <h1>让预测图自己说话</h1>
-    <p class="lead">固定连续验证 episode 168–170，不按结果挑图。每组都比较严格 C20→H44 free rollout 下的真值、双向 HPC、PFC-only，并把逐像素绝对误差放大 4 倍显示。</p>
+    <p class="lead">先用固定 Val168–199 拆开视觉模糊来自哪里，再用连续 episode 168–170 展示真实图像。上半部分比较 GT、Autoencoder 重建、teacher-forced 一步预测与严格 free rollout；下半部分保留双向 HPC 与 PFC-only 的因果消融。</p>
     <div class="badges">
       <span class="badge">真实第一人称 RGB</span>
       <span class="badge">H+1 / 4 / 8 / 16 / 32 / 44</span>
@@ -212,71 +212,130 @@
     </div>
     <div class="decision">
       <strong>当前视觉结论：</strong>
-      双向 HPC 能在部分轨迹略微修正 PFC，但效果不稳定，且两者长期预测都明显模糊。下面同时展示正例和负例，不把“看起来像”替代大样本因果统计。
+      模糊的最大增量发生在闭环 rollout。AE 重建 MSE×1000 为 1.61，teacher-forced 为 3.26，严格 C20→H44 free rollout 上升到 17.54。按这个 MSE 阶梯计算，约 81.4% 的最终误差增长发生在 teacher-forced 到 free rollout 之间。
     </div>
 
-    <div class="scores" aria-label="固定样本结果">
+    <div class="scores" aria-label="视觉模糊来源">
       <article class="score positive">
-        <span>Validation episode 168</span>
-        <strong>+1.63%</strong>
-        <p>双向 HPC 小幅优于 PFC-only</p>
+        <span>Autoencoder 重建</span>
+        <strong>1.61</strong>
+        <p>Pixel MSE ×1000，视觉编解码底噪</p>
+      </article>
+      <article class="score positive">
+        <span>Teacher-forced 一步</span>
+        <strong>3.26</strong>
+        <p>能读取此前真实帧，不能读取当前目标</p>
       </article>
       <article class="score">
-        <span>Validation episode 169</span>
-        <strong>-1.84%</strong>
-        <p>双向 HPC 小幅落后</p>
-      </article>
-      <article class="score">
-        <span>Validation episode 170</span>
-        <strong>-9.79%</strong>
-        <p>清楚的失败案例，未隐藏</p>
+        <span>严格 C20→H44 rollout</span>
+        <strong>17.54</strong>
+        <p>未来真值 read/write 均为 0</p>
       </article>
     </div>
 
-    <div class="legend" aria-label="图像行说明">
+    <div class="legend" aria-label="模糊诊断图像行说明">
       <div><strong>Ground truth</strong>环境真实未来画面</div>
-      <div><strong>Bidirectional HPC</strong>Transformer/PFC + sensory↔grid fast weights</div>
-      <div><strong>PFC only</strong>同 checkpoint，仅把 HPC retrieval contribution 置零</div>
-      <div><strong>|HPC-GT| ×4</strong>双向 HPC 的绝对误差放大图</div>
-      <div><strong>|PFC-GT| ×4</strong>PFC-only 的绝对误差放大图</div>
+      <div><strong>AE reconstruction</strong>读取当前 GT，只测 encoder/decoder 上限，不是预测</div>
+      <div><strong>Teacher-forced</strong>每一步只使用此前真实帧，测一步动力学</div>
+      <div><strong>Strict free rollout</strong>C20 后只输入 action，模型预测喂回下一步</div>
     </div>
 
     <section>
       <div class="section-head">
-        <h2>Episode 168：轻微正收益</h2>
+        <h2>Val32 总体：误差和高频能量</h2>
+        <div class="effect bad">rollout MSE ×1000 = 17.54</div>
+      </div>
+      <figure>
+        <img src="visuals/visual_quality_aggregate_val168_199.png" alt="固定 Val168 到 Val199 的 autoencoder、teacher-forced 与 free rollout 视觉质量统计" />
+        <figcaption>右图是梯度能量，不是感知质量。AE 的 105% 包含反卷积产生的伪高频，不能解释成比 GT 更清晰；左图的 MSE 阶梯更直接地说明闭环 rollout 是主要误差来源。</figcaption>
+      </figure>
+    </section>
+
+    <section>
+      <div class="section-head">
+        <h2>Episode 168：四层模糊来源</h2>
+        <div class="effect good">固定连续样本 1/3</div>
+      </div>
+      <figure>
+        <img src="visuals/visual_quality_episode_168_c20.png" alt="固定验证 episode 168 的 GT、AE 重建、teacher-forced 和 strict free rollout 对比" />
+        <figcaption>H+1 的 strict rollout 与 teacher-forced 基本一致；随着模型反复消费自己的 latent，转角、物体和细边缘逐步被压成平均颜色。</figcaption>
+      </figure>
+    </section>
+
+    <section>
+      <div class="section-head">
+        <h2>Episode 169：四层模糊来源</h2>
+        <div class="effect good">固定连续样本 2/3</div>
+      </div>
+      <figure>
+        <img src="visuals/visual_quality_episode_169_c20.png" alt="固定验证 episode 169 的 GT、AE 重建、teacher-forced 和 strict free rollout 对比" />
+        <figcaption>这个样本进一步显示：AE 和一步预测虽然偏平滑，但仍保留当前场景；长 rollout 的主要失败是状态漂移到错误的平均外观。</figcaption>
+      </figure>
+    </section>
+
+    <section>
+      <div class="section-head">
+        <h2>Episode 170：四层模糊来源</h2>
+        <div class="effect good">固定连续样本 3/3</div>
+      </div>
+      <figure>
+        <img src="visuals/visual_quality_episode_170_c20.png" alt="固定验证 episode 170 的 GT、AE 重建、teacher-forced 和 strict free rollout 对比" />
+        <figcaption>显著蓝色区域和小目标能通过 AE 重建，但 free rollout 很快失去这些内容，进一步定位到 world dynamics 的闭环稳定性，而不是单纯 decoder 容量。</figcaption>
+      </figure>
+    </section>
+
+    <section>
+      <div class="section-head">
+        <h2>附录：双向 HPC 与 PFC-only</h2>
+        <div class="effect bad">Val168–170 未稳定受益</div>
+      </div>
+      <div class="legend" aria-label="HPC 因果消融图像行说明">
+        <div><strong>Ground truth</strong>环境真实未来画面</div>
+        <div><strong>Bidirectional HPC</strong>Transformer/PFC + sensory↔grid fast weights</div>
+        <div><strong>PFC only</strong>同 checkpoint，仅把 HPC retrieval contribution 置零</div>
+        <div><strong>|HPC-GT| ×4</strong>HPC 预测绝对误差热图，不是预测图</div>
+        <div><strong>|PFC-GT| ×4</strong>PFC 预测绝对误差热图，不是预测图</div>
+      </div>
+    </section>
+
+    <section>
+      <div class="section-head">
+        <h2>Episode 168：HPC 小幅正收益</h2>
         <div class="effect good">HPC effect +1.63%</div>
       </div>
       <figure>
-        <img src="visuals/bidirectional_episode_168_c20.png" alt="固定验证 episode 168 的真值、双向 HPC、PFC-only 与误差对比" />
-        <figcaption>HPC 和 PFC 都能保持主色调与大尺度墙面结构，但目标、转角和细边缘在长 horizon 丢失。HPC 的总体 MSE 略低。</figcaption>
+        <img src="visuals/bidirectional_episode_168_c20.png" alt="固定验证 episode 168 的真值、双向 HPC、PFC-only 与误差热图" />
+        <figcaption>最后两行是分别对 GT 的逐像素绝对误差并放大 4 倍，不是两组额外预测。</figcaption>
       </figure>
     </section>
 
     <section>
       <div class="section-head">
-        <h2>Episode 169：接近持平但略差</h2>
+        <h2>Episode 169：HPC 接近持平</h2>
         <div class="effect bad">HPC effect -1.84%</div>
       </div>
       <figure>
-        <img src="visuals/bidirectional_episode_169_c20.png" alt="固定验证 episode 169 的真值、双向 HPC、PFC-only 与误差对比" />
-        <figcaption>这是接近零效果的样本。两条路径的预测外观非常接近，说明不能靠单张好看的图判断 HPC 是否真的被调用成功。</figcaption>
+        <img src="visuals/bidirectional_episode_169_c20.png" alt="固定验证 episode 169 的真值、双向 HPC、PFC-only 与误差热图" />
+        <figcaption>两条预测路径外观非常接近，说明不能靠单张图片判断 HPC 是否调用成功。</figcaption>
       </figure>
     </section>
 
     <section>
       <div class="section-head">
-        <h2>Episode 170：明确失败</h2>
+        <h2>Episode 170：HPC 明确负收益</h2>
         <div class="effect bad">HPC effect -9.79%</div>
       </div>
       <figure>
-        <img src="visuals/bidirectional_episode_170_c20.png" alt="固定验证 episode 170 的真值、双向 HPC、PFC-only 与误差对比" />
-        <figcaption>在蓝色场景和显著目标切换中，双向 HPC 的相位校正没有转化成更好的视觉细节，部分 horizon 反而扩大误差。这正是下一版需要解决的调用可靠性问题。</figcaption>
+        <img src="visuals/bidirectional_episode_170_c20.png" alt="固定验证 episode 170 的真值、双向 HPC、PFC-only 与误差热图" />
+        <figcaption>相位校正没有转化成更好的视觉细节，部分 horizon 反而扩大误差。</figcaption>
       </figure>
     </section>
 
-    <a class="data-link" href="visuals/summary.json">查看机器可读视觉结果 JSON</a>
+    <a class="data-link" href="visuals/visual_quality_summary.json">视觉模糊审计 JSON</a>
+    <a class="data-link" href="MEMORYMAZE3D_VISUAL_BLUR_AUDIT_CN.md">完整中文报告</a>
+    <a class="data-link" href="visuals/summary.json">HPC/PFC 视觉消融 JSON</a>
   </main>
 
-  <footer>ReMAP-Former visual evidence board · 固定 Val168–170 · C20→H44 · test untouched</footer>
+  <footer>ReMAP-Former visual evidence board · 模糊审计 Val168–199 · 展示 Val168–170 · C20→H44 · test untouched</footer>
 </body>
 </html>
