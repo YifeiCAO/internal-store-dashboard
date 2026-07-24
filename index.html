@@ -512,15 +512,15 @@
       <div class="status-grid" aria-label="最新状态">
         <article class="status-card primary">
           <h2>当前主线</h2>
-          <strong>公平基线已经补健康；rollout 训练把 Transformer / Titans 的 H44 误差减半</strong>
-          <p>同一冻结视觉壳、同一 RGB+action 输入、同一 C20→H44 评估下，Transformer 从 0.05581 降到 0.02299，Titans 从 0.04459 降到 0.02189。Hippoformer 四格仍在运行；M1b 的 0.02007 只作非预算匹配参考。</p>
+          <strong>三种公平基线全部补齐；rollout objective 稳定解决 H44 欠训练</strong>
+          <p>同一冻结视觉壳、同一 RGB+action 输入、同一 C20→H44 评估下，Transformer / Titans / Hippoformer 分别从 0.05581 / 0.04459 / 0.04242 降到 0.02299 / 0.02189 / 0.02330。三者都显著优于 persistence；当前 32-episode dev 尚无可靠 backbone 胜负。</p>
           <div class="badge-row">
             <span class="badge"><span class="dot blue"></span>真实 egocentric RGB</span>
             <span class="badge"><span class="dot blue"></span>4096 / 512 / 512</span>
             <span class="badge"><span class="dot teal"></span>无位置 / 朝向输入</span>
             <span class="badge"><span class="dot green"></span>冻结视觉 tensor 完全一致</span>
             <span class="badge"><span class="dot green"></span>future read / write = 0</span>
-            <span class="badge"><span class="dot green"></span>49 tests passed</span>
+            <span class="badge"><span class="dot green"></span>50 tests passed</span>
             <span class="badge"><span class="dot amber"></span>adaptive dev</span>
             <span class="badge"><span class="dot green"></span>test 未访问</span>
           </div>
@@ -535,17 +535,17 @@
           <strong>0.02189</strong>
           <p>动作反事实优势 0.01941</p>
         </article>
-        <article class="status-card hold">
-          <h2>M1b · 参考</h2>
-          <strong>0.02007</strong>
-          <p>非预算匹配，不作胜负结论</p>
+        <article class="status-card pass">
+          <h2>Hippoformer · H44</h2>
+          <strong>0.02330</strong>
+          <p>相对 persistence 改善 42.0%</p>
         </article>
       </div>
 
       <section>
         <div class="decision">
-          <strong>当前决策：完成 Hippoformer 冻结四格，再做多 seed；现在不碰 test</strong>
-          <p>Teacher-health 已不再是混杂因素，严格 free rollout 才是当前选择指标。所有候选都沿用同一视觉壳，只训练各自 backbone；MM-TEM 的低 LR 救援虽数值稳定，但未过 teacher MSE 0.012 门，因此不进入 rollout 选择。</p>
+          <strong>当前决策：冻结三模型的 5e-5 / 1.0 winners，先做 Hippoformer 增量 cache，再跑 fresh 3-seed</strong>
+          <p>Rollout objective 的收益已确认，接下来不再调当前 32 个 dev episodes。先用逐步输出、loss 与梯度等价测试消除 Hippoformer 的重复历史重算，再做配对多 seed；M1b 的 0.02007 继续只作非预算匹配参考，test 保持未访问。</p>
         </div>
       </section>
 
@@ -555,12 +555,12 @@
             <h2>最新：MemoryMaze3D 公平基线 Rollout 补训</h2>
             <p>先补齐 teacher-health，再固定 2×2 rollout 网格。模型只接收第一人称 RGB 与 action；统一冻结视觉壳，严格评估观察 20 步后自由生成 44 步。</p>
           </div>
-          <div class="source">2026-07-24 · R1/R2 8/12 COMPLETE · HIPPOFORMER RUNNING · TEST UNTOUCHED</div>
+          <div class="source">2026-07-24 · R1/R2 12/12 COMPLETE · ALL GATES PASS · TEST UNTOUCHED</div>
         </div>
 
         <div class="decision">
-          <strong>核心结果：旧 baseline 的约 0.02 teacher MSE 确属欠训练；补健康后，rollout objective 才真正决定 H44</strong>
-          <p>Transformer / Titans 的 teacher MSE 已回到约 0.0047。没有 rollout 训练时 H44 仍差于 persistence；加入预注册 H2→H4→H8→H16 curriculum 后分别达到 0.02299 / 0.02189。两者泄漏扰动均为 0。</p>
+          <strong>核心结果：teacher-health 不是长程能力；真正改变 H44 的是严格 free-rollout 训练</strong>
+          <p>没有 rollout 训练时，三种 backbone 的 H44 都差于 persistence。加入冻结的 H2→H4→H8→H16 curriculum 后，Transformer / Titans / Hippoformer 分别达到 0.02299 / 0.02189 / 0.02330。20k 配对 bootstrap 确认三者都稳定优于各自 R0，但三模型之间的 CI 全部跨 0。</p>
         </div>
 
         <div class="grid-2" style="margin-top:12px;">
@@ -571,12 +571,12 @@
               <tbody>
                 <tr><td data-label="模型">Transformer</td><td data-label="R0" class="num red">0.05581</td><td data-label="最佳" class="num green">0.02299</td><td data-label="改善" class="num green">+42.8%</td><td data-label="状态" class="green">4/4 完成</td></tr>
                 <tr><td data-label="模型">Titans</td><td data-label="R0" class="num red">0.04459</td><td data-label="最佳" class="num green">0.02189</td><td data-label="改善" class="num green">+45.5%</td><td data-label="状态" class="green">4/4 完成</td></tr>
-                <tr><td data-label="模型">Hippoformer</td><td data-label="R0" class="num red">0.04242</td><td data-label="最佳" class="num">运行中</td><td data-label="改善" class="num">待定</td><td data-label="状态" class="amber">0/4 完成</td></tr>
+                <tr><td data-label="模型">Hippoformer</td><td data-label="R0" class="num red">0.04242</td><td data-label="最佳" class="num green">0.02330</td><td data-label="改善" class="num green">+42.0%</td><td data-label="状态" class="green">4/4 完成</td></tr>
                 <tr><td data-label="模型">M1b 参考</td><td data-label="R0" class="num green">0.02007</td><td data-label="最佳" class="num">同左</td><td data-label="改善" class="num green">+50.1%</td><td data-label="状态">非预算匹配</td></tr>
                 <tr><td data-label="模型">Persistence</td><td data-label="R0" class="num">0.04019</td><td data-label="最佳" class="num">固定</td><td data-label="改善" class="num">0%</td><td data-label="状态">像素基线</td></tr>
               </tbody>
             </table>
-            <p style="margin-top:10px;">当前 Transformer 与 Titans 的最佳格均为 LR 5e-5、rollout weight 1.0。选择只看冻结的 32-episode adaptive-dev R2，不看 test。</p>
+            <p style="margin-top:10px;">三个模型的最佳格都为 LR 5e-5、rollout weight 1.0。Titans 数值最好且动作优势最强，但与 Transformer / Hippoformer 的配对 CI 都跨 0；选择只看冻结的 32-episode adaptive-dev R2，不看 test。</p>
           </article>
           <article class="panel">
             <h3>训练前后与动作因果</h3>
@@ -591,12 +591,16 @@
             <li>旧 descent gate 错把 H2 初始 loss 与 H16 末尾 loss 比较。现统一比较 H16 前 60 与后 60 updates，综合 loss 和 rollout pixel MSE 都必须下降。</li>
             <li>MM-TEM 低 LR 已消除 NaN，但 1600 updates 后 teacher MSE 仍为 0.01472，高于冻结门 0.012，因此停止，不用 Hippoformer 内部 MM-TEM 分支偷换独立 MM-TEM 基线。</li>
             <li>M1b 累计祖先训练约 12,180 updates，当前只作项目参考；不能据此宣称预算匹配优于 Transformer 或 Titans。</li>
+            <li>12/12 候选的修正 H16 descent gate、共享视觉 hash、严格评估与泄漏门全部通过；Hippoformer 慢来自逐步重放完整历史，下一阶段只做有数值等价测试的增量 cache。</li>
           </ul>
         </article>
 
         <div class="artifact-grid" style="margin-top:12px;">
+          <a class="artifact" href="MEMORYMAZE3D_BASELINE_ROLLOUT_CATCHUP_RESULT_CN.md"><strong>最终中文结论</strong><span>任务、架构、公平边界、12 格结果、统计判断、工程发现与下一步</span></a>
           <a class="artifact" href="MEMORYMAZE3D_BASELINE_ROLLOUT_CATCHUP_CN.md"><strong>Rollout Catch-up 动态中文报告</strong><span>R0、全部候选、选择结果、动作反事实与当前进度</span></a>
           <a class="artifact" href="memorymaze3d_baseline_rollout_catchup_summary.json"><strong>机器可读审计</strong><span>视觉 hash、训练 gate、泄漏门、逐候选 R2 与选择字段</span></a>
+          <a class="artifact" href="MEMORYMAZE3D_BASELINE_ROLLOUT_STATISTICS_CN.md"><strong>20k 配对 Bootstrap</strong><span>三模型对 R0、persistence、M1b 及彼此之间的同 episode 置信区间</span></a>
+          <a class="artifact" href="memorymaze3d_baseline_rollout_statistics_summary.json"><strong>配对统计 JSON</strong><span>20,000 samples、seed 2112、全部均值、CI、概率与 episode 胜率</span></a>
           <a class="artifact" href="MEMORYMAZE3D_BASELINE_ROLLOUT_CATCHUP_ADDENDUM_CN.md"><strong>看结果前冻结方案</strong><span>R0、2×2 网格、R2 选择、停止规则与 test 边界</span></a>
           <a class="artifact" href="MEMORYMAZE3D_BASELINE_ROLLOUT_GATE_ERRATUM_CN.md"><strong>Descent gate 勘误</strong><span>为什么跨 curriculum 比较无效，以及同 H16 修正规则</span></a>
           <a class="artifact" href="MEMORYMAZE3D_BASELINE_CATCHUP_STAGE_H_CN.md"><strong>Stage H Teacher-health</strong><span>Transformer、Titans、MM-TEM、Hippoformer 的补训健康审计</span></a>
