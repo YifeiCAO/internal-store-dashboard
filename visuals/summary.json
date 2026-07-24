@@ -1,0 +1,42 @@
+{
+  "format": "remap_former.memorymaze3d.bidirectional_visuals.v1",
+  "checkpoint": "runs\\remap_former\\memorymaze3d_bidirectional_phaseprop_rollout80_seed2085\\checkpoint_final.pt",
+  "data": "data\\memorymaze3d_variable_full_v1",
+  "split": "val",
+  "episode_selection": "fixed_consecutive_indices",
+  "episodes": [
+    {
+      "episode": 168,
+      "full_mse_x1e3": 3.923115786164999,
+      "pfc_only_mse_x1e3": 3.988170064985752,
+      "hpc_improvement_relative": 0.01631181162305462,
+      "image": "bidirectional_episode_168_c20.png"
+    },
+    {
+      "episode": 169,
+      "full_mse_x1e3": 37.15978190302849,
+      "pfc_only_mse_x1e3": 36.48760914802551,
+      "hpc_improvement_relative": -0.018421945715216843,
+      "image": "bidirectional_episode_169_c20.png"
+    },
+    {
+      "episode": 170,
+      "full_mse_x1e3": 18.371155485510826,
+      "pfc_only_mse_x1e3": 16.733285039663315,
+      "hpc_improvement_relative": -0.09788098642706598,
+      "image": "bidirectional_episode_170_c20.png"
+    }
+  ],
+  "context_steps": 20,
+  "rollout_steps": 44,
+  "selected_horizons": [
+    1,
+    4,
+    8,
+    16,
+    32,
+    44
+  ],
+  "future_ground_truth_reads": 0,
+  "future_ground_truth_writes": 0
+}

@@ -1,0 +1,87 @@
+{
+  "format": "remap_former.memorymaze3d.bidirectional_hpc_summary.v1",
+  "date": "2026-07-23",
+  "architecture": {
+    "pfc": "window_transformer",
+    "hpc": "episode_local_bidirectional_grid_sensory_fast_weights",
+    "correction": "causal_neural_gate_with_persistent_phase_reset",
+    "memory_slots": false,
+    "model_inputs": [
+      "egocentric_rgb",
+      "action"
+    ],
+    "oracle_inputs": []
+  },
+  "tests_passed": 39,
+  "mechanism_confirmation_val32_63": {
+    "paired_queries": 1952,
+    "true_cycle_confidence_mean": 0.5768730640411377,
+    "shuffled_cycle_confidence_mean": 0.4660232365131378,
+    "cycle_confidence_margin": 0.11084986478090286,
+    "true_structural_cosine_mean": 0.4481155276298523,
+    "shuffled_structural_cosine_mean": 0.28844401240348816,
+    "structural_cosine_margin": 0.15967151522636414,
+    "decision": "PASS_SENSORY_TO_GRID_RECALL"
+  },
+  "downstream_hpc_ablation": [
+    {
+      "checkpoint": "bidirectional_recall100",
+      "split": "val64_95",
+      "episodes": 32,
+      "c20_improvement_relative": -0.03402557866908127,
+      "c32_improvement_relative": 0.04321112836249626,
+      "pooled_improvement_relative": -0.000452658219998588,
+      "decision": "FAIL"
+    },
+    {
+      "checkpoint": "bidirectional_rollout100",
+      "split": "val96_127",
+      "episodes": 32,
+      "c20_improvement_relative": -0.01732111606771326,
+      "c32_improvement_relative": 0.022303745517958433,
+      "pooled_improvement_relative": 0.001609031381829116,
+      "decision": "FAIL"
+    },
+    {
+      "checkpoint": "bidirectional_phaseprop_rollout80",
+      "split": "val152_167",
+      "episodes": 16,
+      "c20_improvement_relative": 0.07249204064301339,
+      "c32_improvement_relative": 0.07375525042304339,
+      "pooled_improvement_relative": 0.07298026630169281,
+      "decision": "SMALL_SAMPLE_CANDIDATE"
+    },
+    {
+      "checkpoint": "bidirectional_phaseprop_rollout80",
+      "split": "val168_199",
+      "episodes": 32,
+      "c20_improvement_relative": -0.011689079661020894,
+      "c32_improvement_relative": 0.031201370632932456,
+      "pooled_improvement_relative": 0.007580663029703916,
+      "pooled_gain_bootstrap_90pct_x1e3": [
+        -0.2994953198140138,
+        0.6309511292784009
+      ],
+      "decision": "STOP_NOT_REPLICATED"
+    }
+  ],
+  "fixed_visual_examples": [
+    {
+      "episode": 168,
+      "hpc_improvement_relative": 0.01631181162305462
+    },
+    {
+      "episode": 169,
+      "hpc_improvement_relative": -0.018421945715216843
+    },
+    {
+      "episode": 170,
+      "hpc_improvement_relative": -0.09788098642706598
+    }
+  ],
+  "future_ground_truth_reads": 0,
+  "future_ground_truth_writes": 0,
+  "test_split_read": false,
+  "decision": "KEEP_MECHANISM_STOP_DOWNSTREAM_NOT_REPLICATED",
+  "next_question": "causal confidence-calibrated HPC invocation with automatic PFC-only fallback"
+}

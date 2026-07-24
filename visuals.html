@@ -1,0 +1,282 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="color-scheme" content="light" />
+  <title>ReMAP-Former 视觉效果墙</title>
+  <style>
+    :root {
+      --ink: #18222d;
+      --muted: #637080;
+      --line: #d9dfe5;
+      --paper: #f5f7f8;
+      --white: #ffffff;
+      --blue: #2769b3;
+      --green: #18825f;
+      --red: #b7483e;
+      --amber: #ad700c;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: var(--paper);
+      font-family: Inter, "Microsoft YaHei", "PingFang SC", system-ui, sans-serif;
+      letter-spacing: 0;
+    }
+    a { color: inherit; }
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 2;
+      background: rgba(255, 255, 255, 0.96);
+      border-bottom: 1px solid var(--line);
+    }
+    .nav, main, footer {
+      width: min(1480px, calc(100% - 32px));
+      margin: 0 auto;
+    }
+    .nav {
+      min-height: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+    .brand {
+      font-size: 19px;
+      font-weight: 800;
+    }
+    .back {
+      padding: 8px 12px;
+      border: 1px solid var(--line);
+      background: var(--white);
+      text-decoration: none;
+      font-size: 14px;
+    }
+    main { padding: 32px 0 48px; }
+    h1 {
+      margin: 0;
+      max-width: 920px;
+      font-size: clamp(30px, 5vw, 64px);
+      line-height: 1.05;
+    }
+    .lead {
+      max-width: 940px;
+      margin: 18px 0 0;
+      color: var(--muted);
+      font-size: 17px;
+      line-height: 1.7;
+    }
+    .badges {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 18px;
+    }
+    .badge {
+      padding: 7px 10px;
+      border: 1px solid var(--line);
+      background: var(--white);
+      font-size: 13px;
+    }
+    .decision {
+      margin-top: 24px;
+      padding: 16px 18px;
+      border-left: 4px solid var(--amber);
+      background: #fff8e9;
+      line-height: 1.65;
+    }
+    .decision strong { color: #6d4708; }
+    .scores {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+      margin: 24px 0 38px;
+    }
+    .score {
+      min-height: 118px;
+      padding: 16px;
+      background: var(--white);
+      border: 1px solid var(--line);
+      border-top: 4px solid var(--red);
+    }
+    .score.positive { border-top-color: var(--green); }
+    .score span { color: var(--muted); font-size: 13px; }
+    .score strong {
+      display: block;
+      margin-top: 7px;
+      font-size: 31px;
+    }
+    .score p { margin: 6px 0 0; color: var(--muted); font-size: 13px; }
+    section {
+      padding: 28px 0;
+      border-top: 1px solid var(--line);
+    }
+    .section-head {
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      gap: 18px;
+      margin-bottom: 14px;
+    }
+    h2 { margin: 0; font-size: 24px; }
+    .effect {
+      font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+      font-size: 15px;
+      font-weight: 800;
+    }
+    .effect.good { color: var(--green); }
+    .effect.bad { color: var(--red); }
+    figure { margin: 0; }
+    figure img {
+      display: block;
+      width: 100%;
+      height: auto;
+      border: 1px solid var(--line);
+      background: var(--white);
+    }
+    figcaption {
+      margin-top: 10px;
+      color: var(--muted);
+      line-height: 1.6;
+      font-size: 14px;
+    }
+    .legend {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 1px;
+      margin: 30px 0 0;
+      border: 1px solid var(--line);
+      background: var(--line);
+    }
+    .legend div {
+      padding: 14px;
+      background: var(--white);
+      font-size: 13px;
+      line-height: 1.5;
+    }
+    .legend strong { display: block; margin-bottom: 4px; }
+    .data-link {
+      display: inline-block;
+      margin-top: 20px;
+      color: var(--blue);
+      font-weight: 700;
+    }
+    footer {
+      padding: 24px 0 42px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+    @media (max-width: 760px) {
+      .nav, main, footer { width: min(100% - 20px, 1480px); }
+      .nav { min-height: 58px; }
+      .brand { font-size: 16px; }
+      main { padding-top: 24px; }
+      .scores { grid-template-columns: 1fr; }
+      .section-head { align-items: start; flex-direction: column; gap: 5px; }
+      .legend { grid-template-columns: 1fr; }
+      section { padding: 22px 0; }
+      figure {
+        overflow-x: auto;
+        border: 1px solid var(--line);
+        background: var(--white);
+      }
+      figure img {
+        width: 1180px;
+        max-width: none;
+        border: 0;
+      }
+      figcaption { padding-right: 4px; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="nav">
+      <div class="brand">ReMAP-Former 视觉效果墙</div>
+      <a class="back" href="index.html#memorymaze3d">返回实验总看板</a>
+    </div>
+  </header>
+
+  <main>
+    <h1>让预测图自己说话</h1>
+    <p class="lead">固定连续验证 episode 168–170，不按结果挑图。每组都比较严格 C20→H44 free rollout 下的真值、双向 HPC、PFC-only，并把逐像素绝对误差放大 4 倍显示。</p>
+    <div class="badges">
+      <span class="badge">真实第一人称 RGB</span>
+      <span class="badge">H+1 / 4 / 8 / 16 / 32 / 44</span>
+      <span class="badge">无位置、朝向、房间 ID</span>
+      <span class="badge">future truth read/write = 0</span>
+      <span class="badge">固定连续样本</span>
+    </div>
+    <div class="decision">
+      <strong>当前视觉结论：</strong>
+      双向 HPC 能在部分轨迹略微修正 PFC，但效果不稳定，且两者长期预测都明显模糊。下面同时展示正例和负例，不把“看起来像”替代大样本因果统计。
+    </div>
+
+    <div class="scores" aria-label="固定样本结果">
+      <article class="score positive">
+        <span>Validation episode 168</span>
+        <strong>+1.63%</strong>
+        <p>双向 HPC 小幅优于 PFC-only</p>
+      </article>
+      <article class="score">
+        <span>Validation episode 169</span>
+        <strong>-1.84%</strong>
+        <p>双向 HPC 小幅落后</p>
+      </article>
+      <article class="score">
+        <span>Validation episode 170</span>
+        <strong>-9.79%</strong>
+        <p>清楚的失败案例，未隐藏</p>
+      </article>
+    </div>
+
+    <div class="legend" aria-label="图像行说明">
+      <div><strong>Ground truth</strong>环境真实未来画面</div>
+      <div><strong>Bidirectional HPC</strong>Transformer/PFC + sensory↔grid fast weights</div>
+      <div><strong>PFC only</strong>同 checkpoint，仅把 HPC retrieval contribution 置零</div>
+      <div><strong>|HPC-GT| ×4</strong>双向 HPC 的绝对误差放大图</div>
+      <div><strong>|PFC-GT| ×4</strong>PFC-only 的绝对误差放大图</div>
+    </div>
+
+    <section>
+      <div class="section-head">
+        <h2>Episode 168：轻微正收益</h2>
+        <div class="effect good">HPC effect +1.63%</div>
+      </div>
+      <figure>
+        <img src="visuals/bidirectional_episode_168_c20.png" alt="固定验证 episode 168 的真值、双向 HPC、PFC-only 与误差对比" />
+        <figcaption>HPC 和 PFC 都能保持主色调与大尺度墙面结构，但目标、转角和细边缘在长 horizon 丢失。HPC 的总体 MSE 略低。</figcaption>
+      </figure>
+    </section>
+
+    <section>
+      <div class="section-head">
+        <h2>Episode 169：接近持平但略差</h2>
+        <div class="effect bad">HPC effect -1.84%</div>
+      </div>
+      <figure>
+        <img src="visuals/bidirectional_episode_169_c20.png" alt="固定验证 episode 169 的真值、双向 HPC、PFC-only 与误差对比" />
+        <figcaption>这是接近零效果的样本。两条路径的预测外观非常接近，说明不能靠单张好看的图判断 HPC 是否真的被调用成功。</figcaption>
+      </figure>
+    </section>
+
+    <section>
+      <div class="section-head">
+        <h2>Episode 170：明确失败</h2>
+        <div class="effect bad">HPC effect -9.79%</div>
+      </div>
+      <figure>
+        <img src="visuals/bidirectional_episode_170_c20.png" alt="固定验证 episode 170 的真值、双向 HPC、PFC-only 与误差对比" />
+        <figcaption>在蓝色场景和显著目标切换中，双向 HPC 的相位校正没有转化成更好的视觉细节，部分 horizon 反而扩大误差。这正是下一版需要解决的调用可靠性问题。</figcaption>
+      </figure>
+    </section>
+
+    <a class="data-link" href="visuals/summary.json">查看机器可读视觉结果 JSON</a>
+  </main>
+
+  <footer>ReMAP-Former visual evidence board · 固定 Val168–170 · C20→H44 · test untouched</footer>
+</body>
+</html>

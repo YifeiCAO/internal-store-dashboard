@@ -477,6 +477,7 @@
         <p>Transformer=PFC 主干，EC 供结构，covariance-corrected HPC 供外挂记忆</p>
       </div>
       <nav aria-label="看板分区">
+        <a href="visuals.html">视觉效果墙</a>
         <a href="#memorymaze3d">视觉 3D 正式结果</a>
         <a href="#paper-package">论文证据包</a>
         <a href="#context-need">Context-Need 最新</a>
@@ -510,17 +511,17 @@
       <div class="status-grid" aria-label="最新状态">
         <article class="status-card primary">
           <h2>当前主线</h2>
-          <strong>可变布局 world model 已跑通；三轮 HPC 修正均未通过独立 Val256</strong>
-          <p>Visual-corrected EC 把 address 近邻命中从 61.0% 提到 66.3%，并在 Val32 得到 +4.73%，但完全独立 Val256 反转为 -0.42%。这说明局部 loop closure 变好仍不足以建立稳定的长 rollout 记忆贡献。</p>
+          <strong>双向 sensory↔grid HPC 已实现；机制成立，下游收益尚未稳定</strong>
+          <p>sensory→grid 在独立 Val32 上相对 shuffled 的结构余弦 margin 为 +0.160，闭环置信度 margin 为 +0.111。加入 HC→EC phase reset 后曾在 Val16 得到 +7.30%，但全新 Val32 只剩 +0.76%，且 C20 为负，不能晋级。</p>
           <div class="badge-row">
             <span class="badge"><span class="dot blue"></span>真实 egocentric RGB</span>
             <span class="badge"><span class="dot blue"></span>4096 / 512 / 512</span>
             <span class="badge"><span class="dot teal"></span>无位置 / 朝向输入</span>
             <span class="badge"><span class="dot green"></span>跨 split layout overlap = 0</span>
             <span class="badge"><span class="dot green"></span>future leak = 0</span>
-            <span class="badge"><span class="dot green"></span>33 tests passed</span>
+            <span class="badge"><span class="dot green"></span>39 tests passed</span>
             <span class="badge"><span class="dot amber"></span>当前成绩主要来自 PFC</span>
-            <span class="badge"><span class="dot amber"></span>HPC 需双向重构</span>
+            <span class="badge"><span class="dot green"></span>双向召回机制门 PASS</span>
           </div>
         </article>
         <article class="status-card pass">
@@ -529,21 +530,21 @@
           <p>Stage2 对 Stage1，paired Val64 pooled</p>
         </article>
         <article class="status-card fail">
-          <h2>Visual EC · Val32</h2>
-          <strong>+4.73%</strong>
-          <p>发现集显著，但只作为候选</p>
+          <h2>反向召回 · Val32</h2>
+          <strong>+0.160</strong>
+          <p>结构余弦 true - shuffled</p>
         </article>
         <article class="status-card hold">
-          <h2>Visual EC · Val256</h2>
-          <strong>-0.42%</strong>
-          <p>90% CI 跨 0，未复现，不进 test</p>
+          <h2>Phase reset · Val32</h2>
+          <strong>+0.76%</strong>
+          <p>pooled，CI 跨 0；C20 为负</p>
         </article>
       </div>
 
       <section>
         <div class="decision">
-          <strong>当前决策：停止给单向 HPC 补 loss/gate；下一版实现 sensory↔grid 双向 neural fast weights</strong>
-          <p>本轮证明 context InfoNCE、factorized covariance 与视觉 loop closure 都不能稳定救回当前结构。根本缺口是现 HPC 只能 structural→sensory，不能像原始 mm-TEM 那样由 sensory 反向召回并校正 grid。下一版仍禁止 room id、位置、地图、place id 和 future RGB。</p>
+          <strong>当前决策：保留双向 HPC 与 phase reset，不晋级 test；下一步解决“何时调用”</strong>
+          <p>反向 fast weights 已经能从视觉内容召回正确历史 grid，但固定强度把 retrieval 每步注入 PFC 仍不稳定。下一轮只研究因果调用可靠性和生成分布下的置信度校准；仍禁止 room id、位置、地图、place id 和 future RGB。</p>
         </div>
       </section>
 
@@ -582,7 +583,7 @@
         </div>
 
         <article class="panel" style="margin-top:12px;">
-          <h3>下一版：双向 sensory↔grid Neural HPC</h3>
+          <h3>当前候选：双向 sensory↔grid Neural HPC</h3>
           <div class="arch-flow" style="grid-template-columns:repeat(5,minmax(0,1fr));">
             <div class="arch-node input"><h3>RGB + Action</h3><p>严格因果历史</p></div>
             <div class="arch-node pfc"><h3>Transformer / PFC</h3><p>短期主干</p></div>
@@ -594,6 +595,9 @@
         </article>
 
         <div class="artifact-grid" style="margin-top:12px;">
+          <a class="artifact" href="visuals.html"><strong>最新：3D 视觉效果墙</strong><span>固定 Val168–170；真值、双向 HPC、PFC-only、H+1→44 与误差热图</span></a>
+          <a class="artifact" href="MEMORYMAZE3D_BIDIRECTIONAL_HPC_RESULT_CN.md"><strong>最新：双向 HPC 完整中文报告</strong><span>双向 fast weights、闭环召回门、phase reset、独立复现与停止结论</span></a>
+          <a class="artifact" href="memorymaze3d_bidirectional_hpc_summary.json"><strong>双向 HPC 机器结果</strong><span>机制 margins、各 validation slice 因果消融、视觉样本与 test 边界</span></a>
           <a class="artifact" href="MEMORYMAZE3D_HPC_CORRECTION_AUDIT_CN.md"><strong>最新：HPC Correction 完整中文审计</strong><span>Context InfoNCE、factorized write、视觉 EC、Val32→Val256 反转与双向 HPC 下一版</span></a>
           <a class="artifact" href="memorymaze3d_hpc_correction_audit_summary.json"><strong>最新机器可读结果</strong><span>三条失败分支、地址几何、bootstrap 区间、test 边界与冻结决策</span></a>
           <a class="artifact" href="MEMORYMAZE3D_VARIABLE_HPC_AUDIT_CN.md"><strong>上一版：可变布局 HPC 基础审计</strong><span>Stage1/Stage2、旧 HPC、pfc_hidden context 与 gain sweep</span></a>
@@ -2619,7 +2623,7 @@
       </section>
     </main>
 
-    <footer>ReMAP-Former internal dashboard · 2026-07-23 · 可变布局 world model 已跑通；Context InfoNCE、factorized write 与 visual-corrected EC 均未通过独立 Val256。test 未读取；下一版冻结为 sensory↔grid 双向 neural fast-weight HPC。</footer>
+    <footer>ReMAP-Former internal dashboard · 2026-07-23 · 双向 sensory↔grid fast weights 与 HC→EC phase reset 已实现；独立机制门通过，下游 Val32 未稳定复现。test 未读取。</footer>
   </div>
 </body>
 </html>
