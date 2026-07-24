@@ -158,9 +158,27 @@
       line-height: 1.5;
     }
     .legend strong { display: block; margin-bottom: 4px; }
+    .result-table {
+      width: 100%;
+      border-collapse: collapse;
+      background: var(--white);
+      font-size: 14px;
+    }
+    .result-table th,
+    .result-table td {
+      padding: 12px 14px;
+      border: 1px solid var(--line);
+      text-align: right;
+    }
+    .result-table th:first-child,
+    .result-table td:first-child { text-align: left; }
+    .result-table th { background: #eef2f4; }
+    .worse { color: var(--red); font-weight: 800; }
+    .best { color: var(--green); font-weight: 800; }
     .data-link {
       display: inline-block;
       margin-top: 20px;
+      margin-right: 18px;
       color: var(--blue);
       font-weight: 700;
     }
@@ -188,6 +206,8 @@
         max-width: none;
         border: 0;
       }
+      .table-wrap { overflow-x: auto; }
+      .result-table { min-width: 680px; }
       figcaption { padding-right: 4px; }
     }
   </style>
@@ -221,6 +241,18 @@
     <div class="decision">
       <strong>Latent-manifold 因果门：</strong>
       独立 Val216–231 显示 rollout latent 的 decode→encode cycle MSE 为 0.01744，真实 latent 仅 0.00273；但把投影结果硬喂回下一步会使 pixel MSE 从 12.59 恶化到 16.30（-29.5%）。因此 off-manifold 漂移存在，但 hard projection 被否决。
+    </div>
+    <div class="decision">
+      <strong>维度更正：</strong>
+      当前正式模型的 visual latent 是 4096 维；128 是 encoder/decoder 最深层的卷积通道数。后续容量门固定 latent=4096，比较 visual width 64/128/256，不再使用错误的 128/256/512 latent sweep。
+    </div>
+    <div class="decision">
+      <strong>两个训练期稳定性目标均未晋级：</strong>
+      固定 Val232–239 上，latent denoising 虽把 AE 和 teacher MSE 分别改善 2.66% 与 1.88%，却让 H44 变差 7.75%；soft cycle 同样让 H44 变差 13.32%。不把两个独立失败的机制强行组合。
+    </div>
+    <div class="decision">
+      <strong>视觉容量门：</strong>
+      独立 autoencoder 固定 latent=4096、同 seed、同 2000 updates。Val240–255 上 width 64/128/256 的 MSE×1000 为 2.623/2.092/2.552。128 是当前甜点位；256 参数翻倍但没有解决模糊。
     </div>
 
     <div class="scores" aria-label="视觉模糊来源">
@@ -266,7 +298,55 @@
       </div>
       <figure>
         <img src="visuals/latent_manifold_val216_231.png" alt="固定 Val216 到 Val231 的 latent manifold cycle 距离与 causal projection 对比" />
-        <figcaption>右图证明预测 latent 比真实 latent 更难经过 visual decoder→encoder 往返；左图证明直接把 round-trip latent 喂回下一步会放大长期误差。下一候选应是训练期 soft cycle 或 denoising，而不是推理时硬投影。</figcaption>
+        <figcaption>右图证明预测 latent 比真实 latent 更难经过 visual decoder→encoder 往返；左图证明直接把 round-trip latent 喂回下一步会放大长期误差。随后测试的训练期 soft cycle 与 denoising 也都没有通过 H44 门，说明“更贴近 manifold”还不能等价成稳定动力学。</figcaption>
+      </figure>
+    </section>
+
+    <section>
+      <div class="section-head">
+        <h2>训练期稳定性目标：单步好看，长程更差</h2>
+        <div class="effect bad">两个机制均不晋级</div>
+      </div>
+      <div class="table-wrap">
+        <table class="result-table">
+          <thead>
+            <tr>
+              <th>模型</th>
+              <th>AE MSE ×1000</th>
+              <th>Teacher MSE ×1000</th>
+              <th>C20→H44 MSE ×1000</th>
+              <th>H44 相对基线</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>原 checkpoint</td><td>1.483</td><td>3.108</td><td>15.011</td><td>基线</td></tr>
+            <tr><td>Latent denoising 100</td><td>1.443</td><td>3.050</td><td>16.175</td><td class="worse">+7.75%</td></tr>
+            <tr><td>Soft cycle 100</td><td>1.467</td><td>3.092</td><td>17.011</td><td class="worse">+13.32%</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="lead">这两个实验使用同一个固定 validation slice。它们都能让当前帧或一步预测略好，却没有让模型在 44 步闭环里更稳，因此不能凭局部 loss 改善就并入正式架构。</p>
+    </section>
+
+    <section>
+      <div class="section-head">
+        <h2>视觉宽度容量门：128 是甜点位</h2>
+        <div class="effect good">Val240–255 · 2000 updates</div>
+      </div>
+      <figure>
+        <img src="visuals/autoencoder_capacity_aggregate.png" alt="visual width 64 128 256 的独立 autoencoder 容量对比" />
+        <figcaption>三档都固定 4096 维 latent，只改变卷积宽度。128 的像素 MSE 最低；256 使用 36.99M 参数，是 128 的约 2.10 倍，误差却高 22.0%。中图的梯度能量含反卷积伪高频，不可当作感知清晰度。</figcaption>
+      </figure>
+    </section>
+
+    <section>
+      <div class="section-head">
+        <h2>Episode 240：同一帧的视觉容量对照</h2>
+        <div class="effect good">GT / width 64 / 128 / 256</div>
+      </div>
+      <figure>
+        <img src="visuals/autoencoder_capacity_episode_240.png" alt="固定验证 episode 240 的 ground truth 与三档 autoencoder 重建" />
+        <figcaption>这不是未来预测，而是纯 autoencoder 上限。128 整体误差最低，但三档仍有颜色平均与平滑，说明视觉编解码器贡献底噪；它解释不了正式模型中 teacher→H44 的大部分新增误差。</figcaption>
       </figure>
     </section>
 
@@ -352,10 +432,13 @@
 
     <a class="data-link" href="visuals/visual_quality_summary.json">视觉模糊审计 JSON</a>
     <a class="data-link" href="visuals/latent_manifold_summary.json">Latent-manifold 门 JSON</a>
+    <a class="data-link" href="visuals/denoising_summary.json">Denoising 门 JSON</a>
+    <a class="data-link" href="visuals/soft_cycle_summary.json">Soft-cycle 门 JSON</a>
+    <a class="data-link" href="visuals/autoencoder_capacity_summary.json">视觉容量门 JSON</a>
     <a class="data-link" href="MEMORYMAZE3D_VISUAL_BLUR_AUDIT_CN.md">完整中文报告</a>
     <a class="data-link" href="visuals/summary.json">HPC/PFC 视觉消融 JSON</a>
   </main>
 
-  <footer>ReMAP-Former visual evidence board · 模糊审计 Val168–199 · 展示 Val168–170 · C20→H44 · test untouched</footer>
+  <footer>ReMAP-Former visual evidence board · 模糊审计与稳定性目标门控 · visual width 容量门 · test untouched</footer>
 </body>
 </html>

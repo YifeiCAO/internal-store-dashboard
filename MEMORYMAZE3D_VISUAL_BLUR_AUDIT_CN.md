@@ -36,7 +36,7 @@
 1. `Ground truth`
    - 环境真实未来帧。
 2. `AE reconstruction`
-   - 把当前真实帧编码到 128 维 latent，再立即解码。
+   - 把当前真实帧经过四层卷积压到 `4×4×128=2048` 个特征，再映射到 4096 维 latent，并立即解码。
    - 它会读取目标帧，只用于测 encoder/decoder 上限，不是预测结果。
 3. `Teacher-forced one-step`
    - 每一步可以读取此前真实帧，但不能读取当前目标帧。
@@ -156,4 +156,78 @@ predicted latent
 - off-manifold 漂移是真实存在的诊断信号。
 - 推理时硬投影不是解法，因为当前模型依赖一些 AE round-trip 不能无损保留的预测 latent 坐标。
 - 不采用 hard projection。
-- 下一候选是训练期的 soft cycle consistency 或 latent denoising，使动力学逐步学会留在稳定区域，而不是推理时强制替换状态。
+- 下一候选进入训练期独立门控：分别测试 soft cycle consistency 与 latent denoising，不能因为它们改善单步质量就直接并入主模型。
+
+## 维度更正
+
+当前正式 checkpoint 的 `dim_latent` 是 **4096**，不是 128。此前“128 维 latent”的表述混淆了 decoder 内部的 128 个卷积通道，现已更正。
+
+当前视觉路径为：
+
+```text
+RGB 3×64×64
+→ CNN 128×4×4（2048 个卷积特征）
+→ Linear + LayerNorm
+→ 4096 维 visual latent
+→ Linear
+→ 128×4×4
+→ 四层 ConvTranspose2d
+→ RGB 3×64×64
+```
+
+因此当前没有“visual latent 只有 128 维、容量明显太小”的证据。后续容量门固定 latent=4096，比较卷积宽度 `64/128/256`，测试真正的空间视觉编码与解码容量。
+
+## 训练期稳定性目标门控
+
+在固定 `Val232-239` 上，以当前最佳 checkpoint 为基线，分别进行 100 update 的低学习率全模型微调。两项机制独立运行，避免归因混杂：
+
+- latent denoising：对真实 visual latent 添加相对 RMS 高斯扰动，要求恢复干净 latent 与图像。
+- soft cycle：将 rollout 预测 latent 经 `decoder→encoder` 往返，仅用 cycle loss 拉向真实 target latent；推理时不做硬替换。
+
+| 模型 | AE MSE x1e3 | Teacher MSE x1e3 | C20→H44 MSE x1e3 | H44 相对基线 |
+|---|---:|---:|---:|---:|
+| 原 checkpoint | 1.483 | 3.108 | 15.011 | - |
+| Latent denoising 100 | 1.443 | 3.050 | 16.175 | **+7.75% 变差** |
+| Soft cycle 100 | 1.467 | 3.092 | 17.011 | **+13.32% 变差** |
+
+结论：
+
+- 两种目标都略微改善 AE 或 teacher-forced 一步质量。
+- 两种目标都明显恶化严格 H44 rollout。
+- “更贴近视觉 manifold”不等于“闭环动力学更稳定”；它可能抹掉 PFC rollout 依赖的预测坐标。
+- 两项机制均不晋级，也不把两个失败机制组合后再赌一次。
+- 当前最佳 checkpoint 仍是 `memorymaze3d_bidirectional_phaseprop_rollout80_seed2085`。
+
+## 视觉编解码器容量门控
+
+为了隔离视觉容量，新增独立 autoencoder 训练路径。它只读取 `egocentric_rgb`，完全绕开 Transformer/PFC、HPC、action dynamics 和位置等 oracle 输入。
+
+公平设置：
+
+- latent 固定为 4096。
+- visual width 比较 `64/128/256`。
+- 三档使用相同 seed、数据顺序、batch、sequence 长度、学习率日程和 2000 updates。
+- 固定审计切片为 `Val240-255`，test 未读取。
+
+| Visual width | 参数量 | Pixel MSE x1e3 | 相对 GT 梯度能量 |
+|---:|---:|---:|---:|
+| 64 | 8.62M | 2.623 | 159.9% |
+| **128** | **17.65M** | **2.092** | 122.5% |
+| 256 | 36.99M | 2.552 | 121.6% |
+
+结论：
+
+- 64 宽度存在容量不足，MSE 比 128 高 `25.4%`。
+- 256 参数量约为 128 的 2.10 倍，但 MSE 反而高 `22.0%`。
+- 当前 128 宽度是同预算下的甜点位，盲目加宽 decoder 不能解决模糊。
+- 即使是只做当前帧重建的 autoencoder，输出仍有颜色平均和平滑；视觉编解码器贡献了底噪。
+- 但原正式 checkpoint 上，teacher→rollout 阶段贡献了总 MSE 增量的 `81.4%`，所以首要瓶颈仍是闭环 world dynamics，而不是卷积宽度。
+- 梯度能量高于 100% 包含 `ConvTranspose2d` 的伪高频纹理，不代表感知质量优于真值。
+
+## 当前决策
+
+1. 保留正式模型的 4096 维 latent 与 visual width 128。
+2. 不采用 hard projection、latent denoising 100 或 soft cycle 100。
+3. 不把未通过独立 gate 的机制组合进主模型。
+4. 下一轮优先改变闭环训练信号，而不是继续堆视觉参数：用多步 latent dynamics 目标直接约束 rollout transition，同时保留严格的 AE、teacher 与 H44 三门验收。
+5. test split 继续保持未读取。

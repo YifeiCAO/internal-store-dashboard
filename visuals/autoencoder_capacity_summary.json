@@ -1,0 +1,48 @@
+{
+  "format": "remap_former.memorymaze3d.autoencoder_capacity.v1",
+  "data": "data\\memorymaze3d_variable_full_v1",
+  "split": "val",
+  "audit_selection": "fixed_consecutive_indices",
+  "audit_start": 240,
+  "audit_count": 16,
+  "dim_latent": 4096,
+  "metrics": {
+    "64": {
+      "pixel_mse": 0.002623032545670867,
+      "pixel_mse_x1e3": 2.623032569885254,
+      "gradient_energy_ratio": 1.5988563299179077,
+      "parameters": 8616739
+    },
+    "128": {
+      "pixel_mse": 0.0020918375812470913,
+      "pixel_mse_x1e3": 2.0918376445770264,
+      "gradient_energy_ratio": 1.2247930765151978,
+      "parameters": 17647171
+    },
+    "256": {
+      "pixel_mse": 0.002552247606217861,
+      "pixel_mse_x1e3": 2.5522475242614746,
+      "gradient_energy_ratio": 1.2156566381454468,
+      "parameters": 36985987
+    }
+  },
+  "chart": "autoencoder_capacity_aggregate.png",
+  "visual_episode_selection": "fixed_consecutive_indices",
+  "episode_images": [
+    "autoencoder_capacity_episode_240.png",
+    "autoencoder_capacity_episode_241.png",
+    "autoencoder_capacity_episode_242.png"
+  ],
+  "frame_indices": [
+    0,
+    4,
+    8,
+    16,
+    32,
+    64
+  ],
+  "model_inputs": [
+    "egocentric_rgb"
+  ],
+  "oracle_inputs": []
+}

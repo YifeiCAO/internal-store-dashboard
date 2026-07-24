@@ -1,0 +1,235 @@
+{
+  "format": "remap_former.memorymaze3d.visual_quality.v1",
+  "checkpoint": "runs\\remap_former\\memorymaze3d_latent_denoise100_seed2093\\checkpoint_final.pt",
+  "data": "data\\memorymaze3d_variable_full_v1",
+  "split": "val",
+  "audit_selection": "fixed_consecutive_indices",
+  "audit_start": 232,
+  "audit_count": 8,
+  "context_steps": 20,
+  "rollout_steps": 44,
+  "aggregate": {
+    "target_edge_energy": 0.008106580004096031,
+    "stages": {
+      "autoencoder_reconstruction": {
+        "pixel_mse": 0.001443312386982143,
+        "pixel_mse_x1e3": 1.443312406539917,
+        "psnr_db": 28.40639661103536,
+        "edge_energy": 0.009034656919538975,
+        "edge_retention_ratio": 1.114484429359436
+      },
+      "teacher_forced_one_step": {
+        "pixel_mse": 0.003049700055271387,
+        "pixel_mse_x1e3": 3.0497000217437744,
+        "psnr_db": 25.157428723732778,
+        "edge_energy": 0.0079125901684165,
+        "edge_retention_ratio": 0.9760701060295105
+      },
+      "strict_free_rollout": {
+        "pixel_mse": 0.016175301745533943,
+        "pixel_mse_x1e3": 16.175302505493164,
+        "psnr_db": 17.911476089468657,
+        "edge_energy": 0.006405034568160772,
+        "edge_retention_ratio": 0.7901031970977783
+      }
+    },
+    "mse_gaps": {
+      "decoder_floor": 0.001443312386982143,
+      "teacher_minus_reconstruction": 0.0016063876682892442,
+      "rollout_minus_teacher": 0.013125601690262556
+    }
+  },
+  "aggregate_image": "visual_quality_aggregate_val232_239.png",
+  "visual_episode_selection": "fixed_consecutive_indices",
+  "episodes": [
+    {
+      "episode": 232,
+      "target_edge_energy": 0.008219254203140736,
+      "stages": {
+        "autoencoder_reconstruction": {
+          "pixel_mse": 0.0018691326258704066,
+          "pixel_mse_x1e3": 1.8691326379776,
+          "psnr_db": 27.283598817992605,
+          "edge_energy": 0.009124627336859703,
+          "edge_retention_ratio": 1.1101527214050293
+        },
+        "teacher_forced_one_step": {
+          "pixel_mse": 0.0033570262603461742,
+          "pixel_mse_x1e3": 3.3570263385772705,
+          "psnr_db": 24.740452614690476,
+          "edge_energy": 0.00784363318234682,
+          "edge_retention_ratio": 0.9542998671531677
+        },
+        "strict_free_rollout": {
+          "pixel_mse": 0.007469732314348221,
+          "pixel_mse_x1e3": 7.469732284545898,
+          "psnr_db": 21.266949613016664,
+          "edge_energy": 0.005987958516925573,
+          "edge_retention_ratio": 0.7285282015800476
+        }
+      },
+      "mse_gaps": {
+        "decoder_floor": 0.0018691326258704066,
+        "teacher_minus_reconstruction": 0.0014878936344757676,
+        "rollout_minus_teacher": 0.004112706054002047
+      },
+      "selected_horizon_mse": {
+        "autoencoder_reconstruction_mse_x1e3": [
+          2.073352575302124,
+          2.207087993621826,
+          1.9069647789001465,
+          2.069012403488159,
+          1.8223192691802979,
+          3.562500238418579
+        ],
+        "teacher_forced_one_step_mse_x1e3": [
+          4.242663860321045,
+          2.5072436332702637,
+          3.23618483543396,
+          4.008176803588867,
+          4.300197601318359,
+          4.780235767364502
+        ],
+        "strict_free_rollout_mse_x1e3": [
+          4.243546962738037,
+          5.0709638595581055,
+          9.23099136352539,
+          9.47887134552002,
+          7.080433368682861,
+          12.486625671386719
+        ]
+      },
+      "image": "visual_quality_episode_232_c20.png"
+    },
+    {
+      "episode": 233,
+      "target_edge_energy": 0.007199692539870739,
+      "stages": {
+        "autoencoder_reconstruction": {
+          "pixel_mse": 0.001698108622804284,
+          "pixel_mse_x1e3": 1.6981086730957031,
+          "psnr_db": 27.700345327165184,
+          "edge_energy": 0.008425572887063026,
+          "edge_retention_ratio": 1.1702684164047241
+        },
+        "teacher_forced_one_step": {
+          "pixel_mse": 0.00331675261259079,
+          "pixel_mse_x1e3": 3.3167526721954346,
+          "psnr_db": 24.79286920097461,
+          "edge_energy": 0.007194702047854662,
+          "edge_retention_ratio": 0.999306857585907
+        },
+        "strict_free_rollout": {
+          "pixel_mse": 0.03196786344051361,
+          "pixel_mse_x1e3": 31.967863082885742,
+          "psnr_db": 14.952863886580051,
+          "edge_energy": 0.006419122219085693,
+          "edge_retention_ratio": 0.8915828466415405
+        }
+      },
+      "mse_gaps": {
+        "decoder_floor": 0.001698108622804284,
+        "teacher_minus_reconstruction": 0.0016186439897865057,
+        "rollout_minus_teacher": 0.02865111082792282
+      },
+      "selected_horizon_mse": {
+        "autoencoder_reconstruction_mse_x1e3": [
+          2.431314468383789,
+          3.0994293689727783,
+          1.4231009483337402,
+          3.8185808658599854,
+          0.3060811460018158,
+          1.0071933269500732
+        ],
+        "teacher_forced_one_step_mse_x1e3": [
+          3.3843278884887695,
+          6.467809200286865,
+          3.925797939300537,
+          5.328681468963623,
+          0.37619146704673767,
+          2.1772191524505615
+        ],
+        "strict_free_rollout_mse_x1e3": [
+          3.3847527503967285,
+          16.593128204345703,
+          19.0931453704834,
+          37.382781982421875,
+          34.03003692626953,
+          35.25041961669922
+        ]
+      },
+      "image": "visual_quality_episode_233_c20.png"
+    },
+    {
+      "episode": 234,
+      "target_edge_energy": 0.007452563848346472,
+      "stages": {
+        "autoencoder_reconstruction": {
+          "pixel_mse": 0.0012957971775904298,
+          "pixel_mse_x1e3": 1.2957972288131714,
+          "psnr_db": 28.874629703377806,
+          "edge_energy": 0.008272870443761349,
+          "edge_retention_ratio": 1.1100703477859497
+        },
+        "teacher_forced_one_step": {
+          "pixel_mse": 0.002687948290258646,
+          "pixel_mse_x1e3": 2.687948226928711,
+          "psnr_db": 25.70579090332253,
+          "edge_energy": 0.007403720635920763,
+          "edge_retention_ratio": 0.9934461116790771
+        },
+        "strict_free_rollout": {
+          "pixel_mse": 0.018128488212823868,
+          "pixel_mse_x1e3": 18.128488540649414,
+          "psnr_db": 17.416384114700676,
+          "edge_energy": 0.006131423637270927,
+          "edge_retention_ratio": 0.8227267265319824
+        }
+      },
+      "mse_gaps": {
+        "decoder_floor": 0.0012957971775904298,
+        "teacher_minus_reconstruction": 0.0013921511126682162,
+        "rollout_minus_teacher": 0.015440539922565222
+      },
+      "selected_horizon_mse": {
+        "autoencoder_reconstruction_mse_x1e3": [
+          0.7284098863601685,
+          0.2156229168176651,
+          0.7954885959625244,
+          0.2873818874359131,
+          1.77720046043396,
+          1.3590723276138306
+        ],
+        "teacher_forced_one_step_mse_x1e3": [
+          1.2108170986175537,
+          0.5095148086547852,
+          1.4786546230316162,
+          0.37189775705337524,
+          5.755715847015381,
+          4.333255767822266
+        ],
+        "strict_free_rollout_mse_x1e3": [
+          1.2107630968093872,
+          2.2284011840820312,
+          2.0931763648986816,
+          2.4620423316955566,
+          16.154708862304688,
+          117.26458740234375
+        ]
+      },
+      "image": "visual_quality_episode_234_c20.png"
+    }
+  ],
+  "selected_horizons": [
+    1,
+    4,
+    8,
+    16,
+    32,
+    44
+  ],
+  "autoencoder_target_access": "diagnostic_only",
+  "teacher_forced_future_access": "past_frames_only_for_each_target",
+  "free_rollout_future_ground_truth_reads": 0,
+  "free_rollout_future_ground_truth_writes": 0
+}
