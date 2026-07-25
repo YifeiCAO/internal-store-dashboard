@@ -477,8 +477,7 @@
         <p>Transformer=PFC 主干，EC 供结构，covariance-corrected HPC 供外挂记忆</p>
       </div>
       <nav aria-label="看板分区">
-        <a href="visuals.html">视觉效果墙</a>
-        <a href="#rollout-catchup">3D 基线 Rollout</a>
+        <a href="#model-core">当前模型核心</a>
         <a href="#memorymaze3d">视觉 3D 正式结果</a>
         <a href="#paper-package">论文证据包</a>
         <a href="#context-need">Context-Need 最新</a>
@@ -512,165 +511,120 @@
       <div class="status-grid" aria-label="最新状态">
         <article class="status-card primary">
           <h2>当前主线</h2>
-          <strong>三种公平基线全部补齐；rollout objective 稳定解决 H44 欠训练</strong>
-          <p>同一冻结视觉壳、同一 RGB+action 输入、同一 C20→H44 评估下，Transformer / Titans / Hippoformer 分别从 0.05581 / 0.04459 / 0.04242 降到 0.02299 / 0.02189 / 0.02330。三者都显著优于 persistence；当前 32-episode dev 尚无可靠 backbone 胜负。</p>
+          <strong>PFC 主干可靠；HPC 地址存在，但 neural content 尚未形成可复现增量</strong>
+          <p>新鲜 val[128:160] 严格 C20→H44：PFC-only 为 14.166e-3，稳定 sensory content + 条件 recall adapter 为 14.183e-3。adapter 把旧读出的大幅伤害压到 0.12%，但 bootstrap 区间跨零，不能宣称 HPC 有正贡献。</p>
           <div class="badge-row">
             <span class="badge"><span class="dot blue"></span>真实 egocentric RGB</span>
             <span class="badge"><span class="dot blue"></span>4096 / 512 / 512</span>
             <span class="badge"><span class="dot teal"></span>无位置 / 朝向输入</span>
-            <span class="badge"><span class="dot green"></span>冻结视觉 tensor 完全一致</span>
-            <span class="badge"><span class="dot green"></span>future read / write = 0</span>
-            <span class="badge"><span class="dot green"></span>50 tests passed</span>
-            <span class="badge"><span class="dot amber"></span>adaptive dev</span>
-            <span class="badge"><span class="dot green"></span>test 未访问</span>
+            <span class="badge"><span class="dot green"></span>66 tests passed</span>
+            <span class="badge"><span class="dot green"></span>future leak = 0</span>
+            <span class="badge"><span class="dot green"></span>episode-local fast weights</span>
+            <span class="badge"><span class="dot amber"></span>adapter 止损</span>
+            <span class="badge"><span class="dot red"></span>HPC 增量未成立</span>
           </div>
         </article>
         <article class="status-card pass">
-          <h2>Transformer · H44</h2>
-          <strong>0.02299</strong>
-          <p>相对 persistence 改善 42.8%</p>
+          <h2>Paired PFC-only</h2>
+          <strong>14.166e-3</strong>
+          <p>新鲜 val[128:160] strict C20-H44</p>
         </article>
-        <article class="status-card pass">
-          <h2>Titans · H44</h2>
-          <strong>0.02189</strong>
-          <p>动作反事实优势 0.01941</p>
+        <article class="status-card hold">
+          <h2>Observed-only HPC</h2>
+          <strong>14.183e-3</strong>
+          <p>相对 PFC 差 0.1207%，CI 跨零</p>
         </article>
-        <article class="status-card pass">
-          <h2>Hippoformer · H44</h2>
-          <strong>0.02330</strong>
-          <p>相对 persistence 改善 42.0%</p>
+        <article class="status-card fail">
+          <h2>Residual Code</h2>
+          <strong>1.945×</strong>
+          <p>直接 4096→64→4096 比空内容更差</p>
         </article>
       </div>
 
       <section>
         <div class="decision">
-          <strong>当前决策：冻结三模型的 5e-5 / 1.0 winners，先做 Hippoformer 增量 cache，再跑 fresh 3-seed</strong>
-          <p>Rollout objective 的收益已确认，接下来不再调当前 32 个 dev episodes。先用逐步输出、loss 与梯度等价测试消除 Hippoformer 的重复历史重算，再做配对多 seed；M1b 的 0.02007 继续只作非预算匹配参考，test 保持未访问。</p>
+          <strong>当前决策：不再调 context、地址、阈值或固定 gain；只修 neural content code</strong>
+          <p>机制审计已排除地址整体塌陷和双钥匙推理期数值爆炸。PFC residual 在同一姿态下比 sensory content 不稳定 28.36 倍；下一轮联合训练稳定 sensory value encoder 与 recall adapter，同时保持 PFC、EC、place、context 和单一 fast-weight HPC 冻结。</p>
         </div>
       </section>
 
-      <section id="rollout-catchup">
+      <section id="model-core">
         <div class="section-head">
           <div>
-            <h2>最新：MemoryMaze3D 公平基线 Rollout 补训</h2>
-            <p>先补齐 teacher-health，再固定 2×2 rollout 网格。模型只接收第一人称 RGB 与 action；统一冻结视觉壳，严格评估观察 20 步后自由生成 44 步。</p>
+            <h2>当前模型核心：PFC 主干 + 单一 Neural HPC 外挂记忆</h2>
+            <p>只展示当前自有模型。Transformer 是 PFC 主干；EC/context 生成地址；HPC 是 episode 内现场建立的可微 fast-weight 状态；条件 adapter 负责把回忆翻译成 PFC 修正。</p>
           </div>
-          <div class="source">2026-07-24 · R1/R2 12/12 COMPLETE · ALL GATES PASS · TEST UNTOUCHED</div>
+          <div class="source">2026-07-25 · CONTENT-PATH AUDIT + FRESH PAIRED VALIDATION</div>
         </div>
 
-        <div class="decision">
-          <strong>核心结果：teacher-health 不是长程能力；真正改变 H44 的是严格 free-rollout 训练</strong>
-          <p>没有 rollout 训练时，三种 backbone 的 H44 都差于 persistence。加入冻结的 H2→H4→H8→H16 curriculum 后，Transformer / Titans / Hippoformer 分别达到 0.02299 / 0.02189 / 0.02330。20k 配对 bootstrap 确认三者都稳定优于各自 R0，但三模型之间的 CI 全部跨 0。</p>
+        <div class="task-flow">
+          <div class="flow-node ref0"><strong>Window Transformer PFC</strong><span>只读动作与过去 RGB latent<br />输出当前预测与 causal hidden</span></div>
+          <div class="flow-node ref1"><strong>EC → Place → Context Address</strong><span>动作路径积分 + sparse neural place<br />不输入位置、朝向或 room id</span></div>
+          <div class="flow-node distractor"><strong>Episode-local HPC</strong><span>value × address dense fast weights<br />先读后写，episode 结束即丢弃</span></div>
+          <div class="flow-node return"><strong>Conditional Recall Adapter</strong><span>Δh=A(PFC,retrieval)-A(PFC,0)<br />空回忆时严格退化为 PFC</span></div>
         </div>
 
         <div class="grid-2" style="margin-top:12px;">
           <article class="panel">
-            <h3>统一严格结果</h3>
+            <h3>什么坏了，什么没坏</h3>
             <table>
-              <thead><tr><th>模型</th><th>R0 H44</th><th>当前最佳</th><th>相对 persistence</th><th>状态</th></tr></thead>
+              <thead><tr><th>机制</th><th>证据</th><th>判断</th></tr></thead>
               <tbody>
-                <tr><td data-label="模型">Transformer</td><td data-label="R0" class="num red">0.05581</td><td data-label="最佳" class="num green">0.02299</td><td data-label="改善" class="num green">+42.8%</td><td data-label="状态" class="green">4/4 完成</td></tr>
-                <tr><td data-label="模型">Titans</td><td data-label="R0" class="num red">0.04459</td><td data-label="最佳" class="num green">0.02189</td><td data-label="改善" class="num green">+45.5%</td><td data-label="状态" class="green">4/4 完成</td></tr>
-                <tr><td data-label="模型">Hippoformer</td><td data-label="R0" class="num red">0.04242</td><td data-label="最佳" class="num green">0.02330</td><td data-label="改善" class="num green">+42.0%</td><td data-label="状态" class="green">4/4 完成</td></tr>
-                <tr><td data-label="模型">M1b 参考</td><td data-label="R0" class="num green">0.02007</td><td data-label="最佳" class="num">同左</td><td data-label="改善" class="num green">+50.1%</td><td data-label="状态">非预算匹配</td></tr>
-                <tr><td data-label="模型">Persistence</td><td data-label="R0" class="num">0.04019</td><td data-label="最佳" class="num">固定</td><td data-label="改善" class="num">0%</td><td data-label="状态">像素基线</td></tr>
+                <tr><td data-label="机制">地址几何</td><td data-label="证据" class="num">best prior cosine 0.802</td><td data-label="判断" class="green">存在，不是主崩点</td></tr>
+                <tr><td data-label="机制">重复姿态命中</td><td data-label="证据" class="num">83.84%</td><td data-label="判断" class="green">可用但不完美</td></tr>
+                <tr><td data-label="机制">双钥匙条件</td><td data-label="证据" class="num">denominator 1.00000005</td><td data-label="判断" class="green">推理期稳定</td></tr>
+                <tr><td data-label="机制">Residual content</td><td data-label="证据" class="num red">repeat instability 28.36×</td><td data-label="判断" class="red">不适合作为 place content</td></tr>
+                <tr><td data-label="机制">固定线性融合</td><td data-label="证据" class="num amber">最佳仅 +0.391%</td><td data-label="判断" class="amber">调 gain 不够</td></tr>
               </tbody>
             </table>
-            <p style="margin-top:10px;">三个模型的最佳格都为 LR 5e-5、rollout weight 1.0。Titans 数值最好且动作优势最强，但与 Transformer / Hippoformer 的配对 CI 都跨 0；选择只看冻结的 32-episode adaptive-dev R2，不看 test。</p>
           </article>
           <article class="panel">
-            <h3>训练前后与动作因果</h3>
-            <img class="result-figure" src="figures/memorymaze3d_baseline_rollout_catchup.png" alt="Transformer、Titans、Hippoformer 与 M1b 的 MemoryMaze3D 严格自由 rollout 对比" />
+            <h3>内容通路审计</h3>
+            <img class="result-figure" src="content_path_audit.png" alt="HPC 内容压缩、像素预测、fast-weight 数值尺度和地址几何审计" />
           </article>
         </div>
 
-        <article class="panel" style="margin-top:12px;">
-          <h3>公平边界与 gate 勘误</h3>
-          <ul>
-            <li>视觉 encoder / pixel decoder 来自同一个冻结 checkpoint，tensor SHA256 完全一致；这比较的是冻结表示上的 dynamics，不是假装独立视觉预训练公平。</li>
-            <li>旧 descent gate 错把 H2 初始 loss 与 H16 末尾 loss 比较。现统一比较 H16 前 60 与后 60 updates，综合 loss 和 rollout pixel MSE 都必须下降。</li>
-            <li>MM-TEM 低 LR 已消除 NaN，但 1600 updates 后 teacher MSE 仍为 0.01472，高于冻结门 0.012，因此停止，不用 Hippoformer 内部 MM-TEM 分支偷换独立 MM-TEM 基线。</li>
-            <li>M1b 累计祖先训练约 12,180 updates，当前只作项目参考；不能据此宣称预算匹配优于 Transformer 或 Titans。</li>
-            <li>12/12 候选的修正 H16 descent gate、共享视觉 hash、严格评估与泄漏门全部通过；Hippoformer 慢来自逐步重放完整历史，下一阶段只做有数值等价测试的增量 cache。</li>
-          </ul>
-        </article>
+        <div class="grid-2" style="margin-top:12px;">
+          <article class="panel">
+            <h3>Fresh Val[128:160] 配对结果</h3>
+            <table>
+              <thead><tr><th>端点</th><th>MSE ×1e-3</th><th>相对 PFC</th><th>状态</th></tr></thead>
+              <tbody>
+                <tr><td data-label="端点"><strong>PFC-only</strong></td><td data-label="MSE" class="num green"><strong>14.166</strong></td><td data-label="相对 PFC" class="num">基准</td><td data-label="状态" class="green">当前最佳</td></tr>
+                <tr><td data-label="端点">Observed-only HPC + adapter</td><td data-label="MSE" class="num">14.183</td><td data-label="相对 PFC" class="num red">-0.1207%</td><td data-label="状态" class="amber">止损，未增益</td></tr>
+                <tr><td data-label="端点">All-write HPC + adapter</td><td data-label="MSE" class="num">14.401</td><td data-label="相对 PFC" class="num red">-1.6618%</td><td data-label="状态" class="red">imagined-write 污染</td></tr>
+              </tbody>
+            </table>
+            <p style="margin-top:10px;">Observed-only gain 的 bootstrap 90% CI 为 [-0.617, +0.527]×1e-3，跨零；62.5% episode 小幅获胜，但负例更重，不能宣称机制有效。</p>
+          </article>
+          <article class="panel">
+            <h3>Adapter / PFC / 写入策略</h3>
+            <img class="result-figure" src="variable_component_audit.png" alt="条件回忆适配器、PFC-only 和 observed-only HPC 的严格 free rollout 曲线与均值" />
+          </article>
+        </div>
 
         <div class="artifact-grid" style="margin-top:12px;">
-          <a class="artifact" href="MEMORYMAZE3D_BASELINE_ROLLOUT_CATCHUP_RESULT_CN.md"><strong>最终中文结论</strong><span>任务、架构、公平边界、12 格结果、统计判断、工程发现与下一步</span></a>
-          <a class="artifact" href="MEMORYMAZE3D_BASELINE_ROLLOUT_CATCHUP_CN.md"><strong>Rollout Catch-up 动态中文报告</strong><span>R0、全部候选、选择结果、动作反事实与当前进度</span></a>
-          <a class="artifact" href="memorymaze3d_baseline_rollout_catchup_summary.json"><strong>机器可读审计</strong><span>视觉 hash、训练 gate、泄漏门、逐候选 R2 与选择字段</span></a>
-          <a class="artifact" href="MEMORYMAZE3D_BASELINE_ROLLOUT_STATISTICS_CN.md"><strong>20k 配对 Bootstrap</strong><span>三模型对 R0、persistence、M1b 及彼此之间的同 episode 置信区间</span></a>
-          <a class="artifact" href="memorymaze3d_baseline_rollout_statistics_summary.json"><strong>配对统计 JSON</strong><span>20,000 samples、seed 2112、全部均值、CI、概率与 episode 胜率</span></a>
-          <a class="artifact" href="MEMORYMAZE3D_BASELINE_ROLLOUT_CATCHUP_ADDENDUM_CN.md"><strong>看结果前冻结方案</strong><span>R0、2×2 网格、R2 选择、停止规则与 test 边界</span></a>
-          <a class="artifact" href="MEMORYMAZE3D_BASELINE_ROLLOUT_GATE_ERRATUM_CN.md"><strong>Descent gate 勘误</strong><span>为什么跨 curriculum 比较无效，以及同 H16 修正规则</span></a>
-          <a class="artifact" href="MEMORYMAZE3D_BASELINE_CATCHUP_STAGE_H_CN.md"><strong>Stage H Teacher-health</strong><span>Transformer、Titans、MM-TEM、Hippoformer 的补训健康审计</span></a>
-          <a class="artifact" href="MEMORYMAZE3D_MMTEM_STABILITY_RESCUE_V2_CN.md"><strong>MM-TEM 低 LR 救援</strong><span>NaN 已修复，但性能门未过，按冻结规则停止</span></a>
+          <a class="artifact" href="MEMORYMAZE3D_M1B_CONTENT_PATH_RECALL_ADAPTER_REPORT_CN.md"><strong>内容路径与 Recall Adapter 完整报告</strong><span>真实代码路径、机制审计、训练、fresh paired 结果与下一步</span></a>
+          <a class="artifact" href="MEMORYMAZE3D_M1B_CONDITIONAL_RECALL_ADAPTER_PROTOCOL_CN.md"><strong>冻结 Pilot 协议</strong><span>因果边界、训练范围、fresh slice 与停止规则</span></a>
+          <a class="artifact" href="memorymaze3d_m1b_conditional_recall_adapter_pilot_v1.json"><strong>机器可读预注册协议</strong><span>seed2151、400 updates、val[128:160]、1% + bootstrap 门</span></a>
+          <a class="artifact" href="memorymaze3d_m1b_conditional_recall_adapter_component_val128_159_retry_summary.json"><strong>Fresh Paired 机器结果</strong><span>PFC-only、observed-only、all-write、episode bootstrap</span></a>
+          <a class="artifact" href="memorymaze3d_m1b_content_path_audit_val96_127_summary.json"><strong>Residual Content 机制审计</strong><span>压缩、地址、重复姿态稳定性与数值条件</span></a>
+          <a class="artifact" href="memorymaze3d_m1b_sensory_content_path_audit_val96_127_summary.json"><strong>Sensory Content 机制审计</strong><span>稳定内容、64维容量与固定 gain sweep</span></a>
         </div>
       </section>
 
       <section id="memorymaze3d">
         <div class="section-head">
           <div>
-            <h2>历史：MemoryMaze3D HPC Correction 全审计</h2>
-            <p>真实 MuJoCo 第一人称 RGB；4096/512/512 个 maze9-variable episodes；逐项检验 context、写入去相关与视觉校正 EC。模型始终只看图像和动作。</p>
+            <h2>最新：MemoryMaze3D Neural HPC Write Gate</h2>
+            <p>真实 MuJoCo 第一人称 RGB；20 步真实 context 后严格 44 步 free rollout。模型只看图像和动作，位置/朝向只用于评测分桶。</p>
           </div>
-          <div class="source">2026-07-23 · VARIABLE LAYOUT · PAIRED VAL256 · TEST UNTOUCHED FOR NEW CANDIDATES</div>
+          <div class="source">2026-07-23 · 3 GATE SEEDS + FROZEN 512-TEST · STRICT CAUSAL ROLLOUT</div>
         </div>
 
         <div class="decision">
-          <strong>核心结论：局部地址几何可以改善，但当前单向 HPC 的长 rollout 收益仍不可复制</strong>
-          <p>Visual EC 将 place/address 近邻命中提高到 77.1%/66.3%，prediction MSE 回到 2.686e-3；但 Val32 的 +4.73% 在独立 Val256 变成 -0.42%。所有候选 future ground-truth reads/writes 均为 0，test 未读取。</p>
-        </div>
-
-        <div class="grid-2" style="margin-top:12px;">
-          <article class="panel">
-            <h3>本轮修正证据链</h3>
-            <table>
-              <thead><tr><th>检查</th><th>结果</th><th>裁决</th></tr></thead>
-              <tbody>
-                <tr><td data-label="检查">Context InfoNCE</td><td data-label="结果" class="num red">margin 0.571→0.291</td><td data-label="裁决" class="red">表示退化</td></tr>
-                <tr><td data-label="检查">Fixed episode context</td><td data-label="结果" class="num red">-20.58%</td><td data-label="裁决" class="red">串扰加重</td></tr>
-                <tr><td data-label="检查">Factorized covariance · Val32</td><td data-label="结果" class="num red">-0.79%</td><td data-label="裁决" class="red">方向不一致</td></tr>
-                <tr><td data-label="检查">Visual EC · Val32</td><td data-label="结果" class="num green">+4.73%</td><td data-label="裁决">发现集候选</td></tr>
-                <tr><td data-label="检查">Visual EC · 独立 Val256</td><td data-label="结果" class="num red">-0.42%</td><td data-label="裁决" class="red">未复现，不进 test</td></tr>
-              </tbody>
-            </table>
-          </article>
-          <article class="panel">
-            <h3>Context、地址几何与独立复现</h3>
-            <img class="result-figure" src="figures/memorymaze3d_hpc_correction_audit.png" alt="MemoryMaze3D context 目标退化、局部地址改善与小样本收益未复现的三联图" />
-          </article>
-        </div>
-
-        <article class="panel" style="margin-top:12px;">
-          <h3>当前候选：双向 sensory↔grid Neural HPC</h3>
-          <div class="arch-flow" style="grid-template-columns:repeat(5,minmax(0,1fr));">
-            <div class="arch-node input"><h3>RGB + Action</h3><p>严格因果历史</p></div>
-            <div class="arch-node pfc"><h3>Transformer / PFC</h3><p>短期主干</p></div>
-            <div class="arch-node ec"><h3>Action → Grid</h3><p>生成 g_gen</p></div>
-            <div class="arch-node hpc"><h3>双向 Fast Weights</h3><p>g→x 与 x→g</p></div>
-            <div class="arch-node output"><h3>HC→EC Correction</h3><p>g_gen 融合 g_hat</p></div>
-          </div>
-          <p style="margin-top:10px;">先用 grid 预测 sensory；观察当前 sensory 后，再由反向 fast weight 召回 corrected grid，并把同一 observed pair 写入两个方向。没有 memory slots，不输入 room id、位置、地图、place id 或未来图像。</p>
-        </article>
-
-        <div class="artifact-grid" style="margin-top:12px;">
-          <a class="artifact" href="visuals.html"><strong>最新：3D 视觉效果墙</strong><span>模糊来源、latent 稳定性目标、visual width 64/128/256 容量门与固定效果图</span></a>
-          <a class="artifact" href="MEMORYMAZE3D_VISUAL_BLUR_AUDIT_CN.md"><strong>最新：视觉模糊来源审计</strong><span>81.4% 的 MSE 阶梯增长来自闭环 rollout；去噪与 soft cycle 未过 H44 门；128 宽度保留</span></a>
-          <a class="artifact" href="MEMORYMAZE3D_BIDIRECTIONAL_HPC_RESULT_CN.md"><strong>最新：双向 HPC 完整中文报告</strong><span>双向 fast weights、闭环召回门、phase reset、独立复现与停止结论</span></a>
-          <a class="artifact" href="memorymaze3d_bidirectional_hpc_summary.json"><strong>双向 HPC 机器结果</strong><span>机制 margins、各 validation slice 因果消融、视觉样本与 test 边界</span></a>
-          <a class="artifact" href="MEMORYMAZE3D_HPC_CORRECTION_AUDIT_CN.md"><strong>最新：HPC Correction 完整中文审计</strong><span>Context InfoNCE、factorized write、视觉 EC、Val32→Val256 反转与双向 HPC 下一版</span></a>
-          <a class="artifact" href="memorymaze3d_hpc_correction_audit_summary.json"><strong>最新机器可读结果</strong><span>三条失败分支、地址几何、bootstrap 区间、test 边界与冻结决策</span></a>
-          <a class="artifact" href="MEMORYMAZE3D_VARIABLE_HPC_AUDIT_CN.md"><strong>上一版：可变布局 HPC 基础审计</strong><span>Stage1/Stage2、旧 HPC、pfc_hidden context 与 gain sweep</span></a>
-          <a class="artifact" href="memorymaze3d_variable_hpc_audit_summary.json"><strong>上一版机器结果</strong><span>变量布局基础审计的全部 headline 与停止门</span></a>
-        </div>
-
-        <div class="section-head" style="margin-top:24px;">
-          <div>
-            <h2>历史：Open9 Neural HPC Write Gate</h2>
-            <p>固定空平面上的三 seed frozen test512 结果继续保留，但不再代表可变环境主线。</p>
-          </div>
-          <div class="source">ARCHIVED POSITIVE CONTROL · SHARED Z=-0.35 · STRICT C20-H44</div>
+          <strong>核心发现：不输入 age/K/位置/room 的神经 gate，可用一个共享标准化阈值稳定学出早写晚停</strong>
+          <p>三个 gate 的原始 logit std 相差超过三倍，但标准化后的 h16 分数几乎相同。冻结 z=-0.35 后，test 平均写入 19.40/44 次，h1–16 写入率 94.95%，h17–44 为 15.02%；三 seed 都改善 full-write，但平均仍落后 K16 2.51%。</p>
         </div>
 
         <div class="grid-2" style="margin-top:12px;">
@@ -2684,7 +2638,7 @@
       </section>
     </main>
 
-    <footer>ReMAP-Former internal dashboard · 2026-07-23 · 双向 sensory↔grid fast weights 与 HC→EC phase reset 已实现；独立机制门通过，下游 Val32 未稳定复现。test 未读取。</footer>
+    <footer>ReMAP-Former internal dashboard · 2026-07-23 · 3D neural HPC write gate 已完成 train-only 无标签校准、共享 z validation 与三 seed frozen test512；稳定优于 full-write，但实例选择尚未追平 K16。G8/G7 与既有负结果继续保留</footer>
   </div>
 </body>
 </html>

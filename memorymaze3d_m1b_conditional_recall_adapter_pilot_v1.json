@@ -1,0 +1,104 @@
+{
+  "format": "remap_former.memorymaze3d.m1b_conditional_recall_adapter_pilot.v1",
+  "frozen_at": "2026-07-24",
+  "question": "Can stable episode-local sensory content become incrementally useful when a causal PFC-conditioned adapter translates the retrieval into a prediction correction?",
+  "source_checkpoint": {
+    "path": "runs/remap_former/memorymaze3d_m1b_pfc_history_v6_pilot400_seed2121/checkpoint_final.pt",
+    "sha256": "94E988E3C20AEFD49C80632BBA3DF5D6165E90FE97F92544A515B4C9C999EEAC",
+    "frozen_components": [
+      "visual encoder and decoder",
+      "window Transformer PFC",
+      "PFC-history context v6",
+      "EC grid dynamics",
+      "neural place code and conjunctive address",
+      "bidirectional covariance HPC content state"
+    ]
+  },
+  "diagnostic_basis": {
+    "slice": "val[96:128]",
+    "stable_sensory_repeat_relative_mse": 0.03481776849,
+    "residual_repeat_relative_mse": 0.98756725424,
+    "residual_instability_ratio": 28.3638871,
+    "best_fixed_gain_actual_retrieval": 0.5,
+    "best_fixed_gain_actual_improvement_relative": 0.00391285778,
+    "conclusion": "Residual content is nonstationary and compressed poorly; stable sensory content exists, but fixed linear addition has less than one percent ceiling."
+  },
+  "architecture_change": {
+    "memory_content": "unchanged stable sensory latent",
+    "memory_state": "unchanged episode-local value-by-conjunctive-address fast weight",
+    "fusion": "delta_h = A(PFC_h, projected_retrieval) - A(PFC_h, zero_retrieval)",
+    "prediction": "decoder(PFC_only_h + delta_h)",
+    "memory_call_gain": 1.0,
+    "memory_call_mode": "static",
+    "zero_retrieval_property": "delta_h is exactly zero",
+    "causal_inputs": [
+      "PFC hidden computed from action and previous sensory history",
+      "HPC retrieval read before the current write"
+    ],
+    "oracle_inputs": [],
+    "new_memory_states": 0,
+    "new_slots": 0,
+    "second_fast_weight_system": false,
+    "new_losses": 0
+  },
+  "dataset": {
+    "path": "data/memorymaze3d_variable_full_v1",
+    "train_episodes": 4096,
+    "val_episodes": 512,
+    "test_split_forbidden": true
+  },
+  "training": {
+    "seed": 2151,
+    "updates": 400,
+    "batch_size": 2,
+    "sequence_steps": 64,
+    "learning_rate": 0.0001,
+    "optimizer": "adamw",
+    "weight_decay": 0.0001,
+    "precision": "fp32",
+    "trainable_scope": "m1b_recall_adapter",
+    "trainable_modules": [
+      "memory_projection",
+      "conditional recall adapter"
+    ],
+    "rollout_context": 20,
+    "rollout_curriculum": [
+      2,
+      4,
+      8,
+      16
+    ],
+    "rollout_observed_only_hpc": true,
+    "teacher_weight": 0.5,
+    "rollout_weight": 1.0
+  },
+  "registered_evaluation": {
+    "split": "val",
+    "episode_slice": [
+      128,
+      160
+    ],
+    "status_at_freeze": "not used by the content-path diagnosis or adapter design",
+    "total_steps": 64,
+    "context_steps": 20,
+    "rollout_write_policy": "observed_only",
+    "paired_endpoints": [
+      "conditional recall adapter",
+      "same checkpoint with memory_scale zero"
+    ]
+  },
+  "acceptance_gates": [
+    "all tests pass",
+    "finite training loss and gradients",
+    "zero-retrieval and memory_scale-zero endpoints exactly equal PFC-only",
+    "strict observed-only adapter MSE beats its paired PFC-only endpoint by at least 1% relative",
+    "paired-bootstrap 90% lower bound of PFC-only minus adapter error is above zero",
+    "actual-action advantage remains positive",
+    "future ground-truth reads and writes are zero",
+    "future observation perturbation max delta is zero"
+  ],
+  "decision_rule": {
+    "advance": "Only if every acceptance gate passes; then train a second seed and extend the rollout horizon.",
+    "stop": "If the paired one-percent gate fails, stop fusion tuning and redesign the stored neural content representation."
+  }
+}
