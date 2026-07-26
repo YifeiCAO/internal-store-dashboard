@@ -1,0 +1,98 @@
+{
+  "format": "remap_former.memorymaze3d.m1b_counterfactual_call_preference_c5.v1",
+  "frozen_at": "2026-07-25",
+  "question": "Can a class-balanced detached counterfactual branch-preference objective calibrate the causal call gate without changing the memory or adding inference-time oracle inputs?",
+  "source_checkpoint": {
+    "path": "runs/remap_former/memorymaze3d_m1b_causal_call_gate_c4_pilot400_seed2181/checkpoint_final.pt",
+    "sha256": "5EE8B0B70B58EEDEA8A999DB09DB390DD4005989FE8E1916C8953F52009161B0",
+    "reason": "C4 learned a small, consistently positive ranking correction over C3 static call but left all probabilities near one."
+  },
+  "objective": {
+    "name": "class-balanced detached counterfactual call preference",
+    "teacher_branches": [
+      "frozen paired PFC-only prediction",
+      "frozen C3 static conditional-recall prediction"
+    ],
+    "branch_error": "per-token RGB pixel MSE under teacher-forced causal history",
+    "label": "memory preferred iff static-HPC pixel error is lower; PFC preferred iff PFC-only pixel error is lower",
+    "minimum_absolute_pixel_mse_gap": 0.00001,
+    "loss": "0.5 * softplus(-call_logit) on memory-preferred tokens + 0.5 * softplus(call_logit) on PFC-preferred tokens",
+    "counterfactual_errors_detached": true,
+    "class_balanced": true,
+    "magnitude_weighting": false
+  },
+  "inference": {
+    "model_inputs": [
+      "egocentric_rgb history",
+      "action history",
+      "causal PFC and HPC internal features"
+    ],
+    "target_pixels_visible": false,
+    "room_id_visible": false,
+    "absolute_pose_visible": false,
+    "future_observation_visible": false
+  },
+  "architecture_change": {
+    "new_parameters": 0,
+    "new_memory_states": 0,
+    "new_slots": 0,
+    "second_fast_weight_system": false,
+    "changed_inference_features": 0,
+    "changed_modules": [
+      "existing NeuralMemoryCallGate parameters only"
+    ]
+  },
+  "training": {
+    "data": "data/memorymaze3d_variable_full_v1",
+    "seed": 2191,
+    "updates": 400,
+    "batch_size": 4,
+    "sequence_steps": 64,
+    "learning_rate": 0.0002,
+    "optimizer": "adamw",
+    "weight_decay": 0.0001,
+    "precision": "fp32",
+    "trainable_scope": "m1b_read_gate",
+    "teacher_weight": 0.0,
+    "rollout_weight": 0.0,
+    "memory_call_preference_weight": 1.0,
+    "rollout_curriculum": []
+  },
+  "decisive_evaluation": {
+    "split": "val",
+    "episode_slice": [
+      416,
+      480
+    ],
+    "episodes": 64,
+    "total_steps": 64,
+    "context_steps": 20,
+    "bootstrap_samples": 5000,
+    "registered_conditions": [
+      "C5 hard invocation at fixed threshold 0.5",
+      "C5 soft probability",
+      "paired PFC-only",
+      "C4 soft probability on identical slice",
+      "C3 static call on identical slice"
+    ],
+    "test_split_is_forbidden": true
+  },
+  "acceptance_gates": [
+    "core MemoryMaze3D regression tests pass",
+    "every smoke and training batch contains both memory-preferred and PFC-preferred tokens after the fixed gap filter",
+    "preference loss and gradients remain finite",
+    "all non-gate checkpoint tensors remain bitwise identical to C4",
+    "C5 hard threshold-0.5 beats paired PFC-only by at least 2% relative",
+    "paired-bootstrap 90% lower bound of PFC-only minus C5 hard error is above zero",
+    "C5 hard improves over C4 soft by at least 0.5% relative on the identical fresh slice",
+    "C5 hard episode-gain p10 removes at least 25% of the C3 static negative p10 shortfall",
+    "C5 hard call rate lies between 0.1 and 0.9",
+    "future ground-truth reads and writes remain zero"
+  ],
+  "decision_rule": {
+    "advance": "If every gate passes, replicate C5 from a second call-gate initialization.",
+    "soft_only": "If C5 soft passes the main PFC gates but hard invocation fails, retain only the soft router claim and do not call it discrete invocation.",
+    "classification_fail": "If teacher preference accuracy improves but rollout does not, reject teacher-forced preference as distribution-mismatched and move to rollout counterfactual labels.",
+    "stop": "If neither hard nor soft improves over C4, retain C4 as the final call policy and stop router tuning."
+  }
+}

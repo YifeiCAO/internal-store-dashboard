@@ -474,10 +474,10 @@
     <header class="topbar">
       <div class="brand">
         <h1>ReMAP-Former 实验看板</h1>
-        <p>Transformer=PFC 主干，EC 供结构，covariance-corrected HPC 供外挂记忆</p>
+        <p>Transformer=PFC 主干，EC 供结构，单一 episode-local HPC 供外挂记忆</p>
       </div>
       <nav aria-label="看板分区">
-        <a href="#model-core">当前模型核心</a>
+        <a href="#model-core">C3-C5 当前核心</a>
         <a href="#memorymaze3d">视觉 3D 正式结果</a>
         <a href="#paper-package">论文证据包</a>
         <a href="#context-need">Context-Need 最新</a>
@@ -511,105 +511,107 @@
       <div class="status-grid" aria-label="最新状态">
         <article class="status-card primary">
           <h2>当前主线</h2>
-          <strong>PFC 主干可靠；HPC 地址存在，但 neural content 尚未形成可复现增量</strong>
-          <p>新鲜 val[128:160] 严格 C20→H44：PFC-only 为 14.166e-3，稳定 sensory content + 条件 recall adapter 为 14.183e-3。adapter 把旧读出的大幅伤害压到 0.12%，但 bootstrap 区间跨零，不能宣称 HPC 有正贡献。</p>
+          <strong>冻结 C3：Transformer PFC + 128D 单一 fast-weight HPC；停止继续堆 router</strong>
+          <p>C3 已把 content capacity 从 64D 的相对误差 0.394 降到 128D 的 0.184，真实 retrieval ratio 降到 0.242。严格 free rollout 出现最高 +4.56% 的 fresh-slice 增益，但跨 slice 汇总 CI 仍跨零。C4/C5 能小幅稳定调用或修复负尾，均未通过预注册主门。</p>
           <div class="badge-row">
             <span class="badge"><span class="dot blue"></span>真实 egocentric RGB</span>
-            <span class="badge"><span class="dot blue"></span>4096 / 512 / 512</span>
+            <span class="badge"><span class="dot blue"></span>128D neural content</span>
             <span class="badge"><span class="dot teal"></span>无位置 / 朝向输入</span>
-            <span class="badge"><span class="dot green"></span>66 tests passed</span>
+            <span class="badge"><span class="dot green"></span>71 tests passed</span>
             <span class="badge"><span class="dot green"></span>future leak = 0</span>
             <span class="badge"><span class="dot green"></span>episode-local fast weights</span>
-            <span class="badge"><span class="dot amber"></span>adapter 止损</span>
-            <span class="badge"><span class="dot red"></span>HPC 增量未成立</span>
+            <span class="badge"><span class="dot amber"></span>C4 小幅稳定化</span>
+            <span class="badge"><span class="dot red"></span>主统计门未过</span>
           </div>
         </article>
         <article class="status-card pass">
-          <h2>Paired PFC-only</h2>
-          <strong>14.166e-3</strong>
-          <p>新鲜 val[128:160] strict C20-H44</p>
+          <h2>C3 Capacity Gate</h2>
+          <strong>0.184 / 0.242</strong>
+          <p>direct / actual retrieval relative MSE，强通过</p>
         </article>
         <article class="status-card hold">
-          <h2>Observed-only HPC</h2>
-          <strong>14.183e-3</strong>
-          <p>相对 PFC 差 0.1207%，CI 跨零</p>
+          <h2>C3 Full Rollout</h2>
+          <strong>+3.10%</strong>
+          <p>Val[224:288] 点增益；90% CI 仍跨零</p>
         </article>
         <article class="status-card fail">
-          <h2>Residual Code</h2>
-          <strong>1.945×</strong>
-          <p>直接 4096→64→4096 比空内容更差</p>
+          <h2>C5 Tail Control</h2>
+          <strong>p10 修复 62-88%</strong>
+          <p>均值主门失败，停止 router 调参</p>
         </article>
       </div>
 
       <section>
         <div class="decision">
-          <strong>当前决策：不再调 context、地址、阈值或固定 gain；只修 neural content code</strong>
-          <p>机制审计已排除地址整体塌陷和双钥匙推理期数值爆炸。PFC residual 在同一姿态下比 sensory content 不稳定 28.36 倍；下一轮联合训练稳定 sensory value encoder 与 recall adapter，同时保持 PFC、EC、place、context 和单一 fast-weight HPC 冻结。</p>
+          <strong>当前决策：保留 C3 作为最干净核心；C4/C5 只作为调用与负尾机制消融</strong>
+          <p>不再在已经使用的 validation slices 上扫 threshold、margin 或 loss weight。下一次真正合法的模型实验应独立预注册 rollout-counterfactual teacher，用累计未来 regret 标注调用，再在新地图 seed 上一次性验证。</p>
         </div>
       </section>
 
       <section id="model-core">
         <div class="section-head">
           <div>
-            <h2>当前模型核心：PFC 主干 + 单一 Neural HPC 外挂记忆</h2>
-            <p>只展示当前自有模型。Transformer 是 PFC 主干；EC/context 生成地址；HPC 是 episode 内现场建立的可微 fast-weight 状态；条件 adapter 负责把回忆翻译成 PFC 修正。</p>
+            <h2>当前模型核心：C3 128D Neural HPC + 条件回忆</h2>
+            <p>Transformer 是 PFC 主干；EC/context 生成地址；HPC 是 episode 内现场建立的可微 fast-weight 状态。C4/C5 的调用门不增加记忆，只决定是否应用同一条条件回忆。</p>
           </div>
-          <div class="source">2026-07-25 · CONTENT-PATH AUDIT + FRESH PAIRED VALIDATION</div>
+          <div class="source">2026-07-25 · C2-C5 · 71 TESTS · VAL[160:480]</div>
         </div>
 
         <div class="task-flow">
           <div class="flow-node ref0"><strong>Window Transformer PFC</strong><span>只读动作与过去 RGB latent<br />输出当前预测与 causal hidden</span></div>
           <div class="flow-node ref1"><strong>EC → Place → Context Address</strong><span>动作路径积分 + sparse neural place<br />不输入位置、朝向或 room id</span></div>
-          <div class="flow-node distractor"><strong>Episode-local HPC</strong><span>value × address dense fast weights<br />先读后写，episode 结束即丢弃</span></div>
-          <div class="flow-node return"><strong>Conditional Recall Adapter</strong><span>Δh=A(PFC,retrieval)-A(PFC,0)<br />空回忆时严格退化为 PFC</span></div>
+          <div class="flow-node distractor"><strong>128D Episode-local HPC</strong><span>单一 value × address fast weights<br />先读后写，episode 结束即丢弃</span></div>
+          <div class="flow-node return"><strong>Conditional Recall + Call</strong><span>Δh=A(PFC,retrieval)-A(PFC,0)<br />α=0 严格退化为 PFC</span></div>
         </div>
 
         <div class="grid-2" style="margin-top:12px;">
           <article class="panel">
-            <h3>什么坏了，什么没坏</h3>
+            <h3>C2-C5 机制状态</h3>
             <table>
               <thead><tr><th>机制</th><th>证据</th><th>判断</th></tr></thead>
               <tbody>
-                <tr><td data-label="机制">地址几何</td><td data-label="证据" class="num">best prior cosine 0.802</td><td data-label="判断" class="green">存在，不是主崩点</td></tr>
-                <tr><td data-label="机制">重复姿态命中</td><td data-label="证据" class="num">83.84%</td><td data-label="判断" class="green">可用但不完美</td></tr>
-                <tr><td data-label="机制">双钥匙条件</td><td data-label="证据" class="num">denominator 1.00000005</td><td data-label="判断" class="green">推理期稳定</td></tr>
-                <tr><td data-label="机制">Residual content</td><td data-label="证据" class="num red">repeat instability 28.36×</td><td data-label="判断" class="red">不适合作为 place content</td></tr>
-                <tr><td data-label="机制">固定线性融合</td><td data-label="证据" class="num amber">最佳仅 +0.391%</td><td data-label="判断" class="amber">调 gain 不够</td></tr>
+                <tr><td data-label="机制">128D content capacity</td><td data-label="证据" class="num">direct ratio 0.184</td><td data-label="判断" class="green">Gate A 强通过</td></tr>
+                <tr><td data-label="机制">真实 retrieval</td><td data-label="证据" class="num">ratio 0.242 / cosine 0.918</td><td data-label="判断" class="green">内容可读</td></tr>
+                <tr><td data-label="机制">C3 static call</td><td data-label="证据" class="num">pooled +2.27%</td><td data-label="判断" class="amber">跨 slice CI 未过</td></tr>
+                <tr><td data-label="机制">C4 soft gate</td><td data-label="证据" class="num">vs C3 +0.272%</td><td data-label="判断" class="green">小而一致的修正</td></tr>
+                <tr><td data-label="机制">C5 preference</td><td data-label="证据" class="num">p10 修复 62-88%</td><td data-label="判断" class="red">均值主门失败</td></tr>
               </tbody>
             </table>
           </article>
           <article class="panel">
-            <h3>内容通路审计</h3>
-            <img class="result-figure" src="content_path_audit.png" alt="HPC 内容压缩、像素预测、fast-weight 数值尺度和地址几何审计" />
+            <h3>C3：PFC / Observed / Full 严格 Rollout</h3>
+            <img class="result-figure" src="variable_component_audit.png" alt="C3 128D HPC、PFC-only、observed-only 和 full self-write 的严格 free rollout 配对曲线" />
           </article>
         </div>
 
         <div class="grid-2" style="margin-top:12px;">
           <article class="panel">
-            <h3>Fresh Val[128:160] 配对结果</h3>
+            <h3>连续新鲜切片结果</h3>
             <table>
-              <thead><tr><th>端点</th><th>MSE ×1e-3</th><th>相对 PFC</th><th>状态</th></tr></thead>
+              <thead><tr><th>阶段 / Slice</th><th>PFC ×1e-3</th><th>模型 ×1e-3</th><th>相对 PFC</th><th>状态</th></tr></thead>
               <tbody>
-                <tr><td data-label="端点"><strong>PFC-only</strong></td><td data-label="MSE" class="num green"><strong>14.166</strong></td><td data-label="相对 PFC" class="num">基准</td><td data-label="状态" class="green">当前最佳</td></tr>
-                <tr><td data-label="端点">Observed-only HPC + adapter</td><td data-label="MSE" class="num">14.183</td><td data-label="相对 PFC" class="num red">-0.1207%</td><td data-label="状态" class="amber">止损，未增益</td></tr>
-                <tr><td data-label="端点">All-write HPC + adapter</td><td data-label="MSE" class="num">14.401</td><td data-label="相对 PFC" class="num red">-1.6618%</td><td data-label="状态" class="red">imagined-write 污染</td></tr>
+                <tr><td data-label="阶段">C2 observed · 160:192</td><td data-label="PFC" class="num">16.530</td><td data-label="模型" class="num">16.355</td><td data-label="相对 PFC" class="num green">+1.06%</td><td data-label="状态" class="amber">CI 跨零</td></tr>
+                <tr><td data-label="阶段"><strong>C3 full · 224:288</strong></td><td data-label="PFC" class="num">16.447</td><td data-label="模型" class="num green"><strong>15.938</strong></td><td data-label="相对 PFC" class="num green"><strong>+3.10%</strong></td><td data-label="状态" class="amber">CI 跨零</td></tr>
+                <tr><td data-label="阶段">C4 soft · 288:352</td><td data-label="PFC" class="num">18.265</td><td data-label="模型" class="num">18.195</td><td data-label="相对 PFC" class="num">+0.39%</td><td data-label="状态" class="red">主门失败</td></tr>
+                <tr><td data-label="阶段">C4 soft · 352:416</td><td data-label="PFC" class="num">17.642</td><td data-label="模型" class="num green">16.803</td><td data-label="相对 PFC" class="num green">+4.76%</td><td data-label="状态" class="amber">C3 同样强，非 gate headline</td></tr>
+                <tr><td data-label="阶段">C5 soft · 416:480</td><td data-label="PFC" class="num">12.043</td><td data-label="模型" class="num">11.837</td><td data-label="相对 PFC" class="num green">+1.71%</td><td data-label="状态" class="red">CI 跨零</td></tr>
               </tbody>
             </table>
-            <p style="margin-top:10px;">Observed-only gain 的 bootstrap 90% CI 为 [-0.617, +0.527]×1e-3，跨零；62.5% episode 小幅获胜，但负例更重，不能宣称机制有效。</p>
+            <p style="margin-top:10px;">各行使用不同、连续且不重叠的 validation slice，只用于展示证据演进，不能横向挑最好数字。跨 Val[288:416] 的 C3 static 相对 PFC 为 +2.27%，90% CI 仍跨零。</p>
           </article>
           <article class="panel">
-            <h3>Adapter / PFC / 写入策略</h3>
-            <img class="result-figure" src="variable_component_audit.png" alt="条件回忆适配器、PFC-only 和 observed-only HPC 的严格 free rollout 曲线与均值" />
+            <h3>C5：Soft / Hard 0.5 / PFC</h3>
+            <img class="result-figure" src="threshold_sweep.png" alt="C5 反事实偏好 gate 的 soft、固定 0.5 硬调用和 PFC-only 严格 free rollout 结果" />
           </article>
         </div>
 
         <div class="artifact-grid" style="margin-top:12px;">
-          <a class="artifact" href="MEMORYMAZE3D_M1B_CONTENT_PATH_RECALL_ADAPTER_REPORT_CN.md"><strong>内容路径与 Recall Adapter 完整报告</strong><span>真实代码路径、机制审计、训练、fresh paired 结果与下一步</span></a>
-          <a class="artifact" href="MEMORYMAZE3D_M1B_CONDITIONAL_RECALL_ADAPTER_PROTOCOL_CN.md"><strong>冻结 Pilot 协议</strong><span>因果边界、训练范围、fresh slice 与停止规则</span></a>
-          <a class="artifact" href="memorymaze3d_m1b_conditional_recall_adapter_pilot_v1.json"><strong>机器可读预注册协议</strong><span>seed2151、400 updates、val[128:160]、1% + bootstrap 门</span></a>
-          <a class="artifact" href="memorymaze3d_m1b_conditional_recall_adapter_component_val128_159_retry_summary.json"><strong>Fresh Paired 机器结果</strong><span>PFC-only、observed-only、all-write、episode bootstrap</span></a>
-          <a class="artifact" href="memorymaze3d_m1b_content_path_audit_val96_127_summary.json"><strong>Residual Content 机制审计</strong><span>压缩、地址、重复姿态稳定性与数值条件</span></a>
-          <a class="artifact" href="memorymaze3d_m1b_sensory_content_path_audit_val96_127_summary.json"><strong>Sensory Content 机制审计</strong><span>稳定内容、64维容量与固定 gain sweep</span></a>
+          <a class="artifact" href="MEMORYMAZE3D_M1B_NESTED_VALUE_CAPACITY_C3_RESULT_CN.md"><strong>C3 128D Content 完整结果</strong><span>嵌套扩容、Gate A、strict rollout、尾部归因与冻结决定</span></a>
+          <a class="artifact" href="MEMORYMAZE3D_M1B_CAUSAL_CALL_GATE_C4_RESULT_CN.md"><strong>C4/C4b 调用门完整结果</strong><span>soft 排序、hard 止损、跨 slice 对照与失败边界</span></a>
+          <a class="artifact" href="MEMORYMAZE3D_M1B_COUNTERFACTUAL_CALL_PREFERENCE_C5_RESULT_CN.md"><strong>C5 反事实偏好完整结果</strong><span>class-balanced objective、冻结审计、盲测、负尾修复与停止规则</span></a>
+          <a class="artifact" href="memorymaze3d_m1b_counterfactual_call_preference_c5_v1.json"><strong>C5 机器可读协议</strong><span>seed2191、单一 preference loss、Val[416:480] 与 acceptance gates</span></a>
+          <a class="artifact" href="memorymaze3d_m1b_nested_value_capacity_c3_content_path_val192_223_summary.json"><strong>C3 Content Gate 机器结果</strong><span>direct、actual retrieval、conditioning 与地址健康</span></a>
+          <a class="artifact" href="threshold_sweep_summary.json"><strong>C5 Fresh Paired 机器结果</strong><span>soft、hard 0.5、PFC、call rate 与 bootstrap</span></a>
         </div>
       </section>
 
