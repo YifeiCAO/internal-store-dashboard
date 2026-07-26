@@ -474,9 +474,10 @@
     <header class="topbar">
       <div class="brand">
         <h1>ReMAP-Former 实验看板</h1>
-        <p>Transformer=PFC 主干，EC 供结构，单一 episode-local HPC 供外挂记忆</p>
+        <p>Transformer=PFC 主干，神经 EC 供地址，单一 episode-local HPC 供外挂记忆</p>
       </div>
       <nav aria-label="看板分区">
+        <a href="#next-2d3d">2D/3D 最新桥接</a>
         <a href="#model-core">C3-C6 当前核心</a>
         <a href="#memorymaze3d">视觉 3D 正式结果</a>
         <a href="#paper-package">论文证据包</a>
@@ -511,40 +512,148 @@
       <div class="status-grid" aria-label="最新状态">
         <article class="status-card primary">
           <h2>当前主线</h2>
-          <strong>冻结 C3：Transformer PFC + 128D 单一 fast-weight HPC；停止继续堆 router</strong>
-          <p>C3 已把 content capacity 从 64D 的相对误差 0.394 降到 128D 的 0.184，真实 retrieval ratio 降到 0.242。严格 free rollout 出现最高 +4.56% 的 fresh-slice 增益，但跨 slice 汇总 CI 仍跨零。C4/C5 能小幅稳定调用或修复负尾；C6 的长期 regret teacher 在 G0 有信号，但正式 held AUC 只有 0.513，均未升级为主模型。</p>
+          <strong>2D→3D 最小机制桥已跑通；下一步做 fresh multi-place Visual A-B-A</strong>
+          <p>P0 canonical release 已通过；2D-R2 排除了时间、当前观测、短动作窗与局部路径 shortcut；冻结 DINOv2 target 可分且 query 当前帧不泄露 context；最小视觉 A-B-A 三种子 Full return-conflict 为 0.9975±0.0014。它是机制 pilot，不是完整 3D world model。</p>
           <div class="badge-row">
+            <span class="badge"><span class="dot blue"></span>Transformer 就是 PFC</span>
             <span class="badge"><span class="dot blue"></span>真实 egocentric RGB</span>
-            <span class="badge"><span class="dot blue"></span>128D neural content</span>
-            <span class="badge"><span class="dot teal"></span>无位置 / 朝向输入</span>
-            <span class="badge"><span class="dot green"></span>76 tests passed</span>
-            <span class="badge"><span class="dot green"></span>future leak = 0</span>
+            <span class="badge"><span class="dot teal"></span>无 room / 位置 / place ID</span>
+            <span class="badge"><span class="dot green"></span>P0 release PASS</span>
+            <span class="badge"><span class="dot green"></span>12 + 76 tests passed</span>
+            <span class="badge"><span class="dot green"></span>future GT = 0/0</span>
             <span class="badge"><span class="dot green"></span>episode-local fast weights</span>
-            <span class="badge"><span class="dot amber"></span>C4 小幅稳定化</span>
-            <span class="badge"><span class="dot red"></span>主统计门未过</span>
+            <span class="badge"><span class="dot red"></span>R3 地址代理 STOP</span>
           </div>
         </article>
         <article class="status-card pass">
-          <h2>C3 Capacity Gate</h2>
-          <strong>0.184 / 0.242</strong>
-          <p>direct / actual retrieval relative MSE，强通过</p>
+          <h2>2D-R2 Anti-shortcut</h2>
+          <strong>1.000</strong>
+          <p>只有 full history 可分 context；局部 probe 约为 chance</p>
         </article>
-        <article class="status-card hold">
-          <h2>C3 Full Rollout</h2>
-          <strong>+3.10%</strong>
-          <p>Val[224:288] 点增益；90% CI 仍跨零</p>
+        <article class="status-card pass">
+          <h2>Visual A-B-A · 3 Seeds</h2>
+          <strong>0.9975</strong>
+          <p>Full return-conflict；wrong-history 仅 0.0064</p>
         </article>
         <article class="status-card fail">
-          <h2>C6 Formal Held</h2>
-          <strong>AUC 0.513</strong>
-          <p>低于 C5 0.573 与 horizon 0.597；盲测前停止</p>
+          <h2>2D-R3 Address Gate</h2>
+          <strong>STOP</strong>
+          <p>乘法地址 K1 仅 0.141、clean 0.419；不扩三种子</p>
         </article>
       </div>
 
       <section>
         <div class="decision">
-          <strong>当前决策：保留 C3 作为最干净核心；C4-C6 只作为调用、负尾与泛化边界消融</strong>
-          <p>C6 已按独立协议完成：G0 AUC 0.616，但正式 96/32 episode held AUC 0.513、BAcc 0.498，未打开 fresh blind。当前停止读取 router 调参，把主线转向 2D/3D 冻结证据、基线公平性和论文整合。</p>
+          <strong>当前决策：冻结最小 Visual A-B-A V2；不再调 validation，直接升级 fresh multi-place / multi-layout</strong>
+          <p>当前最强可辩护结论是：PFC 能从可观察历史推断隐 context，并用它寻址 episode-local neural HPC，恢复离开后再次进入的视觉内容。下一轮要在全新 layout/route/object split 上加入真正 EC/grid/place 多位置地址；旧 C3-C6 generic rollout 保留为辅助支线，不覆盖这条 hidden-context 主线。</p>
+        </div>
+      </section>
+
+      <section id="next-2d3d">
+        <div class="section-head">
+          <div>
+            <h2>本轮最重要结果：2D / 3D Hidden-Context Bridge</h2>
+            <p>先证明任务没有捷径，再证明视觉内容可编码，最后验证 PFC→context→HPC 的因果链。所有正常路径不读取 room、context、绝对位置、place ID 或未来 target。</p>
+          </div>
+          <div class="source">2026-07-26 · P0 / R2 / D0 / VISUAL A-B-A / R3 · DEVELOPMENT EVIDENCE</div>
+        </div>
+
+        <div class="task-flow">
+          <div class="flow-node ref0"><strong>动作 + 滞后视觉</strong><span>严格 causal 输入<br />当前 query 不含 context 线索</span></div>
+          <div class="flow-node ref1"><strong>Window Transformer PFC</strong><span>从可观察轨迹历史<br />推断 latent context</span></div>
+          <div class="flow-node distractor"><strong>EC / Place Address</strong><span>2D 为 neural EC；3D pilot 为单 place<br />place × latent context 寻址</span></div>
+          <div class="flow-node return"><strong>Episode-local Neural HPC</strong><span>先读后写的单一 fast weights<br />恢复 context-specific 内容</span></div>
+        </div>
+
+        <div class="grid-2" style="margin-top:12px;">
+          <article class="panel">
+            <h3>2D-R2：局部线索全部失效，完整历史仍可解</h3>
+            <table>
+              <thead><tr><th>Probe</th><th>三种子均值 ± SD</th><th>判断</th></tr></thead>
+              <tbody>
+                <tr><td data-label="Probe">当前 observation</td><td data-label="数值" class="num">0.4906 ± 0.0145</td><td data-label="判断" class="green">chance</td></tr>
+                <tr><td data-label="Probe">固定时间</td><td data-label="数值" class="num">0.5093 ± 0.0181</td><td data-label="判断" class="green">chance</td></tr>
+                <tr><td data-label="Probe">8-step 动作窗</td><td data-label="数值" class="num">0.5006 ± 0.0260</td><td data-label="判断" class="green">chance</td></tr>
+                <tr><td data-label="Probe">当前路径签名</td><td data-label="数值" class="num">0.5229 ± 0.0152</td><td data-label="判断" class="green">接近 chance</td></tr>
+                <tr><td data-label="Probe"><strong>完整历史关系</strong></td><td data-label="数值" class="num green"><strong>1.0000 ± 0.0000</strong></td><td data-label="判断" class="green"><strong>任务可解</strong></td></tr>
+              </tbody>
+            </table>
+            <p style="margin-top:10px;">强长度 OOD、train/test path-family overlap=0；same-time counterfactual support 为 0.2624±0.0323。</p>
+          </article>
+          <article class="panel">
+            <h3>3D 任务配对：历史不同，当前局部证据完全相同</h3>
+            <img class="result-figure" src="figures/memorymaze3d_visual_context_pairs.png" alt="MemoryMaze3D 两组 hidden-context 配对：历史目标不同，但当前走廊和 neutral cue 像素完全相同" />
+          </article>
+        </div>
+
+        <div class="grid-2" style="margin-top:12px;">
+          <article class="panel">
+            <h3>Frozen DINOv2 D0：内容可分，context 不泄露</h3>
+            <img class="result-figure" src="figures/memorymaze3d_dino_d0_conflict_patch.png" alt="DINOv2 conflict patch 的内容分类、特征距离与 context 泄露审计" />
+            <table>
+              <thead><tr><th>审计</th><th>结果</th><th>Gate</th></tr></thead>
+              <tbody>
+                <tr><td data-label="审计">Object linear / prototype</td><td data-label="结果" class="num">1.000 / 1.000</td><td data-label="Gate" class="green">通过</td></tr>
+                <tr><td data-label="审计">Between / within distance</td><td data-label="结果" class="num">1.58×</td><td data-label="Gate" class="green">通过</td></tr>
+                <tr><td data-label="审计">Current / cue context probe</td><td data-label="结果" class="num">0.500 / 0.500</td><td data-label="Gate" class="green">无泄露</td></tr>
+                <tr><td data-label="审计">Full-history context probe</td><td data-label="结果" class="num">1.000</td><td data-label="Gate" class="green">任务可解</td></tr>
+              </tbody>
+            </table>
+          </article>
+          <article class="panel">
+            <h3>Visual A-B-A V2：三种子机制图案</h3>
+            <img class="result-figure" src="figures/memorymaze3d_visual_aba_v2_3seed.png" alt="MemoryMaze3D Visual A-B-A 三种子完整模型与结构化消融结果" />
+            <table>
+              <thead><tr><th>条件</th><th>Return-conflict</th><th>解释</th></tr></thead>
+              <tbody>
+                <tr><td data-label="条件"><strong>Full</strong></td><td data-label="结果" class="num green"><strong>0.9975 ± 0.0014</strong></td><td data-label="解释" class="green">恢复正确旧内容</td></tr>
+                <tr><td data-label="条件">PFC-only</td><td data-label="结果" class="num">0.3338 ± 0.0046</td><td data-label="解释">主干不足</td></tr>
+                <tr><td data-label="条件">Fixed context</td><td data-label="结果" class="num">0.4993 ± 0.0010</td><td data-label="解释">二选一 chance</td></tr>
+                <tr><td data-label="条件">HPC zero</td><td data-label="结果" class="num">0.3042 ± 0.0102</td><td data-label="解释">外挂内容必要</td></tr>
+                <tr><td data-label="条件">Wrong history</td><td data-label="结果" class="num red">0.0064 ± 0.0053</td><td data-label="解释" class="green">定向翻到错误内容</td></tr>
+                <tr><td data-label="条件">Correct history</td><td data-label="结果" class="num">0.9933 ± 0.0043</td><td data-label="解释">context 上限接近饱和</td></tr>
+              </tbody>
+            </table>
+          </article>
+        </div>
+
+        <div class="grid-2" style="margin-top:12px;">
+          <article class="panel">
+            <h3>2D-R3 地址代理：诚实的 STOP</h3>
+            <img class="result-figure" src="figures/remap_former_2d_r3_address_v2_gate.png" alt="五种地址形式在共享 context-covariance 代理底座上的单种子 stage gate" />
+            <p>修复 signed-denominator bug 后，multiplicative correct-context K1 仍只有 0.141、AUC 0.091、clean 0.419，训练 loss 曾跳到 477.118。按协议不扩三种子，也不继续调 ridge/维度。这个结果说明 512D 外积压成 128D 的代理 substrate 不健康，不能解释为 outer-product 本身失败。</p>
+          </article>
+          <article class="panel">
+            <h3>现在能说什么，不能说什么</h3>
+            <table>
+              <thead><tr><th>命题</th><th>等级</th><th>边界</th></tr></thead>
+              <tbody>
+                <tr><td data-label="命题">2D hidden-context re-entry</td><td data-label="等级" class="green">强</td><td data-label="边界">旧 sealed + 8 seeds</td></tr>
+                <tr><td data-label="命题">2D 无局部 shortcut</td><td data-label="等级" class="green">强任务证据</td><td data-label="边界">R2 三种子 OOD</td></tr>
+                <tr><td data-label="命题">最小 3D Visual A-B-A</td><td data-label="等级" class="green">强 pilot</td><td data-label="边界">validation 已用于 V1→V2</td></tr>
+                <tr><td data-label="命题">完整 3D world model</td><td data-label="等级" class="red">未解决</td><td data-label="边界">单 conflict place + patch target</td></tr>
+                <tr><td data-label="命题">Outer-product 唯一必要</td><td data-label="等级" class="red">未成立</td><td data-label="边界">需 full-model intervention</td></tr>
+                <tr><td data-label="命题">公平击败 Hippoformer/Titans</td><td data-label="等级" class="amber">未检验完成</td><td data-label="边界">需同预算 fresh blind</td></tr>
+              </tbody>
+            </table>
+            <div class="decision" style="margin-top:12px;">
+              <strong>下一步：fresh 5–8 seeds，多位置、多 layout、route 与 object 全部 held-out</strong>
+              <p>冻结 V2、DINO 权重与 manifests；接入真正 neural EC/grid/place；用 Full、PFC-only、fixed/wrong-context、HPC-zero、no-covariance 做配对因果消融。</p>
+            </div>
+          </article>
+        </div>
+
+        <div class="artifact-grid" style="margin-top:12px;">
+          <a class="artifact" href="REMAP_FORMER_NEXT_2D_3D_EXECUTION_REPORT_CN.md"><strong>本轮完整中文执行报告</strong><span>P0、R2、D0、Visual A-B-A、R3 STOP、证据等级与下一步</span></a>
+          <a class="artifact" href="remap_former_results_roadmap_iclr2025.pdf"><strong>ICLR 模板结果与路线图</strong><span>11 页中文 PDF；架构、2D/3D 主结果、负结果与预注册计划</span></a>
+          <a class="artifact" href="REMAP_FORMER_NEXT_P0_RELEASE_INTEGRITY_CN.md"><strong>P0 Release Integrity</strong><span>独立 Git snapshot、24 checkpoint hashes、causal contract 与自动复核</span></a>
+          <a class="artifact" href="REMAP_FORMER_2D_R2_ANTI_SHORTCUT_POSTFIX_CN.md"><strong>2D-R2 Anti-shortcut</strong><span>三种子 probes、强长度 OOD 与 same-time counterfactual support</span></a>
+          <a class="artifact" href="MEMORYMAZE3D_DINO_D0_CONFLICT_PATCH_CN.md"><strong>3D-D0 DINO Target Audit</strong><span>视觉内容可分性、current/cue 泄露与完整历史可解性</span></a>
+          <a class="artifact" href="MEMORYMAZE3D_VISUAL_ABA_V2_3SEED_CN.md"><strong>Visual A-B-A 三种子</strong><span>完整结果、成对差值、方向性 wrong-history 与 causal audit</span></a>
+          <a class="artifact" href="REMAP_FORMER_2D_R3_ADDRESS_V2_GATE_CN.md"><strong>R3-v2 Stage Gate STOP</strong><span>共享 covariance 代理、五种地址、失败门与 full-model 转向</span></a>
+          <a class="artifact" href="visual_aba_v2_3seed_summary.json"><strong>Visual A-B-A 机器结果</strong><span>三种子聚合、7 个 pilot gates 与 future GT 0/0</span></a>
+          <a class="artifact" href="dino_d0_target_audit_conflict_patch_v2.json"><strong>DINO D0 机器结果</strong><span>权重哈希、数据 manifests、feature 几何与 leakage probes</span></a>
+          <a class="artifact" href="r3_address_pilot_v2_gate_seed65101_restart_summary.json"><strong>R3-v2 机器结果</strong><span>单种子 stage gate；STOP，不扩三种子</span></a>
         </div>
       </section>
 
@@ -2457,8 +2566,12 @@
           <article class="stage done"><b>G7 Variable Horizon</b><p>Paired H32/48/60/72：coverage 0→1、return 0→0.7656、Spearman 1.0；148/148 PASS。</p></article>
           <article class="stage done"><b>G8 Hidden Cutoff</b><p>逐 episode 隐藏平衡 cutoff：coverage 0.4635、return 0.3885、54/54 shadow audits；59/59 PASS。</p></article>
           <article class="stage done"><b>论文证据包 v1</b><p>G7/G8 主图、正式架构图、统一基线表与增量 SHA256 manifest 已完成，7/7 gates。</p></article>
-          <article class="stage done"><b>C6 + ICLR 结果冻结</b><p>C6 formal held AUC 0.513，按协议停在 fresh blind 前；2D/3D 结果、负结果和 P0-P5 路线图已进入 7 页 ICLR 模板报告。</p></article>
-          <article class="stage active"><b>下一停点：P0 发布完整性</b><p>修复旧 P5 的 pfc.py hash mismatch，重建 canonical release；完成前不打开新的 sealed test。</p></article>
+          <article class="stage done"><b>P0 发布完整性</b><p>canonical snapshot commit b951334；24 checkpoint hashes、Git tree、causal contract 与独立 tests 全部 PASS。</p></article>
+          <article class="stage done"><b>2D-R2 + 3D-D0</b><p>局部 shortcut probes 接近 chance；DINO content 1.0、current/cue context 0.5、history 1.0。</p></article>
+          <article class="stage done"><b>Visual A-B-A V2</b><p>三种子 Full 0.9975±0.0014；wrong-history 0.0064，结构化因果图案成立。</p></article>
+          <article class="stage blocked"><b>2D-R3 地址代理</b><p>v1/v2 substrate 均未通过健康 gate；按协议 STOP，不扩三种子。</p></article>
+          <article class="stage done"><b>ICLR 结果报告</b><p>2D/3D 主结果、负结果、证据边界和下一阶段计划已进入 11 页 ICLR 模板报告。</p></article>
+          <article class="stage active"><b>下一停点：Fresh Multi-place Visual A-B-A</b><p>冻结 V2 和 manifests；增加真实 EC/grid/place 多位置地址，并使用全新 layout/route/object split。</p></article>
           <article class="stage blocked"><b>Formal Protocol</b><p>normal K=8 仅 0.4010；达到 0.80 绝对门前不解锁。</p></article>
         </div>
       </section>
@@ -2471,7 +2584,8 @@
           </div>
         </div>
         <div class="artifact-list">
-          <a class="artifact" href="remap_former_results_roadmap_iclr2025.pdf"><strong>最新：2D/3D ICLR 结果报告</strong><span>7 页中文模板；冻结架构、2D 主结果、3D C3-C6、证据等级与 P0-P5 路线图</span></a>
+          <a class="artifact" href="REMAP_FORMER_NEXT_2D_3D_EXECUTION_REPORT_CN.md"><strong>最新：ReMAP-Former Next 本轮执行报告</strong><span>P0、2D-R2、3D-D0、Visual A-B-A、R3-v2 STOP 与下一阶段预注册</span></a>
+          <a class="artifact" href="remap_former_results_roadmap_iclr2025.pdf"><strong>最新：2D/3D ICLR 结果报告</strong><span>11 页中文模板；冻结架构、2D/3D 主结果、负结果、证据等级与路线图</span></a>
           <a class="artifact" href="REMAP_FORMER_2D_3D_RESULTS_AND_ROADMAP_CN.md"><strong>最新：2D/3D 结果与未来计划</strong><span>Markdown 完整版；明确可主张内容、负结果、实验边界、Go/Stop gates 与执行顺序</span></a>
           <a class="artifact" href="remap_former_results_roadmap_iclr2025.tex"><strong>最新：ICLR LaTeX 源码</strong><span>ICLR 2025 模板、中文排版、4 张冻结主图、9 张结果与路线表</span></a>
           <a class="artifact" href="MEMORYMAZE3D_M1B_ROLLOUT_COUNTERFACTUAL_CALL_C6_RESULT_CN.md"><strong>最新：C6 Formal 完整结果</strong><span>G0 可预测性、96/32 formal、四个泛化门失败、冻结审计与 pre-blind stop</span></a>
@@ -2649,7 +2763,7 @@
       </section>
     </main>
 
-    <footer>ReMAP-Former internal dashboard · 2026-07-25 · 2D hidden-context re-entry 保持当前 headline；3D 冻结 C3，C6 formal 泛化失败并在 fresh blind 前停止；下一步先完成 P0 canonical release integrity</footer>
+    <footer>ReMAP-Former internal dashboard · 2026-07-26 · P0 / 2D-R2 / 3D-D0 已通过；最小 Visual A-B-A 三种子成立；R3 地址代理按协议停止；下一步 fresh multi-place visual A-B-A</footer>
   </div>
 </body>
 </html>

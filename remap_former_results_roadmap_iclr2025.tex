@@ -33,15 +33,15 @@
 
 \title{\model{}：隐情境重入与视觉自由滚动中的\\
 Episode-Local Neural Hippocampus\\
-\large 2D/3D 冻结结果、负结果与下一阶段实验路线图}
+\large 2D 机制审计、3D Visual A-B-A 与下一阶段实验路线图}
 
-\author{Anonymous authors\\Internal evidence freeze, 2026-07-25}
+\author{Anonymous authors\\Internal evidence update, 2026-07-26}
 
 \begin{document}
 \maketitle
 
 \begin{abstract}
-我们研究一个严格的 ``Transformer 主干加外挂海马'' 系统：causal window Transformer 作为 PFC，仅从动作与感觉历史推断 latent context；动作驱动的 neural EC 形成关系结构；episode-local differentiable fast weights 作为 HPC 保存内容，并在 episode 结束后丢弃。模型不读取 room/context 标签、绝对位置、place ID、当前目标、memory slot 或第二套 fast weights。2D hidden-context A-B-A re-entry 已形成当前最强证据：8-seed return-conflict accuracy 为 $0.8201\pm0.0200$，而 \base{} 与 \mdelta{} 均为 0；冻结 P3 Test-2 达到 $0.8376$，clean recall 为 $0.9944$。context、covariance correction 与 HPC retrieval 的消融均产生结构化退化。3D variable-layout RGB strict free rollout 已通过 128D content/retrieval gate；冻结 C3 相对 PFC-only 改善 $3.10\%$，但 paired confidence interval 跨零。C6 rollout-counterfactual caller 在 pilot 上有信号，却在正式 held split 上仅有 $0.513$ AUC，并按预注册规则在 fresh blind 前停止。本文将正结果与负结果置于同一证据等级中，并冻结下一阶段顺序：先修复 release integrity，再完成 2D 严格 rollout 曲线、3D 公平预算盲测与视觉 hidden-context bridge。
+我们研究一个严格的 ``Transformer 主干加外挂海马'' 系统：causal window Transformer 作为 PFC，仅从动作与感觉历史推断 latent context；动作驱动的 neural EC 形成关系结构；episode-local differentiable fast weights 作为 HPC 保存内容，并在 episode 结束后丢弃。模型不读取 room/context 标签、绝对位置、place ID、当前目标、memory slot 或第二套 fast weights。2D hidden-context A-B-A re-entry 的冻结 8-seed return-conflict accuracy 为 $0.8201\pm0.0200$；本轮进一步用强长度 OOD 与 gauge-paired counterfactual 排除了时间、当前 observation、短 action window 与当前路径 shortcut。Frozen DINOv2 spatial target audit 显示 conflict content 可分，而 ambiguous current frame/cue 的 context probe 均为 0.500。最小 visual A-B-A 在三个训练 seed 上达到 $0.9975\pm0.0014$ return-conflict accuracy；PFC-only 为 $0.3338\pm0.0046$，fixed-context 为 $0.4993\pm0.0010$，wrong-history 将预测推向另一 context 的比例为 0.9936。该结果建立了 2D 到高维视觉的最小机制桥，但仍是看过 validation 的 development pilot，只有一个共享 conflict place，不能冒充 fresh sealed world-model 结果。generic RGB strict rollout 的 C3 仍只相对 PFC-only 改善 $3.10\%$ 且区间跨零；C6 caller held AUC 0.513 的负结果继续保留。
 \end{abstract}
 
 \section{当前结论}
@@ -50,7 +50,7 @@ Episode-Local Neural Hippocampus\\
 \fcolorbox{coreblue}{softgray}{
 \begin{minipage}{0.92\textwidth}
 \small
-\textbf{目前可辩护的核心 claim：}PFC 可以从历史形成无 oracle 的隐情境表示，并以该表示重映射 episode-local neural HPC 的地址，从而恢复离开后再次进入的旧内容。该 claim 在 2D 有冻结测试、跨 seed 稳定性与因果消融支持。3D 已证明同一记忆原则可用于视觉 strict free rollout，但当前只达到机制可行性与正趋势，尚未形成公平预算、统计显著的外部 baseline 胜利。
+\textbf{目前可辩护的核心 claim：}PFC 可以从历史形成无 oracle 的隐情境表示，并以该表示重映射 episode-local neural HPC 的地址，从而恢复离开后再次进入的旧内容。该 claim 在 2D 有冻结测试、跨 seed 稳定性、因果消融与 anti-shortcut 支持；同一个 causal pattern 已在最小 DINO visual A-B-A pilot 中复现。完整 3D world model、公平外部 baseline 胜利与 fresh sealed 视觉泛化仍未成立。
 \end{minipage}}
 \end{center}
 
@@ -186,7 +186,141 @@ Exact-address diagnostic & 0.987 & 0.971 & 0.836 & 0.737 & 0.477 & 0.844 & 12\\
 
 当前 2D 不支持 ``完整 strict rollout 曲线全面获胜''。预注册 full-curve H1 未通过，M1b-\base{} log-horizon AUC difference 为负；但 4096 endpoint difference 为 $+0.3688\,[0.2289,0.4836]$。官方 mm-TEM 的 64-step 结果尚未在本仓库忠实复现，不能把内部 branch 当成官方数字。
 
-\section{3D Variable-Layout Visual Rollout}
+\section{本轮 2D/3D Hidden-Context Bridge}
+
+\subsection{Release integrity 与 2D anti-shortcut}
+
+本轮首先建立独立 canonical Git snapshot，commit 为
+\texttt{b951334bcfc7174078d9a21cadd584fa3a71459b}。24 个 checkpoint hash
+全部匹配；3D 回归 76 tests、当前 2D 回归 353 tests、strict causal
+contract 4 tests 均通过，future GT read/write 为 0/0。旧 mutable-path
+manifest 的 hash drift 被继续披露，而没有通过改 expected hash 将其伪装为绿色。
+
+随后在 train segment 6/7/8 与 validation segment 9/10/11、互不重叠的
+path families 和强长度 OOD 下进行 2D-R2 anti-shortcut。三种子结果见
+表~\ref{tab:r2shortcut}。局部 probe 均接近 chance，只有完整历史关系可确定
+relative context。首次审计曾因在第二个 context 暴露前定义二选一标签而产生
+time-only 0.626；该失败被保留，修复只收紧可定义 probe 区间。
+
+\begin{table}[H]
+\centering
+\small
+\caption{2D-R2 三种子 balanced accuracy。}
+\label{tab:r2shortcut}
+\begin{tabular}{lrr}
+\toprule
+Probe & Mean $\pm$ sample SD & Range\\
+\midrule
+Current observation & $0.4906\pm0.0145$ & 0.4802--0.5071\\
+Time-only & $0.5093\pm0.0181$ & 0.4978--0.5302\\
+Action-only & $0.5000\pm0.0000$ & 0.5000--0.5000\\
+8-step short window & $0.5006\pm0.0260$ & 0.4741--0.5261\\
+Current path signature & $0.5229\pm0.0152$ & 0.5056--0.5344\\
+\textbf{Full-history relation} & $\mathbf{1.0000\pm0.0000}$ & 1.0000--1.0000\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+同时间桶、同局部线索但相反历史标签的支持率为
+$0.2624\pm0.0323$；gauge-pair observation mismatch 与 train/test
+path-family overlap 均为 0。该结果验证的是任务可解性与防 shortcut，不是将旧
+checkpoint 直接迁移成新任务成绩。
+
+\subsection{Frozen DINOv2 spatial target gate}
+
+视觉 target 使用 frozen \texttt{dinov2\_vits14\_reg} 的
+$16\times16\times384$ spatial patches，CLS-only 不进入主指标。evaluation-only
+object mask 只选择 conflict patch 计算指标，不进入 encoder、模型或 context
+probe。Object linear/prototype accuracy 均为 1.000；within-object cross-view
+distance 为 0.0918，between-object same-environment distance 为 0.1451，
+ratio 为 1.58。ambiguous current frame 与 neutral cue 的 context probe 均为
+0.500，full visual history probe 为 1.000，且配对 current/cue RGB 逐像素相同。
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth]{memorymaze3d_visual_context_pairs.png}
+\caption{MemoryMaze3D hidden-context 配对。A/B history 中的 target content 不同，
+但 current corridor 与 neutral cue 在 pair 内逐像素相同；因此 query 的 context
+不能从当前局部 RGB 直接读取。}
+\label{fig:visualpairs}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.92\textwidth]{memorymaze3d_dino_d0_conflict_patch.png}
+\caption{DINOv2 target audit。Conflict content 可分，当前/cue context 泄漏为 chance，
+只有完整历史可分。}
+\label{fig:dinoaudit}
+\end{figure}
+
+\subsection{最小 Visual A-B-A 三种子 Pilot}
+
+最小任务包含两个 context、一个共享 conflict place 和两个可见首访写入。query
+target 隐藏；PFC 只从可观察 action trajectory 与 causal history 形成 latent
+context。HPC 是一个 covariance-corrected episode-local fast-weight matrix。
+没有 room/context/position/place ID、slot bank 或第二套 fast weights。
+
+V1 仅使用 latent PFC state 与 cosine loss，Full 约为 chance。V2 只做两项修改：
+(i) context head 加入可观察 trajectory signature；(ii) 内容目标改为
+target-vs-other contrastive feature loss。没有加入 context supervision。
+
+\begin{table}[H]
+\centering
+\small
+\caption{Visual A-B-A validation OOD，三个训练 seed。开发中已看过 validation，
+不是 fresh sealed test。}
+\label{tab:visualaba}
+\begin{tabular}{lrrr}
+\toprule
+条件 & Return conflict & Worst seed & Clean\\
+\midrule
+\textbf{Full} & $\mathbf{0.9975\pm0.0014}$ & 0.9962 & 1.0000\\
+PFC-only & $0.3338\pm0.0046$ & 0.3284 & 0.3410\\
+Fixed context & $0.4993\pm0.0010$ & 0.4982 & 0.9960\\
+HPC zero & $0.3042\pm0.0102$ & 0.2953 & 0.2291\\
+Wrong history & $0.0064\pm0.0053$ & 0.0021 & 1.0000\\
+Correct history & $0.9933\pm0.0043$ & 0.9890 & 1.0000\\
+Context oracle & $1.0000\pm0.0000$ & 1.0000 & 1.0000\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Full-PFC、Full-fixed 与 Full-HPC-zero 的 seed-paired difference 分别为
+$0.6637\pm0.0036$、$0.4981\pm0.0017$ 与 $0.6933\pm0.0110$。
+wrong-history 的 other-context target rate 为 0.9936，说明干预产生的是按错误
+context 定向调用另一内容，而非无方向性能下降。Context-oracle-Full 只有
+$0.0025\pm0.0014$。
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth]{memorymaze3d_visual_aba_v2_3seed.png}
+\caption{Visual A-B-A 三种子机制图案。完整模型与 correct-history/oracle 恢复旧
+内容；fixed-context 位于二选一 chance；wrong-history 几乎完全转向错误内容。}
+\label{fig:visualaba}
+\end{figure}
+
+该结果是 2D 到高维视觉的最小机制桥，不是完整 world model：当前只有一个共享
+conflict-place code，target 是 DINO conflict patch feature，且 validation 已用于
+V1 到 V2 的开发。下一步必须冻结全新 layout/route/object split，并接入真正的
+EC/grid/place 多位置地址。
+
+\subsection{2D-R3 地址审计的首个负结果}
+
+在冻结 PFC/EC features、统一 128D key 与统一 plain-delta memory 的三种子 pilot
+中，place-only、additive、concatenation、learned MLP 与 multiplicative 的
+correct-context log-$K$ AUC 均为 0.005--0.013；所有 contextual forms 共同失败。
+same-place/cross-context key cosine 仍约 0.96，说明去掉 context covariance 后
+substrate 已不健康。该结果不能否定 outer product；它触发了共享
+context-covariance dual-write 的 stage gate，而不是直接进入正式地址结论。
+
+修复一次 signed-denominator 实现错误后，我们从头运行单种子 stage gate。
+Multiplicative 的 correct-context $K{=}1$、log-$K$ AUC 与 clean accuracy 分别仅为
+0.141、0.091 与 0.419；预注册的 0.70、$+0.15$ 与 0.90 health gates 均未通过，
+且训练 loss 曾跳至 477.118。因而状态为 \textbf{STOP}，不扩三种子，也不在该
+代理任务上继续调 ridge 或维度。下一次地址结论必须来自保留完整因子结构的
+full-model intervention。
+
+\section{3D Generic Variable-Layout Visual Rollout}
 
 \subsection{任务、baseline 与预算边界}
 
@@ -273,14 +407,19 @@ C6 在同一冻结 C5 生成历史上强制候选步 $\alpha_t=0$ 与 $\alpha_t=
 \begin{table}[H]
 \centering
 \small
-\caption{截至 2026-07-25 的 claim ledger。}
+\caption{截至 2026-07-26 的 claim ledger。}
 \begin{tabularx}{\textwidth}{Yp{0.19\textwidth}Y}
 \toprule
 命题 & 等级 & 直接依据\\
 \midrule
 2D hidden-context re-entry 可行 & \good{\textbf{强}} & sealed test、8 seeds、因果消融\\
+2D timing/local shortcut 已排除 & \good{\textbf{强任务证据}} & R2 三种子、强长度 OOD、反事实支持\\
 2D 长 observed-history 保持 & \good{\textbf{中强}} & 8 seeds 到 836，3 seeds 到 4356\\
 2D 完整 strict free rollout 胜出 & \bad{\textbf{未成立}} & full-curve/AUC 不支持全面胜出\\
+Outer-product 是唯一必要地址 & \caution{\textbf{未成立}} & R3 v1/v2 代理 substrate 均未过健康门\\
+3D DINO conflict target 可用 & \good{\textbf{强 gate}} & content 1.0，current/cue context 0.5\\
+最小 3D visual A-B-A 可行 & \good{\textbf{强 pilot}} & 3 seeds Full 0.9975，结构化干预\\
+完整 3D visual re-entry 已解决 & \bad{\textbf{否}} & 单 conflict place、非 sealed、patch target\\
 3D HPC content 可存可取 & \good{\textbf{强机制证据}} & 128D content/retrieval gate\\
 3D full 优于 PFC-only & \caution{\textbf{趋势}} & $+3.10\%$，CI 跨零\\
 3D learned write gate 优于 K16 & \bad{\textbf{未成立}} & 仍差 $2.51\%$\\
@@ -296,9 +435,13 @@ C6 在同一冻结 C5 生成历史上强制候选步 $\alpha_t=0$ 与 $\alpha_t=
 
 \subsection{P0：发布完整性}
 
-旧 P5 release audit 发现归档中的 \texttt{remap\_former/pfc.py} hash mismatch。任何新 sealed test 前必须从当前 source、协议、checkpoint、summary 与 figure 重建 canonical release，固定环境、命令、seed 和 split hash，并保持 76/76 tests。
+P0 v2 已完成：独立 snapshot commit 为
+\texttt{b951334bcfc7174078d9a21cadd584fa3a71459b}，checkpoint、dataset、
+split 与 causal contract 可自动验证，旧 manifest drift 继续披露。后续 fresh
+sealed 运行必须从该 canonical identity 或其显式后继版本构建，不能重新指向可变工作树。
 
-\textbf{Go gate：}clean checkout 可一键重跑评估并匹配全部冻结 summary；任何 hash mismatch 都停止 sealed test。
+\textbf{状态：}\good{已通过。}新 visual formal 前需把本轮新增代码、DINO cache
+manifest 与 V2 checkpoint 追加为下一版 frozen release。
 
 \subsection{P1：2D strict free-rollout headline}
 
@@ -314,9 +457,14 @@ C6 在同一冻结 C5 生成历史上强制候选步 $\alpha_t=0$ 与 $\alpha_t=
 
 \subsection{P3：2D 到 3D 的 hidden-context bridge}
 
-在同一几何位置的不同视觉 context 中绑定不同内容，构造 A-B-A route re-entry；入口与路径族跨 split。模型仍不读取 room、context、pose 或 switch。任务 gate 要求 trajectory-history room probe 高、cue-only 接近 chance、真实歧义率充分。
+最小 pilot 已完成：两个 context、一个 conflict place、三训练 seeds；当前/cue
+probe 为 chance，Full 明显优于 PFC-only/fixed-context，wrong-history 产生方向性
+错误。下一阶段将其升级为多 place 的动作驱动 EC/grid/place，并冻结从未用于
+V1/V2 的 layout/route/object split。模型继续不读取 room、context、pose 或 switch。
 
-\textbf{Go gate：}full 在 re-entry 上显著优于 PFC-only 与 fixed-context，wrong-context/HPC-zero/no-covariance 产生结构化退化，clean drop 不超过 2 pp。
+\textbf{下一门：}5--8 seeds 的 fresh held-out layouts/routes/shapes 上，Full 的
+95\% CI 高于 PFC-only 与 fixed-context；wrong-context/HPC-zero/no-covariance
+结构化退化，clean drop 不超过 2 pp，future GT 保持 0/0。
 
 \subsection{P4：容量与尺度律}
 
@@ -338,11 +486,12 @@ C6 后暂停瞬时 gate 调参。只有具备 recurrent uncertainty state、多�
 \toprule
 顺序 & 工作 & 论文作用\\
 \midrule
-1 & P0 release integrity & 封死证据链\\
-2 & P1 2D strict curve & 最接近 headline\\
-3 & P2 3D fair blind & 把趋势升级为证据\\
-4 & P3 visual hidden-context & 统一 2D/3D 课题\\
-5 & P4 scale law & 租卡阶段批量运行\\
+完成 & P0 release integrity & canonical snapshot 已建立\\
+完成 & P3 minimal visual A-B-A & 2D/3D 最小机制桥\\
+1 & P3 fresh multi-place visual A-B-A & 当前最接近新 headline\\
+2 & P1 2D strict curve / address audit & reviewer-killer\\
+3 & P2 3D fair generic blind & 外部效度\\
+4 & P4 scale law & 租卡阶段批量运行\\
 暂停 & P5 caller & 等待新状态设计\\
 \bottomrule
 \end{tabularx}
@@ -350,7 +499,15 @@ C6 后暂停瞬时 gate 调参。只有具备 recurrent uncertainty state、多�
 
 \section{结论}
 
-\model{} 当前不是一个 ``所有 rollout 都赢'' 的完成品，而是一条已经有清晰核心与清晰边界的研究线。2D 结果说明：当 Transformer/PFC 必须从历史推断 context 时，context-dependent address 与 episode-local HPC 能恢复普通窗口模型、\base{} 和单映射 delta memory 无法恢复的旧内容。3D 结果说明：同一 neural HPC 可以进入视觉自由滚动并产生可测的内容收益，但简单写入预算、episode 负尾和 caller 泛化仍是主要瓶颈。最有价值的下一步不是继续堆 gate，而是完成 release integrity、严格 rollout 主曲线、公平 3D blind test 与视觉 hidden-context bridge。
+\model{} 当前不是一个 ``所有 rollout 都赢'' 的完成品，而是一条已有清晰核心与
+边界的研究线。2D 结果说明：当 Transformer/PFC 必须从历史推断 context 时，
+context-dependent address 与 episode-local HPC 能恢复普通窗口模型、\base{}
+和单映射 delta memory 无法恢复的旧内容；R2 进一步排除了时间与局部线索 shortcut。
+本轮最关键的新结果是，同一个 causal pattern 已在最小 DINO visual A-B-A 中
+跨三个训练 seed 复现，且 wrong-history 会定向调用错误 context 内容。与此同时，
+generic RGB rollout 仍只有小幅趋势，caller 泛化仍失败。最有价值的下一步不是
+继续堆 gate，而是把 visual pilot 冻结为多 place、shape/category、fresh held-out
+的 5--8 seed formal，并完成 full-model 地址与公平预算审计。
 
 \begingroup
 \footnotesize

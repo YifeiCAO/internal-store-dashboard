@@ -1,10 +1,10 @@
 {
   "format": "remap_former.internal_store_dashboard.package.v1",
-  "packaged_at": "2026-07-26T00:13:12.2283806-07:00",
+  "packaged_at": "2026-07-26T11:57:37.2486048-07:00",
   "source_html": "D:\\brain_inspired_transformer\\reports\\internal_store_dashboard.html",
-  "source_sha256": "30a91d8b89802368963b43c8d2551f275b97bbae367f6800179343d2c0fbfd77",
-  "index_sha256": "5506075891eecb6317de5fcfe0d01b789028275e50a0c48bbd7e3734209b6daf",
-  "local_reference_count": 200,
+  "source_sha256": "94cee598429bac3bed6e986d053a81c12d96667f7bd77a1eb9ae17d8c7ef2112",
+  "index_sha256": "5461b546129ee67098e999818372ec5644df2d709579a26c37552e0c7d327303",
+  "local_reference_count": 213,
   "files": [
     {
       "attribute": "href",
@@ -73,8 +73,8 @@
       "attribute": "href",
       "source_reference": "../output/pdf/remap_former_results_roadmap_iclr2025.pdf",
       "target_reference": "remap_former_results_roadmap_iclr2025.pdf",
-      "sha256": "9b75b677db6552d51a8593f46343bcad5534f157050e608fc3650142826c3799",
-      "bytes": 696881
+      "sha256": "93b3fc985ee1d1e674c9700ddbda316ba0cba974cfc55957d73a9495783e403f",
+      "bytes": 1175294
     },
     {
       "attribute": "href",
@@ -103,6 +103,20 @@
       "target_reference": "REMAP_FORMER_ICLR_DESIGN_CN.md",
       "sha256": "bf45eabec4bd68e3fc0afabfdf541c1a6636d51691e83eb5efc118b958c75b1e",
       "bytes": 68704
+    },
+    {
+      "attribute": "href",
+      "source_reference": "../runs/memorymaze3d/dino_d0_target_audit_conflict_patch_v2.json",
+      "target_reference": "dino_d0_target_audit_conflict_patch_v2.json",
+      "sha256": "a8d181f2d4cac17c2c55361ebb233254e0a73592d9688a606941876f337dc4cb",
+      "bytes": 2884
+    },
+    {
+      "attribute": "href",
+      "source_reference": "../runs/memorymaze3d/visual_aba_v2_3seed_summary.json",
+      "target_reference": "visual_aba_v2_3seed_summary.json",
+      "sha256": "2ae9fff75c1605c7e8b37630f23d2b40ea572a3838743cf7edcec39981dcf0a1",
+      "bytes": 11892
     },
     {
       "attribute": "href",
@@ -815,8 +829,8 @@
       "attribute": "href",
       "source_reference": "../runs/remap_former/p5_release_manifest.json",
       "target_reference": "p5_release_manifest.json",
-      "sha256": "cc78b634e970d0ec0614cef23b15bdf797c392c348d946e27e8abecbc60ce30d",
-      "bytes": 5074
+      "sha256": "a34fd931757287706fc494a771778e2ee5eea4410be6e338994eac2e5749423c",
+      "bytes": 5674
     },
     {
       "attribute": "href",
@@ -834,10 +848,17 @@
     },
     {
       "attribute": "href",
+      "source_reference": "../runs/remap_former/r3_address_pilot_v2_gate_seed65101_restart/summary.json",
+      "target_reference": "r3_address_pilot_v2_gate_seed65101_restart_summary.json",
+      "sha256": "ccec6f831513f53dbcb08d4fea9bfe9332dda6f43f3068e28e1f262ffe2cc7c4",
+      "bytes": 98634
+    },
+    {
+      "attribute": "href",
       "source_reference": "../Template_for_ICLR_2025_Conference_Submission/remap_former_results_roadmap_iclr2025.tex",
       "target_reference": "remap_former_results_roadmap_iclr2025.tex",
-      "sha256": "5ff0028cf108806dbd81b12730e1e84ba9e4e2408a2afbeff7c15a8c19538ecf",
-      "bytes": 20397
+      "sha256": "c8687af8fe4658c2a2c7934d0516707083c559d57c12d94ef2f06de14b080583",
+      "bytes": 28031
     },
     {
       "attribute": "href",
@@ -876,6 +897,13 @@
     },
     {
       "attribute": "href",
+      "source_reference": "MEMORYMAZE3D_DINO_D0_CONFLICT_PATCH_CN.md",
+      "target_reference": "MEMORYMAZE3D_DINO_D0_CONFLICT_PATCH_CN.md",
+      "sha256": "546990dc31008ed12bb1ff64da9636b652991bf80e133c023081f434f07db617",
+      "bytes": 1544
+    },
+    {
+      "attribute": "href",
       "source_reference": "memorymaze3d_m1b_nested_value_capacity_c3_content_path_val192_223/summary.json",
       "target_reference": "memorymaze3d_m1b_nested_value_capacity_c3_content_path_val192_223_summary.json",
       "sha256": "e5bb11e4931108a9a439728d3b23d368a25796d574057873a93ac48d26728342",
@@ -890,10 +918,31 @@
     },
     {
       "attribute": "href",
+      "source_reference": "MEMORYMAZE3D_VISUAL_ABA_V2_3SEED_CN.md",
+      "target_reference": "MEMORYMAZE3D_VISUAL_ABA_V2_3SEED_CN.md",
+      "sha256": "d3e2fcdfb2e47d67d1e5edfd08c384b9e8e410e1db1e1a2b40f2618fbdf8f812",
+      "bytes": 3471
+    },
+    {
+      "attribute": "href",
       "source_reference": "memorymaze3d_write_gate_calibrated_3seed_summary.json",
       "target_reference": "memorymaze3d_write_gate_calibrated_3seed_summary.json",
       "sha256": "3270b27b13ae81bb1348ee7000c4738b229e3498564009642dcb5e5a85236b58",
       "bytes": 4326
+    },
+    {
+      "attribute": "href",
+      "source_reference": "REMAP_FORMER_2D_R2_ANTI_SHORTCUT_POSTFIX_CN.md",
+      "target_reference": "REMAP_FORMER_2D_R2_ANTI_SHORTCUT_POSTFIX_CN.md",
+      "sha256": "7cef1bd03ebc6390d2ac3bab9ec76baa48095ac0310c81a60ff2759e7fba2f67",
+      "bytes": 1511
+    },
+    {
+      "attribute": "href",
+      "source_reference": "REMAP_FORMER_2D_R3_ADDRESS_V2_GATE_CN.md",
+      "target_reference": "REMAP_FORMER_2D_R3_ADDRESS_V2_GATE_CN.md",
+      "sha256": "35aadc8f3279be7df1aaa2d12ea52d9018eb8420c0bda1acb28c423cfec9a243",
+      "bytes": 3490
     },
     {
       "attribute": "href",
@@ -1289,6 +1338,20 @@
     },
     {
       "attribute": "href",
+      "source_reference": "REMAP_FORMER_NEXT_2D_3D_EXECUTION_REPORT_CN.md",
+      "target_reference": "REMAP_FORMER_NEXT_2D_3D_EXECUTION_REPORT_CN.md",
+      "sha256": "b4e48f7b11f9003b73dd3591917c30acb07c25da880938dfef66abe4176709a6",
+      "bytes": 15290
+    },
+    {
+      "attribute": "href",
+      "source_reference": "REMAP_FORMER_NEXT_P0_RELEASE_INTEGRITY_CN.md",
+      "target_reference": "REMAP_FORMER_NEXT_P0_RELEASE_INTEGRITY_CN.md",
+      "sha256": "f919982976e0e7aeb70b69424b5c8964f08ef27d658c4d61da9cbc4f58867fbe",
+      "bytes": 1669
+    },
+    {
+      "attribute": "href",
       "source_reference": "REMAP_FORMER_NOVEL_CAPACITY_BASELINES_20260713_CN.md",
       "target_reference": "REMAP_FORMER_NOVEL_CAPACITY_BASELINES_20260713_CN.md",
       "sha256": "59a68170112054f49033377ddaaf886e3e4ac5dec6594a8a54c45f5742eab96c",
@@ -1298,8 +1361,8 @@
       "attribute": "href",
       "source_reference": "REMAP_FORMER_P0_P4_FINAL_EVIDENCE_CN.md",
       "target_reference": "REMAP_FORMER_P0_P4_FINAL_EVIDENCE_CN.md",
-      "sha256": "f3bfa7d4b07edf7ccc631c17fa4b843579232bd130735a748025080b9255087b",
-      "bytes": 5246
+      "sha256": "543510739c1e45d2b34130786eb05ddabeb048026ef1de1aeec33474965e422e",
+      "bytes": 5439
     },
     {
       "attribute": "href",
@@ -1338,6 +1401,13 @@
     },
     {
       "attribute": "src",
+      "source_reference": "figures/memorymaze3d_dino_d0_conflict_patch.png",
+      "target_reference": "figures/memorymaze3d_dino_d0_conflict_patch.png",
+      "sha256": "7a8acdc2048d9ad9021e0e92657c9725167176ca27d4eb91d26710e2cf95e1d2",
+      "bytes": 52299
+    },
+    {
+      "attribute": "src",
       "source_reference": "figures/memorymaze3d_future_write_cutoff_val64.png",
       "target_reference": "figures/memorymaze3d_future_write_cutoff_val64.png",
       "sha256": "65961dd1bd95c7d0b6d395ac8e62450074ef4222e248fbf4e280361262fd07b1",
@@ -1352,6 +1422,20 @@
     },
     {
       "attribute": "src",
+      "source_reference": "figures/memorymaze3d_visual_aba_v2_3seed.png",
+      "target_reference": "figures/memorymaze3d_visual_aba_v2_3seed.png",
+      "sha256": "68b2f8dfa98e8d8ea7e75d5fcb04b4af43a11eb758948d9da09e5e728ea2cf6c",
+      "bytes": 116309
+    },
+    {
+      "attribute": "src",
+      "source_reference": "figures/memorymaze3d_visual_context_pairs.png",
+      "target_reference": "figures/memorymaze3d_visual_context_pairs.png",
+      "sha256": "a265cdad4f03187e0da0ab25b450db1fd70bbef55c13ff0624ef8e5e057b8859",
+      "bytes": 347534
+    },
+    {
+      "attribute": "src",
       "source_reference": "figures/memorymaze3d_write_gate_calibrated_3seed.png",
       "target_reference": "figures/memorymaze3d_write_gate_calibrated_3seed.png",
       "sha256": "80a38cf880f98d7a80cc35ab4b0beb26f428c3cbf090cd021987db510ee06832",
@@ -1363,6 +1447,13 @@
       "target_reference": "figures/memorymaze3d_write_policy_episode0.png",
       "sha256": "ab70584ec740a60a2dbc8854eaa4d0cfe6f051154bb94c322fb2a5f80272a20e",
       "bytes": 146945
+    },
+    {
+      "attribute": "src",
+      "source_reference": "figures/remap_former_2d_r3_address_v2_gate.png",
+      "target_reference": "figures/remap_former_2d_r3_address_v2_gate.png",
+      "sha256": "87990e5bb8834c15cac000063ed1bbe92aaad7fb843aba10f381f4ee2b437582",
+      "bytes": 160633
     },
     {
       "attribute": "src",

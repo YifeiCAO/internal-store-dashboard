@@ -77,8 +77,8 @@
 - P4 integrity：`True`；关键布尔门全绿。
 - 根目录回归：`314 passed`。
 - P0 当前 hash 全匹配：`False`。
-- 唯一 P0 mismatch：`remap_former/pfc.py`；代码字符相同，113 个 LF 曾变为 CRLF；待明确授权恢复 LF。
-- 在该字节哈希恢复前，release manifest 保持 NOT_READY，不通过重写 manifest 隐藏差异。
+- 旧 mutable P0 当前有 3 个 mismatch：`remap_former/memory.py`、`remap_former/context.py` 与 `REMAP_FORMER_CONSOLIDATED_NEXT_PLAN_CN.md`；以同目录机器 manifest 为准。
+- 旧 release manifest 继续保持 NOT_READY，不通过重写 manifest 隐藏差异；发布完整性现由独立 canonical P0-v2 snapshot 接管。
 
 ## 关键文件
 

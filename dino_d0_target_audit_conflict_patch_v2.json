@@ -1,0 +1,67 @@
+{
+  "format": "remap_former.memorymaze3d_dino_d0_audit.v1",
+  "encoder": {
+    "model_name": "dinov2_vits14_reg",
+    "path": "C:\\Users\\yifei\\.cache\\torch\\hub\\checkpoints\\dinov2_vits14_reg4_pretrain.pth",
+    "present": true,
+    "bytes": 88291785,
+    "sha256": "f433177089a681826f849f194ece3bb48f4d63fb38d32fc837e3dc7a4e5641fb"
+  },
+  "data": {
+    "train": {
+      "manifest": "D:\\brain_inspired_transformer\\data\\memorymaze3d_dino_audit_v1\\manifest_train.json",
+      "manifest_sha256": "ddd91cb39d408b105750aab431f8e7d94bad7aa9b4fe518ef21a6e4a560ef76f",
+      "cache": "D:\\brain_inspired_transformer\\runs\\memorymaze3d\\dino_audit_v1\\train_dinov2_vits14_reg.pt",
+      "cache_sha256": "16d8afbbea9b347909979ab888b1654af067900978e58b99223d9569319cdaa8"
+    },
+    "val": {
+      "manifest": "D:\\brain_inspired_transformer\\data\\memorymaze3d_dino_audit_v1\\manifest_val.json",
+      "manifest_sha256": "b9f2e61906a6e034451a2ed6f9dbf9b2c196c6e97b80e19e3a77d2c9c9782f94",
+      "cache": "D:\\brain_inspired_transformer\\runs\\memorymaze3d\\dino_audit_v1\\val_dinov2_vits14_reg.pt",
+      "cache_sha256": "6cbe53c60ebcb409d24055a4bb0ea4b38ab3f24deac3d85bd898e8e11c9ee20e"
+    }
+  },
+  "metrics": {
+    "object_linear_probe_balanced_acc": 1.0,
+    "object_nearest_prototype_balanced_acc": 1.0,
+    "within_object_cross_view_cosine_distance": 0.09175589680671692,
+    "between_object_same_environment_cosine_distance": 0.14508762955665588,
+    "between_minus_within_cosine_distance": 0.053331732749938965,
+    "between_over_within_distance_ratio": 1.5812349319458008,
+    "broad_roi_nearest_prototype_balanced_acc": 0.4722222089767456,
+    "broad_roi_between_over_within_distance_ratio": 1.1620539426803589,
+    "current_frame_context_probe_balanced_acc": 0.5,
+    "current_cue_context_probe_balanced_acc": 0.5,
+    "full_history_context_probe_balanced_acc": 1.0,
+    "spatial_feature_std": 1.3103374242782593,
+    "spatial_height": 16.0,
+    "spatial_width": 16.0
+  },
+  "gates": {
+    "object_identity_linear_probe_high": true,
+    "object_identity_prototype_high": true,
+    "between_object_distance_exceeds_within": true,
+    "current_frame_context_at_chance": true,
+    "current_cue_context_at_chance": true,
+    "full_history_context_high": true,
+    "spatial_patch_target_nonblank": true,
+    "current_and_cue_pixels_exactly_paired": true
+  },
+  "pixel_contract": {
+    "current_mismatch_count": 0,
+    "cue_mismatch_count": 0
+  },
+  "conflict_patch_audit": {
+    "train": {
+      "mean_selected_patch_count": 17.28472137451172,
+      "zero_patch_sample_count": 0.0,
+      "mask_source": "evaluation-only known TargetSphere RGB; never a model input"
+    },
+    "val": {
+      "mean_selected_patch_count": 16.0,
+      "zero_patch_sample_count": 0.0,
+      "mask_source": "evaluation-only known TargetSphere RGB; never a model input"
+    }
+  },
+  "status": "PASS"
+}
