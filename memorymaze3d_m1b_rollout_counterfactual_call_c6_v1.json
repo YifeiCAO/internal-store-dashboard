@@ -1,0 +1,110 @@
+{
+  "format": "remap_former.memorymaze3d.m1b_rollout_counterfactual_call_c6.v1",
+  "frozen_at": "2026-07-25",
+  "question": "Can the existing causal HPC call gate learn long-horizon invocation value from one-step call interventions scored by detached future rollout regret?",
+  "source_checkpoint": {
+    "path": "runs/remap_former/memorymaze3d_m1b_counterfactual_call_preference_c5_pilot400_seed2191/checkpoint_final.pt",
+    "sha256": "C9E98D99B63A33066C040E05110D396DE6059E87320F35563134B0DEEEA1B7EB",
+    "reason": "C5 calibrated the gate and repaired the negative tail, but its teacher-forced labels did not establish a free-rollout mean gain."
+  },
+  "architecture_change": {
+    "new_parameters": 0,
+    "new_memory_states": 0,
+    "new_slots": 0,
+    "second_fast_weight_system": false,
+    "changed_inference_features": 0,
+    "trainable_scope": "backbone.memory_call_gate.head",
+    "trainable_tensor_prefix": "backbone.memory_call_gate.head.",
+    "intervention_api": "training-only exact alpha_t override for causal branch construction"
+  },
+  "teacher": {
+    "reference_trajectory": "frozen C5 soft-gated strict free rollout",
+    "intervention": "from the identical generated history, force alpha_t=0 or alpha_t=1 at the current candidate step",
+    "continuation_policy": "after the intervention, both branches resume the frozen C5 soft neural policy",
+    "target": "discounted mean RGB pixel MSE over current plus up to three future rollout predictions",
+    "benefit": "no_call_error - call_error",
+    "lookahead_steps": 4,
+    "discount": 0.9,
+    "candidate_steps": [0, 4, 8, 12, 16, 20, 24, 28, 32, 36, 40],
+    "minimum_absolute_benefit": 0.00001,
+    "future_ground_truth_enters_model_inputs": false,
+    "future_ground_truth_reads": 0,
+    "future_ground_truth_writes": 0
+  },
+  "g0_feasibility": {
+    "data": "data/memorymaze3d_variable_full_v1",
+    "split": "train",
+    "episode_slice": [2240, 2264],
+    "fit_episodes": 16,
+    "held_episodes": 8,
+    "seed": 2201,
+    "training_steps": 800,
+    "learning_rate": 0.001,
+    "weight_decay": 0.0001,
+    "controls": [
+      "frozen C5 source head",
+      "candidate-horizon-only MLP",
+      "shuffled-label MLP"
+    ],
+    "gates": [
+      "both call-preferred and PFC-preferred examples occur in fit and held episodes",
+      "held AUC >= 0.60",
+      "held balanced accuracy at threshold 0.5 >= 0.55",
+      "held AUC improves over the frozen C5 head by >= 0.02",
+      "held AUC improves over horizon-only by >= 0.02",
+      "shuffled-label held AUC <= 0.60",
+      "only existing call-gate head tensors change",
+      "future ground-truth reads and writes remain zero"
+    ],
+    "decision": "Proceed to formal C6 training only if every gate passes."
+  },
+  "formal_training_if_g0_passes": {
+    "data": "data/memorymaze3d_variable_full_v1",
+    "split": "train",
+    "episode_slice": [2304, 2432],
+    "fit_episodes": 96,
+    "held_episodes": 32,
+    "seed": 2202,
+    "training_steps": 800,
+    "learning_rate": 0.001,
+    "weight_decay": 0.0001,
+    "loss": "class-balanced BCE with mean-normalized absolute benefit weights clipped to [0.5,2.0]",
+    "checkpoint_selection": "fixed final step 800; no best-validation selection"
+  },
+  "fresh_blind_if_training_passes": {
+    "data": "data/memorymaze3d_variable_c6_blind_v1",
+    "environment_profile": "maze9-variable",
+    "split": "test",
+    "episodes": 64,
+    "episode_seed_base": 810000,
+    "layout_exclusions": [
+      "data/memorymaze3d_variable_full_v1/manifest_train.json",
+      "data/memorymaze3d_variable_full_v1/manifest_val.json",
+      "data/memorymaze3d_variable_full_v1/manifest_test.json"
+    ],
+    "total_steps": 64,
+    "context_steps": 20,
+    "registered_conditions": [
+      "C6 soft call",
+      "C6 hard call at fixed threshold 0.5",
+      "C5 soft call",
+      "C3 static call",
+      "paired PFC-only"
+    ],
+    "bootstrap_samples": 10000,
+    "primary_condition": "C6 soft call",
+    "acceptance_gates": [
+      "C6 soft beats paired PFC-only by at least 2% relative",
+      "paired-bootstrap 90% lower bound of PFC-only minus C6 soft error is above zero",
+      "C6 soft beats C5 soft by at least 0.5% relative",
+      "C6 soft episode-gain p10 is no worse than C5 soft",
+      "future observation perturbation changes predictions by exactly zero",
+      "future ground-truth reads and writes remain zero"
+    ]
+  },
+  "decision_rule": {
+    "success": "Freeze C6 as the learned invocation policy and report C3 static as the mechanism control.",
+    "teacher_signal_only": "If G0 passes but the fresh rollout gates fail, retain the rollout teacher as a diagnostic result and keep C3 as the core model.",
+    "stop": "If G0 fails, do not spend the formal-training or fresh-blind budget and classify call value as not predictable from the current causal gate features."
+  }
+}

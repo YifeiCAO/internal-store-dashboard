@@ -477,7 +477,7 @@
         <p>Transformer=PFC 主干，EC 供结构，单一 episode-local HPC 供外挂记忆</p>
       </div>
       <nav aria-label="看板分区">
-        <a href="#model-core">C3-C5 当前核心</a>
+        <a href="#model-core">C3-C6 当前核心</a>
         <a href="#memorymaze3d">视觉 3D 正式结果</a>
         <a href="#paper-package">论文证据包</a>
         <a href="#context-need">Context-Need 最新</a>
@@ -512,12 +512,12 @@
         <article class="status-card primary">
           <h2>当前主线</h2>
           <strong>冻结 C3：Transformer PFC + 128D 单一 fast-weight HPC；停止继续堆 router</strong>
-          <p>C3 已把 content capacity 从 64D 的相对误差 0.394 降到 128D 的 0.184，真实 retrieval ratio 降到 0.242。严格 free rollout 出现最高 +4.56% 的 fresh-slice 增益，但跨 slice 汇总 CI 仍跨零。C4/C5 能小幅稳定调用或修复负尾，均未通过预注册主门。</p>
+          <p>C3 已把 content capacity 从 64D 的相对误差 0.394 降到 128D 的 0.184，真实 retrieval ratio 降到 0.242。严格 free rollout 出现最高 +4.56% 的 fresh-slice 增益，但跨 slice 汇总 CI 仍跨零。C4/C5 能小幅稳定调用或修复负尾；C6 的长期 regret teacher 在 G0 有信号，但正式 held AUC 只有 0.513，均未升级为主模型。</p>
           <div class="badge-row">
             <span class="badge"><span class="dot blue"></span>真实 egocentric RGB</span>
             <span class="badge"><span class="dot blue"></span>128D neural content</span>
             <span class="badge"><span class="dot teal"></span>无位置 / 朝向输入</span>
-            <span class="badge"><span class="dot green"></span>71 tests passed</span>
+            <span class="badge"><span class="dot green"></span>76 tests passed</span>
             <span class="badge"><span class="dot green"></span>future leak = 0</span>
             <span class="badge"><span class="dot green"></span>episode-local fast weights</span>
             <span class="badge"><span class="dot amber"></span>C4 小幅稳定化</span>
@@ -535,16 +535,16 @@
           <p>Val[224:288] 点增益；90% CI 仍跨零</p>
         </article>
         <article class="status-card fail">
-          <h2>C5 Tail Control</h2>
-          <strong>p10 修复 62-88%</strong>
-          <p>均值主门失败，停止 router 调参</p>
+          <h2>C6 Formal Held</h2>
+          <strong>AUC 0.513</strong>
+          <p>低于 C5 0.573 与 horizon 0.597；盲测前停止</p>
         </article>
       </div>
 
       <section>
         <div class="decision">
-          <strong>当前决策：保留 C3 作为最干净核心；C4/C5 只作为调用与负尾机制消融</strong>
-          <p>不再在已经使用的 validation slices 上扫 threshold、margin 或 loss weight。下一次真正合法的模型实验应独立预注册 rollout-counterfactual teacher，用累计未来 regret 标注调用，再在新地图 seed 上一次性验证。</p>
+          <strong>当前决策：保留 C3 作为最干净核心；C4-C6 只作为调用、负尾与泛化边界消融</strong>
+          <p>C6 已按独立协议完成：G0 AUC 0.616，但正式 96/32 episode held AUC 0.513、BAcc 0.498，未打开 fresh blind。当前停止读取 router 调参，把主线转向 2D/3D 冻结证据、基线公平性和论文整合。</p>
         </div>
       </section>
 
@@ -552,9 +552,9 @@
         <div class="section-head">
           <div>
             <h2>当前模型核心：C3 128D Neural HPC + 条件回忆</h2>
-            <p>Transformer 是 PFC 主干；EC/context 生成地址；HPC 是 episode 内现场建立的可微 fast-weight 状态。C4/C5 的调用门不增加记忆，只决定是否应用同一条条件回忆。</p>
+            <p>Transformer 是 PFC 主干；EC/context 生成地址；HPC 是 episode 内现场建立的可微 fast-weight 状态。C4-C6 的调用实验不增加记忆，只决定是否应用同一条条件回忆；正式失败后均不替代 C3。</p>
           </div>
-          <div class="source">2026-07-25 · C2-C5 · 71 TESTS · VAL[160:480]</div>
+          <div class="source">2026-07-25 · C2-C6 · 76 TESTS · FORMAL C6 STOPPED PRE-BLIND</div>
         </div>
 
         <div class="task-flow">
@@ -566,7 +566,7 @@
 
         <div class="grid-2" style="margin-top:12px;">
           <article class="panel">
-            <h3>C2-C5 机制状态</h3>
+            <h3>C2-C6 机制状态</h3>
             <table>
               <thead><tr><th>机制</th><th>证据</th><th>判断</th></tr></thead>
               <tbody>
@@ -575,6 +575,8 @@
                 <tr><td data-label="机制">C3 static call</td><td data-label="证据" class="num">pooled +2.27%</td><td data-label="判断" class="amber">跨 slice CI 未过</td></tr>
                 <tr><td data-label="机制">C4 soft gate</td><td data-label="证据" class="num">vs C3 +0.272%</td><td data-label="判断" class="green">小而一致的修正</td></tr>
                 <tr><td data-label="机制">C5 preference</td><td data-label="证据" class="num">p10 修复 62-88%</td><td data-label="判断" class="red">均值主门失败</td></tr>
+                <tr><td data-label="机制">C6 rollout regret G0</td><td data-label="证据" class="num">held AUC 0.616</td><td data-label="判断" class="green">小样本 signal</td></tr>
+                <tr><td data-label="机制">C6 formal 96/32</td><td data-label="证据" class="num">AUC 0.513 / BAcc 0.498</td><td data-label="判断" class="red">泛化失败，盲测前停止</td></tr>
               </tbody>
             </table>
           </article>
@@ -600,8 +602,8 @@
             <p style="margin-top:10px;">各行使用不同、连续且不重叠的 validation slice，只用于展示证据演进，不能横向挑最好数字。跨 Val[288:416] 的 C3 static 相对 PFC 为 +2.27%，90% CI 仍跨零。</p>
           </article>
           <article class="panel">
-            <h3>C5：Soft / Hard 0.5 / PFC</h3>
-            <img class="result-figure" src="threshold_sweep.png" alt="C5 反事实偏好 gate 的 soft、固定 0.5 硬调用和 PFC-only 严格 free rollout 结果" />
+            <h3>C6：未来调用收益与正式泛化门</h3>
+            <img class="result-figure" src="figures/memorymaze3d_rollout_call_teacher_c6.png" alt="C6 rollout counterfactual teacher 的候选步调用收益与正式 held 结果" />
           </article>
         </div>
 
@@ -609,9 +611,11 @@
           <a class="artifact" href="MEMORYMAZE3D_M1B_NESTED_VALUE_CAPACITY_C3_RESULT_CN.md"><strong>C3 128D Content 完整结果</strong><span>嵌套扩容、Gate A、strict rollout、尾部归因与冻结决定</span></a>
           <a class="artifact" href="MEMORYMAZE3D_M1B_CAUSAL_CALL_GATE_C4_RESULT_CN.md"><strong>C4/C4b 调用门完整结果</strong><span>soft 排序、hard 止损、跨 slice 对照与失败边界</span></a>
           <a class="artifact" href="MEMORYMAZE3D_M1B_COUNTERFACTUAL_CALL_PREFERENCE_C5_RESULT_CN.md"><strong>C5 反事实偏好完整结果</strong><span>class-balanced objective、冻结审计、盲测、负尾修复与停止规则</span></a>
+          <a class="artifact" href="MEMORYMAZE3D_M1B_ROLLOUT_COUNTERFACTUAL_CALL_C6_RESULT_CN.md"><strong>C6 Rollout Regret 完整结果</strong><span>一步调用干预、未来累计 regret、G0 信号、formal 泛化失败与 pre-blind stop</span></a>
           <a class="artifact" href="memorymaze3d_m1b_counterfactual_call_preference_c5_v1.json"><strong>C5 机器可读协议</strong><span>seed2191、单一 preference loss、Val[416:480] 与 acceptance gates</span></a>
+          <a class="artifact" href="memorymaze3d_m1b_rollout_counterfactual_call_c6_v1.json"><strong>C6 机器可读协议</strong><span>train-only G0、96/32 formal、全新地图盲测前停止门</span></a>
           <a class="artifact" href="memorymaze3d_m1b_nested_value_capacity_c3_content_path_val192_223_summary.json"><strong>C3 Content Gate 机器结果</strong><span>direct、actual retrieval、conditioning 与地址健康</span></a>
-          <a class="artifact" href="threshold_sweep_summary.json"><strong>C5 Fresh Paired 机器结果</strong><span>soft、hard 0.5、PFC、call rate 与 bootstrap</span></a>
+          <a class="artifact" href="training_summary.json"><strong>C6 Formal 机器结果</strong><span>995 fit / 327 held 有效标签、四个失败门、非 head 差为 0</span></a>
         </div>
       </section>
 
@@ -2453,7 +2457,8 @@
           <article class="stage done"><b>G7 Variable Horizon</b><p>Paired H32/48/60/72：coverage 0→1、return 0→0.7656、Spearman 1.0；148/148 PASS。</p></article>
           <article class="stage done"><b>G8 Hidden Cutoff</b><p>逐 episode 隐藏平衡 cutoff：coverage 0.4635、return 0.3885、54/54 shadow audits；59/59 PASS。</p></article>
           <article class="stage done"><b>论文证据包 v1</b><p>G7/G8 主图、正式架构图、统一基线表与增量 SHA256 manifest 已完成，7/7 gates。</p></article>
-          <article class="stage active"><b>当前停点：LaTeX 与复现包</b><p>接入主文；补环境、wall-clock、逐 seed/episode 索引和一键复现说明，不改冻结结果。</p></article>
+          <article class="stage done"><b>C6 + ICLR 结果冻结</b><p>C6 formal held AUC 0.513，按协议停在 fresh blind 前；2D/3D 结果、负结果和 P0-P5 路线图已进入 7 页 ICLR 模板报告。</p></article>
+          <article class="stage active"><b>下一停点：P0 发布完整性</b><p>修复旧 P5 的 pfc.py hash mismatch，重建 canonical release；完成前不打开新的 sealed test。</p></article>
           <article class="stage blocked"><b>Formal Protocol</b><p>normal K=8 仅 0.4010；达到 0.80 绝对门前不解锁。</p></article>
         </div>
       </section>
@@ -2466,6 +2471,10 @@
           </div>
         </div>
         <div class="artifact-list">
+          <a class="artifact" href="remap_former_results_roadmap_iclr2025.pdf"><strong>最新：2D/3D ICLR 结果报告</strong><span>7 页中文模板；冻结架构、2D 主结果、3D C3-C6、证据等级与 P0-P5 路线图</span></a>
+          <a class="artifact" href="REMAP_FORMER_2D_3D_RESULTS_AND_ROADMAP_CN.md"><strong>最新：2D/3D 结果与未来计划</strong><span>Markdown 完整版；明确可主张内容、负结果、实验边界、Go/Stop gates 与执行顺序</span></a>
+          <a class="artifact" href="remap_former_results_roadmap_iclr2025.tex"><strong>最新：ICLR LaTeX 源码</strong><span>ICLR 2025 模板、中文排版、4 张冻结主图、9 张结果与路线表</span></a>
+          <a class="artifact" href="MEMORYMAZE3D_M1B_ROLLOUT_COUNTERFACTUAL_CALL_C6_RESULT_CN.md"><strong>最新：C6 Formal 完整结果</strong><span>G0 可预测性、96/32 formal、四个泛化门失败、冻结审计与 pre-blind stop</span></a>
           <a class="artifact" href="REMAP_FORMER_PAPER_EVIDENCE_G8_CN.md"><strong>最新：G8 论文证据包报告</strong><span>正式架构、G7/G8 主图、七模型统一表、负结果与发布边界</span></a>
           <a class="artifact" href="paper_evidence_g8_tables.json"><strong>论文统一机器表</strong><span>正式模型事实、统一基线、hidden-cutoff controller 与 claim boundaries</span></a>
           <a class="artifact" href="paper_evidence_g8_manifest.json"><strong>增量 Truth Manifest</strong><span>15 个冻结输入、全部产物哈希、7/7 package gates 与旧 P5 阻断披露</span></a>
@@ -2640,7 +2649,7 @@
       </section>
     </main>
 
-    <footer>ReMAP-Former internal dashboard · 2026-07-23 · 3D neural HPC write gate 已完成 train-only 无标签校准、共享 z validation 与三 seed frozen test512；稳定优于 full-write，但实例选择尚未追平 K16。G8/G7 与既有负结果继续保留</footer>
+    <footer>ReMAP-Former internal dashboard · 2026-07-25 · 2D hidden-context re-entry 保持当前 headline；3D 冻结 C3，C6 formal 泛化失败并在 fresh blind 前停止；下一步先完成 P0 canonical release integrity</footer>
   </div>
 </body>
 </html>

@@ -1,10 +1,10 @@
 {
   "format": "remap_former.internal_store_dashboard.package.v1",
-  "packaged_at": "2026-07-25T22:29:03.4864160-07:00",
+  "packaged_at": "2026-07-26T00:13:12.2283806-07:00",
   "source_html": "D:\\brain_inspired_transformer\\reports\\internal_store_dashboard.html",
-  "source_sha256": "7955d27a1f07bbc3eaab7e0bde3602523d190b8a7e4ae0d17397c2cde4a85061",
-  "index_sha256": "cdaf9ddd0bbdbdeb38a2b8f9bf0c0cfcf0eaf6b2ca4a1226ba388aa6ab67cc62",
-  "local_reference_count": 195,
+  "source_sha256": "30a91d8b89802368963b43c8d2551f275b97bbae367f6800179343d2c0fbfd77",
+  "index_sha256": "5506075891eecb6317de5fcfe0d01b789028275e50a0c48bbd7e3734209b6daf",
+  "local_reference_count": 200,
   "files": [
     {
       "attribute": "href",
@@ -50,6 +50,13 @@
     },
     {
       "attribute": "href",
+      "source_reference": "../MEMORYMAZE3D_M1B_ROLLOUT_COUNTERFACTUAL_CALL_C6_RESULT_CN.md",
+      "target_reference": "MEMORYMAZE3D_M1B_ROLLOUT_COUNTERFACTUAL_CALL_C6_RESULT_CN.md",
+      "sha256": "0bd1cee1a20b67519f3d3046b819ef97b2b3884a2487e1f7c4fbdc45aaf563e1",
+      "bytes": 6006
+    },
+    {
+      "attribute": "href",
       "source_reference": "../MEMORYMAZE3D_M1B_WRITE_POLICY_RESULT_CN.md",
       "target_reference": "MEMORYMAZE3D_M1B_WRITE_POLICY_RESULT_CN.md",
       "sha256": "8144e12c8cd0628afcf70bb6e06031b79b11feffb5fb82cbfce8dc7163310933",
@@ -64,10 +71,31 @@
     },
     {
       "attribute": "href",
+      "source_reference": "../output/pdf/remap_former_results_roadmap_iclr2025.pdf",
+      "target_reference": "remap_former_results_roadmap_iclr2025.pdf",
+      "sha256": "9b75b677db6552d51a8593f46343bcad5534f157050e608fc3650142826c3799",
+      "bytes": 696881
+    },
+    {
+      "attribute": "href",
       "source_reference": "../protocols/memorymaze3d_m1b_counterfactual_call_preference_c5_v1.json",
       "target_reference": "memorymaze3d_m1b_counterfactual_call_preference_c5_v1.json",
       "sha256": "a558698384f0385ef87073e2cf2cc11d446c7bc4e5b37cf2d3d7026d88601c76",
       "bytes": 4174
+    },
+    {
+      "attribute": "href",
+      "source_reference": "../protocols/memorymaze3d_m1b_rollout_counterfactual_call_c6_v1.json",
+      "target_reference": "memorymaze3d_m1b_rollout_counterfactual_call_c6_v1.json",
+      "sha256": "42e2ae5885166573fbb10885bce627357489d4bf3f4f8dcf3575e32ac5b20ed9",
+      "bytes": 4845
+    },
+    {
+      "attribute": "href",
+      "source_reference": "../REMAP_FORMER_2D_3D_RESULTS_AND_ROADMAP_CN.md",
+      "target_reference": "REMAP_FORMER_2D_3D_RESULTS_AND_ROADMAP_CN.md",
+      "sha256": "fb9dd67aba34a51314c8b7e86212e8cbf10fd29fcf2b5740bf73f33d81df3fcf",
+      "bytes": 16217
     },
     {
       "attribute": "href",
@@ -750,6 +778,13 @@
     },
     {
       "attribute": "href",
+      "source_reference": "../runs/remap_former/memorymaze3d_m1b_rollout_call_c6_formal_seed2202/training_summary.json",
+      "target_reference": "training_summary.json",
+      "sha256": "4e751683b7fc7d1ef21403ac8d391d070e8be6ef05ddb128223445e82c67a875",
+      "bytes": 5894
+    },
+    {
+      "attribute": "href",
       "source_reference": "../runs/remap_former/memorymaze3d_paper_open9_m1b_seed1701/diagnostics_future_write_cutoff_val64/cutoff_sweep_summary.json",
       "target_reference": "diagnostics_future_write_cutoff_val64_cutoff_sweep_summary.json",
       "sha256": "c7ae887e8130d1519732013481e7db703cdb6183fe8794527655609d93a405f6",
@@ -799,6 +834,13 @@
     },
     {
       "attribute": "href",
+      "source_reference": "../Template_for_ICLR_2025_Conference_Submission/remap_former_results_roadmap_iclr2025.tex",
+      "target_reference": "remap_former_results_roadmap_iclr2025.tex",
+      "sha256": "5ff0028cf108806dbd81b12730e1e84ba9e4e2408a2afbeff7c15a8c19538ecf",
+      "bytes": 20397
+    },
+    {
+      "attribute": "href",
       "source_reference": "../tmp/context_need_online_g7_variable_horizon_smoke_v2.json",
       "target_reference": "context_need_online_g7_variable_horizon_smoke_v2.json",
       "sha256": "80a395bebbd229face034fd5ed9211b0e575c6e05a7fdb9d4bafc4823c84025b",
@@ -831,13 +873,6 @@
       "target_reference": "figures/remap_former_m1b_architecture_g8.png",
       "sha256": "c767b395d8a9c6e648da638fb6c3427e3254df480b0e4bb28a0247d94e4d1aec",
       "bytes": 232858
-    },
-    {
-      "attribute": "href",
-      "source_reference": "memorymaze3d_m1b_counterfactual_call_preference_c5_val416_479/threshold_sweep_summary.json",
-      "target_reference": "threshold_sweep_summary.json",
-      "sha256": "2c90df8fd2844c5d48bf7f7061e831d9fffd45b9246a9dc1be05b90a0981607d",
-      "bytes": 6024
     },
     {
       "attribute": "href",
@@ -1310,6 +1345,13 @@
     },
     {
       "attribute": "src",
+      "source_reference": "figures/memorymaze3d_rollout_call_teacher_c6.png",
+      "target_reference": "figures/memorymaze3d_rollout_call_teacher_c6.png",
+      "sha256": "8c24407c70decbcc165df0dac85305f4552f017b6d96884efd5d1a4820f82068",
+      "bytes": 67371
+    },
+    {
+      "attribute": "src",
       "source_reference": "figures/memorymaze3d_write_gate_calibrated_3seed.png",
       "target_reference": "figures/memorymaze3d_write_gate_calibrated_3seed.png",
       "sha256": "80a38cf880f98d7a80cc35ab4b0beb26f428c3cbf090cd021987db510ee06832",
@@ -1356,13 +1398,6 @@
       "target_reference": "figures/remap_novel_capacity_pilot_dev.png",
       "sha256": "a72f1a17b47cf318f360834ac5eaa365dabbcde1b76c3e628fc8f59e14e04a78",
       "bytes": 76870
-    },
-    {
-      "attribute": "src",
-      "source_reference": "memorymaze3d_m1b_counterfactual_call_preference_c5_val416_479/threshold_sweep.png",
-      "target_reference": "threshold_sweep.png",
-      "sha256": "8ef317e412d7af58590d35a258330056ec125d9bbf706ff6ec506b8a3fa95d87",
-      "bytes": 45976
     },
     {
       "attribute": "src",
