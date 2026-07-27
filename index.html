@@ -477,7 +477,7 @@
         <p>Transformer=PFC 主干，神经 EC 供地址，单一 episode-local HPC 供外挂记忆</p>
       </div>
       <nav aria-label="看板分区">
-        <a href="#next-2d3d">2D/3D 最新桥接</a>
+        <a href="#next-2d3d">3D Simulator 最新</a>
         <a href="#model-core">C3-C6 当前核心</a>
         <a href="#memorymaze3d">视觉 3D 正式结果</a>
         <a href="#paper-package">论文证据包</a>
@@ -512,78 +512,104 @@
       <div class="status-grid" aria-label="最新状态">
         <article class="status-card primary">
           <h2>当前主线</h2>
-          <strong>多位置 3D Visual A-B-A 核心机制 3/3；下一步进入 sealed split 与 simulator-coupled 轨迹</strong>
-          <p>官方六类 action 驱动周期化 SE(2) neural EC 与 sparse place；Transformer/PFC 只从历史推断 latent context，再调用一张 episode-local HPC。held-out variable-layout DINO 内容上，三种子 Full conflict 为 0.9960±0.0069，clean cosine 为 0.9663±0.0529，context re-entry 为 1.0000±0.0000。</p>
+          <strong>真实 MemoryMaze3D 逐动作耦合的 View-Place A-B-A 已通过单种子 gate 9/9</strong>
+          <p>每个 action 都真实调用 simulator step，模型只见同一步 DINO 与官方六动作。反事实 query RGB 逐像素相同；Full conflict 1.000、target cosine 0.9983、context re-entry 1.000，换错历史会 100% 定向调用另一内容。</p>
           <div class="badge-row">
             <span class="badge"><span class="dot blue"></span>Transformer 就是 PFC</span>
             <span class="badge"><span class="dot blue"></span>4 个 neural place</span>
             <span class="badge"><span class="dot teal"></span>无 room / pose / place ID</span>
-            <span class="badge"><span class="dot green"></span>核心机制 3/3</span>
-            <span class="badge"><span class="dot green"></span>5 个新回归测试</span>
+            <span class="badge"><span class="dot green"></span>逐 action simulator RGB</span>
+            <span class="badge"><span class="dot green"></span>预训练 gate 11/11</span>
+            <span class="badge"><span class="dot green"></span>模型 gate 9/9</span>
+            <span class="badge"><span class="dot green"></span>11 个回归测试</span>
             <span class="badge"><span class="dot green"></span>future GT = 0/0</span>
             <span class="badge"><span class="dot green"></span>单张 episode-local fast weights</span>
-            <span class="badge"><span class="dot red"></span>尚非完整 3D free rollout</span>
+            <span class="badge"><span class="dot red"></span>尚非平移导航 / free rollout</span>
           </div>
         </article>
         <article class="status-card pass">
-          <h2>Multi-place Full · 3 Seeds</h2>
-          <strong>0.996</strong>
-          <p>held-out conflict；最差种子 0.988</p>
+          <h2>Simulator Full Conflict</h2>
+          <strong>1.000</strong>
+          <p>24 个 delayed conflict；当前 query 无 context 像素线索</p>
         </article>
         <article class="status-card pass">
-          <h2>Context Re-entry</h2>
-          <strong>1.000</strong>
-          <p>三种子零方差；HPC-zero 固定 0.500</p>
+          <h2>Target Cosine</h2>
+          <strong>0.998</strong>
+          <p>不是只排对顺序；召回 feature 与历史 target 高度对齐</p>
         </article>
-        <article class="status-card fail">
-          <h2>严格 Anchor Parity</h2>
-          <strong>2 / 3</strong>
-          <p>65001：correct-history 比 full 低 0.036</p>
+        <article class="status-card hold">
+          <h2>动态 Context 注记</h2>
+          <strong>0.375</strong>
+          <p>单个静态正确锚点不能替代完整历史；作为次级诊断保留</p>
         </article>
       </div>
 
       <section>
         <div class="decision">
-          <strong>当前决策：冻结多位置版本；不再调 development validation，先做全新 sealed visual split</strong>
-          <p>当前最强可辩护结论是：PFC 能从可观察 action-history 推断隐 context，并与 action-only neural place 组成地址，调用单张 HPC 恢复同一位置的 context-specific DINO 内容。下一轮先生成从未查看的 layout/route/object test，再把受控 A-B-A 事件接到 simulator 每一步 RGB 轨迹；旧最小单-place pilot 只保留为开发 provenance。</p>
+          <strong>当前决策：冻结 simulator view-place gate；下一步升级为真实平移 waypoint/revisit</strong>
+          <p>当前最强可辩护结论是：在逐动作真实 simulator RGB 上，PFC 的动态视觉历史 context 与 action-only neural place 共同寻址一张 HPC，能定向恢复 context-specific DINO 内容。下一轮不继续调这个 validation，也不提前看 sealed split；先验证平移 EC、长路径 context 稳定性和旧 waypoint 复访。</p>
         </div>
       </section>
 
       <section id="next-2d3d">
         <div class="section-head">
           <div>
-            <h2>本轮最重要结果：多位置 3D Hidden-Context Memory Bridge</h2>
-            <p>真实 MemoryMaze3D 渲染提供视觉内容；官方 action 驱动 neural EC/grid/place；Transformer/PFC 推断 context；一张 fast-weight HPC 完成 read-before-write 内容回忆。正常路径不读取 room、context、pose、place ID 或未来 target。</p>
+            <h2>最新结果：逐动作 Simulator-Coupled View-Place A-B-A</h2>
+            <p>同一个连续 MemoryMaze3D env 中，每个模型动作都对应一次真实 simulator step 和 post-action RGB。PFC 从视觉历史推断动态 context，周期 EC 生成 neural place，一张 episode-local HPC 完成 read-before-write 内容调用。</p>
           </div>
-          <div class="source">2026-07-26 · MULTI-PLACE VISUAL A-B-A · 3 SEEDS · DEVELOPMENT VALIDATION</div>
+          <div class="source">2026-07-26 · REAL SIMULATOR STEPS · SEED 65101 · DEVELOPMENT GATE</div>
         </div>
 
         <div class="task-flow">
-          <div class="flow-node ref0"><strong>官方 Action + 滞后 DINO</strong><span>严格 causal 输入<br />query 只见 neutral 当前帧</span></div>
-          <div class="flow-node ref1"><strong>Window Transformer PFC</strong><span>持久 history state<br />输出 latent context</span></div>
-          <div class="flow-node distractor"><strong>Periodic EC → Sparse Place</strong><span>只积分动作，不读 simulator pose<br />4 place × latent context</span></div>
-          <div class="flow-node return"><strong>单张 Factorized HPC</strong><span>place/context dual key<br />8 次写入、4 次 query、先读后写</span></div>
+          <div class="flow-node ref0"><strong>Action → Simulator Step → RGB</strong><span>真实逐帧耦合<br />没有 reset 后 teleport</span></div>
+          <div class="flow-node ref1"><strong>Frozen DINO + Window PFC</strong><span>只读当前视觉与动作历史<br />输出动态 latent context</span></div>
+          <div class="flow-node distractor"><strong>Action-only Periodic EC → Place</strong><span>不读 simulator pose<br />20 次左转精确闭环</span></div>
+          <div class="flow-node return"><strong>单张 Factorized HPC</strong><span>place × context dual key<br />8 次写入、4 次 query、先读后写</span></div>
         </div>
+
+        <article class="panel" style="margin-top:12px;">
+          <h3>3D 可视审计：当前 query 隐藏，模型按历史调用正确内容</h3>
+          <img class="result-figure" src="figures/memorymaze3d_simulator_viewplace_aba_visual_board.png" alt="真实 MemoryMaze3D simulator 的三组 query、正确历史写入、模型最近邻召回与错误 context 写入对照" />
+          <p style="margin-top:10px;">模型列展示 recalled DINO feature 在本 episode 更早写入中的最近邻 RGB，三行均命中正确写入。它不是生成像素；当前模型没有 RGB decoder。</p>
+        </article>
 
         <div class="grid-2" style="margin-top:12px;">
           <article class="panel">
-            <h3>2D-R2：局部线索全部失效，完整历史仍可解</h3>
+            <h3>单种子结果与因果干预</h3>
             <table>
-              <thead><tr><th>Probe</th><th>三种子均值 ± SD</th><th>判断</th></tr></thead>
+              <thead><tr><th>条件</th><th>结果</th><th>判断</th></tr></thead>
               <tbody>
-                <tr><td data-label="Probe">当前 observation</td><td data-label="数值" class="num">0.4906 ± 0.0145</td><td data-label="判断" class="green">chance</td></tr>
-                <tr><td data-label="Probe">固定时间</td><td data-label="数值" class="num">0.5093 ± 0.0181</td><td data-label="判断" class="green">chance</td></tr>
-                <tr><td data-label="Probe">8-step 动作窗</td><td data-label="数值" class="num">0.5006 ± 0.0260</td><td data-label="判断" class="green">chance</td></tr>
-                <tr><td data-label="Probe">当前路径签名</td><td data-label="数值" class="num">0.5229 ± 0.0152</td><td data-label="判断" class="green">接近 chance</td></tr>
-                <tr><td data-label="Probe"><strong>完整历史关系</strong></td><td data-label="数值" class="num green"><strong>1.0000 ± 0.0000</strong></td><td data-label="判断" class="green"><strong>任务可解</strong></td></tr>
+                <tr><td data-label="条件"><strong>Full conflict</strong></td><td data-label="结果" class="num green"><strong>1.0000</strong></td><td data-label="判断" class="green">正确调用</td></tr>
+                <tr><td data-label="条件">Conflict target cosine</td><td data-label="结果" class="num green">0.9983</td><td data-label="判断" class="green">忠实 feature 召回</td></tr>
+                <tr><td data-label="条件">HPC zero</td><td data-label="结果" class="num">0.5000</td><td data-label="判断">回到 chance</td></tr>
+                <tr><td data-label="条件">Fixed context</td><td data-label="结果" class="num red">0.0000</td><td data-label="判断">动态 context 必要</td></tr>
+                <tr><td data-label="条件">Wrong history</td><td data-label="结果" class="num red">0.0000</td><td data-label="判断" class="green">other target 率 1.000</td></tr>
+                <tr><td data-label="条件">Context oracle</td><td data-label="结果" class="num green">1.0000</td><td data-label="判断">HPC 上限健康</td></tr>
               </tbody>
             </table>
-            <p style="margin-top:10px;">强长度 OOD、train/test path-family overlap=0；same-time counterfactual support 为 0.2624±0.0323。</p>
+            <p style="margin-top:10px;">Full clean cosine 0.9968；context re-entry 1.000；future ground-truth read/write 0/0。静态正确 anchor 只有 0.375，作为动态 context 的次级限制保留，不计入冻结 acceptance。</p>
           </article>
           <article class="panel">
-            <h3>3D 任务配对：历史不同，当前局部证据完全相同</h3>
-            <img class="result-figure" src="figures/memorymaze3d_visual_context_pairs.png" alt="MemoryMaze3D 两组 hidden-context 配对：历史目标不同，但当前走廊和 neutral cue 像素完全相同" />
+            <h3>防泄漏与反事实配对 Gate</h3>
+            <table>
+              <thead><tr><th>Gate</th><th>结果</th><th>状态</th></tr></thead>
+              <tbody>
+                <tr><td data-label="Gate">每个 action 都执行 simulator step</td><td data-label="结果">True</td><td data-label="状态" class="green">PASS</td></tr>
+                <tr><td data-label="Gate">反事实 query RGB pixel mismatch</td><td data-label="结果" class="num">0</td><td data-label="状态" class="green">PASS</td></tr>
+                <tr><td data-label="Gate">Current-query context probe</td><td data-label="结果" class="num">0.5000</td><td data-label="状态" class="green">chance</td></tr>
+                <tr><td data-label="Gate">Query target geom visible</td><td data-label="结果" class="num">0</td><td data-label="状态" class="green">隐藏</td></tr>
+                <tr><td data-label="Gate">Train/validation layout overlap</td><td data-label="结果" class="num">0</td><td data-label="状态" class="green">PASS</td></tr>
+                <tr><td data-label="Gate">模型输入 tensor</td><td data-label="结果" class="num">2</td><td data-label="状态" class="green">action + DINO</td></tr>
+                <tr><td data-label="Gate">预训练 / 模型 gates</td><td data-label="结果" class="num green">11/11 · 9/9</td><td data-label="状态" class="green">PASS</td></tr>
+              </tbody>
+            </table>
+            <img class="result-figure" src="figures/memorymaze3d_simulator_viewplace_aba_metrics.png" alt="Simulator-coupled view-place A-B-A 的训练曲线与结构化因果干预指标" />
           </article>
+        </div>
+
+        <div class="decision" style="margin-top:12px;">
+          <strong>证据层级更新</strong>
+          <p>上一版 multi-place Visual A-B-A 证明机制可以工作；这一版进一步把每个 action、RGB 和 DINO 特征真实绑定回 simulator。下一道门不再是“把 simulator 接上”，而是把原地四视角升级为有平移的 waypoint/revisit。</p>
         </div>
 
         <div class="grid-2" style="margin-top:12px;">
@@ -632,22 +658,27 @@
                 <tr><td data-label="命题">2D hidden-context re-entry</td><td data-label="等级" class="green">强</td><td data-label="边界">旧 sealed + 8 seeds</td></tr>
                 <tr><td data-label="命题">2D 无局部 shortcut</td><td data-label="等级" class="green">强任务证据</td><td data-label="边界">R2 三种子 OOD</td></tr>
                 <tr><td data-label="命题">多位置 3D Visual A-B-A</td><td data-label="等级" class="green">核心机制 3/3</td><td data-label="边界">development validation 已查看</td></tr>
-                <tr><td data-label="命题">Neural place × context 调用</td><td data-label="等级" class="green">因果支持</td><td data-label="边界">4 places；固定空间 scaffold</td></tr>
-                <tr><td data-label="命题">完整 3D world model</td><td data-label="等级" class="red">未解决</td><td data-label="边界">受控事件尚未逐帧绑定 simulator</td></tr>
+                <tr><td data-label="命题">逐动作 simulator-coupled 调用</td><td data-label="等级" class="green">单种子 gate 9/9</td><td data-label="边界">4 个旋转 view-place</td></tr>
+                <tr><td data-label="命题">Neural place × context 调用</td><td data-label="等级" class="green">因果支持</td><td data-label="边界">动态 context；静态 anchor 不等价</td></tr>
+                <tr><td data-label="命题">完整 3D world model</td><td data-label="等级" class="red">未解决</td><td data-label="边界">尚无平移复访 / RGB rollout</td></tr>
                 <tr><td data-label="命题">Outer-product 唯一必要</td><td data-label="等级" class="red">未成立</td><td data-label="边界">需 full-model intervention</td></tr>
                 <tr><td data-label="命题">公平击败 Hippoformer/Titans</td><td data-label="等级" class="amber">未检验完成</td><td data-label="边界">需同预算 fresh blind</td></tr>
               </tbody>
             </table>
             <div class="decision" style="margin-top:12px;">
-              <strong>下一步：先 sealed visual split，再做 simulator-coupled trajectory</strong>
-              <p>冻结当前代码、DINO、100-step 训练和所有 gates；生成未查看 layout/object test 并一次性评估。通过后把每个 action 对应的 RGB/DINO 逐帧接回真实 MemoryMaze 轨迹，再加入 matched Transformer、Hippoformer 与 Titans。</p>
+              <strong>下一步：Translated Waypoint / Revisit</strong>
+              <p>冻结当前 200-step view-place 结果；在同一连续 simulator episode 中加入真实前进、转向、3–4 个 waypoint 和 A-B-A 物理复访。先单种子通过 translation EC、context drift 和 counterfactual query gates，再扩 3 seed，最后才开未见 layout/route/object 的 sealed split。</p>
             </div>
           </article>
         </div>
 
         <div class="artifact-grid" style="margin-top:12px;">
-          <a class="artifact" href="MEMORYMAZE3D_VISUAL_MULTIPLACE_ABA_3SEED_CN.md"><strong>最新：多位置 Visual A-B-A 三种子</strong><span>核心机制 3/3、严格 anchor parity 2/3、架构合同与诚实边界</span></a>
-          <a class="artifact" href="visual_multiplace_aba_frozen_clean1_3seed_summary.json"><strong>最新：多位置机器结果</strong><span>逐条件均值/SD、paired contrasts、逐种子 gates 与 SHA256 provenance</span></a>
+          <a class="artifact" href="MEMORYMAZE3D_SIMULATOR_VIEWPLACE_ABA_SINGLE_SEED_CN.md"><strong>最新：Simulator-Coupled View-Place 单种子报告</strong><span>真实逐动作 RGB、反事实配对、9/9 gates、因果干预、动态 context 注记与下一步</span></a>
+          <a class="artifact" href="result.json"><strong>最新：Simulator-Coupled 机器结果</strong><span>完整训练轨迹、预训练 gates、六条件 intervention、视觉审计与 artifact 路径</span></a>
+          <a class="artifact" href="memorymaze3d_simulator_coupled_viewplace_aba_dev_v2.json"><strong>最新：Simulator-Coupled 冻结协议</strong><span>输入禁令、paired counterfactual contract、split、stop rules 与 quality amendment</span></a>
+          <a class="artifact" href="visual_simulator_aba.py"><strong>最新：Simulator-Coupled 模型接口</strong><span>两 tensor 输入审计、history interventions、oracle 与逐条件评估</span></a>
+          <a class="artifact" href="MEMORYMAZE3D_VISUAL_MULTIPLACE_ABA_3SEED_CN.md"><strong>上一阶段：多位置 Visual A-B-A 三种子</strong><span>核心机制 3/3、严格 anchor parity 2/3、架构合同与诚实边界</span></a>
+          <a class="artifact" href="visual_multiplace_aba_frozen_clean1_3seed_summary.json"><strong>上一阶段：多位置机器结果</strong><span>逐条件均值/SD、paired contrasts、逐种子 gates 与 SHA256 provenance</span></a>
           <a class="artifact" href="memorymaze3d_visual_multiplace_aba_stage_gate_v1.json"><strong>多位置冻结协议</strong><span>输入禁令、split、task/model gates 与全部 development amendments</span></a>
           <a class="artifact" href="visual_multiplace_aba.py"><strong>多位置核心模型代码</strong><span>Periodic EC、sparse place、latent context、factorized single HPC</span></a>
           <a class="artifact" href="REMAP_FORMER_NEXT_2D_3D_EXECUTION_REPORT_CN.md"><strong>本轮完整中文执行报告</strong><span>P0、R2、D0、Visual A-B-A、R3 STOP、证据等级与下一步</span></a>
@@ -2575,9 +2606,11 @@
           <article class="stage done"><b>P0 发布完整性</b><p>canonical snapshot commit b951334；24 checkpoint hashes、Git tree、causal contract 与独立 tests 全部 PASS。</p></article>
           <article class="stage done"><b>2D-R2 + 3D-D0</b><p>局部 shortcut probes 接近 chance；DINO content 1.0、current/cue context 0.5、history 1.0。</p></article>
           <article class="stage done"><b>Visual A-B-A V2</b><p>三种子 Full 0.9975±0.0014；wrong-history 0.0064，结构化因果图案成立。</p></article>
+          <article class="stage done"><b>Multi-place Visual A-B-A</b><p>周期 EC + 4 neural place；三种子 Full 0.9960±0.0069，核心机制 3/3。</p></article>
+          <article class="stage done"><b>Simulator-Coupled View-Place</b><p>每个 action 真实绑定 simulator RGB；Full 1.000、target cosine 0.9983，冻结 gate 9/9。</p></article>
           <article class="stage blocked"><b>2D-R3 地址代理</b><p>v1/v2 substrate 均未通过健康 gate；按协议 STOP，不扩三种子。</p></article>
           <article class="stage done"><b>ICLR 结果报告</b><p>2D/3D 主结果、负结果、证据边界和下一阶段计划已进入 11 页 ICLR 模板报告。</p></article>
-          <article class="stage active"><b>下一停点：Fresh Multi-place Visual A-B-A</b><p>冻结 V2 和 manifests；增加真实 EC/grid/place 多位置地址，并使用全新 layout/route/object split。</p></article>
+          <article class="stage active"><b>下一停点：Translated Waypoint / Revisit</b><p>同一连续 simulator episode 中加入真实平移和物理复访；先过 EC/context/counterfactual 单种子门，再扩 seed。</p></article>
           <article class="stage blocked"><b>Formal Protocol</b><p>normal K=8 仅 0.4010；达到 0.80 绝对门前不解锁。</p></article>
         </div>
       </section>
@@ -2590,6 +2623,8 @@
           </div>
         </div>
         <div class="artifact-list">
+          <a class="artifact" href="MEMORYMAZE3D_SIMULATOR_VIEWPLACE_ABA_SINGLE_SEED_CN.md"><strong>最新：3D Simulator-Coupled 单种子结果</strong><span>逐动作真实 RGB、9/9 模型 gates、因果干预、可视审计、限制与 translated waypoint 计划</span></a>
+          <a class="artifact" href="result.json"><strong>最新：3D Simulator-Coupled 机器结果</strong><span>完整 preflight、训练轨迹、六条件 validation、动态 context 次级诊断与 provenance</span></a>
           <a class="artifact" href="REMAP_FORMER_NEXT_2D_3D_EXECUTION_REPORT_CN.md"><strong>最新：ReMAP-Former Next 本轮执行报告</strong><span>P0、2D-R2、3D-D0、Visual A-B-A、R3-v2 STOP 与下一阶段预注册</span></a>
           <a class="artifact" href="remap_former_results_roadmap_iclr2025.pdf"><strong>最新：2D/3D ICLR 结果报告</strong><span>11 页中文模板；冻结架构、2D/3D 主结果、负结果、证据等级与路线图</span></a>
           <a class="artifact" href="REMAP_FORMER_2D_3D_RESULTS_AND_ROADMAP_CN.md"><strong>最新：2D/3D 结果与未来计划</strong><span>Markdown 完整版；明确可主张内容、负结果、实验边界、Go/Stop gates 与执行顺序</span></a>
@@ -2769,7 +2804,7 @@
       </section>
     </main>
 
-    <footer>ReMAP-Former internal dashboard · 2026-07-26 · 多位置 Visual A-B-A 核心机制 3/3；Full 0.9960±0.0069；严格 anchor parity 2/3；下一步 sealed visual split 与 simulator-coupled trajectory</footer>
+    <footer>ReMAP-Former internal dashboard · 2026-07-26 · 逐动作 Simulator-Coupled View-Place gate 9/9；Full 1.000；target cosine 0.9983；下一步 translated waypoint / revisit</footer>
   </div>
 </body>
 </html>

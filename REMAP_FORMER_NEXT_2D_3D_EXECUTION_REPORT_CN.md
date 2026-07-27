@@ -21,6 +21,13 @@
 
 这仍是 development pilot，不是 fresh sealed test。当前视觉任务只有两个 context、一个共享 conflict place，且 validation 在 V1→V2 开发中被看过；不能写成完整 3D world model 已解决。
 
+> **2026-07-26 晚间更新：** 后续 multi-place 与 simulator-coupled
+> 阶段已经完成。当前最新 3D headline 不再是上述最小 visual pilot：
+> 真实 MemoryMaze3D 中每个 action 已逐步绑定 post-action RGB，周期 EC
+> 提供四个 view-place，单种子冻结 acceptance 为 `9/9`；Full conflict
+> `1.0000`，target cosine `0.9983`。完整说明见
+> `reports/MEMORYMAZE3D_SIMULATOR_VIEWPLACE_ABA_SINGLE_SEED_CN.md`。
+
 ## 1. 架构与因果合同
 
 ### 1.1 论文主模型
@@ -289,6 +296,12 @@ v2 给所有地址形式同一个 latent-context covariance dual-write rule，�
 - R3 v2 勘误：`reports/REMAP_FORMER_2D_R3_V2_SIGNED_DENOM_ERRATUM_CN.md`
 - DINO task 配对图：`reports/figures/memorymaze3d_visual_context_pairs.png`
 - Visual A-B-A 三种子图：`reports/figures/memorymaze3d_visual_aba_v2_3seed.png`
+- Simulator-coupled 单种子报告：
+  `reports/MEMORYMAZE3D_SIMULATOR_VIEWPLACE_ABA_SINGLE_SEED_CN.md`
+- Simulator-coupled 机器结果：
+  `runs/memorymaze3d/simulator_viewplace_aba_v2_align1_seed65101/result.json`
+- Simulator-coupled 视觉审计：
+  `reports/figures/memorymaze3d_simulator_viewplace_aba_visual_board.png`
 
 ## 10. 结论
 
@@ -302,3 +315,38 @@ v2 给所有地址形式同一个 latent-context covariance dual-write rule，�
 在这两道门之前，最稳妥的论文措辞是：
 
 > **ReMAP-Former demonstrates hidden-context re-entry through an episode-local neural hippocampus in 2D, and reproduces the same causal mechanism in a minimal high-dimensional visual setting.**
+
+## 11. 晚间增量：Simulator-Coupled View-Place
+
+本节覆盖第 8 节中已经完成的旧 next-step 项，不追改前文开发历史。
+
+### 已完成
+
+- multi-place Visual A-B-A：周期 EC、4 个 sparse neural place、单张
+  factorized HPC，三种子核心机制 `3/3`；
+- simulator-coupled V1：current-query context probe `0.6667`，按冻结
+  stop rule 停止，未训练；
+- simulator-coupled V2：A-B-A / B-A-B 成对反事实数据，query RGB
+  pixel mismatch `0`；
+- 真实 simulator 每个 action/frame 对齐，reset 后无 teleport；
+- 单种子 `65101`、200 steps，预训练 gate `11/11`、模型 gate `9/9`；
+- Full conflict `1.0000`、target cosine `0.9983`、clean cosine `0.9968`、
+  context re-entry `1.0000`；
+- HPC-zero `0.5000`，fixed/wrong-history conflict `0.0000`，wrong-history
+  other-target rate `1.0000`；
+- future ground-truth read/write `0/0`；
+- focused regression suite `11 passed`。
+
+### 保留限制
+
+单个正确静态 anchor 替换完整动态 query context 后 conflict 为 `0.375`。
+该项不在冻结 V2 acceptance 中，作为 stationarity 次级诊断保留。当前
+context 更像随视觉历史演化的动态 PFC 状态，不是时间不变 room vector。
+
+### 更新后的下一步
+
+下一步不再是“接回 simulator”，而是 translated waypoint/revisit：
+在同一个连续 simulator episode 中加入真实前进与转向，让 A/B context
+在相同物理 waypoint 写入不同内容，再从长路径返回 query。单种子通过
+translation EC、context drift、counterfactual RGB 与因果干预 gates 后，
+再扩 3 seed，随后才冻结未见 layout/route/object 的 sealed split。

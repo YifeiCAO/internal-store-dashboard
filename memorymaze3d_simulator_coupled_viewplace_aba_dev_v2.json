@@ -1,0 +1,133 @@
+{
+  "format": "remap_former.memorymaze3d_simulator_coupled_viewplace_aba.protocol.v2",
+  "created_at": "2026-07-26",
+  "status": "frozen_before_v2_generation",
+  "supersedes": "protocols/memorymaze3d_simulator_coupled_viewplace_aba_dev_v1.json",
+  "reason": "V1 action-history cue failed the pretraining current-query context probe at 0.6667 versus the preregistered 0.60 ceiling.",
+  "claim_boundary": "Development stage gate for action-to-RGB simulator coupling. It is not a sealed test, translated navigation, pixel generation, or free rollout.",
+  "task": {
+    "environment": "MemoryMaze3D variable 9x9, native 224px RGB",
+    "episode": "one continuous simulator instance; randomized A-B-A or B-A-B",
+    "phase_steps": 38,
+    "episode_steps": 114,
+    "context_history": "10 post-action RGB frames containing a hash-disjoint, randomly relabeled sequence of two visible landmarks and hidden noops",
+    "context_scalar_or_id_input": false,
+    "cue_to_context_mapping": "random within each environment; the return sequence repeats the first history, so no landmark color has a global A/B meaning",
+    "shared_view_sweep": "identical 20-left-action full rotation for both contexts, with four view-places",
+    "writes_per_episode": 8,
+    "queries_per_episode": 4,
+    "return_anchor": "the first return view exposes one previously stored target but is not written",
+    "headline_queries": "three delayed neutral queries after the return anchor",
+    "content_remapping": "three delayed view-places use different target identities across contexts; the anchor-adjacent view is a clean control"
+  },
+  "paired_counterfactual_contract": {
+    "members_per_layout": 2,
+    "member_zero": "A-B-A",
+    "member_one": "B-A-B",
+    "same_layout_route_assignment_and_physical_actions": true,
+    "opposite_return_context": true,
+    "query_rgb_pixel_mismatch_required": 0,
+    "purpose": "prove the current query frame cannot reveal context; only earlier visual history differs"
+  },
+  "simulator_contract": {
+    "every_action_is_executed": true,
+    "every_model_frame_is_the_post_action_observation": true,
+    "teleports_after_reset": 0,
+    "world_reconfiguration": "target geoms are presented at cue/write/anchor steps and reduced to non-visible size at neutral/query steps",
+    "query_target_visibility_score": 0,
+    "pose_use": "generator QA and figure metadata only; never a model input"
+  },
+  "model_inputs": [
+    "official six-action one-hot",
+    "frozen DINOv2 spatial broad-ROI pooled feature from the corresponding simulator RGB frame"
+  ],
+  "forbidden_model_inputs": [
+    "room id",
+    "context id",
+    "phase id",
+    "environment id",
+    "route family id",
+    "target label",
+    "target color mask",
+    "simulator pose",
+    "place id",
+    "future RGB",
+    "future DINO feature",
+    "target write index"
+  ],
+  "memory_contract": {
+    "architecture": "Window Transformer PFC plus action-only periodic EC, frozen sparse place population, latent context, and one episode-local factorized covariance HPC",
+    "memory_slots": 0,
+    "second_fast_weight_system": false,
+    "read_before_write": true,
+    "query_targets": "DINO features copied from strictly earlier visible write frames",
+    "future_ground_truth_reads": 0,
+    "future_ground_truth_writes": 0,
+    "direct_pfc_output_gain": 0.0
+  },
+  "vision_contract": {
+    "encoder": "frozen dinov2_vits14_reg",
+    "feature": "last normalized spatial patch map pooled over the fixed middle/lower broad ROI",
+    "target_color_mask_enters_model": false,
+    "target_color_mask_use": "visibility QA only",
+    "rgb_decoder": false,
+    "visualization": "nearest earlier write RGB under recalled DINO feature; never labeled as generated pixels"
+  },
+  "split_policy": {
+    "train_environment_seed_start": 273100,
+    "train_unique_layout_count": 6,
+    "train_sequence_count": 12,
+    "validation_environment_seed_start": 274100,
+    "validation_unique_layout_count": 4,
+    "validation_sequence_count": 8,
+    "sealed_test_environment_seed_start": 275100,
+    "sealed_test_unique_layout_count_reserved": 32,
+    "sealed_test_policy": "Do not generate or inspect before the development gate is accepted.",
+    "train_validation_layout_hashes_disjoint": true,
+    "train_validation_route_family_hashes_disjoint": true
+  },
+  "pretraining_gates": {
+    "sequence_length": 114,
+    "all_actions_executed_in_simulator": true,
+    "write_count_per_sequence": 8,
+    "query_count_per_sequence": 4,
+    "all_target_write_indices_precede_queries": true,
+    "all_query_target_geoms_hidden": true,
+    "counterfactual_query_rgb_pixel_mismatch_count": 0,
+    "query_current_feature_context_probe_ceiling": 0.6,
+    "no_nonfinite_dino_features": true,
+    "train_validation_layout_overlap": 0,
+    "train_validation_route_family_overlap": 0
+  },
+  "single_seed_acceptance": {
+    "full_delayed_conflict_pairwise_min": 0.9,
+    "full_conflict_target_cosine_min": 0.85,
+    "full_clean_cosine_min": 0.85,
+    "latent_context_reentry_min": 0.9,
+    "hpc_zero_conflict_max": 0.6,
+    "fixed_context_conflict_max": 0.6,
+    "wrong_history_other_context_rate_min": 0.8,
+    "future_ground_truth_reads": 0,
+    "future_ground_truth_writes": 0
+  },
+  "stop_rules": [
+    "If paired current query RGB is not pixel-identical, stop before DINO encoding.",
+    "If any simulator or leakage gate fails, stop before training.",
+    "If single-seed mechanism interventions fail, do not expand seeds.",
+    "Do not call this translated navigation or free rollout."
+  ],
+  "amendments": [
+    {
+      "source_protocol": "v1",
+      "observed_gate": "current_query_context_probe_balanced_acc",
+      "observed_value": 0.6666666269302368,
+      "threshold": 0.6,
+      "decision": "No V1 training. Replace action-history cue with randomized visual-history cue and exact paired counterfactual current-query RGB."
+    },
+    {
+      "stage": "v2 single-seed quality strengthening",
+      "observed_core_result": "All causal mechanism gates passed, but conflict target cosine was 0.1874 while pairwise accuracy was 1.0.",
+      "decision": "Keep the same model, data, and one content objective; add weight 1.0 on conflict target cosine and require at least 0.85 so the result is faithful feature recall rather than ranking alone."
+    }
+  ]
+}
