@@ -21,12 +21,12 @@
 
 这仍是 development pilot，不是 fresh sealed test。当前视觉任务只有两个 context、一个共享 conflict place，且 validation 在 V1→V2 开发中被看过；不能写成完整 3D world model 已解决。
 
-> **2026-07-26 晚间更新：** 后续 multi-place 与 simulator-coupled
-> 阶段已经完成。当前最新 3D headline 不再是上述最小 visual pilot：
-> 真实 MemoryMaze3D 中每个 action 已逐步绑定 post-action RGB，周期 EC
-> 提供四个 view-place，单种子冻结 acceptance 为 `9/9`；Full conflict
-> `1.0000`，target cosine `0.9983`。完整说明见
-> `reports/MEMORYMAZE3D_SIMULATOR_VIEWPLACE_ABA_SINGLE_SEED_CN.md`。
+> **2026-07-26 夜间更新：** 后续 multi-place、simulator-coupled
+> view-place 与真实 translated-waypoint 阶段均已完成。当前最新 3D
+> headline 是：同一连续 MemoryMaze3D episode 中真实平移 `3 m`、复访
+> 四个物理 waypoint，单种子冻结模型 gate `9/9`；Full conflict
+> `1.0000`，target cosine `0.9877`，clean `0.9971`。完整说明见
+> `reports/MEMORYMAZE3D_SIMULATOR_TRANSLATED_WAYPOINT_ABA_SINGLE_SEED_CN.md`。
 
 ## 1. 架构与因果合同
 
@@ -237,6 +237,7 @@ v2 给所有地址形式同一个 latent-context covariance dual-write rule，�
 | DINO conflict content 可用 | **强 gate 证据** | object/prototype 1.0、distance ratio 1.58 |
 | 3D ambiguous current frame 不泄露 context | **强 gate 证据** | current/cue 0.5，history 1.0，像素完全配对 |
 | 最小 3D hidden-context A-B-A 可行 | **强 pilot 证据** | 三种子 Full 0.9975，结构化消融与方向性错误 |
+| 真实平移多-waypoint 3D 机制可行 | **单种子 stage-gate 通过** | 3m 连续轨迹、17/17 preflight、9/9 模型 gate、Full 1.0 |
 | 完整 3D visual world model 已解决 | **否** | 单 conflict place、patch target、非 sealed |
 | 3D 公平击败 Hippoformer/Titans | **未检验** | 本轮 visual A-B-A 尚未加入这些 formal baselines |
 
@@ -302,6 +303,13 @@ v2 给所有地址形式同一个 latent-context covariance dual-write rule，�
   `runs/memorymaze3d/simulator_viewplace_aba_v2_align1_seed65101/result.json`
 - Simulator-coupled 视觉审计：
   `reports/figures/memorymaze3d_simulator_viewplace_aba_visual_board.png`
+- Translated-waypoint 单种子报告：
+  `reports/MEMORYMAZE3D_SIMULATOR_TRANSLATED_WAYPOINT_ABA_SINGLE_SEED_CN.md`
+- Translated-waypoint 机器结果：
+  `runs/memorymaze3d/simulator_translated_waypoint_aba_seed66101/result.json`
+- Translated-waypoint 事件与轨迹图：
+  `reports/figures/memorymaze3d_translated_waypoint_event_board.png`、
+  `reports/figures/memorymaze3d_translated_waypoint_trajectory.png`
 
 ## 10. 结论
 
@@ -350,3 +358,50 @@ context 更像随视觉历史演化的动态 PFC 状态，不是时间不变 roo
 在相同物理 waypoint 写入不同内容，再从长路径返回 query。单种子通过
 translation EC、context drift、counterfactual RGB 与因果干预 gates 后，
 再扩 3 seed，随后才冻结未见 layout/route/object 的 sealed split。
+
+## 12. 夜间增量：Simulator-Coupled Translated Waypoint
+
+本节完成并取代第 11 节最后一段所列的 translated-waypoint 下一步。
+
+### 任务与防泄漏
+
+- 一个连续 simulator episode，`3 × 128 = 384` actions；
+- 四个物理 waypoint，outbound 累计路径 `3.0 m`；
+- 所有移动由官方 action 经 `env.step` 执行，reset 后无 teleport；
+- A-B-A / B-A-B 配对成员的 query action、pose、RGB 差异均为 `0`；
+- 当前 query context probe 为 `0.5000`；
+- 最大 waypoint 中心误差 `0.1793 m`，复访误差 `0.2425 m`；
+- train/validation layout 与 route overlap 均为 `0`；
+- preflight `17/17`。
+
+### 单种子结果
+
+| 条件 | Conflict | Other-target | Target cosine | Context |
+|---|---:|---:|---:|---:|
+| **Full** | **`1.000`** | `0.000` | **`0.988`** | **`1.000`** |
+| HPC zero | `0.500` | `0.500` | `0.000` | `1.000` |
+| Fixed context | `0.250` | **`0.750`** | `0.932` | `0.500` |
+| Wrong history | `0.250` | **`0.750`** | `0.948` | `0.000` |
+| Correct history | **`1.000`** | `0.000` | `0.988` | `1.000` |
+| Context oracle | **`1.000`** | `0.000` | `0.990` | `1.000` |
+
+冻结模型 gate 为 `9/9`，future GT read/write 为 `0/0`。与前一
+view-place 阶段不同，静态 correct-history anchor 本次也达到 `1.000`，
+说明 context 在更长的真实平移复访中没有出现此前的 stationarity
+shortfall。
+
+### 视觉审计与保留弱点
+
+预注册的同-waypoint 两历史候选审计为 `3/3`。但将 recalled DINO
+feature 与全 episode 八个写入做 global-nearest 时只有 `2/3`：第三行
+仍正确区分同-waypoint 两个 context，却被另一个 waypoint 的背景/视点
+feature 吸走。因此当前结果支持 context-controlled waypoint recall，
+不支持“全局视觉检索或 RGB world model 已解决”。
+
+### 更新后的下一步
+
+1. 冻结当前 translated protocol、data 与 selection rule；
+2. 顺序补 seed `66102/66103`，不根据当前 validation 再调参；
+3. 三种子稳定后才打开预留 sealed layout/route/object split；
+4. sealed 之后进入 learned-policy free rollout 与 feature world model；
+5. Hippoformer、Titans、matched Transformer 必须共享输入、split 与预算。
