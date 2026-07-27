@@ -1,0 +1,134 @@
+{
+  "format": "remap_former.memorymaze3d_simulator_translated_waypoint_aba_sealed_lock.v1",
+  "created_at": "2026-07-27T15:31:01.404999+00:00",
+  "protocol": {
+    "path": "D:\\brain_inspired_transformer\\protocols\\memorymaze3d_simulator_translated_waypoint_aba_sealed_v1.json",
+    "sha256": "29ea24092a7bbd4b969d92074dd134345ace9c953410cd888f845219247bb5c4"
+  },
+  "sealed_files": [
+    {
+      "path": "D:\\brain_inspired_transformer\\data\\memorymaze3d_simulator_translated_waypoint_aba_sealed_v1\\test.npz",
+      "bytes": 575806669,
+      "sha256": "18547c8a869c46cf0342f6b98624819898e9df2756bc0e542fee292ebdf0f069"
+    },
+    {
+      "path": "D:\\brain_inspired_transformer\\data\\memorymaze3d_simulator_translated_waypoint_aba_sealed_v1\\manifest_test.json",
+      "bytes": 128240,
+      "sha256": "d235f380117e0006d25d22d87725b6674b686b08cdc4ea34328a6aecd2bfa2b9"
+    },
+    {
+      "path": "D:\\brain_inspired_transformer\\runs\\memorymaze3d\\simulator_translated_waypoint_aba_dino_sealed_v1\\test_dinov2_vits14_reg.pt",
+      "bytes": 18877074,
+      "sha256": "af24415c6066e8d1e651ca24438fce9b920c0b92ea80009cabb2a9dd92fd22da"
+    },
+    {
+      "path": "D:\\brain_inspired_transformer\\runs\\memorymaze3d\\simulator_translated_waypoint_aba_dino_sealed_v1\\test_dinov2_vits14_reg.manifest.json",
+      "bytes": 1266,
+      "sha256": "52ae86cb7cd797917fd56d6cbb79e383c2a473be57d999107ea0a6a42ddd4302"
+    }
+  ],
+  "frozen_inputs": {
+    "frozen_parent_artifacts": [
+      {
+        "path": "D:\\brain_inspired_transformer\\protocols\\memorymaze3d_simulator_translated_waypoint_aba_dev_v1.json",
+        "bytes": 7947,
+        "sha256": "058eb798ef2b5022e290eaca237daf7ccccb5613d4ece857f52f097007cb5db0"
+      },
+      {
+        "path": "D:\\brain_inspired_transformer\\data\\memorymaze3d_simulator_translated_waypoint_aba_dev_v1\\train.npz",
+        "bytes": 109705438,
+        "sha256": "6b315f3ed953eb367e342392c466cbe6fe64eb371e772acf0806ba7036aff26e"
+      },
+      {
+        "path": "D:\\brain_inspired_transformer\\data\\memorymaze3d_simulator_translated_waypoint_aba_dev_v1\\val.npz",
+        "bytes": 67349897,
+        "sha256": "430b09bb78574b98fc390e18dbb3a660ac8a2b927f4d644cd0cc23de41890657"
+      },
+      {
+        "path": "D:\\brain_inspired_transformer\\data\\memorymaze3d_simulator_translated_waypoint_aba_dev_v1\\manifest_train.json",
+        "bytes": 24872,
+        "sha256": "a0191ccfc873182425d721b9bd08a381e9dde4fafea839ab2dec2b435282f58a"
+      },
+      {
+        "path": "D:\\brain_inspired_transformer\\data\\memorymaze3d_simulator_translated_waypoint_aba_dev_v1\\manifest_val.json",
+        "bytes": 17246,
+        "sha256": "d8db5468671aab24f1e20869a8c502c0da85bd73db81392a506ed34c70e78c5e"
+      },
+      {
+        "path": "D:\\brain_inspired_transformer\\runs\\memorymaze3d\\simulator_translated_waypoint_aba_dino_dev_v1\\train_dinov2_vits14_reg.pt",
+        "bytes": 3541657,
+        "sha256": "a7c653c27d889c0e144f687383a7c78c1dc83b5a84ef95f00a427efb323ae19b"
+      },
+      {
+        "path": "D:\\brain_inspired_transformer\\runs\\memorymaze3d\\simulator_translated_waypoint_aba_dino_dev_v1\\val_dinov2_vits14_reg.pt",
+        "bytes": 2361931,
+        "sha256": "63b1e545ba16ac06ba5bee212ad619adff6f74b4010888a224473c9d21d384da"
+      },
+      {
+        "path": "D:\\brain_inspired_transformer\\runs\\memorymaze3d\\simulator_translated_waypoint_aba_3seed_summary.json",
+        "bytes": 25698,
+        "sha256": "2e70e813bed5900b1027d9dc5b7e98b2edaa75ea79fe27c40a5bbc3e663c76a1"
+      }
+    ],
+    "sealed_code_artifacts": [
+      {
+        "path": "D:\\brain_inspired_transformer\\generate_memorymaze3d_simulator_waypoint_aba_data.py",
+        "bytes": 38930,
+        "sha256": "d6a01611d4ad73099474040b4ebfdb5b81a1325af853bab0bb2d24bae7925abb"
+      },
+      {
+        "path": "D:\\brain_inspired_transformer\\cache_memorymaze3d_simulator_aba_features.py",
+        "bytes": 4000,
+        "sha256": "8e8854aceb851b341c54d4a72b0bb468a792cd8ee880dc7f8cea780370286280"
+      },
+      {
+        "path": "D:\\brain_inspired_transformer\\evaluate_memorymaze3d_simulator_waypoint_aba_sealed.py",
+        "bytes": 34493,
+        "sha256": "a4275fb3cfa43991f5c12b1f93c573e57509e3654dc0f6de2d6ef7943708ab22"
+      },
+      {
+        "path": "D:\\brain_inspired_transformer\\remap_former\\visual_simulator_aba.py",
+        "bytes": 12948,
+        "sha256": "b6d545ed78cf57584de8cddc089506b1870b6155b2416f13237a8f029fb4dc33"
+      },
+      {
+        "path": "D:\\brain_inspired_transformer\\remap_former\\visual_simulator_waypoint_aba.py",
+        "bytes": 908,
+        "sha256": "55e991087dd0ce5179607254f7c34675a54a1c91a4083feb5927f6a88e94f40a"
+      },
+      {
+        "path": "D:\\brain_inspired_transformer\\train_memorymaze3d_simulator_aba.py",
+        "bytes": 38878,
+        "sha256": "5fcb0ef11dcf5c3f7823781d343a31dbcdb22090f1b3d7123bb7abc1e7a996ef"
+      },
+      {
+        "path": "D:\\brain_inspired_transformer\\train_memorymaze3d_simulator_waypoint_aba.py",
+        "bytes": 20077,
+        "sha256": "c3a6112ce2cc0f05e8c697c4f24a49d7a6411f74c4f73e21f37d26f31359d68e"
+      }
+    ],
+    "frozen_checkpoints": [
+      {
+        "path": "D:\\brain_inspired_transformer\\runs\\memorymaze3d\\simulator_translated_waypoint_aba_seed66101\\best_full.pt",
+        "bytes": 2190640,
+        "sha256": "6bd10ebfc3b85eef9a7a6dff109e045f9f04d2bd2fa6b4803cda2b08e2655bf8"
+      },
+      {
+        "path": "D:\\brain_inspired_transformer\\runs\\memorymaze3d\\simulator_translated_waypoint_aba_seed66102\\best_full.pt",
+        "bytes": 2190640,
+        "sha256": "162f2b27bfe6dd2667df290149c97e7d2ef6cd2a080114d1c91b5b99ec0f6028"
+      },
+      {
+        "path": "D:\\brain_inspired_transformer\\runs\\memorymaze3d\\simulator_translated_waypoint_aba_seed66103\\best_full.pt",
+        "bytes": 2190640,
+        "sha256": "80fa917d68d52dc5f21d0fe46afb7f96768bd5ca54420c2bbcbec9ce0aaa4d28"
+      }
+    ]
+  },
+  "cross_file_gates": {
+    "test_manifest_split_is_test": true,
+    "manifest_matches_test_data": true,
+    "dino_cache_matches_test_data": true
+  },
+  "status": "LOCKED"
+}

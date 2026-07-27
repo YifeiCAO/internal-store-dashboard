@@ -162,8 +162,10 @@ def generate_episode(
     minimum_visibility: int,
     first_context: int,
 ) -> tuple[dict[str, np.ndarray], dict[str, Any]]:
-    if split not in {"train", "val", "stage_gate"}:
-        raise ValueError("development generation only supports train/val/stage_gate")
+    if split not in {"train", "val", "stage_gate", "test"}:
+        raise ValueError(
+            "generation only supports train/val/stage_gate/test"
+        )
     if first_context not in (0, 1):
         raise ValueError("first_context must be zero or one")
     environment = build_environment(environment_seed)
@@ -685,14 +687,51 @@ def generate_episode(
     return arrays, metadata
 
 
-def _load_forbidden_layouts(paths: list[Path]) -> set[str]:
-    hashes: set[str] = set()
+def _canonical_assignment_sha256(labels_by_context: np.ndarray) -> str:
+    labels = np.asarray(labels_by_context, dtype=np.uint8)
+    if labels.shape != (2, N_WAYPOINTS):
+        raise ValueError(
+            "labels_by_context must have shape [2, n_waypoints]"
+        )
+    first = tuple(int(value) for value in labels[0].tolist())
+    second = tuple(int(value) for value in labels[1].tolist())
+    canonical = min((first, second), (second, first))
+    return _sha256_bytes(
+        bytes((*canonical[0], 255, *canonical[1]))
+    )[:16]
+
+
+def _load_forbidden_manifest_hashes(
+    paths: list[Path],
+) -> dict[str, set[str]]:
+    hashes = {
+        "layouts": set(),
+        "physical_routes": set(),
+        "route_families": set(),
+    }
     for path in paths:
         payload = json.loads(path.read_text(encoding="utf-8"))
-        hashes.update(
-            str(episode["layout_sha256"])
-            for episode in payload.get("episodes", [])
-        )
+        for episode in payload.get("episodes", []):
+            hashes["layouts"].add(str(episode["layout_sha256"]))
+            hashes["physical_routes"].add(
+                str(episode["physical_route_sha256"])
+            )
+            hashes["route_families"].update(
+                str(value)
+                for value in episode["route_family_hashes"]
+            )
+    return hashes
+
+
+def _load_forbidden_assignments(paths: list[Path]) -> set[str]:
+    hashes: set[str] = set()
+    for path in paths:
+        with np.load(path, allow_pickle=False) as source:
+            labels = source["labels_by_context"]
+            hashes.update(
+                _canonical_assignment_sha256(episode)
+                for episode in labels
+            )
     return hashes
 
 
@@ -709,7 +748,7 @@ def main() -> None:
     )
     parser.add_argument(
         "--split",
-        choices=("train", "val", "stage_gate"),
+        choices=("train", "val", "stage_gate", "test"),
         required=True,
     )
     parser.add_argument(
@@ -727,6 +766,16 @@ def main() -> None:
         action="append",
         default=[],
     )
+    parser.add_argument(
+        "--exclude-data",
+        type=Path,
+        action="append",
+        default=[],
+        help=(
+            "NPZ files whose canonical context-by-waypoint assignments "
+            "must not reappear."
+        ),
+    )
     args = parser.parse_args()
     if args.episodes <= 0:
         raise ValueError("episodes must be positive")
@@ -737,7 +786,11 @@ def main() -> None:
             f"refusing to overwrite {output_path} or {manifest_path}"
         )
 
-    accepted_layouts = _load_forbidden_layouts(args.exclude_manifest)
+    forbidden = _load_forbidden_manifest_hashes(args.exclude_manifest)
+    accepted_layouts = set(forbidden["layouts"])
+    accepted_physical_routes = set(forbidden["physical_routes"])
+    forbidden_route_families = set(forbidden["route_families"])
+    accepted_assignments = _load_forbidden_assignments(args.exclude_data)
     episode_arrays: list[dict[str, np.ndarray]] = []
     episode_records = []
     pair_action_mismatches = 0
@@ -768,7 +821,31 @@ def main() -> None:
                 layout_hash = next(iter(layout_hashes))
                 if layout_hash in accepted_layouts:
                     raise RuntimeError("layout hash is not split-unique")
+                physical_route_hash = str(
+                    members[0][1]["physical_route_sha256"]
+                )
+                if physical_route_hash in accepted_physical_routes:
+                    raise RuntimeError(
+                        "physical waypoint route is not split-unique"
+                    )
                 left, right = members[0][0], members[1][0]
+                canonical_assignment_hash = (
+                    _canonical_assignment_sha256(
+                        left["labels_by_context"]
+                    )
+                )
+                if canonical_assignment_hash in accepted_assignments:
+                    raise RuntimeError(
+                        "canonical object assignment is not split-unique"
+                    )
+                route_family_hashes = {
+                    str(value)
+                    for value in members[0][1]["route_family_hashes"]
+                }
+                if route_family_hashes & forbidden_route_families:
+                    raise RuntimeError(
+                        "context route family overlaps an excluded split"
+                    )
                 if not np.array_equal(left["query_mask"], right["query_mask"]):
                     raise RuntimeError(
                         "counterfactual query masks do not align"
@@ -824,6 +901,8 @@ def main() -> None:
                 f"{last_error}"
             )
         accepted_layouts.add(str(layout_hash))
+        accepted_physical_routes.add(physical_route_hash)
+        accepted_assignments.add(canonical_assignment_hash)
         pair_action_mismatches += action_mismatch
         pair_query_pixel_mismatches += pixel_mismatch
         pair_query_pose_max_difference = max(
@@ -831,6 +910,9 @@ def main() -> None:
             query_pose_difference,
         )
         for member_index, (arrays, metadata) in enumerate(members):
+            metadata["canonical_assignment_sha256"] = (
+                canonical_assignment_hash
+            )
             episode_arrays.append(arrays)
             episode_records.append(
                 {
@@ -954,6 +1036,18 @@ def main() -> None:
                 )
             ),
             "unique_layout_count": args.episodes,
+            "unique_physical_route_count": len(
+                {
+                    episode["physical_route_sha256"]
+                    for episode in episode_records
+                }
+            ),
+            "unique_canonical_assignment_count": len(
+                {
+                    episode["canonical_assignment_sha256"]
+                    for episode in episode_records
+                }
+            ),
             "counterfactual_pair_count": args.episodes,
             "counterfactual_action_mismatch_count": pair_action_mismatches,
             "counterfactual_query_pose_max_abs_difference": (

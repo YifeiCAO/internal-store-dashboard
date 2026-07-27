@@ -1,10 +1,10 @@
 {
     "format":  "remap_former.internal_store_dashboard.package.v1",
-    "packaged_at":  "2026-07-27T04:00:53.0900471-07:00",
+    "packaged_at":  "2026-07-27T08:50:19.6355369-07:00",
     "source_html":  "D:\\brain_inspired_transformer\\reports\\internal_store_dashboard.html",
-    "source_sha256":  "48750bd75ff222c5359638e1ae58a951d452b75c549e6b7e87a22dd6535d0e6a",
-    "index_sha256":  "b7ba32740078b09d59583da722791162e618fd63ebff362e631d3f0a7149959e",
-    "local_reference_count":  229,
+    "source_sha256":  "d8f0f29db43158064fc852426acce5b0b80ca0594708e295f3d1cadfb2ae1cfd",
+    "index_sha256":  "47c9a65edd4d036aab824b808780dde1542e8984dd2196d3b4a1331da4fff5ee",
+    "local_reference_count":  235,
     "files":  [
                   {
                       "attribute":  "href",
@@ -15,10 +15,17 @@
                   },
                   {
                       "attribute":  "href",
+                      "source_reference":  "../evaluate_memorymaze3d_simulator_waypoint_aba_sealed.py",
+                      "target_reference":  "evaluate_memorymaze3d_simulator_waypoint_aba_sealed.py",
+                      "sha256":  "a4275fb3cfa43991f5c12b1f93c573e57509e3654dc0f6de2d6ef7943708ab22",
+                      "bytes":  34493
+                  },
+                  {
+                      "attribute":  "href",
                       "source_reference":  "../generate_memorymaze3d_simulator_waypoint_aba_data.py",
                       "target_reference":  "generate_memorymaze3d_simulator_waypoint_aba_data.py",
-                      "sha256":  "0ef140958e04a953bb3b84a37bc142f2b2e04faefead3f50cb63926623351e89",
-                      "bytes":  35398
+                      "sha256":  "d6a01611d4ad73099474040b4ebfdb5b81a1325af853bab0bb2d24bae7925abb",
+                      "bytes":  38930
                   },
                   {
                       "attribute":  "href",
@@ -106,6 +113,13 @@
                   },
                   {
                       "attribute":  "href",
+                      "source_reference":  "../protocols/memorymaze3d_simulator_translated_waypoint_aba_sealed_v1.json",
+                      "target_reference":  "memorymaze3d_simulator_translated_waypoint_aba_sealed_v1.json",
+                      "sha256":  "29ea24092a7bbd4b969d92074dd134345ace9c953410cd888f845219247bb5c4",
+                      "bytes":  10493
+                  },
+                  {
+                      "attribute":  "href",
                       "source_reference":  "../protocols/memorymaze3d_visual_multiplace_aba_stage_gate_v1.json",
                       "target_reference":  "memorymaze3d_visual_multiplace_aba_stage_gate_v1.json",
                       "sha256":  "bc5e079d43331997818700d95a18b83d36f88097a902c245710159c33943c4ba",
@@ -152,6 +166,27 @@
                       "target_reference":  "simulator_translated_waypoint_aba_3seed_summary.json",
                       "sha256":  "2e70e813bed5900b1027d9dc5b7e98b2edaa75ea79fe27c40a5bbc3e663c76a1",
                       "bytes":  25698
+                  },
+                  {
+                      "attribute":  "href",
+                      "source_reference":  "../runs/memorymaze3d/simulator_translated_waypoint_aba_sealed_v1/summary.json",
+                      "target_reference":  "simulator_translated_waypoint_aba_sealed_v1_summary.json",
+                      "sha256":  "6607d9b7dc3ace7c6921707704c2d534276ea2124cc236f07d0420948d4f3143",
+                      "bytes":  97474
+                  },
+                  {
+                      "attribute":  "href",
+                      "source_reference":  "../runs/memorymaze3d/simulator_translated_waypoint_aba_sealed_v1_lock.json",
+                      "target_reference":  "simulator_translated_waypoint_aba_sealed_v1_lock.json",
+                      "sha256":  "fbf45a25c3f80715a4ff322836b856effdbd7917ded33088ecddde76900dddde",
+                      "bytes":  6114
+                  },
+                  {
+                      "attribute":  "href",
+                      "source_reference":  "../runs/memorymaze3d/simulator_translated_waypoint_aba_sealed_v1_preflight.json",
+                      "target_reference":  "simulator_translated_waypoint_aba_sealed_v1_preflight.json",
+                      "sha256":  "36e223460ebf93500578dd475b2211581e472fce32e35b99e8b2bcc6b4ab8010",
+                      "bytes":  12708
                   },
                   {
                       "attribute":  "href",
@@ -981,6 +1016,13 @@
                   },
                   {
                       "attribute":  "href",
+                      "source_reference":  "MEMORYMAZE3D_SIMULATOR_TRANSLATED_WAYPOINT_ABA_SEALED_3SEED_CN.md",
+                      "target_reference":  "MEMORYMAZE3D_SIMULATOR_TRANSLATED_WAYPOINT_ABA_SEALED_3SEED_CN.md",
+                      "sha256":  "db651e46c3fd047b604e62e845e3c82517e6a2128ef186e692949e70473101bb",
+                      "bytes":  3347
+                  },
+                  {
+                      "attribute":  "href",
                       "source_reference":  "MEMORYMAZE3D_SIMULATOR_VIEWPLACE_ABA_SINGLE_SEED_CN.md",
                       "target_reference":  "MEMORYMAZE3D_SIMULATOR_VIEWPLACE_ABA_SINGLE_SEED_CN.md",
                       "sha256":  "a5a19afd8d3cdf6a733aa218b12b9a488531aed87382aff923578bee1757c15a",
@@ -1499,24 +1541,10 @@
                   },
                   {
                       "attribute":  "src",
-                      "source_reference":  "figures/memorymaze3d_translated_waypoint_3seed.png",
-                      "target_reference":  "figures/memorymaze3d_translated_waypoint_3seed.png",
-                      "sha256":  "44f88452a5e451f396aea22434eafdd2d52db347adc6c6c9ecf8f5ae10420de9",
-                      "bytes":  131412
-                  },
-                  {
-                      "attribute":  "src",
                       "source_reference":  "figures/memorymaze3d_translated_waypoint_event_board.png",
                       "target_reference":  "figures/memorymaze3d_translated_waypoint_event_board.png",
                       "sha256":  "9f7186a7fc421daa9ac33145a480fb6c39c3a912d7a22b3c5785219089805dbe",
                       "bytes":  811702
-                  },
-                  {
-                      "attribute":  "src",
-                      "source_reference":  "figures/memorymaze3d_translated_waypoint_global_nearest.png",
-                      "target_reference":  "figures/memorymaze3d_translated_waypoint_global_nearest.png",
-                      "sha256":  "6c8c1f44b6b69a375d8b599a3b0291f4a35448cbeae20f8c8571685c40e0d4ec",
-                      "bytes":  915442
                   },
                   {
                       "attribute":  "src",
@@ -1527,17 +1555,31 @@
                   },
                   {
                       "attribute":  "src",
+                      "source_reference":  "figures/memorymaze3d_translated_waypoint_sealed_3seed.png",
+                      "target_reference":  "figures/memorymaze3d_translated_waypoint_sealed_3seed.png",
+                      "sha256":  "e13a706f55ddcfaf2ba7494d3294293c6d635c515a8addf7142175b30649b671",
+                      "bytes":  146370
+                  },
+                  {
+                      "attribute":  "src",
+                      "source_reference":  "figures/memorymaze3d_translated_waypoint_sealed_global_nearest.png",
+                      "target_reference":  "figures/memorymaze3d_translated_waypoint_sealed_global_nearest.png",
+                      "sha256":  "db853b71c46236204a30fd4f054dea5a5ffa51d1d9eb95d52b034a5100f3665d",
+                      "bytes":  981605
+                  },
+                  {
+                      "attribute":  "src",
+                      "source_reference":  "figures/memorymaze3d_translated_waypoint_sealed_visual_board.png",
+                      "target_reference":  "figures/memorymaze3d_translated_waypoint_sealed_visual_board.png",
+                      "sha256":  "10ccac09df187de418cc39cc7413830d0ada5b9c8362def6a9197a8691712dc6",
+                      "bytes":  906671
+                  },
+                  {
+                      "attribute":  "src",
                       "source_reference":  "figures/memorymaze3d_translated_waypoint_trajectory.png",
                       "target_reference":  "figures/memorymaze3d_translated_waypoint_trajectory.png",
                       "sha256":  "ab536d9b69a4a0790c08c028b6384ab63cce9233f23d15763b9e537193ff512d",
                       "bytes":  141298
-                  },
-                  {
-                      "attribute":  "src",
-                      "source_reference":  "figures/memorymaze3d_translated_waypoint_visual_board.png",
-                      "target_reference":  "figures/memorymaze3d_translated_waypoint_visual_board.png",
-                      "sha256":  "4c37d75d2e44a5c9a0276a4e3fda16ccc452b0daeda4fb4515b0d507a7b3a3b5",
-                      "bytes":  848958
                   },
                   {
                       "attribute":  "src",

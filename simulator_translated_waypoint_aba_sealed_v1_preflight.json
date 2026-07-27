@@ -1,0 +1,291 @@
+{
+  "format": "remap_former.memorymaze3d_simulator_translated_waypoint_aba_sealed_preflight.v1",
+  "created_at": "2026-07-27T15:31:49.670807+00:00",
+  "protocol": {
+    "path": "D:\\brain_inspired_transformer\\protocols\\memorymaze3d_simulator_translated_waypoint_aba_sealed_v1.json",
+    "sha256": "29ea24092a7bbd4b969d92074dd134345ace9c953410cd888f845219247bb5c4"
+  },
+  "lock": {
+    "path": "D:\\brain_inspired_transformer\\runs\\memorymaze3d\\simulator_translated_waypoint_aba_sealed_v1_lock.json",
+    "sha256": "fbf45a25c3f80715a4ff322836b856effdbd7917ded33088ecddde76900dddde"
+  },
+  "split_audit": {
+    "values": {
+      "test_sequence_count": 64,
+      "test_unique_layout_count": 32,
+      "test_unique_physical_route_count": 32,
+      "test_unique_canonical_assignment_count": 32,
+      "development_test_layout_overlap": 0,
+      "development_test_physical_route_overlap": 0,
+      "development_test_route_family_overlap": 0,
+      "development_test_canonical_assignment_overlap": 0,
+      "test_routes_outside_reserved_test_bank": 0,
+      "reserved_route_banks_overlap": 0,
+      "counterfactual_pair_count": 32,
+      "counterfactual_action_mismatch_count": 0,
+      "counterfactual_query_pixel_mismatch_count": 0,
+      "counterfactual_query_pose_max_abs_difference": 0.0,
+      "query_visible_target_count": 0,
+      "query_nonhidden_geom_count": 0
+    },
+    "gates": {
+      "exact_test_sequence_count": true,
+      "exact_unique_layout_count": true,
+      "all_physical_routes_unique": true,
+      "all_canonical_assignments_unique": true,
+      "development_test_layout_disjoint": true,
+      "development_test_physical_route_disjoint": true,
+      "development_test_route_family_disjoint": true,
+      "development_test_canonical_assignment_disjoint": true,
+      "test_uses_only_reserved_route_bank": true,
+      "exact_counterfactual_pair_count": true,
+      "counterfactual_current_inputs_identical": true,
+      "query_targets_hidden": true
+    },
+    "status": "PASS"
+  },
+  "checkpoint_preflights": [
+    {
+      "seed": 66101,
+      "checkpoint_sha256": "6bd10ebfc3b85eef9a7a6dff109e045f9f04d2bd2fa6b4803cda2b08e2655bf8",
+      "preflight": {
+        "status": "PASS",
+        "values": {
+          "train": {
+            "sequence_length": 384,
+            "write_count_per_episode_min": 8,
+            "write_count_per_episode_max": 8,
+            "query_count_per_episode_min": 4,
+            "query_count_per_episode_max": 4,
+            "target_sources_strictly_historical": true,
+            "competing_sources_strictly_historical": true,
+            "query_visible_target_count": 0,
+            "query_nonhidden_geom_count": 0,
+            "dino_finite": true,
+            "model_input_tensor_count": 2,
+            "metadata_tensor_count": 17
+          },
+          "validation": {
+            "sequence_length": 384,
+            "write_count_per_episode_min": 8,
+            "write_count_per_episode_max": 8,
+            "query_count_per_episode_min": 4,
+            "query_count_per_episode_max": 4,
+            "target_sources_strictly_historical": true,
+            "competing_sources_strictly_historical": true,
+            "query_visible_target_count": 0,
+            "query_nonhidden_geom_count": 0,
+            "dino_finite": true,
+            "model_input_tensor_count": 2,
+            "metadata_tensor_count": 17
+          },
+          "train_validation_layout_overlap": 0,
+          "train_validation_route_overlap": 0,
+          "current_query_context_probe_balanced_acc": 0.5,
+          "simulator_actions_equal_frames_train": true,
+          "simulator_actions_equal_frames_validation": true,
+          "counterfactual_query_pixel_mismatch_train": 0,
+          "counterfactual_query_pixel_mismatch_validation": 0,
+          "future_ground_truth_reads": 0,
+          "future_ground_truth_writes": 0,
+          "same_place_cross_context_cosine": 0.9143215417861938,
+          "same_segment_cross_place_cosine": 0.15235772728919983,
+          "translated_waypoint": {
+            "cumulative_outbound_path_m_train": 3.0,
+            "cumulative_outbound_path_m_validation": 3.0,
+            "maximum_waypoint_center_error_m": 0.19131189584732056,
+            "maximum_same_waypoint_revisit_error_m": 0.23226818442344666,
+            "counterfactual_action_mismatch_count": 0,
+            "counterfactual_query_pose_max_abs_difference": 0.0,
+            "maximum_phase_actions_before_padding": 111,
+            "maximum_action_ec_revisit_position_drift": 0.4299519956111908,
+            "maximum_action_ec_revisit_heading_drift_rad": 0.6283184289932251
+          }
+        },
+        "gates": {
+          "simulator_action_frame_alignment": true,
+          "strict_historical_targets": true,
+          "query_target_hidden": true,
+          "paired_current_query_rgb_identical": true,
+          "exact_write_query_counts": true,
+          "split_hashes_disjoint": true,
+          "query_current_context_probe_at_most_060": true,
+          "only_two_model_input_tensors": true,
+          "dino_features_finite": true,
+          "read_write_contract_zero_zero": true,
+          "periodic_same_place_address": true,
+          "translated_outbound_path_at_least_3m": true,
+          "waypoint_center_error_at_most_025m": true,
+          "same_waypoint_revisit_error_at_most_030m": true,
+          "counterfactual_actions_identical": true,
+          "counterfactual_query_pose_identical": true,
+          "phase_fits_frozen_128_steps": true
+        }
+      }
+    },
+    {
+      "seed": 66102,
+      "checkpoint_sha256": "162f2b27bfe6dd2667df290149c97e7d2ef6cd2a080114d1c91b5b99ec0f6028",
+      "preflight": {
+        "status": "PASS",
+        "values": {
+          "train": {
+            "sequence_length": 384,
+            "write_count_per_episode_min": 8,
+            "write_count_per_episode_max": 8,
+            "query_count_per_episode_min": 4,
+            "query_count_per_episode_max": 4,
+            "target_sources_strictly_historical": true,
+            "competing_sources_strictly_historical": true,
+            "query_visible_target_count": 0,
+            "query_nonhidden_geom_count": 0,
+            "dino_finite": true,
+            "model_input_tensor_count": 2,
+            "metadata_tensor_count": 17
+          },
+          "validation": {
+            "sequence_length": 384,
+            "write_count_per_episode_min": 8,
+            "write_count_per_episode_max": 8,
+            "query_count_per_episode_min": 4,
+            "query_count_per_episode_max": 4,
+            "target_sources_strictly_historical": true,
+            "competing_sources_strictly_historical": true,
+            "query_visible_target_count": 0,
+            "query_nonhidden_geom_count": 0,
+            "dino_finite": true,
+            "model_input_tensor_count": 2,
+            "metadata_tensor_count": 17
+          },
+          "train_validation_layout_overlap": 0,
+          "train_validation_route_overlap": 0,
+          "current_query_context_probe_balanced_acc": 0.5,
+          "simulator_actions_equal_frames_train": true,
+          "simulator_actions_equal_frames_validation": true,
+          "counterfactual_query_pixel_mismatch_train": 0,
+          "counterfactual_query_pixel_mismatch_validation": 0,
+          "future_ground_truth_reads": 0,
+          "future_ground_truth_writes": 0,
+          "same_place_cross_context_cosine": 0.9134581089019775,
+          "same_segment_cross_place_cosine": 0.13263463973999023,
+          "translated_waypoint": {
+            "cumulative_outbound_path_m_train": 3.0,
+            "cumulative_outbound_path_m_validation": 3.0,
+            "maximum_waypoint_center_error_m": 0.19131189584732056,
+            "maximum_same_waypoint_revisit_error_m": 0.23226818442344666,
+            "counterfactual_action_mismatch_count": 0,
+            "counterfactual_query_pose_max_abs_difference": 0.0,
+            "maximum_phase_actions_before_padding": 111,
+            "maximum_action_ec_revisit_position_drift": 0.4299519956111908,
+            "maximum_action_ec_revisit_heading_drift_rad": 0.6283184289932251
+          }
+        },
+        "gates": {
+          "simulator_action_frame_alignment": true,
+          "strict_historical_targets": true,
+          "query_target_hidden": true,
+          "paired_current_query_rgb_identical": true,
+          "exact_write_query_counts": true,
+          "split_hashes_disjoint": true,
+          "query_current_context_probe_at_most_060": true,
+          "only_two_model_input_tensors": true,
+          "dino_features_finite": true,
+          "read_write_contract_zero_zero": true,
+          "periodic_same_place_address": true,
+          "translated_outbound_path_at_least_3m": true,
+          "waypoint_center_error_at_most_025m": true,
+          "same_waypoint_revisit_error_at_most_030m": true,
+          "counterfactual_actions_identical": true,
+          "counterfactual_query_pose_identical": true,
+          "phase_fits_frozen_128_steps": true
+        }
+      }
+    },
+    {
+      "seed": 66103,
+      "checkpoint_sha256": "80fa917d68d52dc5f21d0fe46afb7f96768bd5ca54420c2bbcbec9ce0aaa4d28",
+      "preflight": {
+        "status": "PASS",
+        "values": {
+          "train": {
+            "sequence_length": 384,
+            "write_count_per_episode_min": 8,
+            "write_count_per_episode_max": 8,
+            "query_count_per_episode_min": 4,
+            "query_count_per_episode_max": 4,
+            "target_sources_strictly_historical": true,
+            "competing_sources_strictly_historical": true,
+            "query_visible_target_count": 0,
+            "query_nonhidden_geom_count": 0,
+            "dino_finite": true,
+            "model_input_tensor_count": 2,
+            "metadata_tensor_count": 17
+          },
+          "validation": {
+            "sequence_length": 384,
+            "write_count_per_episode_min": 8,
+            "write_count_per_episode_max": 8,
+            "query_count_per_episode_min": 4,
+            "query_count_per_episode_max": 4,
+            "target_sources_strictly_historical": true,
+            "competing_sources_strictly_historical": true,
+            "query_visible_target_count": 0,
+            "query_nonhidden_geom_count": 0,
+            "dino_finite": true,
+            "model_input_tensor_count": 2,
+            "metadata_tensor_count": 17
+          },
+          "train_validation_layout_overlap": 0,
+          "train_validation_route_overlap": 0,
+          "current_query_context_probe_balanced_acc": 0.5,
+          "simulator_actions_equal_frames_train": true,
+          "simulator_actions_equal_frames_validation": true,
+          "counterfactual_query_pixel_mismatch_train": 0,
+          "counterfactual_query_pixel_mismatch_validation": 0,
+          "future_ground_truth_reads": 0,
+          "future_ground_truth_writes": 0,
+          "same_place_cross_context_cosine": 0.918841540813446,
+          "same_segment_cross_place_cosine": 0.15536852180957794,
+          "translated_waypoint": {
+            "cumulative_outbound_path_m_train": 3.0,
+            "cumulative_outbound_path_m_validation": 3.0,
+            "maximum_waypoint_center_error_m": 0.19131189584732056,
+            "maximum_same_waypoint_revisit_error_m": 0.23226818442344666,
+            "counterfactual_action_mismatch_count": 0,
+            "counterfactual_query_pose_max_abs_difference": 0.0,
+            "maximum_phase_actions_before_padding": 111,
+            "maximum_action_ec_revisit_position_drift": 0.4299519956111908,
+            "maximum_action_ec_revisit_heading_drift_rad": 0.6283184289932251
+          }
+        },
+        "gates": {
+          "simulator_action_frame_alignment": true,
+          "strict_historical_targets": true,
+          "query_target_hidden": true,
+          "paired_current_query_rgb_identical": true,
+          "exact_write_query_counts": true,
+          "split_hashes_disjoint": true,
+          "query_current_context_probe_at_most_060": true,
+          "only_two_model_input_tensors": true,
+          "dino_features_finite": true,
+          "read_write_contract_zero_zero": true,
+          "periodic_same_place_address": true,
+          "translated_outbound_path_at_least_3m": true,
+          "waypoint_center_error_at_most_025m": true,
+          "same_waypoint_revisit_error_at_most_030m": true,
+          "counterfactual_actions_identical": true,
+          "counterfactual_query_pose_identical": true,
+          "phase_fits_frozen_128_steps": true
+        }
+      }
+    }
+  ],
+  "gates": {
+    "lock_status_locked": true,
+    "split_audit_pass": true,
+    "all_checkpoint_preflights_pass": true,
+    "no_model_performance_read_during_preflight": true
+  },
+  "status": "PASS",
+  "performance_metrics_read": false
+}
