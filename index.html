@@ -512,57 +512,57 @@
       <div class="status-grid" aria-label="最新状态">
         <article class="status-card primary">
           <h2>当前主线</h2>
-          <strong>2D→3D 最小机制桥已跑通；下一步做 fresh multi-place Visual A-B-A</strong>
-          <p>P0 canonical release 已通过；2D-R2 排除了时间、当前观测、短动作窗与局部路径 shortcut；冻结 DINOv2 target 可分且 query 当前帧不泄露 context；最小视觉 A-B-A 三种子 Full return-conflict 为 0.9975±0.0014。它是机制 pilot，不是完整 3D world model。</p>
+          <strong>多位置 3D Visual A-B-A 核心机制 3/3；下一步进入 sealed split 与 simulator-coupled 轨迹</strong>
+          <p>官方六类 action 驱动周期化 SE(2) neural EC 与 sparse place；Transformer/PFC 只从历史推断 latent context，再调用一张 episode-local HPC。held-out variable-layout DINO 内容上，三种子 Full conflict 为 0.9960±0.0069，clean cosine 为 0.9663±0.0529，context re-entry 为 1.0000±0.0000。</p>
           <div class="badge-row">
             <span class="badge"><span class="dot blue"></span>Transformer 就是 PFC</span>
-            <span class="badge"><span class="dot blue"></span>真实 egocentric RGB</span>
-            <span class="badge"><span class="dot teal"></span>无 room / 位置 / place ID</span>
-            <span class="badge"><span class="dot green"></span>P0 release PASS</span>
-            <span class="badge"><span class="dot green"></span>12 + 76 tests passed</span>
+            <span class="badge"><span class="dot blue"></span>4 个 neural place</span>
+            <span class="badge"><span class="dot teal"></span>无 room / pose / place ID</span>
+            <span class="badge"><span class="dot green"></span>核心机制 3/3</span>
+            <span class="badge"><span class="dot green"></span>5 个新回归测试</span>
             <span class="badge"><span class="dot green"></span>future GT = 0/0</span>
-            <span class="badge"><span class="dot green"></span>episode-local fast weights</span>
-            <span class="badge"><span class="dot red"></span>R3 地址代理 STOP</span>
+            <span class="badge"><span class="dot green"></span>单张 episode-local fast weights</span>
+            <span class="badge"><span class="dot red"></span>尚非完整 3D free rollout</span>
           </div>
         </article>
         <article class="status-card pass">
-          <h2>2D-R2 Anti-shortcut</h2>
-          <strong>1.000</strong>
-          <p>只有 full history 可分 context；局部 probe 约为 chance</p>
+          <h2>Multi-place Full · 3 Seeds</h2>
+          <strong>0.996</strong>
+          <p>held-out conflict；最差种子 0.988</p>
         </article>
         <article class="status-card pass">
-          <h2>Visual A-B-A · 3 Seeds</h2>
-          <strong>0.9975</strong>
-          <p>Full return-conflict；wrong-history 仅 0.0064</p>
+          <h2>Context Re-entry</h2>
+          <strong>1.000</strong>
+          <p>三种子零方差；HPC-zero 固定 0.500</p>
         </article>
         <article class="status-card fail">
-          <h2>2D-R3 Address Gate</h2>
-          <strong>STOP</strong>
-          <p>乘法地址 K1 仅 0.141、clean 0.419；不扩三种子</p>
+          <h2>严格 Anchor Parity</h2>
+          <strong>2 / 3</strong>
+          <p>65001：correct-history 比 full 低 0.036</p>
         </article>
       </div>
 
       <section>
         <div class="decision">
-          <strong>当前决策：冻结最小 Visual A-B-A V2；不再调 validation，直接升级 fresh multi-place / multi-layout</strong>
-          <p>当前最强可辩护结论是：PFC 能从可观察历史推断隐 context，并用它寻址 episode-local neural HPC，恢复离开后再次进入的视觉内容。下一轮要在全新 layout/route/object split 上加入真正 EC/grid/place 多位置地址；旧 C3-C6 generic rollout 保留为辅助支线，不覆盖这条 hidden-context 主线。</p>
+          <strong>当前决策：冻结多位置版本；不再调 development validation，先做全新 sealed visual split</strong>
+          <p>当前最强可辩护结论是：PFC 能从可观察 action-history 推断隐 context，并与 action-only neural place 组成地址，调用单张 HPC 恢复同一位置的 context-specific DINO 内容。下一轮先生成从未查看的 layout/route/object test，再把受控 A-B-A 事件接到 simulator 每一步 RGB 轨迹；旧最小单-place pilot 只保留为开发 provenance。</p>
         </div>
       </section>
 
       <section id="next-2d3d">
         <div class="section-head">
           <div>
-            <h2>本轮最重要结果：2D / 3D Hidden-Context Bridge</h2>
-            <p>先证明任务没有捷径，再证明视觉内容可编码，最后验证 PFC→context→HPC 的因果链。所有正常路径不读取 room、context、绝对位置、place ID 或未来 target。</p>
+            <h2>本轮最重要结果：多位置 3D Hidden-Context Memory Bridge</h2>
+            <p>真实 MemoryMaze3D 渲染提供视觉内容；官方 action 驱动 neural EC/grid/place；Transformer/PFC 推断 context；一张 fast-weight HPC 完成 read-before-write 内容回忆。正常路径不读取 room、context、pose、place ID 或未来 target。</p>
           </div>
-          <div class="source">2026-07-26 · P0 / R2 / D0 / VISUAL A-B-A / R3 · DEVELOPMENT EVIDENCE</div>
+          <div class="source">2026-07-26 · MULTI-PLACE VISUAL A-B-A · 3 SEEDS · DEVELOPMENT VALIDATION</div>
         </div>
 
         <div class="task-flow">
-          <div class="flow-node ref0"><strong>动作 + 滞后视觉</strong><span>严格 causal 输入<br />当前 query 不含 context 线索</span></div>
-          <div class="flow-node ref1"><strong>Window Transformer PFC</strong><span>从可观察轨迹历史<br />推断 latent context</span></div>
-          <div class="flow-node distractor"><strong>EC / Place Address</strong><span>2D 为 neural EC；3D pilot 为单 place<br />place × latent context 寻址</span></div>
-          <div class="flow-node return"><strong>Episode-local Neural HPC</strong><span>先读后写的单一 fast weights<br />恢复 context-specific 内容</span></div>
+          <div class="flow-node ref0"><strong>官方 Action + 滞后 DINO</strong><span>严格 causal 输入<br />query 只见 neutral 当前帧</span></div>
+          <div class="flow-node ref1"><strong>Window Transformer PFC</strong><span>持久 history state<br />输出 latent context</span></div>
+          <div class="flow-node distractor"><strong>Periodic EC → Sparse Place</strong><span>只积分动作，不读 simulator pose<br />4 place × latent context</span></div>
+          <div class="flow-node return"><strong>单张 Factorized HPC</strong><span>place/context dual key<br />8 次写入、4 次 query、先读后写</span></div>
         </div>
 
         <div class="grid-2" style="margin-top:12px;">
@@ -601,19 +601,20 @@
             </table>
           </article>
           <article class="panel">
-            <h3>Visual A-B-A V2：三种子机制图案</h3>
-            <img class="result-figure" src="figures/memorymaze3d_visual_aba_v2_3seed.png" alt="MemoryMaze3D Visual A-B-A 三种子完整模型与结构化消融结果" />
+            <h3>Multi-place Visual A-B-A：三种子机制图案</h3>
+            <img class="result-figure" src="figures/memorymaze3d_visual_multiplace_aba_3seed.png" alt="MemoryMaze3D 多位置 Visual A-B-A 三种子完整模型与结构化消融结果" />
             <table>
-              <thead><tr><th>条件</th><th>Return-conflict</th><th>解释</th></tr></thead>
+              <thead><tr><th>条件</th><th>Conflict</th><th>解释</th></tr></thead>
               <tbody>
-                <tr><td data-label="条件"><strong>Full</strong></td><td data-label="结果" class="num green"><strong>0.9975 ± 0.0014</strong></td><td data-label="解释" class="green">恢复正确旧内容</td></tr>
-                <tr><td data-label="条件">PFC-only</td><td data-label="结果" class="num">0.3338 ± 0.0046</td><td data-label="解释">主干不足</td></tr>
-                <tr><td data-label="条件">Fixed context</td><td data-label="结果" class="num">0.4993 ± 0.0010</td><td data-label="解释">二选一 chance</td></tr>
-                <tr><td data-label="条件">HPC zero</td><td data-label="结果" class="num">0.3042 ± 0.0102</td><td data-label="解释">外挂内容必要</td></tr>
-                <tr><td data-label="条件">Wrong history</td><td data-label="结果" class="num red">0.0064 ± 0.0053</td><td data-label="解释" class="green">定向翻到错误内容</td></tr>
-                <tr><td data-label="条件">Correct history</td><td data-label="结果" class="num">0.9933 ± 0.0043</td><td data-label="解释">context 上限接近饱和</td></tr>
+                <tr><td data-label="条件"><strong>Full</strong></td><td data-label="结果" class="num green"><strong>0.9960 ± 0.0069</strong></td><td data-label="解释" class="green">核心机制 3/3</td></tr>
+                <tr><td data-label="条件">HPC zero</td><td data-label="结果" class="num">0.5000 ± 0.0000</td><td data-label="解释">无内容记忆即 chance</td></tr>
+                <tr><td data-label="条件">Fixed context</td><td data-label="结果" class="num red">0.0000 ± 0.0000</td><td data-label="解释">context 必要</td></tr>
+                <tr><td data-label="条件">Wrong history</td><td data-label="结果" class="num red">0.0715 ± 0.1238</td><td data-label="解释" class="green">定向翻到另一内容</td></tr>
+                <tr><td data-label="条件">Correct history</td><td data-label="结果" class="num">0.9840 ± 0.0277</td><td data-label="解释">绝对恢复强；严格 parity 2/3</td></tr>
+                <tr><td data-label="条件">Context oracle</td><td data-label="结果" class="num green">1.0000 ± 0.0000</td><td data-label="解释">HPC / 内容上限饱和</td></tr>
               </tbody>
             </table>
+            <p style="margin-top:10px;">Full clean cosine 0.9663±0.0529；latent context re-entry 1.0000±0.0000；每个 episode 写 8 次、query 4 次。</p>
           </article>
         </div>
 
@@ -630,26 +631,31 @@
               <tbody>
                 <tr><td data-label="命题">2D hidden-context re-entry</td><td data-label="等级" class="green">强</td><td data-label="边界">旧 sealed + 8 seeds</td></tr>
                 <tr><td data-label="命题">2D 无局部 shortcut</td><td data-label="等级" class="green">强任务证据</td><td data-label="边界">R2 三种子 OOD</td></tr>
-                <tr><td data-label="命题">最小 3D Visual A-B-A</td><td data-label="等级" class="green">强 pilot</td><td data-label="边界">validation 已用于 V1→V2</td></tr>
-                <tr><td data-label="命题">完整 3D world model</td><td data-label="等级" class="red">未解决</td><td data-label="边界">单 conflict place + patch target</td></tr>
+                <tr><td data-label="命题">多位置 3D Visual A-B-A</td><td data-label="等级" class="green">核心机制 3/3</td><td data-label="边界">development validation 已查看</td></tr>
+                <tr><td data-label="命题">Neural place × context 调用</td><td data-label="等级" class="green">因果支持</td><td data-label="边界">4 places；固定空间 scaffold</td></tr>
+                <tr><td data-label="命题">完整 3D world model</td><td data-label="等级" class="red">未解决</td><td data-label="边界">受控事件尚未逐帧绑定 simulator</td></tr>
                 <tr><td data-label="命题">Outer-product 唯一必要</td><td data-label="等级" class="red">未成立</td><td data-label="边界">需 full-model intervention</td></tr>
                 <tr><td data-label="命题">公平击败 Hippoformer/Titans</td><td data-label="等级" class="amber">未检验完成</td><td data-label="边界">需同预算 fresh blind</td></tr>
               </tbody>
             </table>
             <div class="decision" style="margin-top:12px;">
-              <strong>下一步：fresh 5–8 seeds，多位置、多 layout、route 与 object 全部 held-out</strong>
-              <p>冻结 V2、DINO 权重与 manifests；接入真正 neural EC/grid/place；用 Full、PFC-only、fixed/wrong-context、HPC-zero、no-covariance 做配对因果消融。</p>
+              <strong>下一步：先 sealed visual split，再做 simulator-coupled trajectory</strong>
+              <p>冻结当前代码、DINO、100-step 训练和所有 gates；生成未查看 layout/object test 并一次性评估。通过后把每个 action 对应的 RGB/DINO 逐帧接回真实 MemoryMaze 轨迹，再加入 matched Transformer、Hippoformer 与 Titans。</p>
             </div>
           </article>
         </div>
 
         <div class="artifact-grid" style="margin-top:12px;">
+          <a class="artifact" href="MEMORYMAZE3D_VISUAL_MULTIPLACE_ABA_3SEED_CN.md"><strong>最新：多位置 Visual A-B-A 三种子</strong><span>核心机制 3/3、严格 anchor parity 2/3、架构合同与诚实边界</span></a>
+          <a class="artifact" href="visual_multiplace_aba_frozen_clean1_3seed_summary.json"><strong>最新：多位置机器结果</strong><span>逐条件均值/SD、paired contrasts、逐种子 gates 与 SHA256 provenance</span></a>
+          <a class="artifact" href="memorymaze3d_visual_multiplace_aba_stage_gate_v1.json"><strong>多位置冻结协议</strong><span>输入禁令、split、task/model gates 与全部 development amendments</span></a>
+          <a class="artifact" href="visual_multiplace_aba.py"><strong>多位置核心模型代码</strong><span>Periodic EC、sparse place、latent context、factorized single HPC</span></a>
           <a class="artifact" href="REMAP_FORMER_NEXT_2D_3D_EXECUTION_REPORT_CN.md"><strong>本轮完整中文执行报告</strong><span>P0、R2、D0、Visual A-B-A、R3 STOP、证据等级与下一步</span></a>
           <a class="artifact" href="remap_former_results_roadmap_iclr2025.pdf"><strong>ICLR 模板结果与路线图</strong><span>11 页中文 PDF；架构、2D/3D 主结果、负结果与预注册计划</span></a>
           <a class="artifact" href="REMAP_FORMER_NEXT_P0_RELEASE_INTEGRITY_CN.md"><strong>P0 Release Integrity</strong><span>独立 Git snapshot、24 checkpoint hashes、causal contract 与自动复核</span></a>
           <a class="artifact" href="REMAP_FORMER_2D_R2_ANTI_SHORTCUT_POSTFIX_CN.md"><strong>2D-R2 Anti-shortcut</strong><span>三种子 probes、强长度 OOD 与 same-time counterfactual support</span></a>
           <a class="artifact" href="MEMORYMAZE3D_DINO_D0_CONFLICT_PATCH_CN.md"><strong>3D-D0 DINO Target Audit</strong><span>视觉内容可分性、current/cue 泄露与完整历史可解性</span></a>
-          <a class="artifact" href="MEMORYMAZE3D_VISUAL_ABA_V2_3SEED_CN.md"><strong>Visual A-B-A 三种子</strong><span>完整结果、成对差值、方向性 wrong-history 与 causal audit</span></a>
+          <a class="artifact" href="MEMORYMAZE3D_VISUAL_ABA_V2_3SEED_CN.md"><strong>历史：单 place Visual A-B-A</strong><span>旧最小机制桥；已被多位置版本替代为 headline</span></a>
           <a class="artifact" href="REMAP_FORMER_2D_R3_ADDRESS_V2_GATE_CN.md"><strong>R3-v2 Stage Gate STOP</strong><span>共享 covariance 代理、五种地址、失败门与 full-model 转向</span></a>
           <a class="artifact" href="visual_aba_v2_3seed_summary.json"><strong>Visual A-B-A 机器结果</strong><span>三种子聚合、7 个 pilot gates 与 future GT 0/0</span></a>
           <a class="artifact" href="dino_d0_target_audit_conflict_patch_v2.json"><strong>DINO D0 机器结果</strong><span>权重哈希、数据 manifests、feature 几何与 leakage probes</span></a>
@@ -2763,7 +2769,7 @@
       </section>
     </main>
 
-    <footer>ReMAP-Former internal dashboard · 2026-07-26 · P0 / 2D-R2 / 3D-D0 已通过；最小 Visual A-B-A 三种子成立；R3 地址代理按协议停止；下一步 fresh multi-place visual A-B-A</footer>
+    <footer>ReMAP-Former internal dashboard · 2026-07-26 · 多位置 Visual A-B-A 核心机制 3/3；Full 0.9960±0.0069；严格 anchor parity 2/3；下一步 sealed visual split 与 simulator-coupled trajectory</footer>
   </div>
 </body>
 </html>

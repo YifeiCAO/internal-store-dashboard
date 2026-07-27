@@ -1,0 +1,130 @@
+{
+  "format": "remap_former.protocol.memorymaze3d_visual_multiplace_aba_stage_gate.v1",
+  "scope": "development_stage_gate",
+  "claim_boundary": "This run may authorize seed expansion but is not a sealed final test.",
+  "task": {
+    "environment": "MemoryMaze3D variable 9x9",
+    "visual_target": "frozen dinov2_vits14_reg object ROI feature",
+    "sequence": "randomized A-B-A or B-A-B",
+    "places_per_context": 4,
+    "writes_per_episode": 8,
+    "queries_per_episode": 4,
+    "route_steps_per_phase": 24,
+    "context_cue_steps": 10,
+    "cue_padding_max": 4,
+    "conflict_probability": 0.75
+  },
+  "split_contract": {
+    "train_layout_seeds": [
+      620000,
+      620007
+    ],
+    "validation_layout_seeds": [
+      630000,
+      630003
+    ],
+    "route_family_splits": {
+      "train": 64,
+      "dev": 16,
+      "validation": 16,
+      "sealed_test_reserved": 32
+    },
+    "object_assignment_family_splits": {
+      "train": 64,
+      "dev": 16,
+      "validation": 16,
+      "sealed_test_reserved": 32
+    },
+    "sealed_test_policy": "Do not generate, inspect, or tune on the reserved test layouts before the development gate passes."
+  },
+  "allowed_model_inputs": [
+    "official six-action one-hot",
+    "causally lagged observed DINO feature",
+    "neutral current DINO feature at query"
+  ],
+  "forbidden_model_inputs": [
+    "room id",
+    "context id",
+    "simulator pose",
+    "absolute position",
+    "place id",
+    "route family id",
+    "assignment family id",
+    "switch time",
+    "query target feature",
+    "future observation"
+  ],
+  "model": {
+    "pfc": "one-layer causal window Transformer plus persistent history state",
+    "ec": "frozen action-only egocentric SE(2) neural scaffold with periodic heading embedding",
+    "place": "frozen sparse neural place population",
+    "address": "multiplicative place-by-latent-context conjunction",
+    "hpc": "one episode-local differentiable fast-weight matrix with factorized place/context dual-key covariance correction and frozen identity value codec",
+    "pfc_direct_output_gain": 0.0,
+    "memory_slots": false,
+    "second_fast_weight_system": false,
+    "read_before_write": true
+  },
+  "optimization": {
+    "primary_loss": "two-way contrastive correct-content versus other-context content on conflict queries",
+    "secondary_loss": "1.0 weighted cosine error on clean queries",
+    "optimizer": "AdamW",
+    "learning_rate": 0.0003,
+    "gradient_clip_norm": 1.0,
+    "default_steps": 100,
+    "default_batch_size": 16,
+    "checkpoint_selection": "development route and assignment families only"
+  },
+  "development_amendments": [
+    {
+      "date": "2026-07-26",
+      "change": "Freeze the HPC value encoder/decoder at identity and set direct PFC output gain to zero.",
+      "reason": "The first development run exposed a value-codec/direct-output shortcut that passed pairwise accuracy but failed orthogonal-context intervention."
+    },
+    {
+      "date": "2026-07-26",
+      "change": "Use conflict accuracy, then clean cosine, then context re-entry as deterministic checkpoint tie-breaks; use the first context-entry state as the history intervention anchor.",
+      "reason": "The original selector retained an early conflict-tied checkpoint with poor clean recall, and the original per-place intervention did not represent a context-level history anchor."
+    },
+    {
+      "date": "2026-07-26",
+      "change": "Reduce the development stability run from 600 to 100 steps.",
+      "reason": "After shortcut removal, the frozen single-seed learning curve reached all gates by step 100; sealed test data remains unopened."
+    },
+    {
+      "date": "2026-07-26",
+      "change": "Freeze the randomly initialized periodic EC/grid/place scaffold during the content-memory task.",
+      "reason": "The second development seed learned context re-entry but content gradients distorted the spatial address basis, lowering clean recall and the context oracle; all untrained spatial scaffolds achieved near-exact oracle recall."
+    },
+    {
+      "date": "2026-07-26",
+      "change": "Raise the clean-query cosine term from 0.25 to 1.0 without adding a new objective or supervision source.",
+      "reason": "With the spatial scaffold frozen, one stability seed solved conflict/context but the underweighted clean term drifted below its pre-registered gate."
+    }
+  ],
+  "task_gates": {
+    "route_and_assignment_hashes_disjoint": true,
+    "query_content_hidden": true,
+    "trajectory_context_reentry_exact": true,
+    "writes_per_episode": 8,
+    "queries_per_episode": 4,
+    "future_ground_truth_read_write": [
+      0,
+      0
+    ],
+    "same_place_cross_context_cosine_min": 0.999,
+    "same_minus_cross_place_cosine_min": 0.05
+  },
+  "model_gates": {
+    "full_conflict_pairwise_acc_min": 0.7,
+    "full_minus_hpc_zero_min": 0.15,
+    "full_minus_fixed_context_min": 0.15,
+    "clean_query_cosine_min": 0.8,
+    "wrong_history_other_target_shift_min": 0.25,
+    "correct_history_tolerance": 0.02,
+    "orthogonal_context_oracle_tolerance": 0.02,
+    "latent_context_reentry_acc_min": 0.7
+  },
+  "stop_rule": "Any failed task gate stops training. Any failed model gate stops seed expansion and triggers targeted diagnosis.",
+  "expansion_rule": "Only an all-green single-seed run may expand to three seeds."
+}

@@ -1,0 +1,545 @@
+{
+  "format": "remap_former.memorymaze3d_visual_multiplace_aba_3seed_summary.v1",
+  "scope": "development_visual_bridge_not_sealed_simulator_rollout",
+  "source_results": [
+    {
+      "path": "D:\\brain_inspired_transformer\\runs\\memorymaze3d\\visual_multiplace_aba_frozen_clean1_seed65001\\result.json",
+      "sha256": "0637df11246e5887c1644272563810ca1de3e505c73e164239e3d09cedebb652"
+    },
+    {
+      "path": "D:\\brain_inspired_transformer\\runs\\memorymaze3d\\visual_multiplace_aba_frozen_clean1_seed65002\\result.json",
+      "sha256": "29c6036732348bc10b1b0a5cf3f342f14728472f3f60f1f319e446beaad06c76"
+    },
+    {
+      "path": "D:\\brain_inspired_transformer\\runs\\memorymaze3d\\visual_multiplace_aba_frozen_clean1_seed65003\\result.json",
+      "sha256": "30995346d4b896daa17354834ce9aad3000e67a3cfbf7d0329351ffbfadfca26"
+    }
+  ],
+  "seeds": [
+    65001,
+    65002,
+    65003
+  ],
+  "conditions": {
+    "full": {
+      "conflict_pairwise_acc": {
+        "values": [
+          0.987987987987988,
+          1.0,
+          1.0
+        ],
+        "mean": 0.995995995995996,
+        "sample_std": 0.006935138368644125,
+        "min": 0.987987987987988,
+        "max": 1.0,
+        "n": 3
+      },
+      "conflict_cosine_margin": {
+        "values": [
+          0.20289190538652666,
+          0.32559358712398645,
+          0.25095605418041034
+        ],
+        "mean": 0.2598138488969745,
+        "sample_std": 0.061828561933226396,
+        "min": 0.20289190538652666,
+        "max": 0.32559358712398645,
+        "n": 3
+      },
+      "clean_query_cosine": {
+        "values": [
+          0.9977611243391836,
+          0.9052495222825271,
+          0.9959192012555033
+        ],
+        "mean": 0.9663099492924047,
+        "sample_std": 0.05288790012973656,
+        "min": 0.9052495222825271,
+        "max": 0.9977611243391836,
+        "n": 3
+      },
+      "query_cosine": {
+        "values": [
+          0.9892829731106758,
+          0.8766353130340576,
+          0.9772825613617897
+        ],
+        "mean": 0.9477336158355077,
+        "sample_std": 0.06186460188565603,
+        "min": 0.8766353130340576,
+        "max": 0.9892829731106758,
+        "n": 3
+      },
+      "latent_context_reentry_acc": {
+        "values": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "mean": 1.0,
+        "sample_std": 0.0,
+        "min": 1.0,
+        "max": 1.0,
+        "n": 3
+      },
+      "other_context_target_rate": {
+        "values": [
+          0.012012012012012012,
+          0.0,
+          0.0
+        ],
+        "mean": 0.004004004004004004,
+        "sample_std": 0.006935138368644153,
+        "min": 0.0,
+        "max": 0.012012012012012012,
+        "n": 3
+      }
+    },
+    "hpc_zero": {
+      "conflict_pairwise_acc": {
+        "values": [
+          0.5,
+          0.5,
+          0.5
+        ],
+        "mean": 0.5,
+        "sample_std": 0.0,
+        "min": 0.5,
+        "max": 0.5,
+        "n": 3
+      },
+      "conflict_cosine_margin": {
+        "values": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "mean": 0.0,
+        "sample_std": 0.0,
+        "min": 0.0,
+        "max": 0.0,
+        "n": 3
+      },
+      "clean_query_cosine": {
+        "values": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "mean": 0.0,
+        "sample_std": 0.0,
+        "min": 0.0,
+        "max": 0.0,
+        "n": 3
+      },
+      "query_cosine": {
+        "values": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "mean": 0.0,
+        "sample_std": 0.0,
+        "min": 0.0,
+        "max": 0.0,
+        "n": 3
+      },
+      "latent_context_reentry_acc": {
+        "values": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "mean": 1.0,
+        "sample_std": 0.0,
+        "min": 1.0,
+        "max": 1.0,
+        "n": 3
+      },
+      "other_context_target_rate": {
+        "values": [
+          0.5,
+          0.5,
+          0.5
+        ],
+        "mean": 0.5,
+        "sample_std": 0.0,
+        "min": 0.5,
+        "max": 0.5,
+        "n": 3
+      }
+    },
+    "fixed_context": {
+      "conflict_pairwise_acc": {
+        "values": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "mean": 0.0,
+        "sample_std": 0.0,
+        "min": 0.0,
+        "max": 0.0,
+        "n": 3
+      },
+      "conflict_cosine_margin": {
+        "values": [
+          -0.15839790510343718,
+          -0.1578491326534387,
+          -0.1545354088267531
+        ],
+        "mean": -0.156927482194543,
+        "sample_std": 0.002089688744319738,
+        "min": -0.15839790510343718,
+        "max": -0.1545354088267531,
+        "n": 3
+      },
+      "clean_query_cosine": {
+        "values": [
+          0.9999582088193414,
+          0.9999996122423109,
+          0.9999837611920267
+        ],
+        "mean": 0.9999805274178929,
+        "sample_std": 2.0890280748700836e-05,
+        "min": 0.9999582088193414,
+        "max": 0.9999996122423109,
+        "n": 3
+      },
+      "query_cosine": {
+        "values": [
+          0.8969450667500496,
+          0.8982608839869499,
+          0.9000799506902695
+        ],
+        "mean": 0.8984286338090897,
+        "sample_std": 0.001574159881264627,
+        "min": 0.8969450667500496,
+        "max": 0.9000799506902695,
+        "n": 3
+      },
+      "latent_context_reentry_acc": {
+        "values": [
+          0.5,
+          0.5,
+          0.5
+        ],
+        "mean": 0.5,
+        "sample_std": 0.0,
+        "min": 0.5,
+        "max": 0.5,
+        "n": 3
+      },
+      "other_context_target_rate": {
+        "values": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "mean": 1.0,
+        "sample_std": 0.0,
+        "min": 1.0,
+        "max": 1.0,
+        "n": 3
+      }
+    },
+    "wrong_history": {
+      "conflict_pairwise_acc": {
+        "values": [
+          0.0,
+          0.0,
+          0.21450151057401812
+        ],
+        "mean": 0.0715005035246727,
+        "sample_std": 0.12384250487149072,
+        "min": 0.0,
+        "max": 0.21450151057401812,
+        "n": 3
+      },
+      "conflict_cosine_margin": {
+        "values": [
+          -0.13340473175048828,
+          -0.1330662640658292,
+          -0.07286437616607574
+        ],
+        "mean": -0.11311179066079774,
+        "sample_std": 0.0348556942295783,
+        "min": -0.13340473175048828,
+        "max": -0.07286437616607574,
+        "n": 3
+      },
+      "clean_query_cosine": {
+        "values": [
+          0.999893753222247,
+          0.9999987528874323,
+          0.9999014712170343
+        ],
+        "mean": 0.9999313257755712,
+        "sample_std": 5.8520965656176436e-05,
+        "min": 0.999893753222247,
+        "max": 0.9999987528874323,
+        "n": 3
+      },
+      "query_cosine": {
+        "values": [
+          0.9118020832538605,
+          0.9130136743187904,
+          0.9403386786580086
+        ],
+        "mean": 0.9217181454102198,
+        "sample_std": 0.016137229689483855,
+        "min": 0.9118020832538605,
+        "max": 0.9403386786580086,
+        "n": 3
+      },
+      "latent_context_reentry_acc": {
+        "values": [
+          0.0,
+          0.0,
+          0.216796875
+        ],
+        "mean": 0.072265625,
+        "sample_std": 0.12516773414071966,
+        "min": 0.0,
+        "max": 0.216796875,
+        "n": 3
+      },
+      "other_context_target_rate": {
+        "values": [
+          1.0,
+          1.0,
+          0.7854984894259819
+        ],
+        "mean": 0.9284994964753274,
+        "sample_std": 0.12384250487149072,
+        "min": 0.7854984894259819,
+        "max": 1.0,
+        "n": 3
+      }
+    },
+    "correct_history": {
+      "conflict_pairwise_acc": {
+        "values": [
+          0.9519519519519519,
+          1.0,
+          1.0
+        ],
+        "mean": 0.983983983983984,
+        "sample_std": 0.02774055347457663,
+        "min": 0.9519519519519519,
+        "max": 1.0,
+        "n": 3
+      },
+      "conflict_cosine_margin": {
+        "values": [
+          0.16002467015126087,
+          0.2834778352217241,
+          0.20579180616626566
+        ],
+        "mean": 0.21643143717975022,
+        "sample_std": 0.06241051435900915,
+        "min": 0.16002467015126087,
+        "max": 0.2834778352217241,
+        "n": 3
+      },
+      "clean_query_cosine": {
+        "values": [
+          0.9984137252722373,
+          0.9759222386957525,
+          0.9985155980231354
+        ],
+        "mean": 0.9909505206637084,
+        "sample_std": 0.013014973634073775,
+        "min": 0.9759222386957525,
+        "max": 0.9985155980231354,
+        "n": 3
+      },
+      "query_cosine": {
+        "values": [
+          0.9947345852851868,
+          0.9614676162600517,
+          0.9948551803827286
+        ],
+        "mean": 0.983685793975989,
+        "sample_std": 0.019241600805471392,
+        "min": 0.9614676162600517,
+        "max": 0.9948551803827286,
+        "n": 3
+      },
+      "latent_context_reentry_acc": {
+        "values": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "mean": 1.0,
+        "sample_std": 0.0,
+        "min": 1.0,
+        "max": 1.0,
+        "n": 3
+      },
+      "other_context_target_rate": {
+        "values": [
+          0.04804804804804805,
+          0.0,
+          0.0
+        ],
+        "mean": 0.016016016016016016,
+        "sample_std": 0.027740553474576612,
+        "min": 0.0,
+        "max": 0.04804804804804805,
+        "n": 3
+      }
+    },
+    "orthogonal_context_oracle": {
+      "conflict_pairwise_acc": {
+        "values": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "mean": 1.0,
+        "sample_std": 0.0,
+        "min": 1.0,
+        "max": 1.0,
+        "n": 3
+      },
+      "conflict_cosine_margin": {
+        "values": [
+          0.15703794118520376,
+          0.15752751465999718,
+          0.15320775588113375
+        ],
+        "mean": 0.15592440390877824,
+        "sample_std": 0.0023653864222117696,
+        "min": 0.15320775588113375,
+        "max": 0.15752751465999718,
+        "n": 3
+      },
+      "clean_query_cosine": {
+        "values": [
+          0.9997914916310231,
+          0.9999980821714296,
+          0.9999459408923407
+        ],
+        "mean": 0.9999118382315978,
+        "sample_std": 0.00010743442860029118,
+        "min": 0.9997914916310231,
+        "max": 0.9999980821714296,
+        "n": 3
+      },
+      "query_cosine": {
+        "values": [
+          0.999851904809475,
+          0.9999977722764015,
+          0.9999414533376694
+        ],
+        "mean": 0.9999303768078486,
+        "sample_std": 7.356185568313569e-05,
+        "min": 0.999851904809475,
+        "max": 0.9999977722764015,
+        "n": 3
+      },
+      "latent_context_reentry_acc": {
+        "values": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "mean": 1.0,
+        "sample_std": 0.0,
+        "min": 1.0,
+        "max": 1.0,
+        "n": 3
+      },
+      "other_context_target_rate": {
+        "values": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "mean": 0.0,
+        "sample_std": 0.0,
+        "min": 0.0,
+        "max": 0.0,
+        "n": 3
+      }
+    }
+  },
+  "paired_contrasts": {
+    "full_minus_hpc_zero": {
+      "values": [
+        0.48798798798798804,
+        0.5,
+        0.5
+      ],
+      "mean": 0.49599599599599603,
+      "sample_std": 0.006935138368644125,
+      "min": 0.48798798798798804,
+      "max": 0.5,
+      "n": 3
+    },
+    "full_minus_fixed_context": {
+      "values": [
+        0.987987987987988,
+        1.0,
+        1.0
+      ],
+      "mean": 0.995995995995996,
+      "sample_std": 0.006935138368644125,
+      "min": 0.987987987987988,
+      "max": 1.0,
+      "n": 3
+    },
+    "correct_minus_wrong_history": {
+      "values": [
+        0.9519519519519519,
+        1.0,
+        0.7854984894259819
+      ],
+      "mean": 0.9124834804593113,
+      "sample_std": 0.11256573497786945,
+      "min": 0.7854984894259819,
+      "max": 1.0,
+      "n": 3
+    },
+    "oracle_minus_full": {
+      "values": [
+        0.012012012012011963,
+        0.0,
+        0.0
+      ],
+      "mean": 0.0040040040040039875,
+      "sample_std": 0.006935138368644125,
+      "min": 0.0,
+      "max": 0.012012012012011963,
+      "n": 3
+    }
+  },
+  "causal_contract": {
+    "all_transformer_is_pfc": true,
+    "all_frozen_ec_grid_place_scaffold": true,
+    "all_single_episode_local_hpc": true,
+    "all_frozen_identity_value_codec": true,
+    "all_pfc_direct_output_zero": true,
+    "all_no_slots_or_second_memory": true,
+    "all_no_oracle_metadata_inputs": true,
+    "all_future_gt_zero_zero": true
+  },
+  "gates": {
+    "core_mechanism_seed_pass": [
+      true,
+      true,
+      true
+    ],
+    "core_mechanism_pass_count": 3,
+    "strict_correct_anchor_parity_seed_pass": [
+      false,
+      true,
+      true
+    ],
+    "strict_correct_anchor_parity_pass_count": 2,
+    "causal_contract_all_true": true
+  },
+  "status": "PASS_WITH_SECONDARY_STABILITY_NOTE"
+}

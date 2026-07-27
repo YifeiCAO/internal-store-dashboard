@@ -1,10 +1,10 @@
 {
   "format": "remap_former.internal_store_dashboard.package.v1",
-  "packaged_at": "2026-07-26T11:57:37.2486048-07:00",
+  "packaged_at": "2026-07-26T19:13:29.9778466-07:00",
   "source_html": "D:\\brain_inspired_transformer\\reports\\internal_store_dashboard.html",
-  "source_sha256": "94cee598429bac3bed6e986d053a81c12d96667f7bd77a1eb9ae17d8c7ef2112",
-  "index_sha256": "5461b546129ee67098e999818372ec5644df2d709579a26c37552e0c7d327303",
-  "local_reference_count": 213,
+  "source_sha256": "91fcee404cea0f327b8356a491580500d57e81a3542884d7389a10a2776edc96",
+  "index_sha256": "ea2fa71697a669ddcbea1378cd2efa4fd0e2b3d85e47262483239b09a74d3fbf",
+  "local_reference_count": 217,
   "files": [
     {
       "attribute": "href",
@@ -92,6 +92,13 @@
     },
     {
       "attribute": "href",
+      "source_reference": "../protocols/memorymaze3d_visual_multiplace_aba_stage_gate_v1.json",
+      "target_reference": "memorymaze3d_visual_multiplace_aba_stage_gate_v1.json",
+      "sha256": "bc5e079d43331997818700d95a18b83d36f88097a902c245710159c33943c4ba",
+      "bytes": 5321
+    },
+    {
+      "attribute": "href",
       "source_reference": "../REMAP_FORMER_2D_3D_RESULTS_AND_ROADMAP_CN.md",
       "target_reference": "REMAP_FORMER_2D_3D_RESULTS_AND_ROADMAP_CN.md",
       "sha256": "fb9dd67aba34a51314c8b7e86212e8cbf10fd29fcf2b5740bf73f33d81df3fcf",
@@ -106,6 +113,13 @@
     },
     {
       "attribute": "href",
+      "source_reference": "../remap_former/visual_multiplace_aba.py",
+      "target_reference": "visual_multiplace_aba.py",
+      "sha256": "b780ad9c1b50507a93e62080574b6bb037bf74e6d1a672c6305e1eb9ac775350",
+      "bytes": 27261
+    },
+    {
+      "attribute": "href",
       "source_reference": "../runs/memorymaze3d/dino_d0_target_audit_conflict_patch_v2.json",
       "target_reference": "dino_d0_target_audit_conflict_patch_v2.json",
       "sha256": "a8d181f2d4cac17c2c55361ebb233254e0a73592d9688a606941876f337dc4cb",
@@ -117,6 +131,13 @@
       "target_reference": "visual_aba_v2_3seed_summary.json",
       "sha256": "2ae9fff75c1605c7e8b37630f23d2b40ea572a3838743cf7edcec39981dcf0a1",
       "bytes": 11892
+    },
+    {
+      "attribute": "href",
+      "source_reference": "../runs/memorymaze3d/visual_multiplace_aba_frozen_clean1_3seed_summary.json",
+      "target_reference": "visual_multiplace_aba_frozen_clean1_3seed_summary.json",
+      "sha256": "ef2abce13bac382b34992ede11470ce6759d03b271d67bb25e7d80ad27b771e6",
+      "bytes": 12859
     },
     {
       "attribute": "href",
@@ -925,6 +946,13 @@
     },
     {
       "attribute": "href",
+      "source_reference": "MEMORYMAZE3D_VISUAL_MULTIPLACE_ABA_3SEED_CN.md",
+      "target_reference": "MEMORYMAZE3D_VISUAL_MULTIPLACE_ABA_3SEED_CN.md",
+      "sha256": "31cf4019f1ff38e25c954d8572cc020572d5f94e3bfacaaf0a0884e71dc70527",
+      "bytes": 3631
+    },
+    {
+      "attribute": "href",
       "source_reference": "memorymaze3d_write_gate_calibrated_3seed_summary.json",
       "target_reference": "memorymaze3d_write_gate_calibrated_3seed_summary.json",
       "sha256": "3270b27b13ae81bb1348ee7000c4738b229e3498564009642dcb5e5a85236b58",
@@ -1422,17 +1450,17 @@
     },
     {
       "attribute": "src",
-      "source_reference": "figures/memorymaze3d_visual_aba_v2_3seed.png",
-      "target_reference": "figures/memorymaze3d_visual_aba_v2_3seed.png",
-      "sha256": "68b2f8dfa98e8d8ea7e75d5fcb04b4af43a11eb758948d9da09e5e728ea2cf6c",
-      "bytes": 116309
-    },
-    {
-      "attribute": "src",
       "source_reference": "figures/memorymaze3d_visual_context_pairs.png",
       "target_reference": "figures/memorymaze3d_visual_context_pairs.png",
       "sha256": "a265cdad4f03187e0da0ab25b450db1fd70bbef55c13ff0624ef8e5e057b8859",
       "bytes": 347534
+    },
+    {
+      "attribute": "src",
+      "source_reference": "figures/memorymaze3d_visual_multiplace_aba_3seed.png",
+      "target_reference": "figures/memorymaze3d_visual_multiplace_aba_3seed.png",
+      "sha256": "d5571eef410d41b7b5288f72a6a3d57d7b411ba93d45f50f60076a3ce0a4dec1",
+      "bytes": 99584
     },
     {
       "attribute": "src",
