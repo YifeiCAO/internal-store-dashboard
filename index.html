@@ -512,43 +512,43 @@
       <div class="status-grid" aria-label="最新状态">
         <article class="status-card primary">
           <h2>当前主线</h2>
-          <strong>真实平移 3 m 的 MemoryMaze3D Waypoint A-B-A 已通过单种子 gate 9/9</strong>
-          <p>同一连续 simulator episode 共 384 actions，真实前进、转向并三次复访 4 个物理 waypoint。模型只见当前 DINO 与官方六动作；Full conflict 1.000、target cosine 0.9877、context re-entry 1.000。</p>
+          <strong>真实平移 3 m 的 MemoryMaze3D Waypoint A-B-A 已完成三种子冻结复现</strong>
+          <p>seed 66101 / 66102 / 66103 均通过 9/9 模型 gate。每条连续 simulator episode 共 384 actions，真实前进、转向并三次复访 4 个物理 waypoint；Full conflict 0.9861 ± 0.0241，最差种子 0.9583。</p>
           <div class="badge-row">
             <span class="badge"><span class="dot blue"></span>Transformer 就是 PFC</span>
             <span class="badge"><span class="dot blue"></span>4 个 neural place</span>
             <span class="badge"><span class="dot teal"></span>无 room / pose / place ID</span>
             <span class="badge"><span class="dot green"></span>3 m 真实平移</span>
             <span class="badge"><span class="dot green"></span>384 个 simulator actions</span>
-            <span class="badge"><span class="dot green"></span>预训练 gate 17/17</span>
-            <span class="badge"><span class="dot green"></span>模型 gate 9/9</span>
+            <span class="badge"><span class="dot green"></span>3 × 17/17 预检</span>
+            <span class="badge"><span class="dot green"></span>3 × 9/9 模型 gate</span>
             <span class="badge"><span class="dot green"></span>13 个回归测试</span>
             <span class="badge"><span class="dot green"></span>future GT = 0/0</span>
             <span class="badge"><span class="dot green"></span>单张 episode-local fast weights</span>
-            <span class="badge"><span class="dot red"></span>单种子 development，尚非 free rollout</span>
+            <span class="badge"><span class="dot red"></span>三种子 development，尚非 sealed / free rollout</span>
           </div>
         </article>
         <article class="status-card pass">
-          <h2>Simulator Full Conflict</h2>
-          <strong>1.000</strong>
-          <p>24 个 delayed conflict；当前 query 无 context 像素线索</p>
+          <h2>Full Conflict</h2>
+          <strong>0.986 ± 0.024</strong>
+          <p>三种子 sample SD；最差 0.958，当前 query 无 context 像素线索</p>
         </article>
         <article class="status-card pass">
           <h2>Target Cosine</h2>
-          <strong>0.988</strong>
-          <p>不是只排对顺序；召回 feature 与历史 target 高度对齐</p>
+          <strong>0.964 ± 0.031</strong>
+          <p>三种子均超过冻结 0.85 门槛；clean cosine 0.992 ± 0.007</p>
         </article>
         <article class="status-card hold">
           <h2>全局最近邻诊断</h2>
-          <strong>2 / 3</strong>
-          <p>同-waypoint 选择为 3/3；全八写入检索仍受背景与视点干扰</p>
+          <strong>0.778 ± 0.192</strong>
+          <p>逐种子 2/3、3/3、2/3；同-waypoint 主视觉则三个 seed 均 3/3</p>
         </article>
       </div>
 
       <section>
         <div class="decision">
-          <strong>当前决策：冻结 seed 66101；顺序补 66102 / 66103，不再看着 validation 调参</strong>
-          <p>真实平移单种子机制门已经通过。两个新训练 seed 都过门后，才生成预留的未见 layout/route/object sealed split；learned-policy free rollout、feature world model 和统一预算 baseline 放在 sealed 之后。</p>
+          <strong>当前决策：三种子 development 已冻结；下一站是从未查看的 sealed split</strong>
+          <p>不再调整当前数据、模型、loss 或 checkpoint rule。先生成预留的未见 layout / route / object split 并做 task-only preflight；sealed 通过后，再进入 learned-policy free rollout、feature world model 与统一预算 baseline。</p>
         </div>
       </section>
 
@@ -558,7 +558,7 @@
             <h2>最新结果：Simulator-Coupled Translated Waypoint A-B-A</h2>
             <p>同一个连续 MemoryMaze3D env 中，模型真实平移 3 m、转向并三次复访四个物理 waypoint。PFC 从视觉历史推断动态 context，action-only 周期 EC 生成 neural place，唯一一张 episode-local HPC 完成 read-before-write 内容调用。</p>
           </div>
-          <div class="source">2026-07-26 · 3 M TRANSLATION · 384 ACTIONS · SEED 66101 · DEVELOPMENT GATE</div>
+          <div class="source">2026-07-27 · 3 M TRANSLATION · 384 ACTIONS · 3 SEEDS · DEVELOPMENT REPLICATION</div>
         </div>
 
         <div class="task-flow">
@@ -569,9 +569,15 @@
         </div>
 
         <article class="panel" style="margin-top:12px;">
+          <h3>冻结三种子：因果干预图案与逐种子 Full 指标</h3>
+          <img class="result-figure" src="figures/memorymaze3d_translated_waypoint_3seed.png" alt="真实平移 Waypoint A-B-A 三种子六条件因果干预与 Full conflict、target cosine、clean cosine 对比" />
+          <p style="margin-top:10px;">三种子均通过 9/9 gate。HPC-zero 固定回到 0.5；fixed-context 与 wrong-history 稳定破坏正确调用。66103 的静态 anchor / oracle 比动态 Full 低 0.0417，因此严格 parity 只写 2/3，不遮掉。</p>
+        </article>
+
+        <article class="panel" style="margin-top:12px;">
           <h3>主视觉审计：在同一物理 waypoint 的两个历史内容中选择</h3>
           <img class="result-figure" src="figures/memorymaze3d_translated_waypoint_visual_board.png" alt="真实平移 waypoint query、正确历史写入、模型同 waypoint 选择与错误 context 写入对照" />
-          <p style="margin-top:10px;">三行均选对，主审计为 3/3。模型列显示 recalled DINO feature 在两个严格历史、同-waypoint 候选中的较高 cosine；它不是生成像素，也不是全局最近邻声明。</p>
+          <p style="margin-top:10px;">展示 seed 66101，三行均选对；66101 / 66102 / 66103 的主审计都为 3/3。模型列显示 recalled DINO feature 在两个严格历史、同-waypoint 候选中的较高 cosine；它不是生成像素，也不是全局最近邻声明。</p>
         </article>
 
         <div class="grid-2" style="margin-top:12px;">
@@ -589,20 +595,19 @@
 
         <div class="grid-2" style="margin-top:12px;">
           <article class="panel">
-            <h3>单种子结果与因果干预</h3>
+            <h3>三种子结果与因果干预</h3>
             <table>
-              <thead><tr><th>条件</th><th>结果</th><th>判断</th></tr></thead>
+              <thead><tr><th>条件</th><th>Conflict mean ± SD</th><th>判断</th></tr></thead>
               <tbody>
-                <tr><td data-label="条件"><strong>Full conflict</strong></td><td data-label="结果" class="num green"><strong>1.0000</strong></td><td data-label="判断" class="green">正确调用</td></tr>
-                <tr><td data-label="条件">Conflict target cosine</td><td data-label="结果" class="num green">0.9877</td><td data-label="判断" class="green">忠实 feature 召回</td></tr>
-                <tr><td data-label="条件">HPC zero</td><td data-label="结果" class="num">0.5000</td><td data-label="判断">回到 chance</td></tr>
-                <tr><td data-label="条件">Fixed context</td><td data-label="结果" class="num red">0.2500</td><td data-label="判断">other target 率 0.750</td></tr>
-                <tr><td data-label="条件">Wrong history</td><td data-label="结果" class="num red">0.2500</td><td data-label="判断" class="green">other target 率 0.750</td></tr>
-                <tr><td data-label="条件">Correct history</td><td data-label="结果" class="num green">1.0000</td><td data-label="判断">长路径 context 稳定</td></tr>
-                <tr><td data-label="条件">Context oracle</td><td data-label="结果" class="num green">1.0000</td><td data-label="判断">HPC 上限健康</td></tr>
+                <tr><td data-label="条件"><strong>Full</strong></td><td data-label="结果" class="num green"><strong>0.9861 ± 0.0241</strong></td><td data-label="判断" class="green">最差 0.9583</td></tr>
+                <tr><td data-label="条件">HPC zero</td><td data-label="结果" class="num">0.5000 ± 0.0000</td><td data-label="判断">回到 chance</td></tr>
+                <tr><td data-label="条件">Fixed context</td><td data-label="结果" class="num red">0.1111 ± 0.1273</td><td data-label="判断">other target 0.8889</td></tr>
+                <tr><td data-label="条件">Wrong history</td><td data-label="结果" class="num red">0.1389 ± 0.0962</td><td data-label="判断" class="green">other target 0.8611</td></tr>
+                <tr><td data-label="条件">Correct history</td><td data-label="结果" class="num green">0.9722 ± 0.0481</td><td data-label="判断">严格 parity 2/3</td></tr>
+                <tr><td data-label="条件">Context oracle</td><td data-label="结果" class="num green">0.9722 ± 0.0481</td><td data-label="判断">严格 parity 2/3</td></tr>
               </tbody>
             </table>
-            <p style="margin-top:10px;">Full clean cosine 0.9971；context re-entry 1.000；future ground-truth read/write 0/0。与 view-place 阶段不同，本次静态 correct-history anchor 也达到 1.000。</p>
+            <p style="margin-top:10px;">Full target cosine 0.9637 ± 0.0312；clean cosine 0.9923 ± 0.0072；context re-entry 1.0000 ± 0.0000；三个 seed 的 future ground-truth read/write 均为 0/0。</p>
           </article>
           <article class="panel">
             <h3>防泄漏与反事实配对 Gate</h3>
@@ -617,22 +622,23 @@
                 <tr><td data-label="Gate">Query target geom visible</td><td data-label="结果" class="num">0</td><td data-label="状态" class="green">隐藏</td></tr>
                 <tr><td data-label="Gate">Train/validation layout overlap</td><td data-label="结果" class="num">0</td><td data-label="状态" class="green">PASS</td></tr>
                 <tr><td data-label="Gate">模型输入 tensor</td><td data-label="结果" class="num">2</td><td data-label="状态" class="green">action + DINO</td></tr>
-                <tr><td data-label="Gate">预训练 / 模型 gates</td><td data-label="结果" class="num green">17/17 · 9/9</td><td data-label="状态" class="green">PASS</td></tr>
+                <tr><td data-label="Gate">每 seed 预检 / 模型 gates</td><td data-label="结果" class="num green">17/17 · 9/9</td><td data-label="状态" class="green">3/3 PASS</td></tr>
               </tbody>
             </table>
-            <img class="result-figure" src="figures/memorymaze3d_translated_waypoint_metrics.png" alt="Simulator-coupled translated waypoint A-B-A 的训练曲线与结构化因果干预指标" />
+            <img class="result-figure" src="figures/memorymaze3d_translated_waypoint_metrics.png" alt="代表性 seed 66101 的训练曲线与结构化因果干预指标" />
+            <p style="margin-top:10px;">图中训练曲线是 seed 66101 的代表性记录。三个 seed 的最大 raw gradient norm 为 27.98 / 1447.72 / 39.49；固定 clip=1.0 后均跑满且无 NaN，但训练动力学并不平滑。</p>
           </article>
         </div>
 
         <div class="decision" style="margin-top:12px;">
           <strong>证据层级更新</strong>
-          <p>上一版只在原地旋转 view-place 上逐动作绑定 simulator；这一版已经完成真实平移、转向、长路径返回和同一物理 waypoint 复访。现在最重要的门是跨训练 seed 稳定性与 sealed 泛化，而不是继续抬这个 development seed 的小数点。</p>
+          <p>真实平移、转向、长路径返回和同一物理 waypoint 复访已从单种子推进到冻结三种子。现在最重要的门是 fresh sealed 泛化，而不是继续抬 development validation 的小数点。</p>
         </div>
 
         <article class="panel" style="margin-top:12px;">
-          <h3>保留弱点：全八写入 global-nearest 只有 2/3</h3>
+          <h3>保留弱点：全八写入 global-nearest 聚合只有 0.7778 ± 0.1925</h3>
           <img class="result-figure" src="figures/memorymaze3d_translated_waypoint_global_nearest.png" alt="recalled DINO feature 在全 episode 八个历史写入中的全局最近邻诊断，其中第三行被错误 waypoint 吸走" />
-          <p style="margin-top:10px;">第三行仍正确区分同-waypoint 的两个 context，但另一个 waypoint 的背景与视点 feature 更近。这支持 context-controlled waypoint recall，不支持“全局视觉检索或 RGB world model 已解决”。该诊断不隐藏，也不替代预注册主指标。</p>
+          <p style="margin-top:10px;">逐种子为 2/3、3/3、2/3。展示的 seed 66101 第三行仍正确区分同-waypoint 的两个 context，但另一个 waypoint 的背景与视点 feature 更近。这支持 context-controlled waypoint recall，不支持“全局视觉检索或 RGB world model 已解决”。</p>
         </article>
 
         <div class="grid-2" style="margin-top:12px;">
@@ -681,23 +687,24 @@
                 <tr><td data-label="命题">2D hidden-context re-entry</td><td data-label="等级" class="green">强</td><td data-label="边界">旧 sealed + 8 seeds</td></tr>
                 <tr><td data-label="命题">2D 无局部 shortcut</td><td data-label="等级" class="green">强任务证据</td><td data-label="边界">R2 三种子 OOD</td></tr>
                 <tr><td data-label="命题">多位置 3D Visual A-B-A</td><td data-label="等级" class="green">核心机制 3/3</td><td data-label="边界">development validation 已查看</td></tr>
-                <tr><td data-label="命题">真实平移 simulator-coupled 调用</td><td data-label="等级" class="green">单种子 gate 9/9</td><td data-label="边界">3 m、4 waypoint、development</td></tr>
-                <tr><td data-label="命题">Neural place × context 调用</td><td data-label="等级" class="green">因果支持</td><td data-label="边界">Full 1.0；HPC-zero 0.5；wrong-history 定向</td></tr>
+                <tr><td data-label="命题">真实平移 simulator-coupled 调用</td><td data-label="等级" class="green">三种子 3 × 9/9</td><td data-label="边界">3 m、4 waypoint、development</td></tr>
+                <tr><td data-label="命题">Neural place × context 调用</td><td data-label="等级" class="green">因果支持 3/3</td><td data-label="边界">Full 最差 0.958；HPC-zero 0.5；wrong-history 定向</td></tr>
                 <tr><td data-label="命题">完整 3D world model</td><td data-label="等级" class="red">未解决</td><td data-label="边界">无 learned policy / RGB rollout / sealed</td></tr>
                 <tr><td data-label="命题">Outer-product 唯一必要</td><td data-label="等级" class="red">未成立</td><td data-label="边界">需 full-model intervention</td></tr>
                 <tr><td data-label="命题">公平击败 Hippoformer/Titans</td><td data-label="等级" class="amber">未检验完成</td><td data-label="边界">需同预算 fresh blind</td></tr>
               </tbody>
             </table>
             <div class="decision" style="margin-top:12px;">
-              <strong>下一步：固定协议补 3 seed，再开 sealed</strong>
-              <p>保留 seed 66101，不再调这个 validation；顺序训练 66102 / 66103。三种子都保持机制图案后，才生成预留的未见 layout、route、object split。learned-policy free rollout 和统一预算 baseline 随后进入。</p>
+              <strong>下一步：打开 fresh sealed layout / route / object split</strong>
+              <p>三种子已保持核心机制图案，当前 development 配置不再改。先做 sealed task-only preflight，再执行预注册训练；learned-policy free rollout 和统一预算 baseline 放在 sealed 之后。</p>
             </div>
           </article>
         </div>
 
         <div class="artifact-grid" style="margin-top:12px;">
-          <a class="artifact" href="MEMORYMAZE3D_SIMULATOR_TRANSLATED_WAYPOINT_ABA_SINGLE_SEED_CN.md"><strong>最新：真实平移 Waypoint 单种子报告</strong><span>3 m 物理路径、17/17 preflight、9/9 模型 gates、因果干预、五张视觉图与边界</span></a>
-          <a class="artifact" href="result.json"><strong>最新：Translated Waypoint 机器结果</strong><span>384-step 训练轨迹、六条件 validation、主视觉与 global-nearest 诊断</span></a>
+          <a class="artifact" href="MEMORYMAZE3D_SIMULATOR_TRANSLATED_WAYPOINT_ABA_3SEED_CN.md"><strong>最新：真实平移 Waypoint 三种子报告</strong><span>3 m 物理路径、3 × 17/17 preflight、3 × 9/9 模型 gates、因果干预与诚实边界</span></a>
+          <a class="artifact" href="simulator_translated_waypoint_aba_3seed_summary.json"><strong>最新：Translated Waypoint 三种子机器汇总</strong><span>逐 seed 指标、均值/SD、paired contrasts、梯度稳定性、主/次视觉审计与 SHA256 provenance</span></a>
+          <a class="artifact" href="summarize_memorymaze3d_simulator_waypoint_aba_3seed.py"><strong>三种子聚合脚本</strong><span>校验冻结配置与三份结果，重建选中 step、均值/SD、因果差值、机器 JSON、中文报告和主图</span></a>
           <a class="artifact" href="memorymaze3d_simulator_translated_waypoint_aba_dev_v1.json"><strong>最新：Translated Waypoint 冻结协议</strong><span>物理路径、输入禁令、paired counterfactual、17 个 preflight gates 与 stop rules</span></a>
           <a class="artifact" href="visual_simulator_waypoint_aba.py"><strong>最新：Translated Waypoint 模型接口</strong><span>action-only SE(2) EC 固定标定、Window PFC 与单张 factorized HPC</span></a>
           <a class="artifact" href="generate_memorymaze3d_simulator_waypoint_aba_data.py"><strong>真实平移数据生成器</strong><span>generator-only 闭环 controller、env.step 对齐、无 teleport 与物理复访 QA</span></a>
@@ -2633,10 +2640,10 @@
           <article class="stage done"><b>Visual A-B-A V2</b><p>三种子 Full 0.9975±0.0014；wrong-history 0.0064，结构化因果图案成立。</p></article>
           <article class="stage done"><b>Multi-place Visual A-B-A</b><p>周期 EC + 4 neural place；三种子 Full 0.9960±0.0069，核心机制 3/3。</p></article>
           <article class="stage done"><b>Simulator-Coupled View-Place</b><p>每个 action 真实绑定 simulator RGB；Full 1.000、target cosine 0.9983，冻结 gate 9/9。</p></article>
-          <article class="stage done"><b>Translated Waypoint A-B-A</b><p>3 m 真实平移、384 actions、4 个物理复访点；17/17 preflight、9/9 模型 gate。</p></article>
+          <article class="stage done"><b>Translated Waypoint A-B-A</b><p>三种子冻结复现完成；3 m、384 actions、4 个物理复访点；每 seed 17/17 preflight、9/9 模型 gate。</p></article>
           <article class="stage blocked"><b>2D-R3 地址代理</b><p>v1/v2 substrate 均未通过健康 gate；按协议 STOP，不扩三种子。</p></article>
           <article class="stage done"><b>ICLR 结果报告</b><p>2D/3D 主结果、负结果、证据边界和下一阶段计划已进入 11 页 ICLR 模板报告。</p></article>
-          <article class="stage active"><b>下一停点：Translated 3-Seed</b><p>冻结 seed 66101，顺序补 66102 / 66103；稳定后才生成 sealed split。</p></article>
+          <article class="stage active"><b>下一停点：Fresh Sealed Split</b><p>冻结 development 配置，生成从未查看的 layout / route / object split；先过 task-only preflight。</p></article>
           <article class="stage blocked"><b>Formal Protocol</b><p>normal K=8 仅 0.4010；达到 0.80 绝对门前不解锁。</p></article>
         </div>
       </section>
@@ -2649,8 +2656,9 @@
           </div>
         </div>
         <div class="artifact-list">
-          <a class="artifact" href="MEMORYMAZE3D_SIMULATOR_TRANSLATED_WAYPOINT_ABA_SINGLE_SEED_CN.md"><strong>最新：3D 真实平移 Waypoint 单种子结果</strong><span>3 m、384 actions、17/17 preflight、9/9 模型 gates、物理轨迹与诚实视觉诊断</span></a>
-          <a class="artifact" href="result.json"><strong>最新：3D Translated Waypoint 机器结果</strong><span>完整 preflight、训练轨迹、六条件 validation、主/次视觉审计与 provenance</span></a>
+          <a class="artifact" href="MEMORYMAZE3D_SIMULATOR_TRANSLATED_WAYPOINT_ABA_3SEED_CN.md"><strong>最新：3D 真实平移 Waypoint 三种子结果</strong><span>3 m、384 actions、3 × 17/17 preflight、3 × 9/9 模型 gates、稳定性与诚实视觉诊断</span></a>
+          <a class="artifact" href="simulator_translated_waypoint_aba_3seed_summary.json"><strong>最新：3D Translated Waypoint 三种子机器汇总</strong><span>逐 seed、六条件聚合、paired contrasts、梯度稳定性、主/次视觉审计与 provenance</span></a>
+          <a class="artifact" href="summarize_memorymaze3d_simulator_waypoint_aba_3seed.py"><strong>最新：三种子聚合与绘图脚本</strong><span>冻结结果校验、选中 checkpoint 重建、统计、报告和三种子图可重复生成</span></a>
           <a class="artifact" href="REMAP_FORMER_NEXT_2D_3D_EXECUTION_REPORT_CN.md"><strong>最新：ReMAP-Former Next 本轮执行报告</strong><span>P0、2D-R2、3D-D0、Visual A-B-A、R3-v2 STOP 与下一阶段预注册</span></a>
           <a class="artifact" href="remap_former_results_roadmap_iclr2025.pdf"><strong>最新：2D/3D ICLR 结果报告</strong><span>11 页中文模板；冻结架构、2D/3D 主结果、负结果、证据等级与路线图</span></a>
           <a class="artifact" href="REMAP_FORMER_2D_3D_RESULTS_AND_ROADMAP_CN.md"><strong>最新：2D/3D 结果与未来计划</strong><span>Markdown 完整版；明确可主张内容、负结果、实验边界、Go/Stop gates 与执行顺序</span></a>
@@ -2830,7 +2838,7 @@
       </section>
     </main>
 
-    <footer>ReMAP-Former internal dashboard · 2026-07-26 · 真实平移 3 m Translated Waypoint gate 9/9；Full 1.000；target cosine 0.9877；下一步固定协议补 66102 / 66103</footer>
+    <footer>ReMAP-Former internal dashboard · 2026-07-27 · 真实平移 3 m Translated Waypoint 三种子均通过 9/9 gate；Full 0.9861 ± 0.0241；下一步 fresh sealed split</footer>
   </div>
 </body>
 </html>
