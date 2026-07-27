@@ -411,3 +411,79 @@ recall，不支持“全局视觉检索或 RGB world model 已解决”。
 3. sealed 先单 seed 做 task-only preflight，再按预注册 seed 数训练；
 4. sealed 通过后进入 learned-policy free rollout 与 feature world model；
 5. Hippoformer、Titans、matched Transformer 必须共享输入、split 与预算。
+
+## 13. Fresh Sealed 增量：三冻结 Checkpoint 一次性盲测
+
+本节完成并取代第 12 节的 sealed 下一步。sealed 协议在测试数据生成前
+冻结；三个 checkpoint 来自 development selection，测试阶段没有重训、
+调参或 checkpoint 重选。
+
+### Sealed 数据与任务体检
+
+- `32` 个新 simulator layout、`32` 条唯一物理 waypoint 路径；
+- `32` 个新 canonical context-by-waypoint object assignment；
+- 使用预留的 `32` 个 test route family；
+- 共 `64` 条 paired sequence，每条 `384` actions；
+- dev-test layout / physical route / route family / assignment overlap 均为 `0`；
+- counterfactual action / query RGB mismatch 均为 `0`；
+- query visible target / nonhidden target geom 均为 `0`；
+- current-query context probe balanced accuracy 为 `0.5000`；
+- task-only preflight 在读取性能指标前写盘，
+  `performance_metrics_read=false`；
+- 三个冻结 checkpoint 均通过 `17/17` preflight。
+
+这里的 object 仍是 MemoryMaze3D 已有的三色球。新的是 layout、物理路径、
+route family 和 context-object 绑定，不是未见 shape/category OOD。
+
+### 一次性三种子结果
+
+| 条件 | Conflict mean ± sample SD | 最差 seed | Other-target | Target cosine |
+|---|---:|---:|---:|---:|
+| **Full** | **`0.9774 ± 0.0060`** | **`0.9740`** | `0.0226` | **`0.9519`** |
+| HPC zero | `0.5000 ± 0.0000` | `0.5000` | `0.5000` | `0.0000` |
+| Fixed context | `0.2031 ± 0.0342` | `0.1667` | **`0.7969`** | `0.9454` |
+| Wrong history | `0.2153 ± 0.0424` | `0.1667` | **`0.7847`** | `0.9534` |
+| Correct history | **`0.9688 ± 0.0000`** | `0.9688` | `0.0312` | `0.9833` |
+| Context oracle | **`0.9948 ± 0.0000`** | `0.9948` | `0.0052` | `0.9896` |
+
+Full clean cosine 为 `0.9931 ± 0.0037`，latent context re-entry 为
+`1.0000 ± 0.0000`。seed `66101/66102/66103` 均通过预注册模型 gate
+`9/9`，future ground-truth read/write 均为 `0/0`，最终状态为
+**`PASS_SEALED_3SEED`**。
+
+同-waypoint 两候选视觉审计三个 seed 均为 `3/3`；全八写入
+global-nearest 次级诊断分别为 `3/3、2/3、3/3`。后者仍不等于 RGB
+生成或完整视觉 world model。
+
+### 当前证据等级与下一步
+
+现在可以支持的核心表述是：冻结 ReMAP-Former checkpoint 能在新布局、
+新物理路径、新 route family 和新 context-object 绑定中保持
+history-controlled neural HPC recall，并通过三类方向明确的因果干预。
+
+仍不能声称：
+
+- 未见物体 shape/category 泛化；
+- learned-policy free rollout；
+- RGB 生成或完整 world model；
+- 已公平击败 Hippoformer、Titans 或普通 fast-weight。
+
+下一步不再回看这份 sealed split 调主模型。固定同一数据、DINO、query、
+训练预算和评测口径，依次完成 Window Transformer、普通 fast-weight、
+Hippoformer 与 Titans/MAC 的 matched baselines；随后另立协议推进
+learned-policy rollout 和 feature world model。
+
+### 新增关键产物
+
+- sealed 协议：
+  `protocols/memorymaze3d_simulator_translated_waypoint_aba_sealed_v1.json`
+- sealed lock：
+  `runs/memorymaze3d/simulator_translated_waypoint_aba_sealed_v1_lock.json`
+- task-only preflight：
+  `runs/memorymaze3d/simulator_translated_waypoint_aba_sealed_v1_preflight.json`
+- 一次性机器汇总：
+  `runs/memorymaze3d/simulator_translated_waypoint_aba_sealed_v1/summary.json`
+- 中文结果报告：
+  `reports/MEMORYMAZE3D_SIMULATOR_TRANSLATED_WAYPOINT_ABA_SEALED_3SEED_CN.md`
+- 主图：
+  `reports/figures/memorymaze3d_translated_waypoint_sealed_3seed.png`

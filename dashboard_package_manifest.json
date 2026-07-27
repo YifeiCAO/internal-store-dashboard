@@ -1,6 +1,6 @@
 {
     "format":  "remap_former.internal_store_dashboard.package.v1",
-    "packaged_at":  "2026-07-27T08:50:19.6355369-07:00",
+    "packaged_at":  "2026-07-27T08:58:23.9607256-07:00",
     "source_html":  "D:\\brain_inspired_transformer\\reports\\internal_store_dashboard.html",
     "source_sha256":  "d8f0f29db43158064fc852426acce5b0b80ca0594708e295f3d1cadfb2ae1cfd",
     "index_sha256":  "47c9a65edd4d036aab824b808780dde1542e8984dd2196d3b4a1331da4fff5ee",
@@ -1459,8 +1459,8 @@
                       "attribute":  "href",
                       "source_reference":  "REMAP_FORMER_NEXT_2D_3D_EXECUTION_REPORT_CN.md",
                       "target_reference":  "REMAP_FORMER_NEXT_2D_3D_EXECUTION_REPORT_CN.md",
-                      "sha256":  "d9bae575ced292140c4b5c34502758f97f1808cdf186eb202d9adb3211c3713f",
-                      "bytes":  21006
+                      "sha256":  "82a474efad6bee0a905fd797edf6be91b3ba12043accb3d3e6c15c3f08040633",
+                      "bytes":  24577
                   },
                   {
                       "attribute":  "href",
