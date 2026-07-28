@@ -488,7 +488,7 @@
         <a href="#full-transformer">全历史基线</a>
         <a href="#model-core">C3-C6 当前核心</a>
         <a href="#memorymaze3d">视觉 3D 正式结果</a>
-        <a href="#paper-package">论文证据包</a>
+        <a href="#paper-package">英文论文</a>
         <a href="#context-need">Context-Need 最新</a>
         <a href="#t1-context">T1 Context 因果</a>
         <a href="#ci-pilot">Context 调用 Pilot</a>
@@ -562,6 +562,11 @@
         <div class="decision">
           <strong>当前决策：全历史 Transformer 已完成，长窗口不足以替代显式的 context-conditioned memory</strong>
           <p>同一冻结 DINO、数据、query 与评测口径下，217,360 参数的全历史 Transformer 在 fresh sealed conflict 上只有 0.5295，而 ReMAP 为 0.9774。下一步补通用 write-event KV 外挂记忆、官方 Gated DeltaNet 与忠实 Hippoformer 适配，检验优势究竟来自“有外存”还是 ReMAP 的 place × context 双地址结构。</p>
+        </div>
+        <div class="artifact-list" style="margin-top:12px;">
+          <a class="artifact" href="remap_former_current_paper_iclr2025.pdf"><strong>下载：当前英文 ICLR 格式论文</strong><span>12 页完整草稿；模型架构、隐藏 context 任务、2D/3D 结果、全历史 Transformer 对照、因果消融与局限</span></a>
+          <a class="artifact" href="remap_former_current_paper_iclr2025.tex"><strong>论文 LaTeX 源码</strong><span>基于 ICLR 2025 模板，可直接继续补实验、作者信息与投稿材料</span></a>
+          <a class="artifact" href="build_remap_former_current_paper.ps1"><strong>一键复现论文 PDF</strong><span>校验证据哈希、重新生成全部主图并使用本地 Tectonic 编译</span></a>
         </div>
       </section>
 
@@ -728,6 +733,9 @@
         </div>
 
         <div class="artifact-grid" style="margin-top:12px;">
+          <a class="artifact" href="remap_former_current_paper_iclr2025.pdf"><strong>当前英文 ICLR 格式论文</strong><span>12 页；完整架构、2D/3D 实验、模型对比、因果证据、局限与下一步</span></a>
+          <a class="artifact" href="remap_former_current_paper_iclr2025.tex"><strong>英文论文 LaTeX</strong><span>当前可编辑主文源码</span></a>
+          <a class="artifact" href="remap_former_current_paper.bib"><strong>英文论文 BibTeX</strong><span>Transformer、TEM、Hippoformer、Titans、Memory Maze、DINOv2 等正式引用</span></a>
           <a class="artifact" href="REPORT_CN.md"><strong>最新：全历史 Transformer 密封报告</strong><span>完整历史、matched write flag、三种子 fresh sealed 结果、与 ReMAP 的固定对照和解释边界</span></a>
           <a class="artifact" href="full_transformer_sealed_v1_summary.json"><strong>全历史 Transformer 密封机器汇总</strong><span>逐种子 conflict / cosine / counterfactual 指标、冻结哈希与 ReMAP 差值</span></a>
           <a class="artifact" href="memorymaze3d_waypoint_full_transformer_sealed_v1.json"><strong>全历史 Transformer 密封协议</strong><span>三份开发 checkpoint、一次性评测规则、输入禁令与 provenance</span></a>
@@ -917,45 +925,52 @@
       <section id="paper-package">
         <div class="section-head">
           <div>
-            <h2>最新：G8 论文证据包</h2>
-            <p>只整理冻结证据，不改模型、不重跑挑数，也不覆盖旧 P0/P5 发布阻断。</p>
+            <h2>当前英文 ICLR 格式论文：ReMAP-Former</h2>
+            <p>把当前最强且可审计的模型设计、隐藏 context 任务、2D/3D 实验、视觉审计、matched Transformer 对照和诚实边界收进同一篇论文。</p>
           </div>
-          <div class="source">2026-07-18 · PACKAGE 7/7 · manifest 92f2fec37913a8fe…</div>
+          <div class="source">2026-07-27 · ENGLISH · 12 PAGES · FINAL VISUAL QA PASS</div>
         </div>
 
-        <div class="grid-2">
+        <div class="artifact-list">
+          <a class="artifact" href="remap_former_current_paper_iclr2025.pdf"><strong>打开论文 PDF</strong><span>英文 12 页 ICLR 格式当前草稿</span></a>
+          <a class="artifact" href="remap_former_current_paper_iclr2025.tex"><strong>LaTeX 主文</strong><span>正文、表格、图注与附录源码</span></a>
+          <a class="artifact" href="remap_former_current_paper.bib"><strong>BibTeX 文献库</strong><span>论文引用与可追踪来源</span></a>
+          <a class="artifact" href="make_remap_former_current_paper_figures.py"><strong>论文绘图脚本</strong><span>先核对源证据 SHA256，再生成全部主图</span></a>
+          <a class="artifact" href="build_remap_former_current_paper.ps1"><strong>完整构建脚本</strong><span>重建图片、编译 LaTeX 并输出最终 PDF</span></a>
+        </div>
+
+        <article class="panel" style="margin-top:12px;">
+          <h3>Figure 1：Transformer=PFC，外挂单一 episode-local HPC</h3>
+          <p>视觉/符号观测与动作历史先进入窗口 Transformer；action-only 周期 EC 提供位置地址，PFC 历史状态提供 latent context 地址，二者共同寻址同一张可微 fast-weight memory。没有 room、context、pose、place、route 或 target ID。</p>
+          <div class="figure-scroll">
+            <img class="result-figure" src="figures/remap_former_current_architecture_paper.png" alt="ReMAP-Former 当前模型架构：窗口 Transformer PFC、action-only EC、稀疏 place、latent context 与单一 episode-local HPC" />
+          </div>
+        </article>
+
+        <div class="grid-2" style="margin-top:12px;">
           <article class="panel">
-            <h3>Figure 1：正式 M1b 架构</h3>
-            <p>Window Transformer/PFC 接收合法历史；neural EC/place 与 action-history context 形成乘性地址；单一 episode-local covariance HPC 执行 read-before-write。</p>
-            <img class="result-figure" src="figures/remap_former_m1b_architecture_g8.png" alt="ReMAP-Former M1b 正式架构图" />
+            <h3>Figure 2：2D 隐藏 context 再进入</h3>
+            <p>8 个冻结种子下，ReMAP 的 return-conflict 为 0.820 ± 0.020；内部 Hippoformer 导航适配与 M-delta 在该冲突切换指标上均为 0.000。长历史结果是 observed-history recall，不包装成 free rollout。</p>
+            <img class="result-figure" src="figures/remap_former_2d_current_results_paper.png" alt="ReMAP-Former 当前 2D 隐藏 context 再进入结果与结构化消融" />
           </article>
           <article class="panel">
-            <h3>Figure 2：G7 预测 G8 隐藏流</h3>
-            <p>H32/48 的合法证据截断区明确保留；G8 realized coverage / return / passes 与 G7 预注册均匀混合预测误差为 0.0052 / 0.0499 / 0.0059。</p>
-            <img class="result-figure" src="figures/remap_former_g7_g8_hidden_cutoff.png" alt="G7 paired horizon 与 G8 hidden-cutoff 对比图" />
+            <h3>Figure 3：3D Fresh Sealed 结果</h3>
+            <p>32 个全新 layout、64 条配对 sequence 和 192 个 delayed conflict query 上，ReMAP 为 0.977 ± 0.006；matched full-context Transformer 为 0.530 ± 0.003。预测目标是冻结 DINO feature，不是 RGB。</p>
+            <img class="result-figure" src="figures/remap_former_3d_sealed_results_paper.png" alt="ReMAP-Former 当前 3D fresh sealed 结果、matched full-context Transformer 对照与因果干预" />
           </article>
         </div>
 
         <article class="panel" style="margin-top:12px;">
-          <h3>Table 1：统一冻结基线</h3>
-          <table>
-            <thead><tr><th>模型</th><th>参数</th><th>训练 steps</th><th>T1 strict 4096</th><th>T2 clean</th><th>T2 return</th></tr></thead>
-            <tbody>
-              <tr><td data-label="模型">Hippoformer</td><td data-label="参数" class="num">1,494,447</td><td data-label="steps" class="num">600</td><td data-label="T1" class="num">0.3049</td><td data-label="clean" class="num green">1.0000</td><td data-label="return" class="num red">0.0000</td></tr>
-              <tr><td data-label="模型">Hippoformer HPC branch*</td><td data-label="参数" class="num">1,494,447</td><td data-label="steps" class="num">600</td><td data-label="T1" class="num">N/A</td><td data-label="clean" class="num">0.9868</td><td data-label="return" class="num red">0.0000</td></tr>
-              <tr><td data-label="模型">M-delta</td><td data-label="参数" class="num">1,388,257</td><td data-label="steps" class="num">600</td><td data-label="T1" class="num green">0.9925</td><td data-label="clean" class="num green">1.0000</td><td data-label="return" class="num red">0.0000</td></tr>
-              <tr><td data-label="模型">Window Transformer</td><td data-label="参数" class="num">1,280,960</td><td data-label="steps" class="num">1,200</td><td data-label="T1" class="num">N/A</td><td data-label="clean" class="num">0.8953</td><td data-label="return" class="num red">0.0134</td></tr>
-              <tr><td data-label="模型">Parameter-matched Transformer</td><td data-label="参数" class="num">1,396,096</td><td data-label="steps" class="num">1,200</td><td data-label="T1" class="num">N/A</td><td data-label="clean" class="num">0.8954</td><td data-label="return" class="num red">0.0122</td></tr>
-              <tr><td data-label="模型">Titans-MAC adaptation*</td><td data-label="参数" class="num">1,344,260</td><td data-label="steps" class="num">1,200</td><td data-label="T1" class="num">N/A</td><td data-label="clean" class="num">0.9234</td><td data-label="return" class="num red">0.0095</td></tr>
-              <tr><td data-label="模型"><strong>ReMAP-Former M1b</strong></td><td data-label="参数" class="num"><strong>1,398,289</strong></td><td data-label="steps" class="num">600</td><td data-label="T1" class="num">0.6736</td><td data-label="clean" class="num green">0.9944</td><td data-label="return" class="num green"><strong>0.8376</strong></td></tr>
-            </tbody>
-          </table>
-          <p style="margin-top:10px;">T1 仅评测 Hippoformer、M-delta 与 M1b，其他行严格标为 N/A。Transformer/Titans 为 1,200-step best-effort；Titans-MAC 不是官方 checkpoint，Hippoformer HPC branch 是机制消融。95% CI 与 provenance 见机器表。</p>
+          <h3>Figure 4：模型家族区别与当前比较资格</h3>
+          <div class="figure-scroll">
+            <img class="result-figure" src="figures/remap_former_model_family_comparison.png" alt="ReMAP-Former、全历史 Transformer、Hippoformer、Titans 和 TEM 类模型的结构与证据资格对比" />
+          </div>
+          <p style="margin-top:10px;">论文把 matched full-context Transformer 作为当前最强的 sealed 对照。Hippoformer 与 Titans 数字明确标为内部适配或机制相关结果，不冒充官方 reproduction；官方式 Gated DeltaNet、忠实 Hippoformer 适配和通用 write-event KV 外存仍在下一轮计划中。</p>
         </article>
 
         <div class="decision" style="margin-top:12px;">
-          <strong>必须同时报告的边界：T2 return 很强，不等于完整 free-rollout 曲线已经胜出</strong>
-          <p>M1b 对 Hippoformer 的 4096-step endpoint 为 +0.3688，但 log-horizon AUC 为 -0.0970，strict rollout full-curve H1=False。旧 P5 仍是 EVIDENCE_COMPLETE_RELEASE_BLOCKED；唯一 canonical mismatch 仍为 remap_former/pfc.py。</p>
+          <strong>当前论文定位：机制证据已经成形，但还不是“实验全部完成”的投稿终稿</strong>
+          <p>当前最硬结果是 hidden-context re-entry、单一 episode-local fast-weight HPC 的因果必要性，以及 fresh sealed 3D 上对 matched full-context Transformer 的明显优势。尚缺统一预算下的强记忆基线、learned-policy free rollout、更大规模 3D 与正式统计检验；这些缺口已在论文 Limitations 与实验路线中逐项写明。</p>
         </div>
       </section>
 

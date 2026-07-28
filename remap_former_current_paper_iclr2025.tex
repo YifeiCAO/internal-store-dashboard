@@ -1,0 +1,680 @@
+\documentclass{article}
+
+\usepackage{iclr2025_conference,times}
+\input{math_commands.tex}
+\usepackage{amsmath,amssymb}
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{array}
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{microtype}
+\usepackage{multirow}
+\usepackage{subcaption}
+\usepackage{url}
+\usepackage{hyperref}
+
+\definecolor{remapred}{RGB}{203,77,64}
+\definecolor{remapblue}{RGB}{35,100,170}
+\definecolor{remapgreen}{RGB}{60,137,94}
+\definecolor{mutedgray}{RGB}{82,96,108}
+\hypersetup{
+  colorlinks=true,
+  linkcolor=remapblue,
+  citecolor=remapblue,
+  urlcolor=remapblue
+}
+\graphicspath{{../reports/figures/}}
+\newcommand{\model}{\textsc{ReMAP-Former}}
+\newcommand{\hippo}{\textsc{Hippoformer}}
+\newcommand{\mdelta}{\textsc{M-delta}}
+\newcommand{\fulltf}{\textsc{Full-TF}}
+\newcommand{\hpc}{\textsc{HPC}}
+\newcommand{\ec}{\textsc{EC}}
+\newcommand{\pfc}{\textsc{PFC}}
+\newcolumntype{Y}{>{\raggedright\arraybackslash}X}
+\newcolumntype{R}{>{\raggedleft\arraybackslash}X}
+
+\title{\model: Remapped Episode-Local Memory for Hidden-Context Re-entry}
+
+\author{Anonymous Authors}
+
+\begin{document}
+\maketitle
+\lhead{Current draft in the ICLR format}
+
+\begin{abstract}
+Long-context attention exposes past tokens, but exposure alone does not guarantee that a model will retrieve the episode that is relevant after a latent context switch.
+We study \emph{hidden-context re-entry}: an agent visits the same physical place under two contexts that bind different content, leaves, and must recover the content associated with the context it later re-enters.
+We introduce \model, a causal Transformer controller coupled to one episode-local differentiable memory.
+The Transformer acts as a prefrontal controller and infers a low-dimensional context from observable history.
+An action-only periodic entorhinal module produces a sparse place population, and the outer product of place and context forms a remapped address.
+Content is read from and written to a single dense fast-weight matrix that is initialized to zero for every episode and discarded at its end.
+No room, context, pose, waypoint, place, route, or target identifier is supplied to the model.
+
+On a 2D A--B--A navigation task, \model obtains $0.820\pm0.020$ return-conflict accuracy over eight seeds, while internal \hippo{} navigation and unremapped delta-memory adaptations obtain $0.000$.
+On a fresh-sealed MemoryMaze3D-derived task containing 32 unseen layouts and 64 paired 384-step sequences, three frozen \model{} checkpoints obtain $0.977\pm0.006$ conflict accuracy.
+A parameter-matched full-context Transformer reaches $0.530\pm0.003$ despite attending to the entire sequence and training for more updates.
+Interventions that zero hippocampal readout, fix context, or substitute the wrong history selectively destroy retrieval, whereas forcing the correct history restores $0.969$ accuracy.
+The present result is feature-space episodic recall with an externally matched write-event flag, not RGB generation, learned-policy control, or action-only free rollout.
+\end{abstract}
+
+\section{Introduction}
+
+Transformers can, in principle, attend to every observation in a finite trajectory~\citep{vaswani2017attention}.
+Yet a memory system must solve a stricter problem than retaining tokens: it must determine \emph{which episode} should control a prediction when the current local input is compatible with multiple histories.
+This distinction becomes visible under remapping.
+Suppose an agent encounters a blue object at a location in context A, a red object at the same location in context B, and then returns to A while the object is hidden.
+The current image and physical place do not identify the target; the model must infer that it has re-entered A and use this latent state to address the earlier blue episode.
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=\textwidth]{remap_former_hidden_context_task_overview.png}
+  \caption{
+    \textbf{Hidden-context re-entry.}
+    The 2D schematic and the actual fresh-sealed 3D frames instantiate the same A--B--A conflict.
+    The agent writes different content at one physical place in two contexts, then queries the place after the target becomes invisible.
+    The correct answer is determined by causal history rather than the current local observation.
+  }
+  \label{fig:task}
+\end{figure}
+
+We investigate whether an explicit separation between \emph{context inference}, \emph{structural address}, and \emph{episode-local content} improves this form of retrieval.
+Our design is inspired by complementary roles associated with prefrontal, entorhinal, and hippocampal systems.
+The Transformer is the \pfc{} controller, not a peripheral module.
+It reads actions and lagged observations, maintains a persistent retention state, and emits a latent context.
+An action-only \ec{} integrates egocentric motion into a periodic population and a sparse neural place code.
+Their multiplicative binding gives a context-remapped address.
+Finally, a single \hpc{} fast-weight matrix stores observation content online using read-before-write delta updates.
+The matrix is a differentiable state, not a bank of slots or a learned content parameter.
+
+Our contributions are:
+\begin{itemize}
+  \item We formulate hidden-context re-entry as a paired counterfactual test of whether history is merely available or is causally used to address episodic content.
+  \item We present \model, which combines a causal Transformer \pfc, action-only periodic \ec, sparse place code, place--context conjunctive address, and one episode-local covariance-corrected fast-weight \hpc.
+  \item We provide frozen 2D evidence across eight seeds and a fresh-sealed 3D evaluation across 32 new layouts, including anti-shortcut gates, matched full-context attention, causal memory interventions, and visual source audits.
+\end{itemize}
+
+The empirical conclusion is deliberately narrower than a general world-model claim.
+The current 3D task predicts frozen DINOv2 features at sparse, hidden-target queries~\citep{oquab2023dinov2}.
+It does not yet evaluate open-loop RGB imagination, learned navigation policies, or unseen semantic object classes.
+
+\section{Related Work}
+
+\paragraph{Transformers and fast weights.}
+Self-attention provides content-based access to sequence history~\citep{vaswani2017attention}.
+Fast-weight systems instead expose an explicit state that can be updated online~\citep{ba2016fastweights}; linear attention can itself be interpreted as a fast-weight programmer~\citep{schlag2021linear}.
+Recent architectures such as Titans~\citep{behrouz2024titans} and Gated Delta Networks~\citep{yang2024gateddelta} extend this view with learned test-time memory updates.
+\model{} shares the use of a neural matrix but differs in the source of its address: the key is explicitly factorized into a path-integrated place population and a history-inferred latent context.
+
+\paragraph{Relational and hippocampal memory.}
+The Tolman--Eichenbaum Machine (TEM) unifies spatial and relational structure through entorhinal--hippocampal interactions~\citep{whittington2020tem}.
+\hippo{} combines an mm-TEM memory pathway with a Transformer~\citep{li2026hippoformer}.
+Vector-HaSH demonstrates how spatial scaffolds can support episodic and associative memory~\citep{chandra2025vectorhash}.
+Our implementation is not a reproduction of these systems.
+It isolates a smaller computational hypothesis: an inferred context should remap a place-addressed, episode-local content matrix.
+
+\paragraph{Spatial memory benchmarks.}
+Memory Maze tests long-term memory in procedurally generated 3D mazes~\citep{pasukonis2023memorymaze}.
+Grid-like path integration can be formalized through group representations and periodic codes~\citep{gao2021path}.
+We use a MemoryMaze3D simulator to build paired continuous trajectories with hidden visual targets, but our current endpoint is controlled feature recall rather than the full Memory Maze control benchmark.
+
+\begin{table}[t]
+\centering
+\caption{
+  Mechanism-level comparison.
+  Only \model{} and \fulltf{} have matched fresh-sealed 3D scores in this work.
+}
+\label{tab:families}
+\scriptsize
+\begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash}p{0.16\textwidth}YYYY}
+\toprule
+Model family & History access & Fast state & Address / write & Evidence here\\
+\midrule
+\fulltf{} & All prior tokens & None & Content attention; direct decode & 3D sealed: 0.530\\
+\hippo{} / mm-TEM & Transformer plus structural memory & Relational fast-weight machinery & Learned structural code & Internal 2D adaptation\\
+Titans / Gated Delta & Attention plus neural matrix & Test-time gradient or delta updates & Primarily content-derived & Related mechanism\\
+\model{} & Windowed \pfc{} plus retention state & One zero-initialized episode matrix & Place $\times$ inferred context; dual-key delta & 3D sealed: 0.977\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+The \hippo{} entry in Table~\ref{tab:families} is an internal navigation adaptation rather than an official reproduction.
+Titans and Gated DeltaNet are related mechanisms, not claimed sealed baselines.
+
+\section{Hidden-Context Re-entry}
+\label{sec:problem}
+
+An episode is a causal sequence of actions $a_{1:T}$ and observations $x_{1:T}$.
+At sparse write events $w_t=1$, an observation contains a target value $v_t$.
+At query times, the target is hidden and the model predicts $\hat v_t$ from actions, lagged observations, and its internal state.
+Each physical place can be visited in contexts A and B, and the two contexts may bind different values to that place.
+The return phase revisits one context after an intervening visit to the other.
+
+For every delayed conflict query, we construct a positive target $v_t^+$ from the matching place and return context and a competing target $v_t^-$ from the same place in the other context.
+We report pairwise conflict accuracy
+\begin{equation}
+  \mathcal{A}_{\mathrm{pair}}
+  =
+  \mathbb{E}
+  \left[
+  \mathbf{1}
+  \left\{
+  \cos(\hat v_t,v_t^+) >
+  \cos(\hat v_t,v_t^-)
+  \right\}
+  \right].
+  \label{eq:pair}
+\end{equation}
+The 3D test contains paired A--B--A and B--A--B sequences with identical layouts, actions, query poses, and query pixels but opposite return contexts.
+Consequently, a current-frame shortcut cannot solve the pair.
+
+\section{\model}
+\label{sec:method}
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=\textwidth]{remap_former_current_architecture_paper.pdf}
+  \caption{
+    \textbf{Current frozen 3D architecture.}
+    The Transformer is the \pfc{} controller.
+    Actions and lagged DINO features enter the \pfc; the matched binary event flag gates writes only.
+    The \ec{} receives actions only.
+    Place and inferred context form a 512-dimensional conjunctive key for one $384\times512$ episode-local \hpc{} matrix.
+    The 3D output is a retrieved DINO feature; the direct \pfc{} residual gain is zero.
+  }
+  \label{fig:architecture}
+\end{figure}
+
+\subsection{Transformer \pfc{} and persistent context state}
+
+At time $t$, the \pfc{} token concatenates the current action, a learned action embedding, and the previous observation feature:
+\begin{equation}
+  u_t = W_u \left[a_t;\,E_a(a_t);\,x_{t-1}\right].
+\end{equation}
+A causal Transformer with attention window $W_{\pfc}$ produces $h_t$.
+The current 3D model uses one Transformer layer, hidden dimension 96, four heads, and $W_{\pfc}=32$.
+
+A separate persistent state summarizes a longer rolling history without exposing an oracle context.
+Let $\bar h_t$ be an attention-refined mean of the most recent $W_s=128$ \pfc{} hidden states.
+A candidate state $\tilde s_t$ and learned retention gate $\rho_t$ update
+\begin{align}
+  \rho_t &= \sigma\!\left(W_\rho[s_{t-1};\bar h_t]+b_\rho\right),\\
+  s_t &= \operatorname{LN}\!\left(\rho_t s_{t-1}+
+    (1-\rho_t)\tilde s_t\right),\\
+  c_t &= \operatorname{norm}\!\left(\tanh(W_c s_t)\right).
+  \label{eq:context}
+\end{align}
+Here $s_t\in\mathbb{R}^{16}$ and $c_t\in\mathbb{R}^{8}$.
+The context vector is learned only through the retrieval objective; no room or context label is input or supervised.
+
+\subsection{Action-only periodic \ec{} and sparse place code}
+
+The \ec{} accepts the official six-action one-hot vector and rejects simulator pose.
+It integrates egocentric forward and turning commands:
+\begin{align}
+  \theta_t &= \theta_{t-1} + \Delta\theta(a_t),\\
+  z_t &= z_{t-1} + \Delta d(a_t)
+  [\cos\theta_t,\sin\theta_t]^\top.
+\end{align}
+We form $\xi_t=[z_{t,x},z_{t,y},\cos\theta_t,\sin\theta_t]$ and a 32-dimensional periodic population
+\begin{equation}
+  g_t =
+  \left[
+    \cos(B\xi_t+\phi);
+    \sin(B\xi_t+\phi)
+  \right].
+\end{equation}
+The motion scale is calibrated on simulator actions and then frozen before task training.
+A frozen neural projection produces a sparse 64-dimensional place population
+\begin{equation}
+  p_t =
+  \operatorname{norm}
+  \left[
+  \operatorname{sparsemax}\!\left(W_{gp}g_t/\tau\right)
+  \right],
+  \qquad \tau=0.25.
+  \label{eq:place}
+\end{equation}
+Sparsemax is differentiable almost everywhere; no absolute position or discrete place index is used.
+
+\subsection{Remapped address and episode-local \hpc}
+
+Place and context remain separate until multiplicative binding:
+\begin{equation}
+  k_t =
+  \operatorname{norm}
+  \left[
+  \operatorname{vec}(p_t c_t^\top)
+  \right]
+  \in\mathbb{R}^{512}.
+  \label{eq:key}
+\end{equation}
+Thus the same place population maps to a different address when the inferred context changes.
+
+The content state is a dense matrix $M_t\in\mathbb{R}^{384\times512}$.
+It is initialized as $M_0=0$ inside every forward episode and is discarded afterward.
+Reading always precedes the current write:
+\begin{equation}
+  r_t=M_t k_t.
+  \label{eq:read}
+\end{equation}
+To reduce interference among correlated place and context codes, we form dual vectors $\tilde p_t$ and $\tilde c_t$.
+The context dual is the ridge-regularized inverse-covariance direction
+\begin{equation}
+  \tilde c_t =
+  \frac{(C_t+\lambda I)^{-1}c_t}
+  {c_t^\top(C_t+\lambda I)^{-1}c_t},
+  \qquad \lambda=0.03,
+\end{equation}
+and the place dual is the residual after projecting $p_t$ onto the weighted span of earlier written place populations, normalized to preserve alignment with $p_t$.
+The dual write key is $\tilde k_t=\operatorname{vec}(\tilde p_t\tilde c_t^\top)$.
+For an externally matched event flag $w_t\in\{0,1\}$, the online update is
+\begin{equation}
+  M_{t+1}
+  =
+  M_t+
+  w_t
+  \frac{(v_t-r_t)\tilde k_t^\top}
+       {k_t^\top\tilde k_t+\epsilon}.
+  \label{eq:write}
+\end{equation}
+All arithmetic in Equations~\ref{eq:read}--\ref{eq:write} remains in the differentiable graph.
+The value encoder and decoder are frozen identities in the current 3D experiment, and the direct \pfc{} residual gain is zero, so $\hat v_t=r_t$.
+There is no memory-slot bank, persistent content parameter, room-specific expert, or second fast-weight system.
+
+\section{Experimental Protocol}
+\label{sec:experiments}
+
+\subsection{2D hidden-context navigation}
+
+The 2D task contains A--B--A episodes in which a physical place is associated with different categorical content under two latent contexts.
+At return-conflict queries, the local cue is insufficient and the model must retrieve the value bound during the earlier matching context.
+All models are evaluated on shared episodes with frozen checkpoints.
+The main stability run uses eight training seeds, 512 test episodes per seed, and 1,024 return-conflict probes per seed.
+We compare \model{} against (i) an internal navigation adaptation of \hippo{} and (ii) \mdelta, an unremapped delta-memory control.
+These are repository-internal adaptations rather than claims of official reproduction.
+
+We separately audit a harder generator for shortcut availability.
+Training and evaluation use disjoint path families and strong duration shift.
+Balanced probes measure whether context can be predicted from current observation, time, current action, an eight-step local window, the current path signature, or the full causal history relation.
+This audit validates the task generator; it does not retroactively turn a checkpoint from another split into a result on the audited split.
+
+\subsection{Fresh-sealed MemoryMaze3D task}
+
+We construct continuous 384-action episodes in variable $9\times9$ MemoryMaze3D layouts~\citep{pasukonis2023memorymaze}.
+Each episode has three 128-step phases with a randomized A--B--A or B--A--B order, four physical waypoints, eight visible write events, and four hidden-target queries.
+Three query places contain cross-context conflicts; one is clean.
+The simulator executes every official action through \texttt{env.step}; no teleport occurs after reset.
+
+RGB frames are rendered at $224\times224$.
+The model receives a 384-dimensional feature from a frozen DINOv2 ViT-S/14 encoder pooled over a fixed broad image region~\citep{oquab2023dinov2}.
+It also receives the six-action one-hot vector.
+A binary event flag identifies the eight times at which the currently visible feature may be written.
+The full-context Transformer receives the same flag.
+Neither learned model receives room/context ID, simulator pose or heading, waypoint/place ID, route family, target identity, future observation, or evaluation metadata.
+
+\begin{table}[t]
+\centering
+\caption{Fresh-sealed 3D protocol. The sealed split is never used for selection or optimization.}
+\label{tab:protocol}
+\small
+\begin{tabularx}{0.98\textwidth}{lRRR}
+\toprule
+ & Train & Dev. & Fresh sealed test\\
+\midrule
+Layouts & 6 & 4 & 32\\
+Sequences & 12 & 8 & 64\\
+Actions per sequence & 384 & 384 & 384\\
+Writes / queries per sequence & 8 / 4 & 8 / 4 & 8 / 4\\
+Delayed conflict queries & 36 & 24 & 192\\
+\midrule
+Train/test layout overlap & \multicolumn{3}{r}{0}\\
+Train/test physical-route overlap & \multicolumn{3}{r}{0}\\
+Train/test route-family overlap & \multicolumn{3}{r}{0}\\
+Counterfactual action/query-pixel mismatch & \multicolumn{3}{r}{0 / 0}\\
+Visible or geometrically exposed query targets & \multicolumn{3}{r}{0}\\
+Future ground-truth reads / writes & \multicolumn{3}{r}{0 / 0}\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+The sealed test contains 32 counterfactual pairs.
+Within each pair, layout, physical route, actions, context--object assignments before swapping return order, query pose, and query RGB are matched.
+All development/test overlaps in layout, physical route, route family, and canonical context assignment are zero.
+The current-query context probe is exactly $0.5$ balanced accuracy.
+All task gates are evaluated before model performance is read.
+
+\paragraph{Training.}
+\model{} has 243,785 trainable parameters and is trained for 300 optimizer steps.
+At conflict queries we sum pairwise cross-entropy, positive-target cosine loss, and clean-query cosine loss with unit weights:
+\begin{align}
+  \mathcal{L}_{\mathrm{pair}}
+  &=
+  -\log
+  \frac{\exp(\cos(\hat v_t,v_t^+)/\tau_\ell)}
+  {\exp(\cos(\hat v_t,v_t^+)/\tau_\ell)+
+   \exp(\cos(\hat v_t,v_t^-)/\tau_\ell)},\\
+  \mathcal{L}
+  &=\mathcal{L}_{\mathrm{pair}}
+  +(1-\cos(\hat v_t,v_t^+))
+  +\mathcal{L}_{\mathrm{clean}}.
+  \label{eq:loss}
+\end{align}
+Three development-selected checkpoints are frozen before the sealed split is opened.
+
+\paragraph{Matched full-context Transformer.}
+\fulltf{} is a true full-attention causal Transformer with two pre-RMSNorm layers, model width 80, eight heads, RoPE, SwiGLU width 216, and 217,360 trainable parameters (89.2\% of \model).
+It attends to all 384 steps, receives the same lagged DINO feature, action, and write flag, and uses a learned feature decoder.
+Its learning rate and write-flag variant are selected on development only; the final three seeds train for 1,000 steps with batch size 4.
+
+\section{Results}
+\label{sec:results}
+
+\subsection{2D: remapping is required at return}
+
+\begin{table}[t]
+\centering
+\caption{Eight-seed 2D frozen test. Values are means across seeds; uncertainty is shown for the key return-conflict metric.}
+\label{tab:2d}
+\small
+\begin{tabular}{lrrrr}
+\toprule
+Model & Trainable params & Clean & All conflict & Return conflict\\
+\midrule
+\hippo{} adaptation & 1,494,447 & 1.000 & 0.795 & $0.000\pm0.000$\\
+\mdelta{} & 1,388,257 & 1.000 & 0.800 & $0.000\pm0.000$\\
+\model{} & 1,398,289 & 0.995 & 0.929 & $\mathbf{0.820\pm0.020}$\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Table~\ref{tab:2d} shows that clean recognition does not diagnose re-entry.
+Both controls are perfect on clean queries yet deterministically choose the other-context content on the delayed return conflict.
+\model{} succeeds for every training seed, with a range of $0.785$--$0.846$.
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=\textwidth]{remap_former_2d_current_results_paper.pdf}
+  \caption{
+    \textbf{2D mechanism evidence.}
+    (a) Frozen eight-seed return-conflict result.
+    (b) A separate eight-seed component intervention run.
+    (c) Observed-history delay scaling; the dashed extension uses three seeds.
+    The delay result is not action-only free rollout.
+  }
+  \label{fig:2d}
+\end{figure}
+
+The intervention chain in Figure~\ref{fig:2d} localizes the gain.
+Removing covariance correction reduces return-conflict accuracy from $0.794$ to $0.268$.
+Fixing context gives $0.000$; shuffling context gives $0.436$; zeroing \hpc{} read gives $0.023$.
+Forcing the wrong return context gives $0.001$, while forcing the correct context raises accuracy to $0.942$.
+Thus the \hpc{} contains usable content, but it is the inferred context that selects which content is called.
+
+With observations supplied throughout the trajectory, the eight-seed model remains at $0.850$ at sequence length 836.
+A separate three-seed extension obtains $0.750$ through length 4,356.
+This tests delayed recall under observed history, not recursive visual prediction.
+
+\subsection{3D: full attention retains features but fails to disambiguate}
+
+\begin{table}[t]
+\centering
+\caption{Fresh-sealed 3D result, mean $\pm$ sample SD over three frozen checkpoints.}
+\label{tab:3dmain}
+\small
+\resizebox{0.98\textwidth}{!}{
+\begin{tabular}{lrrrrrr}
+\toprule
+Model & Params & Updates & Conflict acc. & Target cosine & Cosine margin & Clean cosine\\
+\midrule
+\model{} & 243,785 & 300 & $\mathbf{0.977\pm0.006}$ &
+$\mathbf{0.952\pm0.031}$ & $\mathbf{0.087\pm0.033}$ & $\mathbf{0.993\pm0.004}$\\
+\fulltf{} & 217,360 & 1,000 & $0.530\pm0.003$ &
+$0.895\pm0.030$ & $0.004\pm0.002$ & $0.910\pm0.024$\\
+\bottomrule
+\end{tabular}}
+\end{table}
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=0.96\textwidth]{remap_former_3d_sealed_results_paper.pdf}
+  \caption{
+    \textbf{Fresh-sealed 3D performance.}
+    (a) The matched full-context Transformer and causal \model{} interventions.
+    (b) Both learned models produce features similar to the target, but only \model{} separates the correct target from the same-place, wrong-context competitor.
+  }
+  \label{fig:3d}
+\end{figure}
+
+\model{} reaches $0.977\pm0.006$ conflict accuracy over 192 delayed conflict queries, a $0.448$ absolute improvement over \fulltf{}.
+The Transformer target cosine of $0.895$ is not itself poor.
+Its failure is selective: the target-minus-competitor margin is only $0.004$, and predictions for paired counterfactual queries have cosine $0.994$.
+In other words, full attention preserves a plausible visual feature but maps opposite histories to nearly the same answer.
+\model{} raises the disambiguating margin to $0.087$.
+
+\begin{table}[t]
+\centering
+\caption{\model{} interventions on the sealed 3D split. Values are three-seed means. ``Other'' is the rate of selecting the same-place target from the wrong context.}
+\label{tab:3dinterventions}
+\scriptsize
+\begin{tabular}{lrrrrr}
+\toprule
+Condition & Conflict acc. & Other & Target cosine & Clean cosine & Context re-entry\\
+\midrule
+Full \model{} & \textbf{0.977} & 0.023 & 0.952 & 0.993 & 1.000\\
+\hpc{} read $=0$ & 0.500 & 0.500 & 0.000 & 0.000 & 1.000\\
+Fixed context & 0.203 & 0.797 & 0.945 & 0.966 & 0.500\\
+Wrong history & 0.215 & 0.785 & 0.953 & 0.969 & 0.000\\
+Correct history & 0.969 & 0.031 & 0.983 & 0.993 & 1.000\\
+Orthogonal-context oracle & 0.995 & 0.005 & 0.990 & 0.997 & 1.000\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Table~\ref{tab:3dinterventions} distinguishes content quality from address selection.
+With a fixed or wrong context, target and clean cosine remain high, but the model selects the wrong-context item.
+Substituting the correct history recovers $0.969$ without supplying the target.
+The direction of the failure is therefore diagnostic: wrong history calls the competing memory rather than merely adding noise.
+The oracle is only 1.7 points above the learned model, leaving limited headroom on this task.
+
+\subsection{What is visually retrieved?}
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=0.98\textwidth]{memorymaze3d_sealed_visual_recall_english.png}
+  \caption{
+    \textbf{Visual source audit.}
+    Three sealed queries from seed 66102 are compared with the correct same-waypoint write, the write selected by nearest feature match, and the competing context.
+    The selected source equals the correct write in all three rows.
+    These source frames visualize feature retrieval; they are not generated RGB predictions.
+  }
+  \label{fig:visual}
+\end{figure}
+
+Figure~\ref{fig:visual} grounds the feature metrics in actual simulator frames.
+For each shown query, the target object is absent from the current image, the two candidate writes come from the same physical waypoint, and the selected feature is closest to the write from the re-entered context.
+The three displayed target-minus-competing cosine margins are 0.178, 0.140, and 0.140.
+
+\section{Discussion}
+
+\paragraph{History availability is not history addressability.}
+The full-context Transformer can attend to every write and achieves high target cosine, yet its paired predictions are nearly invariant to return context.
+\model{} turns inferred history into an explicit address component.
+The result suggests that memory benchmarks should include paired conflicts where the same current input requires opposite answers, rather than relying only on average reconstruction similarity.
+
+\paragraph{The architecture is a controller plus one external hippocampus.}
+The Transformer is the \pfc{} backbone.
+It is not replaced by a GRU, and the \hpc{} is not a lookup table.
+The fast-weight matrix is created as zeros inside an episode, receives differentiable rank-one updates, is read by a continuous conjunctive key, and disappears at episode end.
+The learned grid-to-place projection defines an address population; content lives in the separate value-by-address matrix.
+
+\paragraph{The current bottleneck has moved.}
+In 2D, the correct-context intervention remains substantially above the learned-context model, indicating context inference headroom.
+In the current 3D waypoint task, learned \model{} is already close to both correct-history and orthogonal-context oracles.
+The next scientific bottleneck is therefore not squeezing another point from the present sealed split.
+It is testing whether the mechanism transfers when writes are learned, routes are less scripted, semantic content changes, and recall must support rollout or control.
+
+\section{Limitations and Claim Boundary}
+\label{sec:limitations}
+
+The current evidence has five important limits.
+First, the 3D endpoint is recall of frozen 384-dimensional DINOv2 features, not RGB generation.
+Second, observations are available throughout history; after a query the model is not asked to imagine a long action-only future.
+Third, a binary write-event flag is externally provided.
+It does not reveal context or target identity and is matched for \fulltf{}, but a deployable agent must learn when to write.
+Fourth, the sealed task uses four engineered physical waypoints, three existing sphere identities, six training layouts, and three model seeds.
+Novelty is in layout, physical route, route family, and context--object assignment, not unseen object categories.
+Fifth, the 2D \hippo{} and broader memory baselines are internal navigation adaptations.
+We do not claim an official \hippo{} reproduction or broad state of the art.
+
+The defensible claim is therefore:
+\emph{on controlled hidden-context re-entry tasks, a causal Transformer that infers context and uses it to remap one episode-local place-addressed fast-weight memory disambiguates competing episodes more reliably than a parameter-matched full-context Transformer and the tested internal controls.}
+
+\section{Conclusion}
+
+We introduced \model{} to test a simple proposition: a Transformer should not only retain history, but should use history to remap how episodic content is addressed.
+Across symbolic 2D and fresh-sealed visual 3D A--B--A tasks, conjunctive place--context addressing, one episode-local fast-weight matrix, and causal context inference form a coherent mechanism.
+Full attention recovers visually plausible features but collapses paired counterfactual histories; \model{} retrieves the context-appropriate episode.
+The result is a strong mechanism demonstration, while learned writing, semantic generalization, action-only rollout, and control remain the experiments required for a complete world-model claim.
+
+\bibliography{remap_former_current_paper}
+\bibliographystyle{iclr2025_conference}
+
+\appendix
+
+\section{Implementation Details}
+
+\begin{table}[h]
+\centering
+\caption{Current 3D \model{} configuration.}
+\label{tab:config}
+\small
+\begin{tabular}{lll}
+\toprule
+Subsystem & Setting & Value\\
+\midrule
+\pfc{} & action dimension / feature dimension & 6 / 384\\
+\pfc{} & hidden / heads / attention window & 96 / 4 / 32\\
+Retention & state / heads / history window & 16 / 4 / 128\\
+Context & dimension & 8\\
+\ec{} & periodic structure dimension & 32\\
+Place & population / sparsemax temperature & 64 / 0.25\\
+Address & place $\times$ context dimension & $64\times8=512$\\
+\hpc{} & value $\times$ key state & $384\times512$\\
+\hpc{} & covariance ridge & 0.03\\
+Output & direct \pfc{} residual gain & 0.0\\
+Training & steps / seeds & 300 / 3\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The \ec{} and place projection are calibrated and frozen before 3D task training.
+The \hpc{} value encoder and decoder are frozen identity maps.
+Only the \pfc, retention-state module, context head, and their associated slow parameters are optimized.
+The episode-local $M_t$, covariance statistics, and place-history state are tensors created during forward execution; they are not optimizer parameters and do not persist across episodes.
+
+\paragraph{Causal ordering.}
+At every time step, the model first reads from $M_t$ and emits a prediction.
+Only afterward can the current feature update $M_{t+1}$ when $w_t=1$.
+All sealed preflights report zero future-ground-truth reads and writes.
+The same ordering is used at clean and conflict queries.
+
+\section{2D Anti-Shortcut Audit}
+
+\begin{table}[h]
+\centering
+\caption{Balanced context-probe accuracy on the separate 2D-R2 generator audit. Mean $\pm$ sample SD over three seeds.}
+\label{tab:shortcut}
+\small
+\begin{tabular}{lcc}
+\toprule
+Probe input & Balanced accuracy & Interpretation\\
+\midrule
+Current observation & $0.491\pm0.015$ & near chance\\
+Time only & $0.509\pm0.018$ & near chance\\
+Current / two-step action & $0.500\pm0.000$ & chance\\
+Eight-step observation/action & $0.501\pm0.026$ & near chance\\
+Current path signature & $0.523\pm0.015$ & near chance\\
+Full causal history relation & $1.000\pm0.000$ & task is solvable\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Training uses 6--8 route segments and the audit split uses 9--11, with disjoint path families.
+Train and test sequence lengths are 274--374 and 460--580, respectively.
+Gauge-paired current observations are pixel-identical, and path-family overlap is zero.
+These gates show that the intended relative-context label is available in full history but not in the tested local shortcuts.
+
+\section{Broader 2D Baseline Snapshot}
+
+\begin{table}[h]
+\centering
+\caption{One-time internal 2D comparison retained for completeness. Budgets and implementations are not sufficient for a primary external-baseline claim.}
+\label{tab:broader}
+\small
+\begin{tabular}{lrr}
+\toprule
+Model & Params & Return-conflict accuracy\\
+\midrule
+\hippo{} navigation adaptation & 1,494,447 & 0.0000\\
+\hippo{} internal \hpc{} branch & 1,494,447 & 0.0000\\
+\mdelta{} & 1,388,257 & 0.0000\\
+Window Transformer & 1,389,952 & 0.0134\\
+Parameter-matched Transformer & 1,441,999 & 0.0122\\
+Titans-MAC navigation adaptation & 1,537,541 & 0.0095\\
+\model{} & 1,398,289 & 0.8376\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+This snapshot used eight training seeds and 512 episodes, but the external-style baselines received a different update budget in that campaign and the Hippoformer/Titans implementations are task adaptations.
+Accordingly, Table~\ref{tab:broader} is diagnostic evidence only.
+
+\section{Fresh-Sealed 3D Visual Protocol}
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=\textwidth]{memorymaze3d_waypoint_event_board_english.png}
+  \caption{
+    One complete sealed episode.
+    Context A and B write different objects at the same four physical waypoints.
+    The return phase revisits context A with every target hidden.
+  }
+  \label{fig:eventboard}
+\end{figure}
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=0.72\textwidth]{memorymaze3d_trajectory_english.pdf}
+  \caption{
+    Simulator trajectory for the episode in Figure~\ref{fig:eventboard}.
+    The three phases form one continuous 384-action episode.
+    Pose is recorded for generation and audit only and is never supplied to the model.
+  }
+  \label{fig:trajectory}
+\end{figure}
+
+\section{Artifact Provenance}
+
+\begin{table}[h]
+\centering
+\caption{Frozen evidence artifacts used for this draft. SHA256 prefixes are shown for readability; the source JSON files contain full protocol and checkpoint hashes.}
+\label{tab:artifacts}
+\scriptsize
+\begin{tabularx}{\textwidth}{Yl}
+\toprule
+Artifact & SHA256 prefix\\
+\midrule
+\texttt{headline8\_test\_seed1892.json} & \texttt{6c56c6071b267}\\
+\texttt{m1b\_component\_ablation\_validation1893.json} & \texttt{8fff414a20a36}\\
+\texttt{long\_delay\_stage\_a\_validation1894.json} & \texttt{b833be2a46ca}\\
+\texttt{long\_delay\_stage\_b\_validation1895.json} & \texttt{7cd8cbb2b882}\\
+\texttt{simulator\_translated\_waypoint\_aba\_sealed\_v1/summary.json} & \texttt{6607d9b7dc3a}\\
+\texttt{full\_transformer\_sealed\_v1/summary.json} & \texttt{8b6327a5206a}\\
+\texttt{memorymaze3d\_simulator\_translated\_waypoint\_aba\_sealed\_v1/test.npz} & \texttt{18547c8a869c}\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\end{document}
