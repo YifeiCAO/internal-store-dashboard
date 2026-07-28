@@ -1,0 +1,117 @@
+{
+  "format": "remap_former.memorymaze3d_waypoint_full_transformer_sealed_protocol.v1",
+  "created_at": "2026-07-27",
+  "status": "frozen_before_sealed_baseline_evaluation",
+  "purpose": "Once-only sealed evaluation of the development-selected full-context Transformer baseline on the exact translated-waypoint task already used by the frozen ReMAP-Former result.",
+  "parent_task_protocol": {
+    "path": "protocols/memorymaze3d_simulator_translated_waypoint_aba_sealed_v1.json",
+    "sha256": "29ea24092a7bbd4b969d92074dd134345ace9c953410cd888f845219247bb5c4"
+  },
+  "final_development_freeze": {
+    "path": "protocols/memorymaze3d_waypoint_full_transformer_final_dev_freeze_v1.json",
+    "sha256": "328e0552e2545836279ada9317cb009b66eb550c72933aea41359f34d1234c09"
+  },
+  "final_development_summary": {
+    "path": "runs/memorymaze3d/full_transformer_final_dev_3seed/summary.json",
+    "sha256": "3c93f86169b44a7c4d43de0847a126c01dc0fd52500abf155d408f809808121e"
+  },
+  "selected_configuration": {
+    "variant": "full_pm_write",
+    "learning_rate": 0.001,
+    "attention_window": null,
+    "use_write_flag": true,
+    "trainable_parameters": 217360,
+    "selection_source": "development only"
+  },
+  "frozen_checkpoints": [
+    {
+      "seed": 67101,
+      "path": "runs/memorymaze3d/full_transformer_final_dev_3seed/seed67101/best_dev.pt",
+      "sha256": "cf7a74e9e2f74ca5d483e60a9853555cf705c4d3d72a6437ecfd5a4822b03be9"
+    },
+    {
+      "seed": 67102,
+      "path": "runs/memorymaze3d/full_transformer_final_dev_3seed/seed67102/best_dev.pt",
+      "sha256": "a6e84338ea0e2911c8d86049f2893ecdbd4c5a2dc9412c88c0b492a731d32d5b"
+    },
+    {
+      "seed": 67103,
+      "path": "runs/memorymaze3d/full_transformer_final_dev_3seed/seed67103/best_dev.pt",
+      "sha256": "68ab3b7e194a811f7578435fdd1f2902eaf104cf68138dfa13b6cea0933ba5a7"
+    }
+  ],
+  "task_lock": {
+    "path": "runs/memorymaze3d/simulator_translated_waypoint_aba_sealed_v1_lock.json",
+    "sha256": "fbf45a25c3f80715a4ff322836b856effdbd7917ded33088ecddde76900dddde"
+  },
+  "task_preflight": {
+    "path": "runs/memorymaze3d/simulator_translated_waypoint_aba_sealed_v1_preflight.json",
+    "sha256": "36e223460ebf93500578dd475b2211581e472fce32e35b99e8b2bcc6b4ab8010"
+  },
+  "sealed_data": {
+    "data": "data/memorymaze3d_simulator_translated_waypoint_aba_sealed_v1/test.npz",
+    "data_sha256": "18547c8a869c46cf0342f6b98624819898e9df2756bc0e542fee292ebdf0f069",
+    "cache": "runs/memorymaze3d/simulator_translated_waypoint_aba_dino_sealed_v1/test_dinov2_vits14_reg.pt",
+    "cache_sha256": "af24415c6066e8d1e651ca24438fce9b920c0b92ea80009cabb2a9dd92fd22da",
+    "sequences": 64,
+    "unique_layouts": 32,
+    "sequence_length": 384
+  },
+  "remap_sealed_reference": {
+    "path": "runs/memorymaze3d/simulator_translated_waypoint_aba_sealed_v1/summary.json",
+    "sha256": "6607d9b7dc3ace7c6921707704c2d534276ea2124cc236f07d0420948d4f3143"
+  },
+  "frozen_artifacts": [
+    {
+      "path": "protocols/memorymaze3d_waypoint_full_transformer_final_dev_freeze_v1.json",
+      "sha256": "328e0552e2545836279ada9317cb009b66eb550c72933aea41359f34d1234c09"
+    },
+    {
+      "path": "runs/memorymaze3d/full_transformer_final_dev_3seed/summary.json",
+      "sha256": "3c93f86169b44a7c4d43de0847a126c01dc0fd52500abf155d408f809808121e"
+    },
+    {
+      "path": "data/memorymaze3d_simulator_translated_waypoint_aba_sealed_v1/test.npz",
+      "sha256": "18547c8a869c46cf0342f6b98624819898e9df2756bc0e542fee292ebdf0f069"
+    },
+    {
+      "path": "runs/memorymaze3d/simulator_translated_waypoint_aba_dino_sealed_v1/test_dinov2_vits14_reg.pt",
+      "sha256": "af24415c6066e8d1e651ca24438fce9b920c0b92ea80009cabb2a9dd92fd22da"
+    }
+  ],
+  "frozen_code": [
+    {
+      "path": "remap_former/full_context_transformer.py",
+      "sha256": "f0fb98e8cf8b37259b5e9bd89e50d3e8c999abe0df11d7129a3b2be58cd4c6e7"
+    },
+    {
+      "path": "train_memorymaze3d_waypoint_full_transformer.py",
+      "sha256": "ff3222f419a90c2b8887168aea95c362f77c3c93ddcc6369329077a74ff7a500"
+    },
+    {
+      "path": "evaluate_memorymaze3d_waypoint_full_transformer_sealed.py",
+      "sha256": "99cd07f8d2f13029ddb55415a3330366d695c86ce5baa11798c49ff14b3427af"
+    }
+  ],
+  "evaluation": {
+    "batch_size": 4,
+    "optimizer_steps": 0,
+    "checkpoint_reselection": false,
+    "metrics": [
+      "conflict pairwise accuracy",
+      "conflict target cosine",
+      "clean and all-query cosine",
+      "paired counterfactual prediction cosine"
+    ],
+    "comparison": "locked ReMAP-Former sealed full condition",
+    "preflight_must_be_written_before_performance": true,
+    "one_time_output": true
+  },
+  "stop_rules": [
+    "Stop before performance if the parent task lock, parent task preflight, code, development artifacts, data, cache, or checkpoint hashes change.",
+    "Stop before performance if any checkpoint fails strict causality, full-history reachability, finite-output, or zero future-ground-truth checks.",
+    "Refuse to overwrite the sealed baseline preflight or summary.",
+    "Do not use sealed metrics to retrain, reselect, resize, or otherwise modify this baseline.",
+    "Report the result regardless of whether it is strong or weak."
+  ]
+}

@@ -1,10 +1,10 @@
 {
     "format":  "remap_former.internal_store_dashboard.package.v1",
-    "packaged_at":  "2026-07-27T08:58:23.9607256-07:00",
+    "packaged_at":  "2026-07-27T19:58:25.5628717-07:00",
     "source_html":  "D:\\brain_inspired_transformer\\reports\\internal_store_dashboard.html",
-    "source_sha256":  "d8f0f29db43158064fc852426acce5b0b80ca0594708e295f3d1cadfb2ae1cfd",
-    "index_sha256":  "47c9a65edd4d036aab824b808780dde1542e8984dd2196d3b4a1331da4fff5ee",
-    "local_reference_count":  235,
+    "source_sha256":  "47cd41ef3129c83347e5cca70bb38dbce4a292ceab59d52dc650bd49dc9a47e9",
+    "index_sha256":  "355f0616b467ad53a2271b41b7909fc5ec8f44a2df257f59c11d315517851ef8",
+    "local_reference_count":  242,
     "files":  [
                   {
                       "attribute":  "href",
@@ -127,6 +127,20 @@
                   },
                   {
                       "attribute":  "href",
+                      "source_reference":  "../protocols/memorymaze3d_waypoint_full_transformer_sealed_v1.json",
+                      "target_reference":  "memorymaze3d_waypoint_full_transformer_sealed_v1.json",
+                      "sha256":  "c621af6c6a54aa5878eb8d32675db51006313c947bdb486359c135a8fc504ff1",
+                      "bytes":  5202
+                  },
+                  {
+                      "attribute":  "href",
+                      "source_reference":  "../remap_former/full_context_transformer.py",
+                      "target_reference":  "full_context_transformer.py",
+                      "sha256":  "f0fb98e8cf8b37259b5e9bd89e50d3e8c999abe0df11d7129a3b2be58cd4c6e7",
+                      "bytes":  11319
+                  },
+                  {
+                      "attribute":  "href",
                       "source_reference":  "../remap_former/visual_multiplace_aba.py",
                       "target_reference":  "visual_multiplace_aba.py",
                       "sha256":  "b780ad9c1b50507a93e62080574b6bb037bf74e6d1a672c6305e1eb9ac775350",
@@ -159,6 +173,34 @@
                       "target_reference":  "dino_d0_target_audit_conflict_patch_v2.json",
                       "sha256":  "a8d181f2d4cac17c2c55361ebb233254e0a73592d9688a606941876f337dc4cb",
                       "bytes":  2884
+                  },
+                  {
+                      "attribute":  "href",
+                      "source_reference":  "../runs/memorymaze3d/full_transformer_final_dev_3seed/summary.json",
+                      "target_reference":  "full_transformer_final_dev_3seed_summary.json",
+                      "sha256":  "3c93f86169b44a7c4d43de0847a126c01dc0fd52500abf155d408f809808121e",
+                      "bytes":  5180
+                  },
+                  {
+                      "attribute":  "href",
+                      "source_reference":  "../runs/memorymaze3d/full_transformer_sealed_v1/POST_EVAL_REPORT_ERRATUM.json",
+                      "target_reference":  "POST_EVAL_REPORT_ERRATUM.json",
+                      "sha256":  "1850b9c1388012f635a69e7fb188c742e80071a07cda61cc4109655f4091f810",
+                      "bytes":  1057
+                  },
+                  {
+                      "attribute":  "href",
+                      "source_reference":  "../runs/memorymaze3d/full_transformer_sealed_v1/REPORT_CN.md",
+                      "target_reference":  "REPORT_CN.md",
+                      "sha256":  "f11fb607ee05054a7283e8b30cd9116c76eb5e0e941efed13dccfab990df6748",
+                      "bytes":  2125
+                  },
+                  {
+                      "attribute":  "href",
+                      "source_reference":  "../runs/memorymaze3d/full_transformer_sealed_v1/summary.json",
+                      "target_reference":  "full_transformer_sealed_v1_summary.json",
+                      "sha256":  "8b6327a5206a0da184bfe8ec1795ddce6ef036ca1a194d5b07ca6ce46fa70269",
+                      "bytes":  9100
                   },
                   {
                       "attribute":  "href",
@@ -1459,8 +1501,8 @@
                       "attribute":  "href",
                       "source_reference":  "REMAP_FORMER_NEXT_2D_3D_EXECUTION_REPORT_CN.md",
                       "target_reference":  "REMAP_FORMER_NEXT_2D_3D_EXECUTION_REPORT_CN.md",
-                      "sha256":  "82a474efad6bee0a905fd797edf6be91b3ba12043accb3d3e6c15c3f08040633",
-                      "bytes":  24577
+                      "sha256":  "99deb23f143c513f52bdb63f4ce4a185aec3573a3f856d709af37db18e3af869",
+                      "bytes":  28565
                   },
                   {
                       "attribute":  "href",
@@ -1524,6 +1566,13 @@
                       "target_reference":  "figures/memorymaze3d_dino_d0_conflict_patch.png",
                       "sha256":  "7a8acdc2048d9ad9021e0e92657c9725167176ca27d4eb91d26710e2cf95e1d2",
                       "bytes":  52299
+                  },
+                  {
+                      "attribute":  "src",
+                      "source_reference":  "figures/memorymaze3d_full_transformer_sealed_comparison.png",
+                      "target_reference":  "figures/memorymaze3d_full_transformer_sealed_comparison.png",
+                      "sha256":  "8d5fa4b815b2b9e1847281b06ddbe2a6f96e39c0c02cb86d2b840750295d4be3",
+                      "bytes":  137713
                   },
                   {
                       "attribute":  "src",

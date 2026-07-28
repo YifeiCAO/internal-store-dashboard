@@ -1,0 +1,19 @@
+{
+  "format": "remap_former.memorymaze3d_waypoint_full_transformer_post_eval_report_erratum.v1",
+  "status": "REPORT_ONLY_ERRATUM",
+  "sealed_summary": {
+    "path": "D:\\brain_inspired_transformer\\runs\\memorymaze3d\\full_transformer_sealed_v1\\summary.json",
+    "sha256": "8b6327a5206a0da184bfe8ec1795ddce6ef036ca1a194d5b07ca6ce46fa70269",
+    "modified": false
+  },
+  "frozen_evaluator": {
+    "path": "D:\\brain_inspired_transformer\\evaluate_memorymaze3d_waypoint_full_transformer_sealed.py",
+    "sha256": "99cd07f8d2f13029ddb55415a3330366d695c86ce5baa11798c49ff14b3427af",
+    "modified": false
+  },
+  "failure": "The one-time evaluator wrote the complete exclusive summary, then the Markdown renderer requested sample_sd from the locked ReMAP reference, whose historical field is named sample_std.",
+  "repair": "Generate Markdown from the already-written summary with a read-only renderer. Do not rerun evaluation.",
+  "model_forward_passes_after_summary_write": 0,
+  "optimizer_steps_after_summary_write": 0,
+  "checkpoint_reselection": false
+}

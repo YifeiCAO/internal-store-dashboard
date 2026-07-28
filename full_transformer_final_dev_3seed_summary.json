@@ -1,0 +1,122 @@
+{
+  "format": "remap_former.memorymaze3d_waypoint_full_transformer_final_dev_3seed.v1",
+  "status": "FINAL_DEV_3SEED_COMPLETE",
+  "freeze": "D:\\brain_inspired_transformer\\protocols\\memorymaze3d_waypoint_full_transformer_final_dev_freeze_v1.json",
+  "freeze_sha256": "328e0552e2545836279ada9317cb009b66eb550c72933aea41359f34d1234c09",
+  "sealed_metrics_read": false,
+  "selected_configuration": {
+    "variant": "full_pm_write",
+    "learning_rate": 0.001,
+    "dim_model": 80,
+    "layers": 2,
+    "heads": 8,
+    "feedforward": 216,
+    "attention_window": null,
+    "use_write_flag": true,
+    "trainable_parameters": 217360,
+    "ratio_to_remap_trainable": 0.8916053079557807,
+    "selection_mean_conflict_pairwise_acc": 0.6875,
+    "selection_mean_conflict_target_cosine": 0.8840110699335734,
+    "selection_mean_clean_query_cosine": 0.9316572993993759
+  },
+  "runs": [
+    {
+      "seed": 67101,
+      "best_step": 900,
+      "result_path": "D:\\brain_inspired_transformer\\runs\\memorymaze3d\\full_transformer_final_dev_3seed\\seed67101\\result.json",
+      "result_sha256": "2cbfa0a7a5d117c46fa391a4b7490b268d242be95c09675947ffc0d468183807",
+      "checkpoint_path": "D:\\brain_inspired_transformer\\runs\\memorymaze3d\\full_transformer_final_dev_3seed\\seed67101\\best_dev.pt",
+      "checkpoint_sha256": "cf7a74e9e2f74ca5d483e60a9853555cf705c4d3d72a6437ecfd5a4822b03be9",
+      "elapsed_seconds": 24.5936649000505,
+      "peak_cuda_memory_bytes": 144844800,
+      "conflict_pairwise_acc": 0.625,
+      "other_context_target_rate": 0.375,
+      "conflict_cosine_margin": 0.007291441162427266,
+      "conflict_target_cosine": 0.9125881195068359,
+      "clean_query_cosine": 0.9413478672504425,
+      "query_cosine": 0.919778048992157,
+      "paired_counterfactual_prediction_cosine": 0.990542396903038,
+      "query_count": 32.0,
+      "conflict_count": 24.0,
+      "clean_count": 8.0,
+      "future_ground_truth_reads": 0,
+      "future_ground_truth_writes": 0
+    },
+    {
+      "seed": 67102,
+      "best_step": 25,
+      "result_path": "D:\\brain_inspired_transformer\\runs\\memorymaze3d\\full_transformer_final_dev_3seed\\seed67102\\result.json",
+      "result_sha256": "330bcd792541e02b6da77cd248e3e80209cc621f2c41418dccc6899db6b5fd07",
+      "checkpoint_path": "D:\\brain_inspired_transformer\\runs\\memorymaze3d\\full_transformer_final_dev_3seed\\seed67102\\best_dev.pt",
+      "checkpoint_sha256": "a6e84338ea0e2911c8d86049f2893ecdbd4c5a2dc9412c88c0b492a731d32d5b",
+      "elapsed_seconds": 24.458305199979804,
+      "peak_cuda_memory_bytes": 144844800,
+      "conflict_pairwise_acc": 0.6666666666666666,
+      "other_context_target_rate": 0.3333333333333333,
+      "conflict_cosine_margin": 0.008321901162465414,
+      "conflict_target_cosine": 0.8426377773284912,
+      "clean_query_cosine": 0.9075755476951599,
+      "query_cosine": 0.8588722050189972,
+      "paired_counterfactual_prediction_cosine": 1.0,
+      "query_count": 32.0,
+      "conflict_count": 24.0,
+      "clean_count": 8.0,
+      "future_ground_truth_reads": 0,
+      "future_ground_truth_writes": 0
+    },
+    {
+      "seed": 67103,
+      "best_step": 150,
+      "result_path": "D:\\brain_inspired_transformer\\runs\\memorymaze3d\\full_transformer_final_dev_3seed\\seed67103\\result.json",
+      "result_sha256": "04e413442d2c90e8fdde7fa645ba0e99a7816610c2eb068a687f293c826b773e",
+      "checkpoint_path": "D:\\brain_inspired_transformer\\runs\\memorymaze3d\\full_transformer_final_dev_3seed\\seed67103\\best_dev.pt",
+      "checkpoint_sha256": "68ab3b7e194a811f7578435fdd1f2902eaf104cf68138dfa13b6cea0933ba5a7",
+      "elapsed_seconds": 24.374472100054845,
+      "peak_cuda_memory_bytes": 144844800,
+      "conflict_pairwise_acc": 0.6666666666666666,
+      "other_context_target_rate": 0.3333333333333333,
+      "conflict_cosine_margin": 0.002277498443921407,
+      "conflict_target_cosine": 0.9062759478886923,
+      "clean_query_cosine": 0.924783855676651,
+      "query_cosine": 0.9109029173851013,
+      "paired_counterfactual_prediction_cosine": 0.9999997317790985,
+      "query_count": 32.0,
+      "conflict_count": 24.0,
+      "clean_count": 8.0,
+      "future_ground_truth_reads": 0,
+      "future_ground_truth_writes": 0
+    }
+  ],
+  "development_validation_aggregate": {
+    "conflict_pairwise_acc": {
+      "mean": 0.6527777777777778,
+      "sample_sd": 0.024056261216234387,
+      "minimum": 0.625,
+      "maximum": 0.6666666666666666
+    },
+    "conflict_target_cosine": {
+      "mean": 0.8871672815746732,
+      "sample_sd": 0.03869261478554112,
+      "minimum": 0.8426377773284912,
+      "maximum": 0.9125881195068359
+    },
+    "clean_query_cosine": {
+      "mean": 0.9245690902074178,
+      "sample_sd": 0.016887184051555544,
+      "minimum": 0.9075755476951599,
+      "maximum": 0.9413478672504425
+    },
+    "query_cosine": {
+      "mean": 0.8965177237987518,
+      "sample_sd": 0.03290259569408292,
+      "minimum": 0.8588722050189972,
+      "maximum": 0.919778048992157
+    },
+    "paired_counterfactual_prediction_cosine": {
+      "mean": 0.9968473762273788,
+      "sample_sd": 0.005460272266861748,
+      "minimum": 0.990542396903038,
+      "maximum": 1.0
+    }
+  }
+}

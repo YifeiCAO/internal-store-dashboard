@@ -487,3 +487,90 @@ learned-policy rollout 和 feature world model。
   `reports/MEMORYMAZE3D_SIMULATOR_TRANSLATED_WAYPOINT_ABA_SEALED_3SEED_CN.md`
 - 主图：
   `reports/figures/memorymaze3d_translated_waypoint_sealed_3seed.png`
+
+## 14. Full-context Transformer Matched Baseline
+
+本节在第 13 节 ReMAP-Former sealed 结果完成后执行。baseline 开发搜索、
+第二 seed 复核、最终三 seed 和 sealed 评估均分阶段冻结；sealed baseline
+结果没有参与模型大小、学习率或 checkpoint selection。
+
+### 为什么这次不是弱 Window Transformer
+
+- 真正的 causal full attention，最早 query `t=269` 可直接访问第 `0` 步；
+- 参数匹配版 `217,360` trainable parameters，约为 ReMAP 可训练参数的
+  `0.892x`；
+- 同时开发比较了 `891,008` 参数的 4 层强容量版，它没有取得更好的
+  两 seed development 均值；
+- 最终模型获得与 ReMAP 相同的外部 binary write event；
+- 仍然不获得 context/room/pose/place/query mask/target source index；
+- future ground-truth read/write 为 `0/0`。
+
+预注册 development sweep 共保留 `9/9` 运行。前两名在 seed 67002
+复核后，按两 seed validation 均值和冻结 tie-break 选择
+`full_pm_write, lr=1e-3`，再独立训练 seed `67101/67102/67103`。
+
+### Final development 三种子
+
+| Seed | Conflict | Target cosine | Clean cosine |
+|---:|---:|---:|---:|
+| `67101` | `0.6250` | `0.9126` | `0.9413` |
+| `67102` | `0.6667` | `0.8426` | `0.9076` |
+| `67103` | `0.6667` | `0.9063` | `0.9248` |
+| **Mean ± SD** | **`0.6528 ± 0.0241`** | **`0.8872 ± 0.0387`** | **`0.9246 ± 0.0169`** |
+
+### 一次性 Fresh Sealed 结果
+
+三 checkpoint 哈希在评估前冻结。独立 preflight 验证父任务锁、数据、
+DINO cache、代码、checkpoint、full-history reachability、严格因果与
+future GT；所有 gate 通过且 `performance_metrics_read=false` 后，才
+执行唯一一次 performance evaluation。
+
+| 模型 | Conflict mean ± sample SD | Target cosine | Clean cosine | Conflict margin |
+|---|---:|---:|---:|---:|
+| **ReMAP-Former** | **`0.9774 ± 0.0060`** | **`0.9519`** | **`0.9931`** | **`0.0868`** |
+| Full Transformer | `0.5295 ± 0.0030` | `0.8951` | `0.9103` | `0.0036` |
+
+ReMAP minus Transformer conflict gap 为 **`0.4479`**。Full Transformer
+的 target cosine 仍然较高，但 context conflict 只略高于 chance；
+paired A-B-A / B-A-B 输出 cosine 为 `0.9939`。这支持一个更具体的
+失败解释：它能形成合理的视觉内容预测，却没有稳定学习
+context-conditioned binding。该差距不能归因于看不到远处历史或没有
+write 标记。
+
+### 报告勘误
+
+一次性 evaluator 已先成功写入独占 sealed summary，随后只在生成中文
+Markdown 时因旧 ReMAP 字段名为 `sample_std`、新 renderer 请求
+`sample_sd` 而退出。没有重跑 sealed；只读 renderer 验证 summary
+SHA256 后生成报告，并单独记录 post-eval erratum。
+
+### 新增关键产物
+
+- baseline 总协议：
+  `protocols/memorymaze3d_waypoint_full_transformer_baseline_v1.json`
+- final development freeze：
+  `protocols/memorymaze3d_waypoint_full_transformer_final_dev_freeze_v1.json`
+- sealed baseline 协议：
+  `protocols/memorymaze3d_waypoint_full_transformer_sealed_v1.json`
+- final development 三种子汇总：
+  `runs/memorymaze3d/full_transformer_final_dev_3seed/summary.json`
+- sealed preflight：
+  `runs/memorymaze3d/full_transformer_sealed_v1/preflight.json`
+- sealed 机器结果：
+  `runs/memorymaze3d/full_transformer_sealed_v1/summary.json`
+- sealed 中文报告：
+  `runs/memorymaze3d/full_transformer_sealed_v1/REPORT_CN.md`
+- sealed 报告勘误：
+  `runs/memorymaze3d/full_transformer_sealed_v1/POST_EVAL_REPORT_ERRATUM.json`
+- 对比图：
+  `reports/figures/memorymaze3d_full_transformer_sealed_comparison.png`
+
+### 更新后的下一步
+
+Full-context Transformer 这一最重要的“是否只是 window 太短”替代解释
+已经被排除。下一批不再堆弱控制组，优先做：
+
+1. generic write-event KV cross-attention memory；
+2. 官方 Gated DeltaNet；
+3. 忠实 Hippoformer task adaptation；
+4. 最后再做 learned-policy free rollout 与长度/容量扩展。

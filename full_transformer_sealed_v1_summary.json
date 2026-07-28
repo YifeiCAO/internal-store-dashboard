@@ -1,0 +1,267 @@
+{
+  "format": "remap_former.memorymaze3d_waypoint_full_transformer_sealed_3seed.v1",
+  "status": "SEALED_BASELINE_3SEED_COMPLETE",
+  "protocol": {
+    "path": "D:\\brain_inspired_transformer\\protocols\\memorymaze3d_waypoint_full_transformer_sealed_v1.json",
+    "sha256": "c621af6c6a54aa5878eb8d32675db51006313c947bdb486359c135a8fc504ff1"
+  },
+  "preflight": {
+    "path": "D:\\brain_inspired_transformer\\runs\\memorymaze3d\\full_transformer_sealed_v1\\preflight.json",
+    "sha256": "a14f3c705cff095554900532a449449b6b6daff107102fdcf7e54ff6a06f1a1b",
+    "status": "PASS"
+  },
+  "selected_configuration": {
+    "variant": "full_pm_write",
+    "learning_rate": 0.001,
+    "attention_window": null,
+    "use_write_flag": true,
+    "trainable_parameters": 217360,
+    "selection_source": "development only"
+  },
+  "per_seed": [
+    {
+      "seed": 67101,
+      "checkpoint_path": "D:\\brain_inspired_transformer\\runs\\memorymaze3d\\full_transformer_final_dev_3seed\\seed67101\\best_dev.pt",
+      "checkpoint_sha256": "cf7a74e9e2f74ca5d483e60a9853555cf705c4d3d72a6437ecfd5a4822b03be9",
+      "development_selected_validation": {
+        "conflict_pairwise_acc": 0.625,
+        "other_context_target_rate": 0.375,
+        "conflict_cosine_margin": 0.007291441162427266,
+        "conflict_target_cosine": 0.9125881195068359,
+        "clean_query_cosine": 0.9413478672504425,
+        "query_cosine": 0.919778048992157,
+        "paired_counterfactual_prediction_cosine": 0.990542396903038,
+        "query_count": 32.0,
+        "conflict_count": 24.0,
+        "clean_count": 8.0,
+        "future_ground_truth_reads": 0,
+        "future_ground_truth_writes": 0
+      },
+      "conflict_pairwise_acc": 0.53125,
+      "other_context_target_rate": 0.46875,
+      "conflict_cosine_margin": 0.00559456708530585,
+      "conflict_target_cosine": 0.9157098432381948,
+      "clean_query_cosine": 0.9281872175633907,
+      "query_cosine": 0.9188291877508163,
+      "paired_counterfactual_prediction_cosine": 0.981754107400775,
+      "query_count": 256.0,
+      "conflict_count": 192.0,
+      "clean_count": 64.0,
+      "future_ground_truth_reads": 0,
+      "future_ground_truth_writes": 0
+    },
+    {
+      "seed": 67102,
+      "checkpoint_path": "D:\\brain_inspired_transformer\\runs\\memorymaze3d\\full_transformer_final_dev_3seed\\seed67102\\best_dev.pt",
+      "checkpoint_sha256": "a6e84338ea0e2911c8d86049f2893ecdbd4c5a2dc9412c88c0b492a731d32d5b",
+      "development_selected_validation": {
+        "conflict_pairwise_acc": 0.6666666666666666,
+        "other_context_target_rate": 0.3333333333333333,
+        "conflict_cosine_margin": 0.008321901162465414,
+        "conflict_target_cosine": 0.8426377773284912,
+        "clean_query_cosine": 0.9075755476951599,
+        "query_cosine": 0.8588722050189972,
+        "paired_counterfactual_prediction_cosine": 1.0,
+        "query_count": 32.0,
+        "conflict_count": 24.0,
+        "clean_count": 8.0,
+        "future_ground_truth_reads": 0,
+        "future_ground_truth_writes": 0
+      },
+      "conflict_pairwise_acc": 0.53125,
+      "other_context_target_rate": 0.46875,
+      "conflict_cosine_margin": 0.0031035998836159706,
+      "conflict_target_cosine": 0.8607068657875061,
+      "clean_query_cosine": 0.882814921438694,
+      "query_cosine": 0.8662338964641094,
+      "paired_counterfactual_prediction_cosine": 1.0000000037252903,
+      "query_count": 256.0,
+      "conflict_count": 192.0,
+      "clean_count": 64.0,
+      "future_ground_truth_reads": 0,
+      "future_ground_truth_writes": 0
+    },
+    {
+      "seed": 67103,
+      "checkpoint_path": "D:\\brain_inspired_transformer\\runs\\memorymaze3d\\full_transformer_final_dev_3seed\\seed67103\\best_dev.pt",
+      "checkpoint_sha256": "68ab3b7e194a811f7578435fdd1f2902eaf104cf68138dfa13b6cea0933ba5a7",
+      "development_selected_validation": {
+        "conflict_pairwise_acc": 0.6666666666666666,
+        "other_context_target_rate": 0.3333333333333333,
+        "conflict_cosine_margin": 0.002277498443921407,
+        "conflict_target_cosine": 0.9062759478886923,
+        "clean_query_cosine": 0.924783855676651,
+        "query_cosine": 0.9109029173851013,
+        "paired_counterfactual_prediction_cosine": 0.9999997317790985,
+        "query_count": 32.0,
+        "conflict_count": 24.0,
+        "clean_count": 8.0,
+        "future_ground_truth_reads": 0,
+        "future_ground_truth_writes": 0
+      },
+      "conflict_pairwise_acc": 0.5260416666666666,
+      "other_context_target_rate": 0.4739583333333333,
+      "conflict_cosine_margin": 0.002237671986222267,
+      "conflict_target_cosine": 0.9089252402385076,
+      "clean_query_cosine": 0.9198463745415211,
+      "query_cosine": 0.9116555266082287,
+      "paired_counterfactual_prediction_cosine": 0.9999999031424522,
+      "query_count": 256.0,
+      "conflict_count": 192.0,
+      "clean_count": 64.0,
+      "future_ground_truth_reads": 0,
+      "future_ground_truth_writes": 0
+    }
+  ],
+  "aggregate": {
+    "conflict_pairwise_acc": {
+      "values": [
+        0.53125,
+        0.53125,
+        0.5260416666666666
+      ],
+      "mean": 0.5295138888888888,
+      "sample_sd": 0.0030070326520293222,
+      "minimum": 0.5260416666666666,
+      "maximum": 0.53125,
+      "n": 3
+    },
+    "other_context_target_rate": {
+      "values": [
+        0.46875,
+        0.46875,
+        0.4739583333333333
+      ],
+      "mean": 0.4704861111111111,
+      "sample_sd": 0.00300703265202929,
+      "minimum": 0.46875,
+      "maximum": 0.4739583333333333,
+      "n": 3
+    },
+    "conflict_cosine_margin": {
+      "values": [
+        0.00559456708530585,
+        0.0031035998836159706,
+        0.002237671986222267
+      ],
+      "mean": 0.003645279651714696,
+      "sample_sd": 0.0017427704682311039,
+      "minimum": 0.002237671986222267,
+      "maximum": 0.00559456708530585,
+      "n": 3
+    },
+    "conflict_target_cosine": {
+      "values": [
+        0.9157098432381948,
+        0.8607068657875061,
+        0.9089252402385076
+      ],
+      "mean": 0.8951139830880696,
+      "sample_sd": 0.029989914974319097,
+      "minimum": 0.8607068657875061,
+      "maximum": 0.9157098432381948,
+      "n": 3
+    },
+    "clean_query_cosine": {
+      "values": [
+        0.9281872175633907,
+        0.882814921438694,
+        0.9198463745415211
+      ],
+      "mean": 0.9102828378478686,
+      "sample_sd": 0.024150719233077107,
+      "minimum": 0.882814921438694,
+      "maximum": 0.9281872175633907,
+      "n": 3
+    },
+    "query_cosine": {
+      "values": [
+        0.9188291877508163,
+        0.8662338964641094,
+        0.9116555266082287
+      ],
+      "mean": 0.8989062036077181,
+      "sample_sd": 0.028521484780983923,
+      "minimum": 0.8662338964641094,
+      "maximum": 0.9188291877508163,
+      "n": 3
+    },
+    "paired_counterfactual_prediction_cosine": {
+      "values": [
+        0.981754107400775,
+        1.0000000037252903,
+        0.9999999031424522
+      ],
+      "mean": 0.9939180047561725,
+      "sample_sd": 0.01053424411892067,
+      "minimum": 0.981754107400775,
+      "maximum": 1.0000000037252903,
+      "n": 3
+    }
+  },
+  "remap_reference_artifact": {
+    "path": "D:\\brain_inspired_transformer\\runs\\memorymaze3d\\simulator_translated_waypoint_aba_sealed_v1\\summary.json",
+    "sha256": "6607d9b7dc3ace7c6921707704c2d534276ea2124cc236f07d0420948d4f3143",
+    "bytes": 97474
+  },
+  "remap_reference": {
+    "conflict_pairwise_acc": {
+      "values": [
+        0.984375,
+        0.9739583333333334,
+        0.9739583333333334
+      ],
+      "mean": 0.9774305555555557,
+      "sample_std": 0.00601406530405858,
+      "min": 0.9739583333333334,
+      "max": 0.984375,
+      "n": 3
+    },
+    "conflict_target_cosine": {
+      "values": [
+        0.9881841440995535,
+        0.9332438906033834,
+        0.934243823091189
+      ],
+      "mean": 0.9518906192647086,
+      "sample_std": 0.03143509066231821,
+      "min": 0.9332438906033834,
+      "max": 0.9881841440995535,
+      "n": 3
+    },
+    "clean_query_cosine": {
+      "values": [
+        0.9905662387609482,
+        0.9912908971309662,
+        0.9973327778279781
+      ],
+      "mean": 0.9930633045732975,
+      "sample_std": 0.0037151828814520316,
+      "min": 0.9905662387609482,
+      "max": 0.9973327778279781,
+      "n": 3
+    },
+    "query_cosine": {
+      "values": [
+        0.9887796714901924,
+        0.9477556571364403,
+        0.9500160664319992
+      ],
+      "mean": 0.9621837983528773,
+      "sample_std": 0.023060414425980773,
+      "min": 0.9477556571364403,
+      "max": 0.9887796714901924,
+      "n": 3
+    }
+  },
+  "comparison": {
+    "remap_minus_transformer_conflict": 0.44791666666666685,
+    "remap_minus_transformer_target_cosine": 0.056776636176639084,
+    "remap_minus_transformer_clean_cosine": 0.08278046672542894
+  },
+  "sealed_checkpoint_reselection": false,
+  "sealed_optimizer_steps": 0,
+  "future_ground_truth_reads": 0,
+  "future_ground_truth_writes": 0,
+  "claim_boundary": "One-time matched full-context Transformer baseline on the frozen translated waypoint sealed task. Not learned-policy free rollout or RGB generation."
+}

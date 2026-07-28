@@ -111,7 +111,7 @@
 
     .status-grid {
       display: grid;
-      grid-template-columns: 1.55fr repeat(3, minmax(0, 1fr));
+      grid-template-columns: 1.55fr repeat(4, minmax(0, 1fr));
       gap: 10px;
       margin-top: 16px;
     }
@@ -485,6 +485,7 @@
       </div>
       <nav aria-label="看板分区">
         <a href="#next-2d3d">3D Simulator 最新</a>
+        <a href="#full-transformer">全历史基线</a>
         <a href="#model-core">C3-C6 当前核心</a>
         <a href="#memorymaze3d">视觉 3D 正式结果</a>
         <a href="#paper-package">论文证据包</a>
@@ -520,7 +521,7 @@
         <article class="status-card primary">
           <h2>当前主线</h2>
           <strong>MemoryMaze3D 真实平移 Waypoint A-B-A 已通过 Fresh Sealed 三种子盲测</strong>
-          <p>三个 development checkpoint 原样冻结、零重训、零重选，在 32 个新 layout、32 条新物理路径、32 个新 context-object 绑定和预留 route bank 上一次性评估；Full conflict 0.9774 ± 0.0060，最差种子 0.9740。</p>
+          <p>三个 development checkpoint 原样冻结、零重训、零重选，在 32 个新 layout、32 条新物理路径、32 个新 context-object 绑定和预留 route bank 上一次性评估；Full conflict 0.9774 ± 0.0060。新增 matched full-context Transformer 密封基线仅 0.5295 ± 0.0030。</p>
           <div class="badge-row">
             <span class="badge"><span class="dot blue"></span>Transformer 就是 PFC</span>
             <span class="badge"><span class="dot blue"></span>4 个 neural place</span>
@@ -550,12 +551,17 @@
           <strong>0.785 ± 0.042</strong>
           <p>错误历史定向翻到另一 context 内容；Full 的 other-target 仅 0.023</p>
         </article>
+        <article class="status-card hold">
+          <h2>全历史 Transformer</h2>
+          <strong>0.530 ± 0.003</strong>
+          <p>真实 full causal attention + matched write flag；相对 ReMAP 差 0.448</p>
+        </article>
       </div>
 
       <section>
         <div class="decision">
-          <strong>当前决策：Fresh Sealed 已通过；下一站是同一锁定任务上的 matched baselines</strong>
-          <p>这份 sealed split 永久退出调参和 checkpoint selection。下一步固定同一 DINO、数据、query、训练预算与评测口径，依次比较 Window Transformer、普通 fast-weight、Hippoformer 和 Titans/MAC；随后再单独推进 learned-policy free rollout 与 feature world model。</p>
+          <strong>当前决策：全历史 Transformer 已完成，长窗口不足以替代显式的 context-conditioned memory</strong>
+          <p>同一冻结 DINO、数据、query 与评测口径下，217,360 参数的全历史 Transformer 在 fresh sealed conflict 上只有 0.5295，而 ReMAP 为 0.9774。下一步补通用 write-event KV 外挂记忆、官方 Gated DeltaNet 与忠实 Hippoformer 适配，检验优势究竟来自“有外存”还是 ReMAP 的 place × context 双地址结构。</p>
         </div>
       </section>
 
@@ -581,6 +587,14 @@
             <img class="result-figure" src="figures/memorymaze3d_translated_waypoint_sealed_3seed.png" alt="Fresh sealed 真实平移 Waypoint A-B-A 三种子六条件因果干预、development 对照与内容 cosine" />
           </div>
           <p style="margin-top:10px;">三个冻结 checkpoint 均通过 9/9 gate。Full conflict 最差 0.9740；HPC-zero 精确回到 0.5，fixed-context 与 wrong-history 降至 0.2031 / 0.2153；context oracle 为 0.9948。sealed 从未参与训练、阈值选择或 checkpoint 重选。</p>
+        </article>
+
+        <article class="panel" id="full-transformer" style="margin-top:12px;">
+          <h3>Matched Full-context Transformer：能看完整历史，仍不会稳定绑定 context</h3>
+          <div class="figure-scroll">
+            <img class="result-figure" src="figures/memorymaze3d_full_transformer_sealed_comparison.png" alt="ReMAP-Former 与全历史 Transformer 在 fresh sealed context conflict、target cosine 和 clean cosine 上的三种子对比" />
+          </div>
+          <p style="margin-top:10px;">基线使用真正的 full causal attention、RoPE、Pre-RMSNorm、SwiGLU，并额外给出与 ReMAP 对齐的 write-event 二值标记；它没有 room、context、pose、place、query mask、target 或 source index。参数量 217,360，对 ReMAP 的 243,785 为 0.892×。64 条全新密封序列 × 384 actions、三个冻结开发种子下，conflict 为 0.5295 ± 0.0030，target cosine 为 0.8951 ± 0.0300，clean cosine 为 0.9103 ± 0.0242；paired counterfactual 输出 cosine 高达 0.9939。结论不是“Transformer 看不见早期历史”，而是它看见了，却几乎不随正确历史切换内容。</p>
         </article>
 
         <article class="panel" style="margin-top:12px;">
@@ -700,19 +714,26 @@
                 <tr><td data-label="命题">多位置 3D Visual A-B-A</td><td data-label="等级" class="green">核心机制 3/3</td><td data-label="边界">development validation 已查看</td></tr>
                 <tr><td data-label="命题">真实平移 simulator-coupled 调用</td><td data-label="等级" class="green">Fresh sealed 3 × 9/9</td><td data-label="边界">3 m、4 waypoint、32 新 layout</td></tr>
                 <tr><td data-label="命题">Neural place × context 调用</td><td data-label="等级" class="green">因果支持 3/3</td><td data-label="边界">Full 最差 0.974；HPC-zero 0.5；wrong-history 定向</td></tr>
+                <tr><td data-label="命题">Matched full-context Transformer</td><td data-label="等级" class="green">Fresh sealed 3 seeds</td><td data-label="边界">0.5295 ± 0.0030；ReMAP 为 0.9774 ± 0.0060</td></tr>
                 <tr><td data-label="命题">完整 3D world model</td><td data-label="等级" class="red">未解决</td><td data-label="边界">无 learned policy / RGB rollout / 新物体类别</td></tr>
                 <tr><td data-label="命题">Outer-product 唯一必要</td><td data-label="等级" class="red">未成立</td><td data-label="边界">需 full-model intervention</td></tr>
-                <tr><td data-label="命题">公平击败 Hippoformer/Titans</td><td data-label="等级" class="amber">未检验完成</td><td data-label="边界">需同预算 fresh blind</td></tr>
+                <tr><td data-label="命题">公平击败 Hippoformer/Titans</td><td data-label="等级" class="amber">仍未检验完成</td><td data-label="边界">Full Transformer 已完成；Hippoformer / Gated DeltaNet 待补</td></tr>
               </tbody>
             </table>
             <div class="decision" style="margin-top:12px;">
-              <strong>下一步：matched baselines，然后扩 learned-policy rollout</strong>
-              <p>锁定同一 fresh sealed 数据和评测脚本，先完成 Window Transformer、普通 fast-weight、Hippoformer、Titans/MAC 的同预算比较。baseline 完成前不再改主模型；之后把 generator-only 路径执行替换成 learned policy，并另立 rollout 协议。</p>
+              <strong>下一步：先拆清“外存优势”与“ReMAP 地址优势”</strong>
+              <p>保持同一任务和 sealed evaluator，依次完成通用 write-event KV 外挂记忆、官方 Gated DeltaNet、忠实 Hippoformer 适配。三者结束后再推进 learned-policy free rollout 与规模实验，避免把模型机制、控制器和世界模型三个问题混在同一张表里。</p>
             </div>
           </article>
         </div>
 
         <div class="artifact-grid" style="margin-top:12px;">
+          <a class="artifact" href="REPORT_CN.md"><strong>最新：全历史 Transformer 密封报告</strong><span>完整历史、matched write flag、三种子 fresh sealed 结果、与 ReMAP 的固定对照和解释边界</span></a>
+          <a class="artifact" href="full_transformer_sealed_v1_summary.json"><strong>全历史 Transformer 密封机器汇总</strong><span>逐种子 conflict / cosine / counterfactual 指标、冻结哈希与 ReMAP 差值</span></a>
+          <a class="artifact" href="memorymaze3d_waypoint_full_transformer_sealed_v1.json"><strong>全历史 Transformer 密封协议</strong><span>三份开发 checkpoint、一次性评测规则、输入禁令与 provenance</span></a>
+          <a class="artifact" href="full_transformer_final_dev_3seed_summary.json"><strong>全历史 Transformer 开发冻结结果</strong><span>三种子开发选择依据、优化结果和 sealed 前冻结记录</span></a>
+          <a class="artifact" href="full_context_transformer.py"><strong>全历史 Transformer 核心代码</strong><span>RoPE、Pre-RMSNorm、SwiGLU、full causal SDPA 与参数匹配配置</span></a>
+          <a class="artifact" href="POST_EVAL_REPORT_ERRATUM.json"><strong>密封报告渲染勘误</strong><span>summary 落盘后 Markdown 字段名报错；未重跑、未重选，仅只读补报告</span></a>
           <a class="artifact" href="MEMORYMAZE3D_SIMULATOR_TRANSLATED_WAYPOINT_ABA_SEALED_3SEED_CN.md"><strong>最新：Fresh Sealed 三种子中文报告</strong><span>32 个新 layout / 物理路径 / assignment、零重训重选、逐 seed 9/9 gates 与边界</span></a>
           <a class="artifact" href="simulator_translated_waypoint_aba_sealed_v1_summary.json"><strong>最新：Fresh Sealed 机器汇总</strong><span>六条件逐 seed 指标、均值/SD、开发对照、因果 gates 与视觉审计</span></a>
           <a class="artifact" href="memorymaze3d_simulator_translated_waypoint_aba_sealed_v1.json"><strong>Fresh Sealed 预注册协议</strong><span>在测试生成前冻结的 split、哈希、阈值、停止规则与 claim boundary</span></a>
